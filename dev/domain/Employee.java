@@ -14,7 +14,7 @@ public class Employee {
     private double salary;
     private String terms;
     private Date startDate;
-    private List<Role> creditRoles;
+    private List<Role> certifiedRoles;
 
 
     public Employee(String name, int id, int bankAccount, double salary, String terms, Date startDate) {
@@ -24,12 +24,12 @@ public class Employee {
         this.salary = salary;
         this.terms = terms;
         this.startDate = startDate;
-        this.creditRoles = new ArrayList<>();
+        this.certifiedRoles = new ArrayList<>();
     }
 
     public void AddRole(Role role) {
         if (role != null) {
-            this.creditRoles.add(role);
+            this.certifiedRoles.add(role);
         }
     }
 
@@ -74,6 +74,6 @@ public class Employee {
     }
 
     public List<Role> getCreditRoles() {
-        return creditRoles;
+        return certifiedRoles;
     }
 }

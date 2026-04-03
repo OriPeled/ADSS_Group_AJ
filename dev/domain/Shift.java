@@ -12,9 +12,21 @@ public class Shift {
     public Shift(shiftType shift, Date shiftDate) {
         this.shift = shift;
         this.shiftDate = shiftDate;
-
     }
-    public void addEmployees(Employee employee){
 
+    public shiftType getShift() {
+        return shift;
+    }
+
+    public void setShift(shiftType shift) {
+        this.shift = shift;
+    }
+
+    public Date getShiftDate() {
+        return shiftDate;
+    }
+
+    public void setShiftDate(Date shiftDate) {
+        this.shiftDate = shiftDate;
     }
 }

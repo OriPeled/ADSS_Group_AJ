@@ -1,11 +1,8 @@
 package dev.domain;
 
 public class Constraint {
-
-
     private Day day;
     private shiftType shiftType;
-
 
     public Constraint(Day day, shiftType shiftType) {
         this.day = day;

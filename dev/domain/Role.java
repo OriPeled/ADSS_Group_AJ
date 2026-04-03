@@ -1,8 +1,6 @@
 package dev.domain;
 
 public class Role {
-
-
     private String Rolename;
 
     public Role(String Rolename) {
