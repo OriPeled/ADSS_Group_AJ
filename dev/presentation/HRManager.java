@@ -38,7 +38,7 @@ public class HRManager {
         }
     }
 
-    
+
     public void addRoleToEmployee(int employeeId, Role role) {
         if (role == null) return;
 
