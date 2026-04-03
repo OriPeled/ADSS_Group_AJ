@@ -1,8 +1,8 @@
-package dev.presentation;
+package dev.Workers.presentation;
 
-import dev.domain.Employee;
-import dev.domain.Role;
-import dev.domain.Shift;
+import dev.Workers.domain.Employee;
+import dev.Workers.domain.Role;
+import dev.Workers.domain.Shift;
 
 import java.util.*;
 
@@ -50,8 +50,6 @@ public class HRManager {
                 break;
             }
         }
-
-
         if (employee == null) {
             return;
         }
@@ -71,7 +69,7 @@ public class HRManager {
         }
     }
     public void removeEmployee(int id) {
-        // מציאת העובד להסרה
+
         Employee toRemove = null;
         for (Employee e : RolesOfEmployee.keySet()) {
             if (e.getId() == id) {

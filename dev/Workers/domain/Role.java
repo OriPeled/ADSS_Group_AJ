@@ -1,4 +1,4 @@
-package dev.domain;
+package dev.Workers.domain;
 
 public class Role {
     private String Rolename;

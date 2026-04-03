@@ -1,4 +1,4 @@
-package dev.domain;
+package dev.Workers.domain;
 
 public enum Day {
     Sunday,
