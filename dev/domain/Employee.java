@@ -14,7 +14,7 @@ public class Employee {
     private double salary;
     private String terms;
     private Date startDate;
-    private List<Role> certifiedRoles;
+ //   private List<Role> certifiedRoles;
 
 
     public Employee(String name, int id, int bankAccount, double salary, String terms, Date startDate) {
@@ -24,14 +24,14 @@ public class Employee {
         this.salary = salary;
         this.terms = terms;
         this.startDate = startDate;
-        this.certifiedRoles = new ArrayList<>();
+       // this.certifiedRoles = new ArrayList<>();
     }
 
-    public void AddRole(Role role) {
-        if (role != null) {
-            this.certifiedRoles.add(role);
-        }
-    }
+  //  public void AddRole(Role role) {
+   //     if (role != null) {
+   //         this.certifiedRoles.add(role);
+    //    }
+   // }
 
     public String getName() {
         return name;
@@ -73,7 +73,7 @@ public class Employee {
         return startDate;
     }
 
-    public List<Role> getCreditRoles() {
-        return certifiedRoles;
-    }
+ //   public List<Role> getCreditRoles() {
+      //  return certifiedRoles;
+   // }
 }
