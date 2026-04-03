@@ -7,6 +7,7 @@ import dev.Workers.domain.Shift;
 import java.util.*;
 
 public class HRManager {
+
     private Map<Shift, Map<Role, List<Employee>>> shifts;
     private List<Role> availableRoles;
     //private Map<Role, Integer> requirements;
