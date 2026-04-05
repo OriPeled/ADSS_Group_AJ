@@ -16,11 +16,6 @@ public class ShiftManager {
      */
     private final IHRService hrService;
 
-    /**
-     * assignments - מבנה הנתונים לשיבוצים (במקום בסיס נתונים)[cite: 91].
-     * המבנה מקשר בין משמרת (Shift) לבין מפה פנימית של תפקידים (Role)
-     * ורשימת מזהי העובדים (IDs) המשובצים לכל תפקיד.
-     */
     private Map<Shift, Map<Role, List<Integer>>> assignments;
 
     /**
