@@ -1,8 +1,4 @@
-package dev.Workers.presentation;
-
-import dev.Workers.domain.Employee;
-import dev.Workers.domain.Role;
-import dev.Workers.domain.Shift;
+package dev.Workers.domain;
 
 import java.util.*;
 
