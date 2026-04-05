@@ -6,12 +6,12 @@ public class EmployeeManager implements IManager<Employee> {
 
 
     private static EmployeeManager instance;
-    private List<Employee> employees;
+    private Map<Integer, Employee> employees;
 
 
 
     private EmployeeManager() {
-        this.employees = new ArrayList<>();
+        this.employees = new HashMap<>();
     }
 
 
@@ -25,9 +25,8 @@ public class EmployeeManager implements IManager<Employee> {
         return getById(id) != null;
     }
     @Override
-    public void add(Employee employee) {
-        employees.add(employee);
-
+    public void add(int id,Employee employee) {
+        employees.put(employee.getId(), employee);
     }
     public void add(String name, int id, int bankAccount, double salary, String terms, Date startDate) {
         if (isEmployee(id)) {
@@ -40,32 +39,23 @@ public class EmployeeManager implements IManager<Employee> {
             throw new IllegalArgumentException("Invalid bank account details.");
         }
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
-        add(newEmp);
+        add(id,newEmp);
     }
 
 
 
 
     public Employee getById(int id){
-        for (Employee employee : employees) {
-            if (employee.getId() == id) {
-                return employee;
-            }
-        }
-        return null;
+        return employees.get(id);
     }
 
     @Override
     public void remove(int id) {
-
-        for (int i = 0; i < employees.size(); i++) {
-            if (employees.remove(i).getId() == id) {
-                //remove from list
-                employees.remove(i);
-            }
+        if (employees.containsKey(id)) {
+            employees.remove(id);
+        } else {
+            throw new NoSuchElementException("Employee ID " + id + " not found.");
         }
-
-
     }
 
 

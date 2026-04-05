@@ -5,7 +5,7 @@ import java.util.Date;
 public interface IManager <T>{
 
 
-    void add(T employee);
+    void add(int id,T t);
     void remove(int id);
     T getById(int id);
 

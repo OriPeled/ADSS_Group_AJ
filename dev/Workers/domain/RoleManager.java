@@ -1,34 +1,59 @@
 package dev.Workers.domain;
+import java.util.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public class RoleManager implements IListManager<Role> {
+    private Map<Integer, List<Role>> employeeRoles = new HashMap<>();
 
-public class RoleManager implements IManager<Role>{
-    private static RoleManager instance;
-    private Map<Integer, List<Role>> employeeRoles;
 
-    private RoleManager() {
-        this.employeeRoles = new HashMap<>();
+    @Override
+    public void addFullList(int id, List<Role> items) {
+        employeeRoles.put(id, items);
     }
-    public static RoleManager getInstance() {
-        if (instance == null) {
-            instance = new RoleManager();
+
+
+    @Override
+    public void addSingleItem(int id, Role role) {
+        if (!employeeRoles.containsKey(id)) {
+            employeeRoles.put(id, new ArrayList<>());
         }
-        return instance;
-    }
-    @Override
-    public void add(Role employee) {
-
+        if (!employeeRoles.get(id).contains(role)) {
+            employeeRoles.get(id).add(role);
+        }
     }
 
-    @Override
-    public void remove(int id) {
-
-    }
 
     @Override
-    public Role getById(int id) {
-        return null;
+    public void removeAll(int id) {
+        employeeRoles.remove(id);
     }
-}
+
+
+    @Override
+    public void removeSingleItem(int id, Role role) {
+        if (employeeRoles.containsKey(id)) {
+            employeeRoles.get(id).remove(role);
+
+            if (employeeRoles.get(id).isEmpty()) {
+                employeeRoles.remove(id);
+            }
+        }
+    }
+
+
+    @Override
+    public List<Role> getListById(int id) {
+        return employeeRoles.getOrDefault(id, new ArrayList<>());
+    }
+
+    public List<Integer> getListByRole(Role role) {
+        List<Integer> qualifiedEmployees = new ArrayList<>();
+        for (Integer id : employeeRoles.keySet()){
+            List<Role> roles = getListById(id);
+            if (roles.contains(role)) {
+                qualifiedEmployees.add(id);
+            }
+
+            }
+        return qualifiedEmployees;
+        }
+    }
