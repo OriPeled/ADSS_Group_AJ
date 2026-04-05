@@ -3,7 +3,7 @@ package dev.Workers.domain;
 
 import java.util.*;
 
-/**
+/**f
  * מחלקת HRManager - מנהלת את מאגר העובדים וההסמכות שלהם.
  * ממומשת כ-Singleton כדי להבטיח מופע יחיד בזיכרון ה-RAM (ללא Database).
  */
