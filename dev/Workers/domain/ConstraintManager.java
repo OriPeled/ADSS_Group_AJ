@@ -59,22 +59,18 @@ public class ConstraintManager implements IListManager<Constraint> {
     public List<Constraint> getListById(int id) {
         return new ArrayList<>(employeeConstraints.getOrDefault(id, new ArrayList<>()));
     }
-    public List<Integer> getEmployeesByConstraint(Constraint constraint){
+
+    public List<Integer> getEmployeesByConstraint(Constraint constraint) {
         List<Integer> qualifiedEmployees = new ArrayList<>();
         for (Integer id : employeeConstraints.keySet()) {
             List<Constraint> constraints = employeeConstraints.get(id);
-            if (constraints.contains(constraint)){
+            if (constraints.contains(constraint)) {
                 qualifiedEmployees.add(id);
             }
 
-            }
-        return qualifiedEmployees;
         }
+        return qualifiedEmployees;
+    }
 
-<<<<<<< Updated upstream
 
-
-=======
-    public void updateFullList(int id) {};
-    public void updateSingleItem(int id) {};
->>>>>>> Stashed changes
+}

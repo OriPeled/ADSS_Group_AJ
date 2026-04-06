@@ -1,11 +1,12 @@
 package dev.Workers.domain;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ShiftRequirements {
+
     private Map<Shift, Map<Role, Integer>> Requirements;
 
 
@@ -13,19 +14,8 @@ public class ShiftRequirements {
         Requirements = new HashMap<>();
     }
 
-    public boolean isManagerExist(Shift shift){
-        if (!Requirements.containsKey(shift)){
-            return false;
-        }
-        Map<Role, Integer> innerMap = Requirements.get(shift);
-        for (Role role :innerMap.keySet()){
-            if(role.getRolename()=="Manager" && innerMap.get(role)>=1){
-                return true;
-            }
-        }
-        return false;
-    }
-    public void add(Shift shift,Role role,int count){
+
+    private void add(Shift shift,Role role,int count){
         if(!Requirements.containsKey(shift)){
             Map<Role, Integer> newInnerMap = new HashMap<>();
             newInnerMap.put(new Role("Manager"), 1);
@@ -38,14 +28,15 @@ public class ShiftRequirements {
     }
 
     public void update(Shift shift, Role role, int count){
-       if (count < 0) {
+        if (count < 0) {
            throw new IllegalArgumentException("Count must be a non-negative number.");
        }
        if (role.getRolename().equals("Manager") && count == 0) {
            throw new IllegalArgumentException("There must be one manager on shift.");
        }
         if (!Requirements.containsKey(shift)){
-            throw new IllegalArgumentException("Shift does not exist.");
+            add(shift, role, count);
+            return;
         }
             if (count == 0) {
                 Requirements.get(shift).remove(role);
@@ -54,6 +45,14 @@ public class ShiftRequirements {
                 Requirements.get(shift).put(role, count);
             }
         }
+
+     public void remove(Shift shift){
+        if (!Requirements.containsKey(shift)){
+            throw new IllegalArgumentException("Shift does not exist.");
+        }
+            Requirements.remove(shift);
+        }
+
     }
 
 
