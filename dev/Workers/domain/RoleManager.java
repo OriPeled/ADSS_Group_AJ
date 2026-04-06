@@ -3,6 +3,9 @@ import java.util.*;
 
 public class RoleManager implements IListManager<Role> {
     private Map<Integer, List<Role>> employeeRoles = new HashMap<>();
+    public RoleManager() {
+        this.employeeRoles.put(1, new ArrayList<>());
+    }
 
 
     @Override
@@ -19,6 +22,19 @@ public class RoleManager implements IListManager<Role> {
         if (!employeeRoles.get(id).contains(role)) {
             employeeRoles.get(id).add(role);
         }
+    }
+    public List<Integer> getAllManagers() {
+        List<Integer> managers = new ArrayList<>();
+        for (Integer id : employeeRoles.keySet()) {
+            List<Role> roles = getListById(id);
+            for (Role role : roles){
+               if (role.getRolename()=="Manager") {
+                   managers.add(id);
+               }
+            }
+
+        }
+        return managers;
     }
 
 
