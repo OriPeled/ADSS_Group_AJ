@@ -13,6 +13,7 @@ public class Employee {
     private String terms;
     private Date startDate;
  //   private List<Role> certifiedRoles;
+ // private List<Constraint>
 
 
     public Employee(String name, int id, int bankAccount, double salary, String terms, Date startDate) {

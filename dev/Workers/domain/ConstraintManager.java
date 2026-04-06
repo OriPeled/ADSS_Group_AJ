@@ -70,7 +70,11 @@ public class ConstraintManager implements IListManager<Constraint> {
             }
         return qualifiedEmployees;
         }
-    }
+
+<<<<<<< Updated upstream
 
 
-
+=======
+    public void updateFullList(int id) {};
+    public void updateSingleItem(int id) {};
+>>>>>>> Stashed changes
