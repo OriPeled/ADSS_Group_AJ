@@ -1,6 +1,5 @@
 package dev.Workers.domain;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +28,10 @@ public class ShiftRequirements {
 
     public void update(Shift shift, Role role, int count){
         if (count < 0) {
-           throw new IllegalArgumentException("Count must be a non-negative number.");
+            System.out.println("Count must be a non-negative number.");
        }
        if (role.getRolename().equals("Manager") && count == 0) {
-           throw new IllegalArgumentException("There must be one manager on shift.");
+           System.out.println("There must be one manager on shift.");
        }
         if (!Requirements.containsKey(shift)){
             add(shift, role, count);
@@ -48,7 +47,7 @@ public class ShiftRequirements {
 
      public void remove(Shift shift){
         if (!Requirements.containsKey(shift)){
-            throw new IllegalArgumentException("Shift does not exist.");
+            System.out.println("Shift does not exist.");
         }
             Requirements.remove(shift);
         }

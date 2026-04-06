@@ -1,5 +1,6 @@
 package dev.Workers.domain;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class HRManager {
@@ -17,8 +18,8 @@ public class HRManager {
         this.shifts = new HashMap<>();
     }
 
-    public void addEmployee(String name, int id, int bankAccount, double salary, String terms, Date startDate) {
-        Employee employee = new Employee(name, id, bankAccount, salary, terms, startDate);
+    public void addEmployee(String name, int id, int bankAccount, double salary, String terms, LocalDate startLocalDate) {
+        Employee employee = new Employee(name, id, bankAccount, salary, terms, startLocalDate);
         if (!checkIfExists(id)){
             RolesOfEmployee.put(employee, new ArrayList<>());
         }

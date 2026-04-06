@@ -1,19 +1,15 @@
 package dev.Workers.domain;
+import java.time.LocalDate;
 import java.util.*;
 
 
 public class EmployeeManager implements IManager<Employee> {
-
-
     private static EmployeeManager instance;
     private Map<Integer, Employee> employees;
-
-
 
     private EmployeeManager() {
         this.employees = new HashMap<>();
     }
-
 
     public static EmployeeManager getInstance() {
         if (instance == null) {
@@ -24,28 +20,27 @@ public class EmployeeManager implements IManager<Employee> {
     public boolean isEmployee(int id) {
         return getById(id) != null;
     }
+
     @Override
     public void add(int id,Employee employee) {
         employees.put(employee.getId(), employee);
     }
-    public void add(String name, int id, int bankAccount, double salary, String terms, Date startDate) {
+
+    public void add(String name, int id, int bankAccount, double salary, String terms, LocalDate startDate) {
         if (isEmployee(id)) {
-            throw new IllegalArgumentException("Employee already work.");
-        }
+            System.out.println("Employee already works.");
+            }
         if (salary <= 0) {
-            throw new IllegalArgumentException("Salary must be a positive number.");
-        }
+            System.out.println("Salary must be a positive number.");
+            }
         if (bankAccount <= 0) {
-            throw new IllegalArgumentException("Invalid bank account details.");
-        }
+            System.out.println("Invalid bank account details.");
+            }
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
         add(id,newEmp);
     }
 
-
-
-
-    public Employee getById(int id){
+    public Employee getById(int id) {
         return employees.get(id);
     }
 
@@ -54,7 +49,7 @@ public class EmployeeManager implements IManager<Employee> {
         if (employees.containsKey(id)) {
             employees.remove(id);
         } else {
-            throw new NoSuchElementException("Employee ID " + id + " not found.");
+            System.out.println("Employee ID " + id + " not found.");
         }
     }
 

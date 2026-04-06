@@ -1,22 +1,19 @@
 package dev.Workers.domain;
 
-
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Employee {
-
-
     private String name;
     private int id;
     private int bankAccount;
     private double salary;
     private String terms;
-    private Date startDate;
+    private LocalDate startDate;
  //   private List<Role> certifiedRoles;
  // private List<Constraint>
 
 
-    public Employee(String name, int id, int bankAccount, double salary, String terms, Date startDate) {
+    public Employee(String name, int id, int bankAccount, double salary, String terms, LocalDate startDate) {
         this.name = name;
         this.id = id;
         this.bankAccount = bankAccount;
@@ -68,11 +65,23 @@ public class Employee {
         this.terms = terms;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartLocalDate() {
         return startDate;
     }
 
- //   public List<Role> getCreditRoles() {
+    @Override
+    public String toString() {
+        return "Employee{" +
+                ",  ID: " + id +
+                " 1. Name: '" + name + '\'' +
+                ", 2. Bank account: " + bankAccount +
+                ", 3. Salary: " + salary +
+                ", 4. Terms: '" + terms + '\'' +
+                ",  Start date: " + startDate +
+                '}';
+    }
+
+    //   public List<Role> getCreditRoles() {
       //  return certifiedRoles;
    // }
 }

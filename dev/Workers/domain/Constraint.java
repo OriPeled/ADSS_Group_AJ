@@ -1,20 +1,32 @@
 package dev.Workers.domain;
 
+import java.time.LocalDate;
+
 public class Constraint {
-    private Day day;
+    private LocalDate LocalDate;
     private shiftType shiftType;
+    //private boolean can;
 
-    public Constraint(Day day, shiftType shiftType) {
-        this.day = day;
+    public Constraint(LocalDate LocalDate, shiftType shiftType) {
+        this.LocalDate = LocalDate;
         this.shiftType = shiftType;
+        //this.can = false;
     }
 
-    public Day getDay() {
-        return day;
+    public Constraint(LocalDate LocalDate, String shiftTypeString) {
+        this.LocalDate = LocalDate;
+
+        shiftType shiftTime = shiftType.valueOf(shiftTypeString);
+        this.shiftType = shiftTime;
+        //this.can = false;
     }
 
-    public void setDay(Day day) {
-        this.day = day;
+    public LocalDate getLocalDate() {
+        return LocalDate;
+    }
+
+    public void setLocalDate(LocalDate LocalDate) {
+        this.LocalDate = LocalDate;
     }
 
     public shiftType getShiftType() {

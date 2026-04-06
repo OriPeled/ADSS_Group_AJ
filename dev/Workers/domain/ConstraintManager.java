@@ -37,7 +37,7 @@ public class ConstraintManager implements IListManager<Constraint> {
         if (employeeConstraints.containsKey(id)) {
             employeeConstraints.remove(id);
         } else {
-            throw new NoSuchElementException("No Constraints found for employee ID: " + id);
+            System.out.println("No Constraints found for employee ID: " + id);
         }
     }
 
@@ -51,7 +51,7 @@ public class ConstraintManager implements IListManager<Constraint> {
                 employeeConstraints.remove(id);
             }
         } else {
-            throw new NoSuchElementException("Employee ID " + id + " not found in constraint records.");
+            System.out.println("Employee ID " + id + " not found in constraint records.");
         }
     }
 
