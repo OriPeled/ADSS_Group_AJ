@@ -3,7 +3,6 @@ package dev.Workers.presentation;
 import dev.Workers.domain.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 import static dev.Workers.presentation.Main.displayMenu;
 import static dev.Workers.presentation.Main.scanner;
@@ -14,7 +13,7 @@ public class EmployeesMenu {
     static int id;
     static Employee employee;
 
-    public static void employeesMenu() {
+    public static void start() {
         System.out.println("Employees");
         System.out.println("1. Manage existing Employee");
         System.out.println("2. Add Employee");
@@ -23,7 +22,7 @@ public class EmployeesMenu {
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
-               manageEmployeeMenu();
+               accessEmployee();
             case 2:
                 addEmployeeMenu();
             case 3:
@@ -33,15 +32,20 @@ public class EmployeesMenu {
         }
     }
 
-    private static void manageEmployeeMenu() {
+    private static void accessEmployee() {
         System.out.println("Manage Employee");
         System.out.println("Enter employee ID or enter 0 to go back:");
         id = scanner.nextInt();
         if (id == 0)
-            employeesMenu();
+            start();
 
         employee = employeeManager.getById(id);
+        System.out.println("Employee chosen");
+        manageEmployee();
+    }
 
+    public static void manageEmployee() {
+        System.out.println(employee.getName() + " (" + id + ")");
         System.out.println("1. Update Constraints");
         System.out.println("2. Employee Details");
         System.out.println("3. Remove");
@@ -56,7 +60,7 @@ public class EmployeesMenu {
             case 3:
                 remove();
             case 4:
-                employeesMenu();
+                accessEmployee();
             default:
                 System.out.println("Invalid choice.");
         }
@@ -64,13 +68,15 @@ public class EmployeesMenu {
 
     private static void updateConstraints() {
         System.out.print("Update Constraints");
-        System.out.print("Enter date (dd/mm/yyyy):");
-        String dateString = scanner.nextLine();
+        System.out.print("Enter date (dd/mm/yyyy) or 0 to go back:");
+        int input = scanner.nextInt();
+        if (input == 0)
+            manageEmployee();
+        String dateString = String.valueOf(input);
         LocalDate date = Parser.stringToDate(dateString);
 
         System.out.print("Enter type (morning/evening):");
         String shiftTypeString = scanner.nextLine();
-
 
         Constraint constraint = new Constraint(date, shiftTypeString);
         constraintManager.addSingleItem(id, constraint);
@@ -82,68 +88,71 @@ public class EmployeesMenu {
             case 1:
                 updateConstraints();
             case 2:
-                manageEmployeeMenu();
+                manageEmployee();
         }
     }
 
     private static void details() {
         System.out.print("Employee Details");
         employee.toString();
-        System.out.print("Choose 1-4 to update detail or 5 for going back:");
+        System.out.print("Choose 1-4 to update detail or 0 to go back:");
         int choice = scanner.nextInt();
 
         switch (choice) {
+            case 0:
+                manageEmployee();
             case 1:
                 System.out.print("Enter new name:");
                 String newName = scanner.nextLine();
                 employee.setName(newName);
                 System.out.println("Name updated.");
+                details();
             case 2:
                 System.out.println("Enter new bank account:");
                 int newBankAccount = scanner.nextInt();
                 employee.setBankAccount(newBankAccount);
                 System.out.println("Bank account updated.");
+                details();
             case 3:
                 System.out.println("Enter new salary:");
                 double newSalary = scanner.nextDouble();
                 employee.setSalary(newSalary);
                 System.out.println("Salary updated.");
+                details();
             case 4:
                 System.out.println("Enter new terms:");
                 String newTerms = scanner.nextLine();
                 employee.setTerms(newTerms);
                 System.out.println("Terms updated.");
-            case 5:
-                manageEmployeeMenu();
+                details();
             default:
                 System.out.println("Invalid choice.");
+                details();
         }
     }
 
     private static void remove() {
-        System.out.print("Remove Employee");
-        System.out.println("Enter ID:");
-        id = scanner.nextInt();
-
-        employee = employeeManager.getById(id);
-        String name = employee.getName();
-        System.out.println("Are you sure you want to remove " + name + " (" + id + ")? If yes - enter 1, else 0.");
+        System.out.println("Are you sure you want to remove " + employee.getName() + " (" + id + ")?" +
+                           "If yes - enter 1, else 0.");
 
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
                 employeeManager.remove(id);
                 System.out.println("Employee removed.");
-                manageEmployeeMenu();
+                accessEmployee();
             case 2:
-                manageEmployeeMenu();
+                accessEmployee();
         }
     }
 
     private static void addEmployeeMenu() {
         System.out.println("New employee adding");
-        System.out.println("Enter name:");
-        String name = scanner.nextLine();
+        System.out.println("Enter name or 0 to go back:");
+        int input = scanner.nextInt();
+        if (input == 0)
+            start();
+        String name = String.valueOf(input);
         System.out.println("Enter ID:");
         int id = scanner.nextInt();
         System.out.println("Enter bank account:");
@@ -158,6 +167,6 @@ public class EmployeesMenu {
         
         employeeManager.add(name, id, bankAccount, salary, terms, date);
         System.out.println("Employee added.");
-        employeesMenu();
+        start();
     }
 }

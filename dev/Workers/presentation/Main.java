@@ -5,6 +5,7 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        System.out.println("===HR Manager Mode===");
         while (true) {
             displayMenu();
         }
@@ -19,9 +20,9 @@ public class Main {
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
-                EmployeesMenu.employeesMenu();
+                EmployeesMenu.start();
             case 2:
-                // shiftsMenu.run()
+                ShiftsMenu.start();
             case 3:
                 System.out.println("Have a good day.");
                 //scanner.close();

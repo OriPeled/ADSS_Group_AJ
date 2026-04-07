@@ -2,7 +2,6 @@ package dev.Workers.presentation;
 
 import dev.Workers.domain.Shift;
 import dev.Workers.domain.ShiftManager;
-import dev.Workers.domain.shiftType;
 
 import java.time.LocalDate;
 
@@ -11,10 +10,9 @@ import static dev.Workers.presentation.Main.scanner;
 
 public class ShiftsMenu {
     static ShiftManager shiftManager = ShiftManager.getInstance();
-
     static Shift shift;
 
-    public static void shiftsMenu() {
+    public static void start() {
         System.out.println("Shifts");
         System.out.println("1. Manage existing Shift");
         System.out.println("2. Add Shift");
@@ -23,9 +21,9 @@ public class ShiftsMenu {
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
-                manageShiftMenu();
+                accessShift();
             case 2:
-                addShiftMenu();
+                addShift();
             case 3:
                 displayMenu();
             default:
@@ -33,9 +31,12 @@ public class ShiftsMenu {
         }
     }
 
-    private static void manageShiftMenu() {
-        System.out.print("Enter date (dd/mm/yyyy):");
-        String dateString = scanner.nextLine();
+    private static void accessShift() {
+        System.out.print("Enter date (dd/mm/yyyy) or 0 to go back:");
+        int input = scanner.nextInt();
+        if (input == 0)
+            start();
+        String dateString = String.valueOf(input);
         LocalDate date = Parser.stringToDate(dateString);
 
         System.out.print("Enter type (morning/evening):");
@@ -43,7 +44,10 @@ public class ShiftsMenu {
 
         shift = shiftManager.getShift(date, shiftTypeString);
         System.out.print("Shift chosen.");
+        manageShift();
+    }
 
+    private static void manageShift() {
         System.out.println("1. Update Shift");
         System.out.println("2. Remove Shift");
         System.out.println("3. Back");
@@ -55,13 +59,16 @@ public class ShiftsMenu {
             case 2:
                 removeShift();
             case 3:
-                shiftsMenu();
+                start();
             default:
                 System.out.println("Invalid choice.");
         }
     }
 
     private static void updateShift() {
+        System.out.println("1. Update Assignments");
+        System.out.println("2. Update Constraints");
+        System.out.println("3. Back");
         // TODO
     }
 
@@ -73,15 +80,25 @@ public class ShiftsMenu {
             case 1:
                 shiftManager.removeShift(shift);
                 System.out.println("Shift removed.");
-                manageShiftMenu();
+                manageShift();
             case 2:
-                manageShiftMenu();
+                manageShift();
         }
     }
 
-    private static void addShiftMenu() {
-        shiftManager.addShift(shift.getShift(), shift.getShiftDate());
+    private static void addShift() {
+        System.out.print("Enter date (dd/mm/yyyy) or 0 to go back:");
+        int input = scanner.nextInt();
+        if (input == 0)
+            start();
+        String dateString = String.valueOf(input);
+        LocalDate date = Parser.stringToDate(dateString);
+
+        System.out.print("Enter type (morning/evening):");
+        String shiftTypeString = scanner.nextLine();
+
+        shiftManager.addShift(date, shiftTypeString);
         System.out.println("Shift added.");
-        shiftsMenu();
+        start();
     }
 }

@@ -28,12 +28,12 @@ public class ShiftManager implements IListManager<List<Role>> {
 
     }
 
-    public void addShift(shiftType shiftType, Date date) {
-        if (shiftType != morning || shiftType != evening)
-            System.out.println("Invalid shift type.");
-        if (!(date instanceof Date))
+    public void addShift(LocalDate date, String shiftTypeString) {
+        if (date == null)
             System.out.println("Invalid date format.");
-        Shift shift = new Shift(shiftType, date);
+        if (shiftTypeString != "morning" && shiftTypeString != "evening")
+            System.out.println("Invalid shift type.");
+        Shift shift = new Shift(date, shiftTypeString);
         if (!shifts.contains(shift))
             shifts.add(shift);
     }

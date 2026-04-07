@@ -1,13 +1,29 @@
 package dev.Workers.domain;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Shift {
+    private LocalDate shiftDate;
     private shiftType shift;
-    private Date shiftDate;
 
-    public Shift(shiftType shift, Date shiftDate) {
+    public Shift(LocalDate shiftDate, shiftType shift) {
+        this.shiftDate = shiftDate;
         this.shift = shift;
+    }
+
+    public Shift(LocalDate shiftDate, String shiftString) {
+        this.shiftDate = shiftDate;
+
+        shiftType shift = shiftType.valueOf(shiftString);
+        this.shift = shift;
+    }
+
+    public LocalDate getShiftDate() {
+        return shiftDate;
+    }
+
+    public void setShiftDate(LocalDate shiftDate) {
         this.shiftDate = shiftDate;
     }
 
@@ -17,13 +33,5 @@ public class Shift {
 
     public void setShift(shiftType shift) {
         this.shift = shift;
-    }
-
-    public Date getShiftDate() {
-        return shiftDate;
-    }
-
-    public void setShiftDate(Date shiftDate) {
-        this.shiftDate = shiftDate;
     }
 }
