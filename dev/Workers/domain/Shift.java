@@ -3,7 +3,7 @@ package dev.Workers.domain;
 import java.time.LocalDate;
 import java.util.*;
 
-public class Shift  {
+public class Shift {
     private LocalDate shiftDate;
     private shiftType shift;
     private Map<Role, Set<Integer>> rolesByEmployeeID;

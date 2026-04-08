@@ -8,6 +8,8 @@ import static dev.Workers.domain.shiftType.morning;
 
 public class ShiftManager   {
     private static Set<Shift> shifts;
+    private ShiftRequirements shiftRequirements;  // Requirements per role for each shift
+    private ConstraintManager constraintManager;
 
     private static ShiftManager instance;
 
@@ -19,12 +21,35 @@ public class ShiftManager   {
 
     private ShiftManager() {
         shifts = new HashSet<>();
+        shiftRequirements = new ShiftRequirements();
+        constraintManager = ConstraintManager.getInstance();
     }
 
-    public void assignToShift(Shift shift, Integer IDs[]) {
-        for (int id: IDs) {
+    /**
+     * Assigns an employee to a shift for a specific role,
+     * considering constraints and availability.
+     * @param shift The shift
+     * @param employeeID Employee ID
+     * @param role Role to assign
+     */
+    public void assignEmployeeToShift(Shift shift, int employeeID, Role role) {
+        List<Constraint> employeeConstraints = constraintManager.getListById(employeeID);
+        LocalDate date = shift.getShiftDate();
+        shiftType shiftT = shift.getShift();
 
+        for (Constraint constraint : employeeConstraints) {
+            if (constraint.getDate() == shift.getShiftDate() && constraint.getShiftType() == shift.getShift()) {
+
+            }
         }
+        // Check if employee meets shift constraints (simplified example)
+        if (!employeeConstraints.isEmpty()) {
+            if employeeConstraints.
+        }
+
+        if (employeeConstraints.contains())
+
+        shift.assignEmployee(role, employeeID);
     }
 
     public void addShift(LocalDate date, String shiftTypeString) {
@@ -43,10 +68,29 @@ public class ShiftManager   {
         shifts.remove(shift);
     }
 
-    public Shift getShift(LocalDate date, String shiftTime) {
-        // TODO
-        shiftType shiftType1 = shiftType.valueOf(shiftTime);
+    /**
+     * Returns a shift by date and type.
+     * @param date The date of the shift
+     * @param shiftTypeString "morning" or "evening"
+     * @return The Shift object if found, null otherwise
+     */
+    public Shift getShift(LocalDate date, String shiftTypeString) {
+        for (Shift s : shifts) {
+            if (s.getShiftDate().equals(date) && s.getShift().toString().equalsIgnoreCase(shiftTypeString)) {
+                return s;
+            }
+        }
         return null;
+    }
+
+    /**
+     * Adds shift requirements for a specific role in a shift.
+     * @param shift The shift
+     * @param role The role
+     * @param count Number of employees required
+     */
+    public void addShiftRequirement(Shift shift, Role role, int count) {
+        shiftRequirements.update(shift, role, count);
     }
 
     /**
