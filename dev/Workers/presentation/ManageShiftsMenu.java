@@ -70,13 +70,15 @@ public class ManageShiftsMenu {
 
         //shiftManager.assignEmployeeToShift();
         System.out.println("1. Update Assignments");
-        System.out.println("2. Update Constraints");
-        System.out.println("3. Back");
+        System.out.println("2. Update Requirements");
+        System.out.println("3. Update Constraints Deadline");
+        System.out.println("4. Back");
         // TODO
     }
 
     private static void removeShift() {
-        System.out.println("Are you sure you want to remove " + shift.getShift() + " (" + shift.getShiftDate() + ")? If yes - enter 1, else 0.");
+        System.out.println("Are you sure you want to remove " + shift.getShift() + " (" + shift.getShiftDate() + ")?" +
+                           "If yes - enter 1, else 0.");
 
         int choice = scanner.nextInt();
         switch (choice) {

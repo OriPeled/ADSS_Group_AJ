@@ -124,7 +124,6 @@ public class ShiftManager   {
         return shiftRequirements.getCountByRole(shift, role) > 0;
     }
 
-
     public void displayAssignmentStatus(Shift shift) {
         String[] existingRoles = roleManager.getExistingRoles();
         // TODO
