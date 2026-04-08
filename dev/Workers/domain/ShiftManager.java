@@ -32,19 +32,15 @@ public class ShiftManager   {
      * @param employeeID Employee ID
      * @param role Role to assign
      */
-    public void assignEmployeeToShift(Shift shift, int employeeID, Role role) {
-        List<Constraint> employeeConstraints = constraintManager.getListById(employeeID);
+    public void assignEmployeeToShift(Shift shift, Role role, int employeeID) {
+        if (isEmployeeApplicable(shift, role, employeeID))
+            shift.assignEmployee(role, employeeID);
+        addShiftRequirement(shift, role, 1);
+    }
 
-
-
-        // Check if employee meets shift constraints (simplified example)
-        if (!employeeConstraints.isEmpty()) {
-            if employeeConstraints.
-        }
-
-        if (employeeConstraints.contains())
-
-        shift.assignEmployee(role, employeeID);
+    public void removeEmployeeFromShift(Shift shift, Role role, int employeeID) {
+        shift.removeEmployee(role, employeeID);
+        addShiftRequirement(shift, role, -1);
     }
 
     public void addShift(LocalDate date, String shiftTypeString) {
@@ -102,6 +98,12 @@ public class ShiftManager   {
             }
         }
         return sb.toString();
+    }
+
+    public boolean isEmployeeApplicable(Shift shift, Role role, int employeeID) {
+        return  (isEmployeeAvailable(employeeID, shift) &&
+                isEmployeeQualified(employeeID, role) &&
+                isRoleAvailable(shift, role));
     }
 
     private boolean isEmployeeAvailable(int employeeID, Shift shift) {

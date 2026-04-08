@@ -68,6 +68,8 @@ public class ShiftsMenu {
     private static void updateShift() {
         // shiftManager.displayAssignmentStatus (how many roles/employees left to assign)
 
+
+        //shiftManager.assignEmployeeToShift();
         System.out.println("1. Update Assignments");
         System.out.println("2. Update Constraints");
         System.out.println("3. Back");

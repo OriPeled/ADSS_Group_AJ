@@ -21,7 +21,9 @@ public class ShiftRequirements {
         if (role.getRolename().equals("Manager") && count < 1) {
             count = 1;
         }
-        Requirements.get(shift).put(role, count);
+        int tot = Requirements.get(shift).get(role);
+        tot = tot - count;
+        Requirements.get(shift).put(role, tot);
     }
 
     public void update(Shift shift, Role role, int count){
