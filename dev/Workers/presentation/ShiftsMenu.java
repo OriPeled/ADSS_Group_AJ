@@ -66,6 +66,8 @@ public class ShiftsMenu {
     }
 
     private static void updateShift() {
+        // shiftManager.displayAssignmentStatus (how many roles/employees left to assign)
+
         System.out.println("1. Update Assignments");
         System.out.println("2. Update Constraints");
         System.out.println("3. Back");
@@ -98,7 +100,8 @@ public class ShiftsMenu {
         String shiftTypeString = scanner.nextLine();
 
         shiftManager.addShift(date, shiftTypeString);
+        shift = shiftManager.getShift(date, shiftTypeString);
         System.out.println("Shift added.");
-        start();
+        updateShift();
     }
 }

@@ -7,9 +7,7 @@ import static dev.Workers.domain.shiftType.evening;
 import static dev.Workers.domain.shiftType.morning;
 
 public class ShiftManager   {
-
     private static Set<Shift> shifts;
-
 
     private static ShiftManager instance;
 
@@ -21,11 +19,13 @@ public class ShiftManager   {
 
     private ShiftManager() {
         shifts = new HashSet<>();
-
     }
 
-
-
+    public void assignToShift(Shift shift, Integer IDs[]) {
+        for (int id: IDs) {
+            shifts
+        }
+    }
 
     public void addShift(LocalDate date, String shiftTypeString) {
         if (date == null)

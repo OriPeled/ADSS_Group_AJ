@@ -11,6 +11,9 @@ public class Shift  {
     public Shift(LocalDate shiftDate, shiftType shift) {
         this.shiftDate = shiftDate;
         this.shift = shift;
+
+//        Map<Role, Integer> requirements = ShiftRequirements.requirementsByDate()
+//        for ()
         rolesByEmployeeID = new HashMap<>();
     }
 
@@ -94,7 +97,6 @@ public class Shift  {
         }
         return false;
     }
-
 
     @Override
     public String toString() {

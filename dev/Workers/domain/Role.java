@@ -11,5 +11,11 @@ public class Role {
         return Rolename;
     }
 
-    
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "Rolename='" + Rolename + '\'' +
+                '}';
+    }
 }

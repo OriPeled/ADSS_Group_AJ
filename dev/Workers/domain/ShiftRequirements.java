@@ -1,20 +1,18 @@
 package dev.Workers.domain;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ShiftRequirements {
-
-    private Map<Shift, Map<Role, Integer>> Requirements;
-
+    private static Map<Shift, Map<Role, Integer>> Requirements;
 
     public ShiftRequirements() {
         Requirements = new HashMap<>();
     }
 
-
-    private void add(Shift shift,Role role,int count){
+    private void add(Shift shift, Role role, int count){
         if(!Requirements.containsKey(shift)){
             Map<Role, Integer> newInnerMap = new HashMap<>();
             newInnerMap.put(new Role("Manager"), 1);
@@ -52,7 +50,22 @@ public class ShiftRequirements {
             Requirements.remove(shift);
         }
 
+    public static Map<Role, Integer> requirementsByDate(LocalDate shiftDate, shiftType shiftT) {
+        for (Shift shift : Requirements.keySet()) {
+            if (shift.getShiftDate() == shiftDate && shift.getShift() == shiftT) {
+                return Requirements.get(shift);
+            }
+        }
+        return null;
     }
+
+    @Override
+    public String toString() {
+        return "ShiftRequirements{" +
+                "Requirements=" + Requirements +
+                '}';
+    }
+}
 
 
 
