@@ -23,7 +23,7 @@ public class ShiftManager   {
 
     public void assignToShift(Shift shift, Integer IDs[]) {
         for (int id: IDs) {
-            shifts
+
         }
     }
 
