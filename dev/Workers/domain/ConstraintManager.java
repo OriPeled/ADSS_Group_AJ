@@ -71,6 +71,4 @@ public class ConstraintManager implements IListManager<Constraint> {
         }
         return qualifiedEmployees;
     }
-
-
 }

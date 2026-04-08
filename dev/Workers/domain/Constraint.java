@@ -15,9 +15,7 @@ public class Constraint {
 
     public Constraint(LocalDate date, String shiftTypeString) {
         this.date = date;
-
-        shiftType shiftTime = shiftType.valueOf(shiftTypeString);
-        this.shiftType = shiftTime;
+        this.shiftType = shiftType.valueOf(shiftTypeString);
         //this.can = false;
     }
 

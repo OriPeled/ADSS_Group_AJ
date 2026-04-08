@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import static dev.Workers.presentation.Main.displayMenu;
 import static dev.Workers.presentation.Main.scanner;
 
-public class ShiftsMenu {
+public class ManageShiftsMenu {
     static ShiftManager shiftManager = ShiftManager.getInstance();
     static Shift shift;
 
@@ -66,8 +66,7 @@ public class ShiftsMenu {
     }
 
     private static void updateShift() {
-        // shiftManager.displayAssignmentStatus (how many roles/employees left to assign)
-
+        shiftManager.displayAssignmentStatus(shift); // (how many roles/employees left to assign)
 
         //shiftManager.assignEmployeeToShift();
         System.out.println("1. Update Assignments");

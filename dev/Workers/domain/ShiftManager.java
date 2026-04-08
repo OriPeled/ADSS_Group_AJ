@@ -8,9 +8,10 @@ import static dev.Workers.domain.shiftType.morning;
 
 public class ShiftManager   {
     private static Set<Shift> shifts;
-    private ShiftRequirements shiftRequirements;  // Requirements per role for each shift
+    private ShiftRequirements shiftRequirements;
     private ConstraintManager constraintManager;
-    private RoleManager roleManager;
+    private static RoleManager roleManager = RoleManager.getInstance();
+
     private static ShiftManager instance;
 
     public static ShiftManager getInstance() {
@@ -124,4 +125,8 @@ public class ShiftManager   {
     }
 
 
+    public void displayAssignmentStatus(Shift shift) {
+        String[] existingRoles = roleManager.getExistingRoles();
+        // TODO
+    }
 }

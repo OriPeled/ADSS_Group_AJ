@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import static dev.Workers.presentation.Main.displayMenu;
 import static dev.Workers.presentation.Main.scanner;
 
-public class EmployeesMenu {
+public class ManageEmployeesMenu {
     static EmployeeManager employeeManager = EmployeeManager.getInstance();
     static ConstraintManager constraintManager = ConstraintManager.getInstance();
     static int id;
@@ -48,8 +48,9 @@ public class EmployeesMenu {
         System.out.println(employee.getName() + " (" + id + ")");
         System.out.println("1. Update Constraints");
         System.out.println("2. Employee Details");
-        System.out.println("3. Remove");
-        System.out.println("4. Back");
+        System.out.println("3. Promote/Demote");
+        System.out.println("4. Remove");
+        System.out.println("5. Back");
 
         int choice = scanner.nextInt();
         switch (choice) {
@@ -58,8 +59,10 @@ public class EmployeesMenu {
             case 2:
                 details();
             case 3:
-                remove();
+                promoteDemote();
             case 4:
+                remove();
+            case 5:
                 accessEmployee();
             default:
                 System.out.println("Invalid choice.");
@@ -95,7 +98,7 @@ public class EmployeesMenu {
     private static void details() {
         System.out.print("Employee Details");
         employee.toString();
-        System.out.print("Choose 1-4 to update detail or 0 to go back:");
+        System.out.print("Choose 1-5 to update detail or 0 to go back:");
         int choice = scanner.nextInt();
 
         switch (choice) {
@@ -129,6 +132,10 @@ public class EmployeesMenu {
                 System.out.println("Invalid choice.");
                 details();
         }
+    }
+
+    private static void promoteDemote() {
+        employee.promoteDemote();
     }
 
     private static void remove() {

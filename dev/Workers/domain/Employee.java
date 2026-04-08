@@ -7,14 +7,16 @@ public class Employee {
     private int id;
     private int bankAccount;
     private double salary;
-    private String terms;
+    private EmployeeTerms terms;
     private LocalDate startDate;
     private LocalDate endDate;
+    private boolean isManager;
+    // private UserDetails userDetails;
  //   private List<Role> certifiedRoles;
  // private List<Constraint>
 
 
-    public Employee(String name, int id, int bankAccount, double salary, String terms, LocalDate startDate) {
+    public Employee(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         this.name = name;
         this.id = id;
         this.bankAccount = bankAccount;
@@ -22,6 +24,7 @@ public class Employee {
         this.terms = terms;
         this.startDate = startDate;
         this.endDate = null;
+        this.isManager = false;
        // this.certifiedRoles = new ArrayList<>();
     }
 
@@ -55,16 +58,24 @@ public class Employee {
         this.salary = salary;
     }
 
-    public String getTerms() {
+    public EmployeeTerms getTerms() {
         return terms;
     }
 
-    public void setTerms(String terms) {
+    public void setTerms(EmployeeTerms terms) {
         this.terms = terms;
     }
 
     public LocalDate getStartLocalDate() {
         return startDate;
+    }
+
+    public void promoteDemote() {
+        if (isManager)
+            isManager = false;
+            System.out.println(name + " is no longer shift manager.");
+        isManager = true;
+        System.out.println(name + " is now shift manager.");
     }
 
     @Override

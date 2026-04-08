@@ -4,8 +4,9 @@ import java.util.*;
 
 
 public class EmployeeManager implements IManager<Employee> {
-    private static EmployeeManager instance;
     private Map<Integer, Employee> employees;
+
+    private static EmployeeManager instance;
 
     private EmployeeManager() {
         this.employees = new HashMap<>();
@@ -42,6 +43,19 @@ public class EmployeeManager implements IManager<Employee> {
 
     public Employee getById(int id) {
         return employees.get(id);
+    }
+
+    public boolean wrongPassword(String password) {
+        // TODO
+        return false;
+    }
+
+    public boolean isRegisteredUser(int enteredID) {
+        // TODO
+        return false;
+    }
+
+    public void setPassword(String nextLine) {
     }
 
 //    @Override
