@@ -49,7 +49,12 @@ public class ShiftRequirements {
         }
             Requirements.remove(shift);
         }
-
+    public int getCountByRole(Shift shift, Role role){
+        if (!Requirements.containsKey(shift)){
+            System.out.println("Shift does not exist.");
+        }
+        return Requirements.get(shift).get(role);
+    }
     public static Map<Role, Integer> requirementsByDate(LocalDate shiftDate, shiftType shiftT) {
         for (Shift shift : Requirements.keySet()) {
             if (shift.getShiftDate() == shiftDate && shift.getShift() == shiftT) {

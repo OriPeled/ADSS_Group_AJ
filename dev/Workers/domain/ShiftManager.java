@@ -10,7 +10,7 @@ public class ShiftManager   {
     private static Set<Shift> shifts;
     private ShiftRequirements shiftRequirements;  // Requirements per role for each shift
     private ConstraintManager constraintManager;
-
+    private RoleManager roleManager;
     private static ShiftManager instance;
 
     public static ShiftManager getInstance() {
@@ -34,14 +34,9 @@ public class ShiftManager   {
      */
     public void assignEmployeeToShift(Shift shift, int employeeID, Role role) {
         List<Constraint> employeeConstraints = constraintManager.getListById(employeeID);
-        LocalDate date = shift.getShiftDate();
-        shiftType shiftT = shift.getShift();
 
-        for (Constraint constraint : employeeConstraints) {
-            if (constraint.getDate() == shift.getShiftDate() && constraint.getShiftType() == shift.getShift()) {
 
-            }
-        }
+
         // Check if employee meets shift constraints (simplified example)
         if (!employeeConstraints.isEmpty()) {
             if employeeConstraints.
@@ -108,5 +103,23 @@ public class ShiftManager   {
         }
         return sb.toString();
     }
+
+    private boolean isEmployeeAvailable(int employeeID, Shift shift) {
+        List<Constraint> constraints = constraintManager.getListById(employeeID);
+        for (Constraint c : constraints) {
+            if (c.getDate().equals(shift.getShiftDate()) && c.getShiftType() == shift.getShift()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private boolean isEmployeeQualified(int employeeID, Role role) {
+        List<Role> roles = roleManager.getListById(employeeID);
+        return roles.contains(role);
+    }
+    private boolean isRoleAvailable(Shift shift, Role role) {
+        return shiftRequirements.getCountByRole(shift, role) > 0;
+    }
+
 
 }
