@@ -36,4 +36,5 @@ public class Constraint {
     public void setShiftType(shiftType shiftType) {
         this.shiftType = shiftType;
     }
+
 }

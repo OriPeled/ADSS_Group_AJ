@@ -44,14 +44,14 @@ public class EmployeeManager implements IManager<Employee> {
         return employees.get(id);
     }
 
-    @Override
-    public void remove(int id) {
-        if (employees.containsKey(id)) {
-            employees.remove(id);
-        } else {
-            System.out.println("Employee ID " + id + " not found.");
-        }
-    }
+//    @Override
+ //   public void remove(int id) {
+ //       if (employees.containsKey(id)) {
+ //          employees.remove(id);
+  //      } else {
+   //         System.out.println("Employee ID " + id + " not found.");
+   //     }
+  //  }
 
 
 }

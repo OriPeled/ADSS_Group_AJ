@@ -6,10 +6,10 @@ import java.util.*;
 import static dev.Workers.domain.shiftType.evening;
 import static dev.Workers.domain.shiftType.morning;
 
-public class ShiftManager implements IListManager<List<Role>> {
-    //private static Map<Shift, Map<Role, List<Employee>>> shifts;
-    private static List<Shift> shifts;
-    private static Map<Role, List<Integer>> rolesByEmployeeID;
+public class ShiftManager   {
+
+    private static Set<Shift> shifts;
+
 
     private static ShiftManager instance;
 
@@ -20,13 +20,12 @@ public class ShiftManager implements IListManager<List<Role>> {
     }
 
     private ShiftManager() {
-        shifts = new ArrayList<>();
-        rolesByEmployeeID = new HashMap<>();
-    }
-
-    public void addEmployeeToShift(Shift shift, int id) {
+        shifts = new HashSet<>();
 
     }
+
+
+
 
     public void addShift(LocalDate date, String shiftTypeString) {
         if (date == null)
@@ -50,28 +49,20 @@ public class ShiftManager implements IListManager<List<Role>> {
         return null;
     }
 
-    @Override
-    public void addFullList(int id, List<List<Role>> items) {
-
+    /**
+     *
+     * @return history of shifts
+     */
+    public String getShiftsHistory() {
+        StringBuilder sb = new StringBuilder();
+        if (shifts.isEmpty()) {
+            sb.append("No shifts recorded.\n");
+        } else {
+            for (Shift s : shifts) {
+                sb.append(s.toString()).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
-    @Override
-    public void addSingleItem(int id, List<Role> item) {
-
-    }
-
-    @Override
-    public void removeAll(int id) {
-
-    }
-
-    @Override
-    public void removeSingleItem(int id, List<Role> item) {
-
-    }
-
-    @Override
-    public List<List<Role>> getListById(int id) {
-        return null;
-    }
 }

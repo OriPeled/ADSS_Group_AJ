@@ -9,6 +9,7 @@ public class Employee {
     private double salary;
     private String terms;
     private LocalDate startDate;
+    private LocalDate endDate;
  //   private List<Role> certifiedRoles;
  // private List<Constraint>
 
@@ -20,14 +21,11 @@ public class Employee {
         this.salary = salary;
         this.terms = terms;
         this.startDate = startDate;
+        this.endDate = null;
        // this.certifiedRoles = new ArrayList<>();
     }
 
-  //  public void AddRole(Role role) {
-   //     if (role != null) {
-   //         this.certifiedRoles.add(role);
-    //    }
-   // }
+
 
     public String getName() {
         return name;
@@ -80,8 +78,14 @@ public class Employee {
                 ",  Start date: " + startDate +
                 '}';
     }
+    public LocalDate getEndLocalDate() {
+        return endDate;
+    }
+    public void terminateEmployee(LocalDate terminationDate) {
+        this.endDate = terminationDate;
+    }
+    public boolean isActive() {
+        return endDate == null;
+    }
 
-    //   public List<Role> getCreditRoles() {
-      //  return certifiedRoles;
-   // }
 }
