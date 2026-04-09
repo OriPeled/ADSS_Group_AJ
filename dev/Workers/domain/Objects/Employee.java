@@ -1,4 +1,4 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
 
 import java.time.LocalDate;
 
@@ -80,14 +80,13 @@ public class Employee {
 
     @Override
     public String toString() {
-        return "Employee{" +
-                ",  ID: " + id +
-                " 1. Name: '" + name + '\'' +
-                ", 2. Bank account: " + bankAccount +
-                ", 3. Salary: " + salary +
-                ", 4. Terms: '" + terms + '\'' +
-                ",  Start date: " + startDate +
-                '}';
+        return "Employee Details" +
+                "\nID: " + id +
+                "\n1. Name: " + name +
+                "\n2. Bank account: " + bankAccount +
+                "\n3. Salary: " + salary +
+                "\n4. Terms: " + terms +
+                "\nStart date: " + startDate;
     }
     public LocalDate getEndLocalDate() {
         return endDate;

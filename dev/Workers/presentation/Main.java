@@ -19,9 +19,9 @@ public class Main {
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
-                UserMode.start();
+                UserMode.login();
             case 2:
-                AdminMode.start();
+                AdminMode.login();
             case 3:
                 System.out.println("Have a good day.");
                 //scanner.close();

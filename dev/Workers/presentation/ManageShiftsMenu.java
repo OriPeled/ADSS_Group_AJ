@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.Shift;
+import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
 
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ public class ManageShiftsMenu {
             case 2:
                 addShift();
             case 3:
-                displayMenu();
+                AdminMode.start();
             default:
                 System.out.println("Invalid choice.");
         }

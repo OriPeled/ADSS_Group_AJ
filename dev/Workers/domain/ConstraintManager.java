@@ -1,5 +1,7 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Objects.Constraint;
+
 import java.util.*;
 
 public class ConstraintManager implements IListManager<Constraint> {

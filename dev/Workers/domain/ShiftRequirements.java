@@ -1,8 +1,11 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Objects.Role;
+import dev.Workers.domain.Objects.Shift;
+
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ShiftRequirements {
@@ -12,7 +15,7 @@ public class ShiftRequirements {
         Requirements = new HashMap<>();
     }
 
-    private void add(Shift shift, Role role, int count){
+    private void add(Shift shift, Role role, int count) {
         if(!Requirements.containsKey(shift)){
             Map<Role, Integer> newInnerMap = new HashMap<>();
             newInnerMap.put(new Role("Manager"), 1);
@@ -26,37 +29,39 @@ public class ShiftRequirements {
         Requirements.get(shift).put(role, tot);
     }
 
-    public void update(Shift shift, Role role, int count){
+    public void update(Shift shift, Role role, int count) {
         if (count < 0) {
             System.out.println("Count must be a non-negative number.");
-       }
-       if (role.getRolename().equals("Manager") && count == 0) {
+        }
+        if (role.getRolename().equals("Manager") && count == 0) {
            System.out.println("There must be one manager on shift.");
-       }
+        }
         if (!Requirements.containsKey(shift)){
             add(shift, role, count);
             return;
         }
-            if (count == 0) {
-                Requirements.get(shift).remove(role);
-            }
-            else{
-                Requirements.get(shift).put(role, count);
-            }
+        if (count == 0) {
+            Requirements.get(shift).remove(role);
         }
+        else {
+            Requirements.get(shift).put(role, count);
+        }
+    }
 
-     public void remove(Shift shift){
-        if (!Requirements.containsKey(shift)){
+    public void remove(Shift shift){
+        if (!Requirements.containsKey(shift)) {
             System.out.println("Shift does not exist.");
         }
-            Requirements.remove(shift);
-        }
+        Requirements.remove(shift);
+    }
+
     public int getCountByRole(Shift shift, Role role){
-        if (!Requirements.containsKey(shift)){
+        if (!Requirements.containsKey(shift)) {
             System.out.println("Shift does not exist.");
         }
         return Requirements.get(shift).get(role);
     }
+
     public static Map<Role, Integer> requirementsByDate(LocalDate shiftDate, shiftType shiftT) {
         for (Shift shift : Requirements.keySet()) {
             if (shift.getShiftDate() == shiftDate && shift.getShift() == shiftT) {

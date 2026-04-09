@@ -1,10 +1,12 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
+
+import dev.Workers.domain.Enums.shiftType;
 
 import java.time.LocalDate;
 
 public class Constraint {
     private LocalDate date;
-    private shiftType shiftType;
+    private dev.Workers.domain.Enums.shiftType shiftType;
     //private boolean can;
 
     public Constraint(LocalDate date, shiftType shiftType) {

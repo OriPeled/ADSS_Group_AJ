@@ -1,6 +1,9 @@
 package dev.Workers.presentation;
 
 import dev.Workers.domain.*;
+import dev.Workers.domain.Objects.Constraint;
+import dev.Workers.domain.Objects.Employee;
+import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
 
@@ -26,7 +29,7 @@ public class ManageEmployeesMenu {
             case 2:
                 addEmployeeMenu();
             case 3:
-                displayMenu();
+                AdminMode.start();
             default:
                 System.out.println("Invalid choice.");
         }
@@ -96,14 +99,11 @@ public class ManageEmployeesMenu {
     }
 
     private static void details() {
-        System.out.print("Employee Details");
-        employee.toString();
-        System.out.print("Choose 1-5 to update detail or 0 to go back:");
+        System.out.print(employee.toString());
+        System.out.print("Choose 1-4 to update detail or 0 to go back:");
         int choice = scanner.nextInt();
 
         switch (choice) {
-            case 0:
-                manageEmployee();
             case 1:
                 System.out.print("Enter new name:");
                 String newName = scanner.nextLine();
@@ -123,13 +123,55 @@ public class ManageEmployeesMenu {
                 System.out.println("Salary updated.");
                 details();
             case 4:
-                System.out.println("Enter new terms:");
-                String newTerms = scanner.nextLine();
-                employee.setTerms(newTerms);
-                System.out.println("Terms updated.");
-                details();
+                updateTerms();
+            case 0:
+                manageEmployee();
             default:
                 System.out.println("Invalid choice.");
+                details();
+        }
+    }
+
+    public static void updateTerms() {
+        EmployeeTerms terms = employee.getTerms();
+        System.out.println(terms);
+        System.out.println("Choose 1-3 to update detail or 0 to go back:");
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                System.out.println("Enter 1 to change job status, 0 to cancel:");
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        terms.changeJobStatus();
+                        System.out.println("Job Status is now" + terms.getJobStatus());
+                        updateTerms();
+                    case 0:
+                        updateTerms();
+                }
+            case 2:
+                System.out.println("Enter 1 to change salary type, 0 to cancel:");
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        terms.changeSalaryType();
+                        System.out.println("Salary Type is now" + terms.getSalaryType());
+                        updateTerms();
+                    case 0:
+                        updateTerms();
+                }
+            case 3:
+                System.out.println("Enter number of rest days (1-7) or 0 to cancel:");
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        terms.setRestDays(choice);
+                        System.out.println("Number of Rest Days is now" + terms.getRestDays());
+                        updateTerms();
+                    case 0:
+                        updateTerms();
+                }
+            case 0:
                 details();
         }
     }

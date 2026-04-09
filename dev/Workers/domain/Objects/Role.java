@@ -1,4 +1,4 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
 
 public class Role {
     private String Rolename;
@@ -14,8 +14,6 @@ public class Role {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "Rolename='" + Rolename + '\'' +
-                '}';
+        return Rolename;
     }
 }

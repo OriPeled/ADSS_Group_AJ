@@ -1,4 +1,7 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
+
+import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Objects.Role;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -100,10 +103,9 @@ public class Shift {
 
     @Override
     public String toString() {
-        return "Shift{" +
-                "shiftDate=" + shiftDate +
-                ", shift=" + shift +
-                ", rolesByEmployeeID=" + rolesByEmployeeID +
-                '}';
+        return "Shift" +
+                "\nDate: " + shiftDate +
+                "\nType: " + shift +
+                "\nAssignments: " + rolesByEmployeeID;
     }
 }

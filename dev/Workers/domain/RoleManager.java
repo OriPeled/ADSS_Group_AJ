@@ -1,4 +1,6 @@
 package dev.Workers.domain;
+import dev.Workers.domain.Objects.Role;
+
 import java.util.*;
 
 public class RoleManager implements IListManager<Role> {

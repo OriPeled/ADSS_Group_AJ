@@ -6,7 +6,7 @@ public class AdminMode {
     private static String password;
     private static boolean isRegistered = false;
 
-    private static void login() {
+    public static void login() {
         System.out.println("HR Manager Mode");
         if (!isRegistered) {
             System.out.println("Please Create Password:");
@@ -27,7 +27,7 @@ public class AdminMode {
         start();
     }
 
-    static void start() {
+    public static void start() {
         System.out.println("Choose to Manage:");
         System.out.println("1. Employees");
         System.out.println("2. Shifts");

@@ -1,10 +1,11 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Objects.Constraint;
+import dev.Workers.domain.Objects.Role;
+import dev.Workers.domain.Objects.Shift;
+
 import java.time.LocalDate;
 import java.util.*;
-
-import static dev.Workers.domain.shiftType.evening;
-import static dev.Workers.domain.shiftType.morning;
 
 public class ShiftManager   {
     private static Set<Shift> shifts;

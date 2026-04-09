@@ -7,7 +7,7 @@ import static dev.Workers.presentation.Main.scanner;
 public class UserMode {
     static EmployeeManager employeeManager = EmployeeManager.getInstance();
 
-    private static void login() {
+    public static void login() {
         System.out.println("User Mode");
         System.out.println("Please Enter ID:");
         int enteredID = scanner.nextInt();
@@ -35,7 +35,7 @@ public class UserMode {
         start();
     }
 
-    static void start() {
+    public static void start() {
         System.out.println("Choose Option:");
         System.out.println("1. Update Constraints");
         System.out.println("2. Watch Shifts Schedule");
