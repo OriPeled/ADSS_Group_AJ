@@ -5,6 +5,7 @@ import dev.Workers.domain.Objects.Constraint;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -109,14 +110,13 @@ public class ShiftManager   {
                 isRoleAvailable(shift, role));
     }
 
-    private boolean isEmployeeAvailable(int employeeID, Shift shift) {
+    private boolean isEmployeeAvailable(int id, Shift shift) {
         LocalDate date = shift.getShiftDate();
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        shiftType shiftType=shift.getShift();
-        Constraint constraint = constraintManager.get(employeeID);
+        DayOfWeek day = date.getDayOfWeek();
+        shiftType shiftType = shift.getShift();
+        return constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
-        return true;
-    }
+
     private boolean isEmployeeQualified(int employeeID, Role role) {
         List<Role> roles = roleManager.getListById(employeeID);
         return roles.contains(role);

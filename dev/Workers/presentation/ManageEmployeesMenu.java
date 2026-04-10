@@ -51,7 +51,7 @@ public class ManageEmployeesMenu {
 
     public static void manageEmployee() {
         System.out.println(employee.getName() + " (" + id + ")");
-        System.out.println("1. Update Constraints");
+        /*System.out.println("1. Update Constraints");*/
         System.out.println("2. Employee Details");
         System.out.println("3. Promote/Demote");
         System.out.println("4. Remove");
@@ -59,8 +59,6 @@ public class ManageEmployeesMenu {
 
         int choice = scanner.nextInt();
         switch (choice) {
-            case 1:
-                updateConstraints();
             case 2:
                 details();
             case 3:
@@ -74,7 +72,7 @@ public class ManageEmployeesMenu {
         }
     }
 
-    private static void updateConstraints() {
+/*    private static void updateConstraints() {
         System.out.print("Update Constraints");
         System.out.print("Enter date (dd/mm/yyyy) or 0 to go back:");
         int input = scanner.nextInt();
@@ -98,7 +96,7 @@ public class ManageEmployeesMenu {
             case 2:
                 manageEmployee();
         }
-    }
+    }*/
 
     private static void details() {
         System.out.print(employee.toString());

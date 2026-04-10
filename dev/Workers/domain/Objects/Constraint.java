@@ -52,22 +52,4 @@ public class Constraint {
         Constraint that = (Constraint) o;
         return day.equals(that.day) && shiftType == that.shiftType;
     }
-
-
-    private static final DayOfWeek[] days = {
-            DayOfWeek.SUNDAY,
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY
-    };
-
-    public static DayOfWeek getDayFromNumber(int dayNumber) {
-        if (dayNumber < 1 || dayNumber > 7) {
-            throw new IllegalArgumentException("Day must be between 1-7");
-        }
-        return days[dayNumber - 1];
-    }
 }
