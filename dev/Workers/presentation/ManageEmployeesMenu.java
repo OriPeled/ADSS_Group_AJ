@@ -250,6 +250,8 @@ public class ManageEmployeesMenu {
         String startDateString = scanner.nextLine();
         LocalDate date = Parser.stringToDate(startDateString);
         employeeManager.add(name, id, bankAccount, salary, terms, date);
+        Constraint constraint=new Constraint();
+        constraintManager.getEmployeeConstraints().put(id,constraint);
         System.out.println("Employee added.");
         start();
     }

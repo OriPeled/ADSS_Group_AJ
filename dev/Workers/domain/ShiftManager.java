@@ -1,5 +1,6 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Constraint;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
@@ -109,12 +110,11 @@ public class ShiftManager   {
     }
 
     private boolean isEmployeeAvailable(int employeeID, Shift shift) {
-        List<Constraint> constraints = constraintManager.getListById(employeeID);
-        for (Constraint c : constraints) {
-            if (c.getDate().equals(shift.getShiftDate()) && c.getShiftType() == shift.getShift()) {
-                return false;
-            }
-        }
+        LocalDate date = shift.getShiftDate();
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        shiftType shiftType=shift.getShift();
+        Constraint constraint = constraintManager.get(employeeID);
+    }
         return true;
     }
     private boolean isEmployeeQualified(int employeeID, Role role) {

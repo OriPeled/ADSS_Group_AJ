@@ -3,15 +3,21 @@ package dev.Workers.domain;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Constraint;
 
+import java.time.DayOfWeek;
 import java.util.*;
 
-public class ConstraintManager implements IListManager<Constraint> {
+public class ConstraintManager  {
     private static ConstraintManager instance;
-    private Map<Integer, Constraint[]> employeeConstraints;
+
+    public Map<Integer, Constraint> getEmployeeConstraints() {
+        return employeeConstraints;
+    }
+
+    private Map<Integer, Constraint> employeeConstraints;
 
     private ConstraintManager() {
         this.employeeConstraints = new HashMap<>();
-        employeeConstraints.
+
     }
 
     public static ConstraintManager getInstance() {
@@ -20,68 +26,16 @@ public class ConstraintManager implements IListManager<Constraint> {
         }
         return instance;
     }
+    public Constraint display(int id) {
+        return employeeConstraints.get(id);
+    }
+    public void update(int id, DayOfWeek day, shiftType shiftType) {
 
-    @Override
-    public void addFullList(int id, List<Constraint> items) {
-        employeeConstraints.put(id, new ArrayList<>(items));
+        Constraint employeeConstraints =display(id);
+        employeeConstraints.getWeekConstraints().put(day, shiftType);
     }
 
-    @Override
-    public void addSingleItem(int id, Constraint item) {
-        employeeConstraints.computeIfAbsent(id, k -> new ArrayList<>());
-        List<Constraint> constraints = employeeConstraints.get(id);
-        if (!constraints.contains(item)) {
-            constraints.add(item);
-        }
-    }
 
-    @Override
-    public void removeAll(int id) {
-        if (employeeConstraints.containsKey(id)) {
-            employeeConstraints.remove(id);
-        } else {
-            System.out.println("No Constraints found for employee ID: " + id);
-        }
-    }
 
-    @Override
-    public void removeSingleItem(int id, Constraint item) {
-        if (employeeConstraints.containsKey(id)) {
-            List<Constraint> constraints = employeeConstraints.get(id);
-            constraints.remove(item);
 
-            if (constraints.isEmpty()) {
-                employeeConstraints.remove(id);
-            }
-        } else {
-            System.out.println("Employee ID " + id + " not found in constraint records.");
-        }
-    }
-
-    @Override
-    public List<Constraint> getListById(int id) {
-        return new ArrayList<>(employeeConstraints.getOrDefault(id, new ArrayList<>()));
-    }
-
-    public List<Integer> getEmployeesByConstraint(Constraint constraint) {
-        List<Integer> qualifiedEmployees = new ArrayList<>();
-        for (Integer id : employeeConstraints.keySet()) {
-            List<Constraint> constraints = employeeConstraints.get(id);
-            if (constraints.contains(constraint)) {
-                qualifiedEmployees.add(id);
-            }
-
-        }
-        return qualifiedEmployees;
-    }
-
-    public void updateConstraint(int id, int day, int shiftT) {
-        Constraint empConstraint = new Constraint();
-        List<Constraint> employeeConstraints = getListById(id);
-        for (Constraint constraint : employeeConstraints) {
-            if (constraint.equals()
-        }
-        if (employeeConstraints())
-
-    }
 }
