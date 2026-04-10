@@ -88,8 +88,7 @@ public class Employee {
                 "\n4. Terms: " + terms +
                 "\nStart date: " + startDate;
     }
-    public LocalDate getEndLocalDate() {
-        return endDate;
+    public LocalDate getEndLocalDate() {return endDate;
     }
     public void terminateEmployee(LocalDate terminationDate) {
         this.endDate = terminationDate;

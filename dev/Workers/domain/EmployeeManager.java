@@ -1,5 +1,6 @@
 package dev.Workers.domain;
 import dev.Workers.domain.Objects.Employee;
+import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -29,7 +30,7 @@ public class EmployeeManager implements IManager<Employee> {
         employees.put(employee.getId(), employee);
     }
 
-    public void add(String name, int id, int bankAccount, double salary, String terms, LocalDate startDate) {
+    public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         if (isEmployee(id)) {
             System.out.println("Employee already works.");
             }
@@ -39,7 +40,7 @@ public class EmployeeManager implements IManager<Employee> {
         if (bankAccount <= 0) {
             System.out.println("Invalid bank account details.");
             }
-        Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
+        Employee newEmp = new Employee( name,  id,  bankAccount,  salary,  terms,  startDate);
         add(id,newEmp);
     }
 
@@ -60,14 +61,16 @@ public class EmployeeManager implements IManager<Employee> {
     public void setPassword(String nextLine) {
     }
 
-//    @Override
- //   public void remove(int id) {
- //       if (employees.containsKey(id)) {
- //          employees.remove(id);
-  //      } else {
-   //         System.out.println("Employee ID " + id + " not found.");
-   //     }
-  //  }
+   @Override
+   public void remove(int id) {
+       Employee emp = employees.get(id);
+       if (emp.isActive()) {
+           emp.terminateEmployee(LocalDate.now());
+
+     } else {
+            System.out.println("Employee ID " + id + " not active.");
+        }
+    }
 
 
 }

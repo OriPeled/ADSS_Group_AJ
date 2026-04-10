@@ -1,6 +1,7 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Objects.Employee;
+import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
@@ -22,7 +23,7 @@ public class HRManager {
         this.shifts = new HashMap<>();
     }
 
-    public void addEmployee(String name, int id, int bankAccount, double salary, String terms, LocalDate startLocalDate) {
+    public void addEmployee(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startLocalDate) {
         Employee employee = new Employee(name, id, bankAccount, salary, terms, startLocalDate);
         if (!checkIfExists(id)){
             RolesOfEmployee.put(employee, new ArrayList<>());

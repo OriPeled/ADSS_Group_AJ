@@ -53,4 +53,5 @@ public class UserMode {
                 System.out.println("Invalid input.");
         }
     }
+
 }

@@ -18,6 +18,11 @@ public class EmployeeTerms {
         this.salaryType = SalaryType.valueOf(salaryType);
         this.restDays = restDays;
     }
+    public EmployeeTerms(JobStatus jobStatus, SalaryType salaryType, int restDays){
+        this.jobStatus = jobStatus;
+        this.salaryType = salaryType;
+        this.restDays = restDays;
+    }
 
     public JobStatus getJobStatus() {
         return jobStatus;

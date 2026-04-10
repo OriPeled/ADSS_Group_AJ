@@ -1,6 +1,8 @@
 package dev.Workers.presentation;
 
 import dev.Workers.domain.*;
+import dev.Workers.domain.Enums.JobStatus;
+import dev.Workers.domain.Enums.SalaryType;
 import dev.Workers.domain.Objects.Constraint;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.EmployeeTerms;
@@ -190,6 +192,7 @@ public class ManageEmployeesMenu {
                 employeeManager.remove(id);
                 System.out.println("Employee removed.");
                 accessEmployee();
+                break;
             case 2:
                 accessEmployee();
         }
@@ -209,11 +212,43 @@ public class ManageEmployeesMenu {
         System.out.println("Enter salary:");
         double salary = scanner.nextDouble();
         System.out.println("Enter terms:");
-        String terms = scanner.nextLine();
+        System.out.println("Enter job status");
+        System.out.println("1 for full time, 2 for half time");
+        int choice = scanner.nextInt();
+        JobStatus jobStatus=null;
+        switch (choice) {
+            case 1:
+                 jobStatus = JobStatus.fullTime;
+                break;
+            case 2:
+                 jobStatus = JobStatus.halfTime;
+                break;
+            default:
+                System.out.println("Invalid choice.");
+
+        }
+
+        System.out.println("Enter salary type");
+        System.out.println("1 for hourly, 2 for  global");
+        choice = scanner.nextInt();
+        SalaryType salaryType=null;
+        switch (choice) {
+            case 1:
+                 salaryType = SalaryType.hourly;
+                break;
+            case 2:
+                salaryType = SalaryType.global;
+                break;
+            default:
+                System.out.println("Invalid choice.");
+
+        }
+        System.out.println("Enter rest days");
+        int restDays = scanner.nextInt();
+        EmployeeTerms terms=new EmployeeTerms(jobStatus ,salaryType,  restDays);
         System.out.println("Enter start date:");
         String startDateString = scanner.nextLine();
         LocalDate date = Parser.stringToDate(startDateString);
-        
         employeeManager.add(name, id, bankAccount, salary, terms, date);
         System.out.println("Employee added.");
         start();

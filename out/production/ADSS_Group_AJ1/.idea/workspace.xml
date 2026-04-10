@@ -1,55 +1,267 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="690f315c-0ff6-4cab-b0c3-1d6823eff1d9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Workers/presentation/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/presentation/Main.java" afterDir="false" />
-    </list>
+    <list default="true" id="00756c5f-dc61-44f8-afc0-b5a82d32189c" name="Changes" comment="add privet" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="208743476_316893130" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;OriPeled&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/OriPeled/ADSS_Group_AJ.git&quot;,
+    &quot;accountId&quot;: &quot;98b60075-8177-4738-b248-27da43507780&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="3BqXYZJRkRpMq4GCasXMb5GR8vn" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <OptionsSetting value="false" id="Update" />
   </component>
-  <component name="ProjectId" id="3BqXWd33dseazCLDObxldI2vrsb" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "#3 on 208743476__316893130",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Ori/IdeaProjects/ADSS_Group_AJ",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="690f315c-0ff6-4cab-b0c3-1d6823eff1d9" name="Changes" comment="" />
-      <created>1775217613366</created>
+      <changelist id="00756c5f-dc61-44f8-afc0-b5a82d32189c" name="Changes" comment="" />
+      <created>1775217621853</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1775217613366</updated>
-      <workItem from="1775217618213" duration="159000" />
-      <workItem from="1775217817597" duration="41000" />
-      <workItem from="1775222051494" duration="6663000" />
-      <workItem from="1775232768572" duration="453000" />
-      <workItem from="1775234589572" duration="1189000" />
-      <workItem from="1775239080624" duration="3180000" />
-      <workItem from="1775242994363" duration="1158000" />
-      <workItem from="1775412712111" duration="606000" />
-      <workItem from="1775420284401" duration="738000" />
+      <updated>1775217621853</updated>
+      <workItem from="1775217623568" duration="51826000" />
+      <workItem from="1775648751765" duration="14052000" />
     </task>
+    <task id="LOCAL‎-00001" summary="שש">
+      <option name="closed" value="true" />
+      <created>1775217720257</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL‎-00001" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775217720257</updated>
+    </task>
+    <task id="LOCAL‎-00002" summary="move main to presentation">
+      <option name="closed" value="true" />
+      <created>1775217876567</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL‎-00002" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775217876567</updated>
+    </task>
+    <task id="LOCAL‎-00003" summary="move main to presentation1">
+      <option name="closed" value="true" />
+      <created>1775217921156</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL‎-00003" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775217921156</updated>
+    </task>
+    <task id="LOCAL‎-00004" summary="add and fields and classes">
+      <option name="closed" value="true" />
+      <created>1775219662416</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL‎-00004" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775219662416</updated>
+    </task>
+    <task id="LOCAL‎-00005" summary="add and fields and classes met">
+      <option name="closed" value="true" />
+      <created>1775222000151</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL‎-00005" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775222000151</updated>
+    </task>
+    <task id="LOCAL‎-00006" summary="add and fields and classes met and methods to HR">
+      <option name="closed" value="true" />
+      <created>1775232626142</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL‎-00006" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775232626143</updated>
+    </task>
+    <task id="LOCAL‎-00007" summary="add and fields and classes met and methods to HR">
+      <option name="closed" value="true" />
+      <created>1775232657296</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL‎-00007" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775232657296</updated>
+    </task>
+    <task id="LOCAL‎-00008" summary="add and fields and classes met and methods to HR 3">
+      <option name="closed" value="true" />
+      <created>1775232726701</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL‎-00008" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775232726701</updated>
+    </task>
+    <task id="LOCAL‎-00009" summary="add pack workees">
+      <option name="closed" value="true" />
+      <created>1775233608702</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL‎-00009" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775233608702</updated>
+    </task>
+    <task id="LOCAL‎-00010" summary="add pack workers 22">
+      <option name="closed" value="true" />
+      <created>1775233684290</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL‎-00010" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775233684290</updated>
+    </task>
+    <task id="LOCAL‎-00011" summary="add pack workers 223">
+      <option name="closed" value="true" />
+      <created>1775233787433</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL‎-00011" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775233787433</updated>
+    </task>
+    <task id="LOCAL‎-00012" summary="i add temp class and interface">
+      <option name="closed" value="true" />
+      <created>1775382253764</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL‎-00012" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775382253764</updated>
+    </task>
+    <task id="LOCAL‎-00013" summary="i add temp class and interface">
+      <option name="closed" value="true" />
+      <created>1775382306093</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL‎-00013" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775382306093</updated>
+    </task>
+    <task id="LOCAL‎-00014" summary="i add temp class and interface">
+      <option name="closed" value="true" />
+      <created>1775382317867</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL‎-00014" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775382317867</updated>
+    </task>
+    <task id="LOCAL‎-00015" summary="add 3 new clasess">
+      <option name="closed" value="true" />
+      <created>1775403468714</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL‎-00015" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775403468715</updated>
+    </task>
+    <task id="LOCAL‎-00016" summary="add new 3 class emp,con, role&#10;add interface">
+      <option name="closed" value="true" />
+      <created>1775412437104</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL‎-00016" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775412437104</updated>
+    </task>
+    <task id="LOCAL‎-00017" summary="add new 3 class emp,con, role&#10;add interface delet">
+      <option name="closed" value="true" />
+      <created>1775412541443</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL‎-00017" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775412541443</updated>
+    </task>
+    <task id="LOCAL‎-00018" summary="add ShiftManager">
+      <option name="closed" value="true" />
+      <created>1775486084221</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL‎-00018" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775486084221</updated>
+    </task>
+    <task id="LOCAL‎-00019" summary="add ShiftManager req22">
+      <option name="closed" value="true" />
+      <created>1775491752110</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL‎-00019" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775491752110</updated>
+    </task>
+    <task id="LOCAL‎-00020" summary="up shit add his">
+      <option name="closed" value="true" />
+      <created>1775657583687</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL‎-00020" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775657583687</updated>
+    </task>
+    <task id="LOCAL‎-00021" summary="add med">
+      <option name="closed" value="true" />
+      <created>1775662439370</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL‎-00021" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775662439370</updated>
+    </task>
+    <task id="LOCAL‎-00022" summary="add privet">
+      <option name="closed" value="true" />
+      <created>1775665734252</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL‎-00022" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1775665734252</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -60,10 +272,60 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/208743476_316893130" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="שש" />
+    <MESSAGE value="move main to presentation" />
+    <MESSAGE value="move main to presentation1" />
+    <MESSAGE value="add and fields and classes" />
+    <MESSAGE value="add and fields and classes met" />
+    <MESSAGE value="add and fields and classes met and methods to HR" />
+    <MESSAGE value="add and fields and classes met and methods to HR 3" />
+    <MESSAGE value="add pack workees" />
+    <MESSAGE value="add pack workers 2" />
+    <MESSAGE value="add pack workers 22" />
+    <MESSAGE value="add pack workers 223" />
+    <MESSAGE value="i add temp class and interface" />
+    <MESSAGE value="add 3 new clasess" />
+    <MESSAGE value="add new 3 class emp,con, role&#10;add interface" />
+    <MESSAGE value="add new 3 class emp,con, role&#10;add interface delet" />
+    <MESSAGE value="add ShiftManager" />
+    <MESSAGE value="add ShiftManager req22" />
+    <MESSAGE value="up shit add his" />
+    <MESSAGE value="add med" />
+    <MESSAGE value="add privet" />
+    <option name="LAST_COMMIT_MESSAGE" value="add privet" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/dev/Workers/domain/ConstraintManager.java</url>
+          <line>73</line>
+          <properties class="dev.Workers.domain.ConstraintManager" method="update">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

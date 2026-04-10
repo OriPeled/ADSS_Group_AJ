@@ -20,8 +20,10 @@ public class Main {
         switch (choice) {
             case 1:
                 UserMode.login();
+                break;
             case 2:
                 AdminMode.login();
+                break;
             case 3:
                 System.out.println("Have a good day.");
                 //scanner.close();
