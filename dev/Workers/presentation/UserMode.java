@@ -1,11 +1,13 @@
 package dev.Workers.presentation;
 
+import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.EmployeeManager;
 
 import static dev.Workers.presentation.Main.scanner;
 
 public class UserMode {
     static EmployeeManager employeeManager = EmployeeManager.getInstance();
+    static ConstraintManager constraintManager = ConstraintManager.getInstance();
 
     public static void login() {
         System.out.println("User Mode");
@@ -44,7 +46,8 @@ public class UserMode {
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
-
+                updateConstraints();
+                break;
             case 2:
 
             case 3:
@@ -52,6 +55,17 @@ public class UserMode {
             default:
                 System.out.println("Invalid input.");
         }
+    }
+
+    public static void updateConstraints() {
+        constraintManager.displayWeek();
+        // sunday - morning(yes), evening(yes)
+        System.out.println("Choose a shift constraint to change");
+        System.out.println("Choose 1-7 for day");
+        int day = scanner.nextInt();
+        System.out.println("Choose 1 for morning and 2 for evening");
+        int shiftType = scanner.nextInt();
+        constraintManager.updateConstraint(id, day, shiftType);
     }
 
 }

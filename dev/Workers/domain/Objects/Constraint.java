@@ -2,31 +2,32 @@ package dev.Workers.domain.Objects;
 
 import dev.Workers.domain.Enums.shiftType;
 
-import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.util.Objects;
 
 public class Constraint {
-    private LocalDate date;
-    private dev.Workers.domain.Enums.shiftType shiftType;
+    private DayOfWeek day;
+    private shiftType shiftType;
     //private boolean can;
 
-    public Constraint(LocalDate date, shiftType shiftType) {
-        this.date = date;
+    public Constraint(DayOfWeek day, shiftType shiftType) {
+        this.day = day;
         this.shiftType = shiftType;
         //this.can = false;
     }
 
-    public Constraint(LocalDate date, String shiftTypeString) {
-        this.date = date;
+    public Constraint(DayOfWeek day, String shiftTypeString) {
+        this.day = day;
         this.shiftType = shiftType.valueOf(shiftTypeString);
         //this.can = false;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public DayOfWeek getDay() {
+        return day;
     }
 
-    public void setdate(LocalDate date) {
-        this.date = date;
+    public void setDay(DayOfWeek day) {
+        this.day = day;
     }
 
     public shiftType getShiftType() {
@@ -37,4 +38,16 @@ public class Constraint {
         this.shiftType = shiftType;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Constraint that = (Constraint) o;
+        return day.equals(that.day) && shiftType == that.shiftType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, shiftType);
+    }
 }

@@ -1,16 +1,17 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Constraint;
 
 import java.util.*;
 
 public class ConstraintManager implements IListManager<Constraint> {
-
     private static ConstraintManager instance;
-    private Map<Integer, List<Constraint>> employeeConstraints;
+    private Map<Integer, Constraint[]> employeeConstraints;
 
     private ConstraintManager() {
         this.employeeConstraints = new HashMap<>();
+        employeeConstraints.
     }
 
     public static ConstraintManager getInstance() {
@@ -72,5 +73,15 @@ public class ConstraintManager implements IListManager<Constraint> {
 
         }
         return qualifiedEmployees;
+    }
+
+    public void updateConstraint(int id, int day, int shiftT) {
+        Constraint empConstraint = new Constraint();
+        List<Constraint> employeeConstraints = getListById(id);
+        for (Constraint constraint : employeeConstraints) {
+            if (constraint.equals()
+        }
+        if (employeeConstraints())
+
     }
 }
