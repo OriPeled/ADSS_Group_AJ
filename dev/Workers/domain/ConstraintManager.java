@@ -4,11 +4,16 @@ import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Constraint;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static dev.Workers.domain.Enums.shiftType.*;
 
 public class ConstraintManager  {
+
+
+    private LocalDate deadline;
     private Map<Integer, Constraint> employeeConstraints;
 
     private static ConstraintManager instance;
@@ -34,6 +39,9 @@ public class ConstraintManager  {
     }
 
     public void update(int id, DayOfWeek day, shiftType shiftType) {
+        if (!isOnTime(LocalDate.now())) {
+            throw new RuntimeException("Cannot update constraints after deadline");
+        }
         Constraint employeeConstraints =display(id);
         employeeConstraints.getWeekConstraints().put(day, shiftType);
     }
@@ -60,6 +68,15 @@ public class ConstraintManager  {
         }
         return days[dayNumber - 1];
     }
+    public boolean isOnTime(LocalDate date) {
+        return date.isBefore(this.deadline);
+    }
+    public LocalDate getDeadline() {
+        return deadline;
+    }
 
-    //public static shiftType getShiftTypeFromNumber (int dayNumber) {}
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
 }

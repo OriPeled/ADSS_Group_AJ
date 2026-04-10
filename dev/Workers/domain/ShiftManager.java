@@ -129,4 +129,5 @@ public class ShiftManager   {
         String[] existingRoles = roleManager.getExistingRoles();
         // TODO
     }
+
 }
