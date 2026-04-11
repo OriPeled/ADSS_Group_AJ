@@ -13,10 +13,10 @@ public class ManageShiftsMenu {
     static Shift shift;
 
     public static void start() {
-        System.out.println("Shifts");
-        System.out.println("1. Manage existing Shift");
-        System.out.println("2. Add Shift");
-        System.out.println("3. Back");
+        // shiftManager.displayShiftsWeek()
+        System.out.println("Manage Shifts Week");
+        System.out.println("1. Enter Day (1-7)");
+        System.out.println("2. Enter Shift (1 for morning, 2 for evening)");
 
         int choice = scanner.nextInt();
         switch (choice) {
@@ -66,7 +66,12 @@ public class ManageShiftsMenu {
     }
 
     private static void updateShift() {
+        shift.toString();
         shiftManager.displayAssignmentStatus(shift); // (how many roles/employees left to assign)
+
+        // sunday morning
+        // cashier: ido, adi, ali (3 assigned, 4 left to assign)
+        // storekeeper: muhamad, mesi (2 assigned, 2 left to assign)
 
         //shiftManager.assignEmployeeToShift();
         System.out.println("1. Update Assignments");

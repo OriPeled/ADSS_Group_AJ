@@ -171,7 +171,7 @@ public class ShiftManager   {
      * Checks if role still has available demand in shift.
      */
     private boolean isRoleAvailable(Shift shift, Role role) {
-        return shiftRequirements.getCountByRole(shift, role) > 0;
+        return shiftRequirements.length(shift, role) > 0;
     }
     /**
      * Displays assignment status per role in a shift.
@@ -179,6 +179,48 @@ public class ShiftManager   {
     public void displayAssignmentStatus(Shift shift) {
         //String[] existingRoles = roleManager.getExistingRoles();
         // TODO
+    }
+
+    public int leftToAssign(Shift shift, Role role) {
+        int current = shift.length(role);
+        int required = shiftRequirements.length(shift, role);
+        return required - current;
+    }
+
+    // sunday morning
+    // cashier: ido, adi, ali (3 assigned, 4 left to assign)
+    // storekeeper: muhamad, mesi (2 assigned, 2 left to assign)
+
+    /**
+     * Returns a formatted string representing the shift details.
+     * This implementation uses standard String concatenation (+).
+     * * @return A multi-line summary of the shift and employee role assignments.
+     */
+
+    public String displayShift() {
+        // Start with the header
+        String result = "Shift\n";
+        result += "Day, Shift: " + shift.getShiftDate() + ", " + shift.getShift() + "\n";
+        result += "Assignments:\n";
+
+        // Loop through the roles and append to the result string
+        for (Role role : employeeIdsByRole.keySet()) {
+            Set<Integer> ids = employeeIdsByRole.get(role);
+
+            int assigned = ids.size();
+            int required = requirements.getOrDefault(role, 0);
+            int left = Math.max(0, required - assigned);
+
+            // Concatenating the role line
+            result += role.toString().toLowerCase() + ": ";
+
+            // Handling the list of IDs (using String.join for convenience)
+            result += ids.toString(); // Simple way to show [1, 2, 3]
+
+            result += " (" + assigned + " assigned, " + left + " left to assign)\n";
+        }
+
+        return result;
     }
 
 }

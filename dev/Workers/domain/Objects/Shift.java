@@ -26,7 +26,7 @@ public class Shift {
      * Mapping between roles and employee IDs assigned to each role.
      * Each role can have multiple employees.
     */
-    private Map<Role, Set<Integer>> rolesByEmployeeID;
+    private Map<Role, Set<Integer>> employeeIdsByRole;
 
     /**
      *
@@ -40,7 +40,7 @@ public class Shift {
 
 //        Map<Role, Integer> requirements = ShiftRequirements.requirementsByDate()
 //        for ()
-        rolesByEmployeeID = new HashMap<>();
+        employeeIdsByRole = new HashMap<>();
     }
 
     public Shift(LocalDate shiftDate, String shiftString) {
@@ -78,8 +78,8 @@ public class Shift {
         this.shift = shift;
     }
 
-    public Map<Role, Set<Integer>> getRolesByEmployeeID() {
-        return rolesByEmployeeID;
+    public Map<Role, Set<Integer>> getEmployeeIdsByRole() {
+        return employeeIdsByRole;
     }
 
     /**
@@ -88,7 +88,7 @@ public class Shift {
      * @return list of employees on role on a shift.
      */
     public Set<Integer> getEmployeeIDs(Role role) {
-        return rolesByEmployeeID.get(role);
+        return employeeIdsByRole.get(role);
     }
 
     /**
@@ -101,10 +101,10 @@ public class Shift {
         Set<Integer> employeeIDs = getEmployeeIDs(role);
         if (employeeIDs == null) {
             employeeIDs = new HashSet<>();
-            rolesByEmployeeID.put(role, employeeIDs);
+            employeeIdsByRole.put(role, employeeIDs);
         }
         employeeIDs.add(employeeID);
-        rolesByEmployeeID.put(role, employeeIDs);
+        employeeIdsByRole.put(role, employeeIDs);
     }
 
     /**
@@ -128,13 +128,18 @@ public class Shift {
      * @return true if employee already work at any role , else false
      */
     public boolean isEmployeeAssignedToAnyRole(int employeeID) {
-        for (Set<Integer> employeeIDs : rolesByEmployeeID.values()) {
+        for (Set<Integer> employeeIDs : employeeIdsByRole.values()) {
             if (employeeIDs.contains(employeeID)) {
                 return true;
             }
         }
         return false;
     }
+
+    public int length(Role role) {
+        return employeeIdsByRole.get(role).size();
+    }
+
     /**
      * @return string representation of the shift and its assignments
      */
@@ -143,6 +148,6 @@ public class Shift {
         return "Shift" +
                 "\nDate: " + shiftDate +
                 "\nType: " + shift +
-                "\nAssignments: " + rolesByEmployeeID;
+                "\nAssignments: " + employeeIdsByRole;
     }
 }

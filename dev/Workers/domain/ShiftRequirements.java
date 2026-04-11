@@ -17,7 +17,6 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
  * for each shift in the system.
  */
 public class ShiftRequirements {
-
     private static Map<Shift, Map<Role, Integer>> Requirements;
     /**
      * Initializes the requirements storage
@@ -92,7 +91,7 @@ public class ShiftRequirements {
      * @param role role
      * @return required number of employees
      */
-    public int getCountByRole(Shift shift, Role role){
+    public int length(Shift shift, Role role){
         if (!Requirements.containsKey(shift)) {
             System.out.println("Shift does not exist.");
         }
