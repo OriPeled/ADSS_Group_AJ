@@ -59,7 +59,7 @@ public class ConstraintManager  {
     }
 
     /**
-     * Updates constraint for a specific employee and day
+     * Updates constraint for a specific employee and day 
      *
      * @param id employee ID
      * @param day day of week
