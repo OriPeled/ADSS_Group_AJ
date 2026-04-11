@@ -136,7 +136,7 @@ public class Employee {
     /**
      * Promotes or demotes an employee to/from shift manager.
      *
-     * לעבור היום על מה זה הפונקציה הזו
+
      */
     public void promoteDemote() {
         if (isManager)

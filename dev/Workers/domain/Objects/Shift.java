@@ -1,7 +1,7 @@
 package dev.Workers.domain.Objects;
 
+import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Objects.Role;
 
 import java.time.LocalDate;
 import java.util.*;

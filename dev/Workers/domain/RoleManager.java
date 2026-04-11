@@ -1,7 +1,9 @@
 package dev.Workers.domain;
-import dev.Workers.domain.Objects.Role;
+import dev.Workers.domain.Enums.Role;
 
 import java.util.*;
+
+import static dev.Workers.domain.Enums.Role.shiftManager;
 
 /**
  * Manages roles assigned to employees.
@@ -13,8 +15,7 @@ import java.util.*;
 public class RoleManager implements IListManager<Role> {
     // maps employee ID to list of roles
     private Map<Integer, List<Role>> employeeRoles;
-    // existing roles in system
-    private String existingRoles[] = {"Cashier", "Storekeeper"};
+
 
     private static RoleManager instance;
 
@@ -69,7 +70,7 @@ public class RoleManager implements IListManager<Role> {
         for (Integer id : employeeRoles.keySet()) {
             List<Role> roles = getListById(id);
             for (Role role : roles){
-               if (role.getRolename().equals("Manager")) {
+               if (role==shiftManager) {
                    managers.add(id);
                }
             }
@@ -86,6 +87,8 @@ public class RoleManager implements IListManager<Role> {
     public void removeAll(int id) {
         employeeRoles.remove(id);
     }
+
+
 
     /**
      * Removes a specific role from an employee
@@ -114,15 +117,7 @@ public class RoleManager implements IListManager<Role> {
         return employeeRoles.getOrDefault(id, new ArrayList<>());
     }
 
-    /**
-     * Adds a new role to the system's list of existing roles
-     *
-     * @param role role name to add
-     */
-    public void addRole(String role) {
-        String[] arr = Arrays.copyOf(existingRoles, existingRoles.length + 1);
-        arr[existingRoles.length - 1] = role;
-    }
+
     /**
      * Returns all employees who have a specific role
      *
@@ -140,10 +135,5 @@ public class RoleManager implements IListManager<Role> {
             }
         return qualifiedEmployees;
     }
-    /**
-     * @return array of all existing roles in the system
-     */
-    public String[] getExistingRoles() {
-        return existingRoles;
-    }
+
 }

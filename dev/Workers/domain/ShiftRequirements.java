@@ -1,12 +1,15 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+
+import static dev.Workers.domain.Enums.Role.shiftManager;
+
 /**
  * Manages required staffing levels for shifts.
  *
@@ -32,11 +35,11 @@ public class ShiftRequirements {
         if(!Requirements.containsKey(shift)){
             Map<Role, Integer> newInnerMap = new HashMap<>();
             // Default rule: every shift must have at least 1 Manager
-            newInnerMap.put(new Role("Manager"), 1);
+            newInnerMap.put(shiftManager, 1);
             Requirements.put(shift, newInnerMap);
         }
         // Business rule: Manager requirement cannot go below 1
-        if (role.getRolename().equals("Manager") && count < 1) {
+        if (role==shiftManager && count < 1) {
             count = 1;
         }
         // Get current required count for this role in the shift
@@ -57,7 +60,7 @@ public class ShiftRequirements {
         if (count < 0) {
             System.out.println("Count must be a non-negative number.");
         }
-        if (role.getRolename().equals("Manager") && count == 0) {
+        if (role==shiftManager && count == 0) {
            System.out.println("There must be one manager on shift.");
         }
         if (!Requirements.containsKey(shift)){

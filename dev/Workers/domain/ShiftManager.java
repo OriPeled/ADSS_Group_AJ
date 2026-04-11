@@ -1,8 +1,7 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Objects.Constraint;
-import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
@@ -52,7 +51,6 @@ public class ShiftManager   {
      * considering constraints and availability.
      * @param shift The shift
      * @param employeeID Employee ID
-     * @param role Role to assign
      */
     public void assignEmployeeToShift(Shift shift, Role role, int employeeID) {
         if (isEmployeeApplicable(shift, role, employeeID))
@@ -64,7 +62,6 @@ public class ShiftManager   {
      * Removes an employee from a shift role and updates requirements.
      *
      * @param shift the shift
-     * @param role role to remove from
      * @param employeeID employee ID
      */
     public void removeEmployeeFromShift(Shift shift, Role role, int employeeID) {
@@ -144,7 +141,6 @@ public class ShiftManager   {
      * Checks whether an employee can be assigned to a shift role.
      *
      * @param shift shift
-     * @param role role
      * @param employeeID employee ID
      * @return true if employee is eligible
      */

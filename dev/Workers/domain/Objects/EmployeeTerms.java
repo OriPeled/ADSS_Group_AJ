@@ -54,7 +54,7 @@ public class EmployeeTerms {
     public void setJobStatus(JobStatus jobStatus) {
         this.jobStatus = jobStatus;
     }
-    // לעבור על זה גם
+
     public void changeJobStatus() {
         if (jobStatus == fullTime)
             jobStatus = halfTime;

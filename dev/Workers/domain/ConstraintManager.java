@@ -33,7 +33,7 @@ public class ConstraintManager  {
 
     }
     /**
-     * @return the single instance of Constrain tManager
+     * @return the single instance of Constraint Manager
      */
     public static ConstraintManager getInstance() {
         if (instance == null) {
