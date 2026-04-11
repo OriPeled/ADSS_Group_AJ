@@ -5,12 +5,35 @@ import dev.Workers.domain.Objects.Role;
 
 import java.time.LocalDate;
 import java.util.*;
-
+    /**
+     * Represents a work shift on a specific date.
+     *
+     * Each shift has:
+     * - A date
+     * - A shift type (morning/evening)
+     * - A mapping between roles and assigned employees (by their IDs)
+     *
+     * The system allows assigning and removing employees to/from roles,
+     * and checking if an employee is already assigned in the shift.
+     */
 public class Shift {
+    // Date of the shift
     private LocalDate shiftDate;
+    // type of the shift
     private shiftType shift;
+
+    /**
+     * Mapping between roles and employee IDs assigned to each role.
+     * Each role can have multiple employees.
+    */
     private Map<Role, Set<Integer>> rolesByEmployeeID;
 
+    /**
+     *
+     * Constructor using enum shift type.
+     * @param shiftDate date of the shift
+     * @param shift shift type
+     */
     public Shift(LocalDate shiftDate, shiftType shift) {
         this.shiftDate = shiftDate;
         this.shift = shift;
@@ -26,19 +49,31 @@ public class Shift {
         shiftType shift = shiftType.valueOf(shiftString);
         this.shift = shift;
     }
-
+    /**
+     * @return shift date
+     */
     public LocalDate getShiftDate() {
         return shiftDate;
     }
-
+    /**
+     * Updates shift date
+     * @param shiftDate new date
+     */
     public void setShiftDate(LocalDate shiftDate) {
         this.shiftDate = shiftDate;
     }
 
+    /**
+     * @return shift type
+     */
     public shiftType getShift() {
         return shift;
     }
 
+    /**
+     * Updates shift type
+     * @param shift new shift type
+     */
     public void setShift(shiftType shift) {
         this.shift = shift;
     }
@@ -100,7 +135,9 @@ public class Shift {
         }
         return false;
     }
-
+    /**
+     * @return string representation of the shift and its assignments
+     */
     @Override
     public String toString() {
         return "Shift" +
