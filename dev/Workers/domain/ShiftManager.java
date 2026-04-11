@@ -52,9 +52,11 @@ public class ShiftManager   {
      * @param shift The shift
      * @param employeeID Employee ID
      */
-    public void assignEmployeeToShift(Shift shift, Role role, int employeeID) {
-        if (isEmployeeApplicable(shift, role, employeeID))
+    public void assignEmployeeToShift(int employeeID ,Shift shift , Role role) {
+        if (isEmployeeApplicable(shift, role, employeeID)){
             shift.assignEmployee(role, employeeID);
+        }
+
         addShiftRequirement(shift, role, 1);
     }
 
@@ -175,7 +177,7 @@ public class ShiftManager   {
      * Displays assignment status per role in a shift.
      */
     public void displayAssignmentStatus(Shift shift) {
-        String[] existingRoles = roleManager.getExistingRoles();
+        //String[] existingRoles = roleManager.getExistingRoles();
         // TODO
     }
 

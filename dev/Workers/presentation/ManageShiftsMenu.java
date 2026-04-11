@@ -51,7 +51,7 @@ public class ManageShiftsMenu {
         System.out.println("1. Update Shift");
         System.out.println("2. Remove Shift");
         System.out.println("3. Back");
-
+        System.out.println("");
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:

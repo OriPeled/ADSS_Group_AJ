@@ -133,5 +133,21 @@ public class ConstraintManager  {
     public void setDeadline(LocalDate deadline) {
         this.deadline = deadline;
     }
+    /**
+     * Resets all employees' constraints.
+     *
+     * For every employee:
+     * - All days in the week will be set to wholeDay
+     */
+    public void resetAllConstraints() {
+        for (Constraint constraint : employeeConstraints.values()) {
+            // Reset each day in the week to default (wholeDay)
+            for (DayOfWeek day : DayOfWeek.values()) {
+                constraint.setShiftType(day, wholeDay);
+            }
+        }
+
+        System.out.println("All constraints have been reset.");
+    }
 
 }
