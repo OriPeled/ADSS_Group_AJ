@@ -243,13 +243,13 @@ public class ManageEmployeesMenu {
         }
         System.out.println("Enter rest days");
         int restDays = scanner.nextInt();
-        EmployeeTerms terms=new EmployeeTerms(jobStatus ,salaryType,  restDays);
+        EmployeeTerms terms = new EmployeeTerms(jobStatus ,salaryType,  restDays);
         System.out.println("Enter start date:");
         String startDateString = scanner.nextLine();
         LocalDate date = Parser.stringToDate(startDateString);
         employeeManager.add(name, id, bankAccount, salary, terms, date);
-        Constraint constraint=new Constraint();
-        constraintManager.getEmployeeConstraints().put(id,constraint);
+        Constraint constraint = new Constraint();
+        constraintManager.getEmployeeConstraints().put(id, constraint);
         System.out.println("Employee added.");
         start();
     }

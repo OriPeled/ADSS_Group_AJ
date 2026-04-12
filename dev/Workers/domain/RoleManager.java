@@ -88,8 +88,6 @@ public class RoleManager implements IListManager<Role> {
         employeeRoles.remove(id);
     }
 
-
-
     /**
      * Removes a specific role from an employee
      *

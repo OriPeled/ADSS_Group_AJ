@@ -1,8 +1,11 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Shift;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -12,11 +15,18 @@ import java.util.*;
  * Shift -> Role -> Required count
  */
 public class Requirements {
-
     private final Map<Shift, Map<Role, Integer>> data;
 
     public Requirements() {
         this.data = new HashMap<>();
+    }
+
+    public void init(Shift shift) {
+        Map<Role, Integer> innerMap = new HashMap<>();
+        for (Role role : Role.values()) {
+            innerMap.put(role, 3);
+        }
+        data.put(shift, innerMap);
     }
 
     /**
@@ -26,7 +36,7 @@ public class Requirements {
      * @param role the role
      * @param count required number of employees (must be >= 0)
      */
-    public void add(Shift shift, Role role, int count) {
+    public void set(Shift shift, Role role, int count) {
         if (count < 0) {
             throw new IllegalArgumentException("Count cannot be negative");
         }

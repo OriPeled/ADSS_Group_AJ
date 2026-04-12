@@ -3,21 +3,22 @@ package dev.Workers.domain.Objects;
 import dev.Workers.domain.Enums.shiftType;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Shift {
 
     //date of shift
     private LocalDate shiftDate;
     // type of the shift
-    private shiftType shift;
+    private shiftType type;
 
-    public Shift(LocalDate shiftDate, shiftType shift) {
-        this.shift=shift;
+    public Shift(LocalDate shiftDate, shiftType type) {
+        this.type = type;
         this.shiftDate = shiftDate;
     }
 
-    public shiftType getShift() {
-        return shift;
+    public shiftType getType() {
+        return type;
     }
     public LocalDate getShiftDate() {
         return shiftDate;
@@ -36,10 +37,16 @@ public class Shift {
         Shift shift1 = (Shift) o;
 
         return shiftDate.equals(shift1.shiftDate)
-                && shift == shift1.shift;
+                && type == shift1.type;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getShiftDate(), getType());
+    }
+
     @Override
     public String toString() {
-        return shiftDate + " - " + shift;
+        return shiftDate + " - " + type;
     }
 }

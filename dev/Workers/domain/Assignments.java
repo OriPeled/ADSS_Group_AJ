@@ -12,7 +12,7 @@ import java.util.*;
  * are assigned to which role inside each shift.
  *
  */
-public class ShiftAssignments {
+public class Assignments {
 
 
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;
@@ -20,8 +20,16 @@ public class ShiftAssignments {
     /**
      * Constructor initializes empty assignment storage.
      */
-    public ShiftAssignments() {
+    public Assignments() {
         this.assignments = new HashMap<>();
+    }
+
+    public void init(Shift shift) {
+        Map<Role, Set<Integer>> innerMap = new HashMap<>();
+        Set<Integer> innerSet = new HashSet<>();
+        for (Role role : Role.values())
+            innerMap.put(role, innerSet);
+        assignments.put(shift, innerMap);
     }
 
     /**
@@ -112,6 +120,20 @@ public class ShiftAssignments {
      */
     public boolean isAssigned(Shift shift, Role role, int employeeID) {
         return getEmployees(shift, role).contains(employeeID);
+    }
+
+    /**
+     *
+     * @param shift
+     * @param id
+     * @return role of the employee in the shift, else null
+     */
+    public Role getEmployeeRole(Shift shift, int id) {
+        for (Role role : Role.values()) {
+            if (isAssigned(shift, role, id))
+                return role;
+        }
+        return null;
     }
 
     /**

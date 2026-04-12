@@ -21,12 +21,13 @@ public class ShiftService {
 
     // all system shifts
     private static Set<Shift> shifts;
+
     // required roles per shift
     private Requirements requirements;
     // employee availability constraints
     private ConstraintManager constraintManager;
     //all the assigments
-    private ShiftAssignments assignments;
+    private Assignments assignments;
     // employee roles manager
     private static RoleManager roleManager = RoleManager.getInstance();
 
@@ -50,33 +51,38 @@ public class ShiftService {
         shifts = new HashSet<>();
         requirements = new Requirements();
         constraintManager = ConstraintManager.getInstance();
-        assignments = new ShiftAssignments();
+        assignments = new Assignments();
     }
 
     /**
      *
      * @param date
      * @param type
-     * add shift to the system
+     * adding shift to the system if it doesn't already exist, else nothing
      */
     public void addShift(LocalDate date, shiftType type) {
-        shifts.add(new Shift(date, type));
+        Shift shift = new Shift(date, type);
+        shifts.add(shift);
+        requirements.init(shift);
+        assignments.init(shift);
     }
 
     /**
      *
      * @param date
      * @param type
-     * @return getter for shift, null if not exsist
+     * @return getter for shift, null if not exist
      */
     public Shift getShift(LocalDate date, shiftType type) {
+        addShift(date, type);
         for (Shift s : shifts) {
-            if (s.getShiftDate().equals(date) && s.getShift().equals(type)) {
+            if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
                 return s;
             }
         }
         return null;
     }
+
     private boolean isValid(Shift shift, Role role, int employeeId) {
 
         return isAvailable(employeeId, shift)
@@ -90,7 +96,7 @@ public class ShiftService {
         return constraintManager.isEmployeeAvailable(
                 id,
                 shift.getShiftDate().getDayOfWeek(),
-                shift.getShift()
+                shift.getType()
         );
     }
     /**
@@ -115,7 +121,7 @@ public class ShiftService {
      * update equirement to roll in shift
      */
     public void setRequirement(Shift shift, Role role, int count) {
-        requirements.add(shift, role, count);
+        requirements.set(shift, role, count);
     }
 
     /**
@@ -145,8 +151,21 @@ public class ShiftService {
         }
         assignments.add(shift, role, employeeId);
     }
+
+    public void setRequirements(Shift shift, Role role, int count) {
+        requirements.set(shift, role, count);
+    }
+
     public void removeEmployee(Shift shift, Role role, int employeeId) {
         assignments.remove(shift, role, employeeId);
+    }
+
+    public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
+        Role role = assignments.getEmployeeRole(shift, currentEmployeeId);
+        if (isValid(shift, role, newEmployeeId)) {
+            assignEmployee(shift, role, newEmployeeId);
+            removeEmployee(shift, role, currentEmployeeId);
+        }
     }
 
     /**
@@ -186,7 +205,7 @@ public class ShiftService {
             int required = requirements.get(shift, role);
             Set<Integer> employees = assignments.getEmployees(shift, role);
             int assigned = employees.size();
-            if (required > 0 || assigned > 0) {
+            if (required > 0) {
                 result += role +
                         ": " + employees +
                         " (" + assigned + " assigned, " +
