@@ -1,16 +1,15 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.ShiftAssignments;
 import dev.Workers.domain.ShiftManager;
 
 import java.time.LocalDate;
 
-import static dev.Workers.presentation.Main.displayMenu;
 import static dev.Workers.presentation.Main.scanner;
 
 public class ManageShiftsMenu {
     static ShiftManager shiftManager = ShiftManager.getInstance();
-    static Shift shift;
+    static ShiftAssignments shift;
 
     public static void start() {
         // shiftManager.displayShiftsWeek()

@@ -8,6 +8,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
+import static dev.Workers.presentation.ManageShiftsMenu.shift;
+
 /**
  * Core service class responsible for managing shifts.
  *
@@ -19,9 +21,9 @@ import java.util.*;
  */
 public class ShiftManager   {
     // all system shifts
-    private static Set<Shift> shifts;
+    private static Set<ShiftAssignments> shifts;
     // required roles per shift
-    private ShiftRequirements shiftRequirements;
+    private Requirements shiftRequirements;
     // employee availability constraints
     private ConstraintManager constraintManager;
     // employee roles manager
@@ -42,7 +44,7 @@ public class ShiftManager   {
      */
     private ShiftManager() {
         shifts = new HashSet<>();
-        shiftRequirements = new ShiftRequirements();
+        shiftRequirements = new Requirements();
         constraintManager = ConstraintManager.getInstance();
     }
 
@@ -52,7 +54,7 @@ public class ShiftManager   {
      * @param shift The shift
      * @param employeeID Employee ID
      */
-    public void assignEmployeeToShift(int employeeID ,Shift shift , Role role) {
+    public void assignEmployeeToShift(int employeeID , ShiftAssignments shift , Role role) {
         if (isEmployeeApplicable(shift, role, employeeID)){
             shift.assignEmployee(role, employeeID);
         }
@@ -66,8 +68,8 @@ public class ShiftManager   {
      * @param shift the shift
      * @param employeeID employee ID
      */
-    public void removeEmployeeFromShift(Shift shift, Role role, int employeeID) {
-        shift.removeEmployee(role, employeeID);
+    public void removeEmployeeFromShift(ShiftAssignments shift, Role role, int employeeID) {
+        shift.remove(role, employeeID);
         addShiftRequirement(shift, role, -1);
     }
     /**
@@ -83,7 +85,7 @@ public class ShiftManager   {
         // cheking if shift type is morning ir evening
         if (shiftTypeString != "morning" && shiftTypeString != "evening")
             System.out.println("Invalid shift type.");
-        Shift shift = new Shift(date, shiftTypeString);
+        ShiftAssignments shift = new ShiftAssignments(date, shiftTypeString);
         // cheking if shift not exist on map to add to the system
         if (!shifts.contains(shift))
             shifts.add(shift);
@@ -93,7 +95,7 @@ public class ShiftManager   {
      *
      * @param shift shift to remove
      */
-    public void removeShift(Shift shift) {
+    public void removeShift(ShiftAssignments shift) {
         if (!shifts.contains(shift))
             System.out.println("Shift doesn't exist.");
         shifts.remove(shift);
@@ -105,8 +107,8 @@ public class ShiftManager   {
      * @param shiftTypeString "morning" or "evening"
      * @return The Shift object if found, null otherwise
      */
-    public Shift getShift(LocalDate date, String shiftTypeString) {
-        for (Shift s : shifts) {
+    public ShiftAssignments getShift(LocalDate date, String shiftTypeString) {
+        for (ShiftAssignments s : shifts) {
             if (s.getShiftDate().equals(date) && s.getShift().toString().equalsIgnoreCase(shiftTypeString)) {
                 return s;
             }
@@ -120,7 +122,7 @@ public class ShiftManager   {
      * @param role The role
      * @param count Number of employees required
      */
-    public void addShiftRequirement(Shift shift, Role role, int count) {
+    public void addShiftRequirement(ShiftAssignments shift, Role role, int count) {
         shiftRequirements.update(shift, role, count);
     }
 
@@ -133,7 +135,7 @@ public class ShiftManager   {
         if (shifts.isEmpty()) {
             sb.append("No shifts recorded.\n");
         } else {
-            for (Shift s : shifts) {
+            for (ShiftAssignments s : shifts) {
                 sb.append(s.toString()).append("\n");
             }
         }
@@ -143,22 +145,24 @@ public class ShiftManager   {
      * Checks whether an employee can be assigned to a shift role.
      *
      * @param shift shift
+     * @param role
      * @param employeeID employee ID
      * @return true if employee is eligible
      */
-    public boolean isEmployeeApplicable(Shift shift, Role role, int employeeID) {
-        return  (isEmployeeAvailable(employeeID, shift) &&
-                isEmployeeQualified(employeeID, role) &&
-                isRoleAvailable(shift, role));
+    public boolean isEmployeeApplicable(Shift shift, Role role, int employeeId) {
+        return isEmployeeAvailable(shift, employeeId)
+                && isEmployeeQualified(employeeId, role)
+                && isRoleAvailable(shift, role);
     }
     /**
      * Checks if employee is available according to constraints.
      */
-    private boolean isEmployeeAvailable(int id, Shift shift) {
-        LocalDate date = shift.getShiftDate();
-        DayOfWeek day = date.getDayOfWeek();
-        shiftType shiftType = shift.getShift();
-        return constraintManager.isEmployeeAvailable(id, day, shiftType);
+    private boolean isEmployeeAvailable(Shift shift, int id) {
+        return constraintManager.isEmployeeAvailable(
+                id,
+                shift.getShiftDate().getDayOfWeek(),
+                shift.getShift()
+        );
     }
     /**
      * Checks if employee has the required role.
@@ -171,17 +175,17 @@ public class ShiftManager   {
      * Checks if role still has available demand in shift.
      */
     private boolean isRoleAvailable(Shift shift, Role role) {
-        return shiftRequirements.length(shift, role) > 0;
+        return assignments.size(shift, role) < requirements.get(shift, role);
     }
     /**
      * Displays assignment status per role in a shift.
      */
-    public void displayAssignmentStatus(Shift shift) {
+    public void displayAssignmentStatus(ShiftAssignments shift) {
         //String[] existingRoles = roleManager.getExistingRoles();
         // TODO
     }
 
-    public int leftToAssign(Shift shift, Role role) {
+    public int leftToAssign(ShiftAssignments shift, Role role) {
         int current = shift.length(role);
         int required = shiftRequirements.length(shift, role);
         return required - current;
