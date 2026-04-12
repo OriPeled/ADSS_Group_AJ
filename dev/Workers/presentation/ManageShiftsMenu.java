@@ -1,15 +1,17 @@
 package dev.Workers.presentation;
 
+import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftAssignments;
 import dev.Workers.domain.ShiftManager;
+import dev.Workers.domain.ShiftService;
 
 import java.time.LocalDate;
 
 import static dev.Workers.presentation.Main.scanner;
 
 public class ManageShiftsMenu {
-    static ShiftManager shiftManager = ShiftManager.getInstance();
-    static ShiftAssignments shift;
+    static ShiftService shiftManager = ShiftService.getInstance();
+    static Shift shift;
 
     public static void start() {
         // shiftManager.displayShiftsWeek()
@@ -66,7 +68,7 @@ public class ManageShiftsMenu {
 
     private static void updateShift() {
         shift.toString();
-        shiftManager.displayAssignmentStatus(shift); // (how many roles/employees left to assign)
+        shiftManager.getShiftDetails(shift); // (how many roles/employees left to assign)
 
         // sunday morning
         // cashier: ido, adi, ali (3 assigned, 4 left to assign)

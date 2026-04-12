@@ -148,30 +148,26 @@ public class ShiftService {
     public void removeEmployee(Shift shift, Role role, int employeeId) {
         assignments.remove(shift, role, employeeId);
     }
-    /**
-     * Prints full shift assignment history
-     */
-    public String printShiftHistory() {
 
+    /**
+     *
+     * @return  full shifts assignment history by date, shift type , amout
+     */
+    public String ShiftHistory() {
         if (shifts.isEmpty()) {
             return "No shifts available.";
         }
-
         String result = "SHIFT HISTORY:\n";
-
         for (Shift shift : shifts) {
             result += "\nShift: " + shift + "\n";
-
             for (Role role : Role.values()) {
-
                 int required = requirements.get(shift, role);
-                int assigned = assignments.countAssigned(shift, role);
-
+                Set<Integer> employees = assignments.getEmployees(shift, role);
+                int assigned = employees.size();
                 if (required > 0 || assigned > 0) {
                     result += "- " + role +
                             " | assigned: " + assigned +
-                            " | required: " + required +
-                            " | left: " + (required - assigned) + "\n";
+                            " | employees: " + employees + "\n";
                 }
             }
         }
@@ -179,6 +175,26 @@ public class ShiftService {
         return result;
     }
 
+    /**
+     *
+     * @param shift
+     * @return String of shift detils
+     */
+    public String getShiftDetails(Shift shift) {
+        String result = "Shift: " + shift + "\n";
+        for (Role role : Role.values()) {
+            int required = requirements.get(shift, role);
+            Set<Integer> employees = assignments.getEmployees(shift, role);
+            int assigned = employees.size();
+            if (required > 0 || assigned > 0) {
+                result += role +
+                        ": " + employees +
+                        " (" + assigned + " assigned, " +
+                        (required - assigned) + " left)\n";
+            }
+        }
+        return result;
+    }
 
 
 
