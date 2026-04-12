@@ -116,7 +116,7 @@ public class ShiftService {
      *
      */
     public void assignEmployee(Shift shift, Role role, int employeeId) {
-        if (nobodyToAssign(shift, role) && isValid(shift, role, employeeId)) {
+        if (nobodyToAssign(shift, role) && isSpecialValid(shift, role, employeeId)) {
             System.out.println("Special approve granted.");
             assignments.add(shift, role, employeeId);
             return;
@@ -136,6 +136,13 @@ public class ShiftService {
                 && isQualified(employeeId, role)
                 && isNeeded(shift, role);
     }
+
+    private boolean isSpecialValid(Shift shift, Role role, int employeeId) {
+
+        return isQualified(employeeId, role)
+                && isNeeded(shift, role);
+    }
+
     /**
      * Checks if employee is available according to constraints.
      */
