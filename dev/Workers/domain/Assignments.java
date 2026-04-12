@@ -110,6 +110,10 @@ public class Assignments {
         return getEmployees(shift, role).size();
     }
 
+    public int countUnassignedValid(Shift shift, Role role) {
+        // TODO
+    }
+
     /**
      * Checks if an employee is already assigned to a shift role.
      *

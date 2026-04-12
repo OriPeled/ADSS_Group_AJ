@@ -68,7 +68,7 @@ public class ManageShiftsMenu {
     }
 
     private static void updateShift() {
-        shiftService.getShiftDetails(shift); // (how many roles/employees left to assign)
+        System.out.println(shiftService.getShiftDetails(shift)); // (how many roles/employees left to assign)
 
         // sunday morning
         // cashier: ido, adi, ali (3 assigned, 4 left to assign)
@@ -120,6 +120,8 @@ public class ManageShiftsMenu {
     }
 
     private static void addAssignment() {
+        System.out.println(shiftService.getUnassignedValid(shift));
+
         System.out.println("Enter Employee ID");
         int id = scanner.nextInt();
         System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");

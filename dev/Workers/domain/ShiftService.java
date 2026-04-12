@@ -62,6 +62,7 @@ public class ShiftService {
      */
     public void addShift(LocalDate date, shiftType type) {
         Shift shift = new Shift(date, type);
+
         shifts.add(shift);
         requirements.init(shift);
         assignments.init(shift);
@@ -81,36 +82,6 @@ public class ShiftService {
             }
         }
         return null;
-    }
-
-    private boolean isValid(Shift shift, Role role, int employeeId) {
-
-        return isAvailable(employeeId, shift)
-                && isQualified(employeeId, role)
-                && isNeeded(shift, role);
-    }
-    /**
-     * Checks if employee is available according to constraints.
-     */
-    private boolean isAvailable(int id, Shift shift) {
-        return constraintManager.isEmployeeAvailable(
-                id,
-                shift.getShiftDate().getDayOfWeek(),
-                shift.getType()
-        );
-    }
-    /**
-     * Checks if employee has the required role.
-     */
-    private boolean isQualified(int id, Role role) {
-        return roleManager.getListById(id).contains(role);
-    }
-    /**
-     * Checks if role still has available demand in shift.
-     */
-    private boolean isNeeded(Shift shift, Role role) {
-        return assignments.countAssigned(shift, role)
-                < requirements.get(shift, role);
     }
 
     /**
@@ -144,12 +115,62 @@ public class ShiftService {
      *  Prints error message if assignment fails.
      *
      */
-    public void assignEmployee(Shift shift, Role role, int employeeId){
-        if (!isValid(shift, role, employeeId)) {
-            System.out.println("cant work");
+    public void assignEmployee(Shift shift, Role role, int employeeId) {
+        if (nobodyToAssign(shift, role) && isValid(shift, role, employeeId)) {
+            System.out.println("Special approve granted.");
+            assignments.add(shift, role, employeeId);
             return;
         }
+
+        if (!isValid(shift, role, employeeId)) {
+            System.out.println("Employee can't work.");
+            return;
+        }
+
         assignments.add(shift, role, employeeId);
+    }
+
+    private boolean isValid(Shift shift, Role role, int employeeId) {
+
+        return isAvailable(employeeId, shift)
+                && isQualified(employeeId, role)
+                && isNeeded(shift, role);
+    }
+    /**
+     * Checks if employee is available according to constraints.
+     */
+    private boolean isAvailable(int id, Shift shift) {
+        return constraintManager.isEmployeeAvailable(
+                id,
+                shift.getShiftDate().getDayOfWeek(),
+                shift.getType()
+        );
+    }
+    /**
+     * Checks if employee has the required role.
+     */
+    private boolean isQualified(int id, Role role) {
+        return roleManager.getListById(id).contains(role);
+    }
+
+    /**
+     * Checks if role still has available demand in shift.
+     */
+    private boolean isNeeded(Shift shift, Role role) {
+        return assignments.countAssigned(shift, role)
+                < requirements.get(shift, role);
+    }
+
+    public boolean nobodyToAssign(Shift shift, Role role) {
+        return isNeeded(shift, role) && assignments.countUnassignedValid(shift, role) == 0;
+    }
+
+    public String getUnassignedValid(Shift shift) {
+        // TODO
+    }
+
+    public int countUnassignedValid(Shift shift, Role role) {
+        // TODO
     }
 
     public void setRequirements(Shift shift, Role role, int count) {
@@ -214,7 +235,4 @@ public class ShiftService {
         }
         return result;
     }
-
-
-
 }
