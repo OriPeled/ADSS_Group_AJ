@@ -2,10 +2,12 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -75,7 +77,6 @@ public class ShiftService {
      * @return getter for shift, null if not exist
      */
     public Shift getShift(LocalDate date, shiftType type) {
-        addShift(date, type);
         for (Shift s : shifts) {
             if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
                 return s;
@@ -169,15 +170,44 @@ public class ShiftService {
     }
 
     public boolean nobodyToAssign(Shift shift, Role role) {
-        return isNeeded(shift, role) && assignments.countUnassignedValid(shift, role) == 0;
+        return isNeeded(shift, role) && this.countUnassignedValid(shift, role) == 0;
     }
 
     public String getUnassignedValid(Shift shift) {
-        // TODO
+        EmployeeManager employeeManager = EmployeeManager.getInstance();
+        StringBuilder result = new StringBuilder("Available employees for shift:\n");
+        boolean foundAny = false;
+
+        for (Role role : Role.values()) {
+            if (isNeeded(shift, role)) {
+                result.append("--- ").append(role).append(" ---\n");
+                List<Integer> qualifiedIds = roleManager.getListByRole(role);
+
+                for (int id : qualifiedIds) {
+                    if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
+                        Employee emp = employeeManager.getById(id);
+                        result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
+                        foundAny = true;
+                    }
+                }
+            }
+        }
+
+        if (!foundAny) {
+            return "No available valid employees for this shift.";
+        }
+        return result.toString();
     }
 
     public int countUnassignedValid(Shift shift, Role role) {
-        // TODO
+        int count = 0;
+        List<Integer> qualifiedIds = roleManager.getListByRole(role);
+        for (int id : qualifiedIds) {
+            if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public void setRequirements(Shift shift, Role role, int count) {

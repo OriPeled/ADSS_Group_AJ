@@ -139,11 +139,13 @@ public class Employee {
 
      */
     public void promoteDemote() {
-        if (isManager)
+        if (isManager) {
             isManager = false;
             System.out.println(name + " is no longer shift manager.");
-        isManager = true;
-        System.out.println(name + " is now shift manager.");
+        } else {
+            isManager = true;
+            System.out.println(name + " is now shift manager.");
+        }
     }
     /**
      * @return string representation of employee details

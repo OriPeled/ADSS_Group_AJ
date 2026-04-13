@@ -92,5 +92,4 @@ public class UserMode {
         }
         constraintManager.update(employee.getId(), day, shiftType);
     }
-
 }

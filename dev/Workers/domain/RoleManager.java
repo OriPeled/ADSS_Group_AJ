@@ -1,4 +1,5 @@
 package dev.Workers.domain;
+
 import dev.Workers.domain.Enums.Role;
 
 import java.util.*;
@@ -7,7 +8,7 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
 
 /**
  * Manages roles assigned to employees.
- *
+ * <p>
  * This class is implemented as a Singleton.
  * It supports assigning roles to employees, removing roles,
  * and querying employees by roles.
@@ -34,10 +35,11 @@ public class RoleManager implements IListManager<Role> {
             instance = new RoleManager();
         return instance;
     }
+
     /**
      * Adds a full list of roles to an employee (replaces existing roles)
      *
-     * @param id employee ID
+     * @param id    employee ID
      * @param items list of roles
      */
     @Override
@@ -48,7 +50,7 @@ public class RoleManager implements IListManager<Role> {
     /**
      * Adds a single role to an employee
      *
-     * @param id employee ID
+     * @param id   employee ID
      * @param role role to add
      */
     @Override
@@ -60,6 +62,7 @@ public class RoleManager implements IListManager<Role> {
             employeeRoles.get(id).add(role);
         }
     }
+
     /**
      * Returns all employees that have the "Manager" role
      *
@@ -69,15 +72,15 @@ public class RoleManager implements IListManager<Role> {
         List<Integer> managers = new ArrayList<>();
         for (Integer id : employeeRoles.keySet()) {
             List<Role> roles = getListById(id);
-            for (Role role : roles){
-               if (role==shiftManager) {
-                   managers.add(id);
-               }
+            for (Role role : roles) {
+                if (role == shiftManager) {
+                    managers.add(id);
+                }
             }
-
         }
         return managers;
     }
+
     /**
      * Removes all roles from an employee
      *
@@ -91,19 +94,19 @@ public class RoleManager implements IListManager<Role> {
     /**
      * Removes a specific role from an employee
      *
-     * @param id employee ID
+     * @param id   employee ID
      * @param role role to remove
      */
     @Override
     public void removeSingleItem(int id, Role role) {
         if (employeeRoles.containsKey(id)) {
             employeeRoles.get(id).remove(role);
-
             if (employeeRoles.get(id).isEmpty()) {
                 employeeRoles.remove(id);
             }
         }
     }
+
     /**
      * Retrieves all roles assigned to an employee
      *
@@ -124,13 +127,12 @@ public class RoleManager implements IListManager<Role> {
      */
     public List<Integer> getListByRole(Role role) {
         List<Integer> qualifiedEmployees = new ArrayList<>();
-        for (Integer id : employeeRoles.keySet()){
+        for (Integer id : employeeRoles.keySet()) {
             List<Role> roles = getListById(id);
             if (roles.contains(role)) {
                 qualifiedEmployees.add(id);
             }
-
-            }
+        }
         return qualifiedEmployees;
     }
 

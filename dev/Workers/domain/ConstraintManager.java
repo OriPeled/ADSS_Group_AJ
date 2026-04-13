@@ -30,7 +30,6 @@ public class ConstraintManager  {
      */
     private ConstraintManager() {
         this.employeeConstraints = new HashMap<>();
-
     }
     /**
      * @return the single instance of Constraint Manager
@@ -66,7 +65,7 @@ public class ConstraintManager  {
      * @param shiftType desired shift type
      */
     public void update(int id, DayOfWeek day, shiftType shiftType) {
-        if (!isOnTime(LocalDate.now())) {
+        if (this.deadline != null && !isOnTime(LocalDate.now())) {
             throw new RuntimeException("Cannot update constraints after deadline");
         }
         Constraint employeeConstraints =display(id);

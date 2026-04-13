@@ -1,4 +1,5 @@
 package dev.Workers.domain;
+
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.EmployeeTerms;
 
@@ -7,7 +8,7 @@ import java.util.*;
 
 /**
  * Manages all employees in the system.
- *
+ * <p>
  * This class is implemented as a Singleton.
  * Provides functionality to add, remove, and retrieve employees.
  */
@@ -47,39 +48,41 @@ public class EmployeeManager implements IManager<Employee> {
     /**
      * Adds an employee object to the system
      *
-     * @param id employee ID (not used directly, taken from employee object)
+     * @param id       employee ID (not used directly, taken from employee object)
      * @param employee employee object
      */
     @Override
-    public void add(int id,Employee employee) {
+    public void add(int id, Employee employee) {
         employees.put(employee.getId(), employee);
     }
 
     /**
      * Creates and adds a new employee to the system
      *
-     * @param name employee name
-     * @param id employee ID
+     * @param name        employee name
+     * @param id          employee ID
      * @param bankAccount bank account number
-     * @param salary employee salary
-     * @param terms employment terms
-     * @param startDate employment start date
+     * @param salary      employee salary
+     * @param terms       employment terms
+     * @param startDate   employment start date
      */
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         if (isEmployee(id)) {
-
             System.out.println("Employee already works.");
             return;
         }
         if (salary <= 0) {
             System.out.println("Salary must be a positive number.");
-            }
+            return;
+        }
         if (bankAccount <= 0) {
             System.out.println("Invalid bank account details.");
-            }
-        Employee newEmp = new Employee( name,  id,  bankAccount,  salary,  terms,  startDate);
-        add(id,newEmp);
+            return;
+        }
+        Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
+        add(id, newEmp);
     }
+
     /**
      * Retrieves an employee by ID
      *
@@ -89,6 +92,7 @@ public class EmployeeManager implements IManager<Employee> {
     public Employee getById(int id) {
         return employees.get(id);
     }
+
     /**
      * Checks if password is incorrect (not implemented yet)
      *
@@ -99,6 +103,7 @@ public class EmployeeManager implements IManager<Employee> {
         // TODO
         return false;
     }
+
     /**
      * Checks if a user is registered (not implemented yet)
      *
@@ -109,6 +114,7 @@ public class EmployeeManager implements IManager<Employee> {
         // TODO
         return false;
     }
+
     /**
      * Sets password for a user (not implemented yet)
      *
@@ -116,23 +122,21 @@ public class EmployeeManager implements IManager<Employee> {
      */
     public void setPassword(String nextLine) {
     }
+
     /**
      * Removes (terminates) an employee from the system.
-     *
      * Instead of deleting, marks employee as inactive by setting end date.
      *
      * @param id employee ID
      */
-   @Override
-   public void remove(int id) {
-       Employee emp = employees.get(id);
-       if (emp.isActive()) {
-           emp.terminateEmployee(LocalDate.now());
+    @Override
+    public void remove(int id) {
+        Employee emp = employees.get(id);
 
-     } else {
+        if (emp != null && emp.isActive()) {
+            emp.terminateEmployee(LocalDate.now());
+        } else {
             System.out.println("Employee ID " + id + " not active.");
         }
     }
-
-
 }
