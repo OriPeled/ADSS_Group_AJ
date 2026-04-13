@@ -5,10 +5,7 @@ import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ShiftService is the core business logic of the system.
@@ -198,17 +195,25 @@ public class ShiftService {
         }
     }
 
+    private List<Shift> getNextWeekShifts() {
+        // TODO
+    }
+
     public Map<Shift, String> weekAssignment() {
         Map<Shift, String> weekStatuses = new HashMap<>();
-        for (Shift shift : shifts) {
-            String status = "complete";
-            for (Role role : Role.values()) {
-                if (isNeeded(shift, role)) {
-                    status = "incomplete";
-                    break;
+        List<Shift> weekShifts = getNextWeekShifts();
+        for (Shift shift : weekShifts) {
+            if (shift != null) {
+                String status = "complete";
+                for (Role role : Role.values()) {
+                    if (isNeeded(shift, role)) {
+                        status = "incomplete";
+                        break;
+                    }
                 }
+                weekStatuses.put(shift, status);
             }
-            weekStatuses.put(shift, status);
+            else weekStatuses.put(shift, "incomplete");
         }
         return weekStatuses;
     }

@@ -19,7 +19,7 @@ public class ManageShiftsMenu {
     //static int id;
 
     public static void start() {
-        shiftService.displayWeekAssignments();
+        System.out.println(shiftService.displayWeekAssignments());
         // sunday morning - FULL
         // sunday evening IN-PROCESS
         // monday morning EMPTY
