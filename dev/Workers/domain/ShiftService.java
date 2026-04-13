@@ -5,7 +5,9 @@ import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -194,6 +196,35 @@ public class ShiftService {
             assignEmployee(shift, role, newEmployeeId);
             removeEmployee(shift, role, currentEmployeeId);
         }
+    }
+
+    public Map<Shift, String> weekAssignment() {
+        Map<Shift, String> weekStatuses = new HashMap<>();
+        for (Shift shift : shifts) {
+            String status = "complete";
+            for (Role role : Role.values()) {
+                if (isNeeded(shift, role)) {
+                    status = "incomplete";
+                    break;
+                }
+            }
+            weekStatuses.put(shift, status);
+        }
+        return weekStatuses;
+    }
+
+    public String displayWeekAssignments() {
+        StringBuilder sb = new StringBuilder();
+        Map<Shift, String> assignments = weekAssignment();
+
+        for (Map.Entry<Shift, String> entry : assignments.entrySet()) {
+            sb.append(entry.getKey().toStringByWeekDay())
+                    .append(": ")
+                    .append(entry.getValue())
+                    .append("\n");
+        }
+
+        return sb.toString().trim();
     }
 
     /**

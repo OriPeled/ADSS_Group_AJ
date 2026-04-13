@@ -3,6 +3,7 @@ package dev.Workers.domain.Objects;
 import dev.Workers.domain.Enums.shiftType;
 
 import java.time.LocalDate;
+import java.time.DayOfWeek;
 import java.util.Objects;
 
 public class Shift {
@@ -49,4 +50,6 @@ public class Shift {
     public String toString() {
         return shiftDate + " - " + type;
     }
+
+    public String toStringByWeekDay() { return shiftDate.getDayOfWeek().name() + "(" + type + ")"; }
 }
