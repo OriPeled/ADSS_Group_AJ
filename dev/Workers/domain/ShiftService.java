@@ -125,13 +125,16 @@ public class ShiftService {
         }
 
         if (!isValid(shift, role, employeeId)) {
-            System.out.println("Employee can't work.");
-            return;
+          throw new RuntimeException("Cannot assign employee " + employeeId + " to shift " + shift +
+                                     " for role " + role + ". Check constraints, qualifications, and requirements.");
+
         }
 
         assignments.add(shift, role, employeeId);
     }
+    /*
 
+     */
     private boolean isValid(Shift shift, Role role, int employeeId) {
 
         return isAvailable(employeeId, shift)

@@ -20,7 +20,7 @@ public class ShiftsMenu {
                 accessShiftMenu();
                 break;
             case 2:
-                ShiftsActions.addShift();
+                shiftService.addShift();
                 start();
                 break;
             case 3:
@@ -59,7 +59,7 @@ public class ShiftsMenu {
 
     // ================= FLOW =================
     private static void accessShiftMenu() {
-        currentShift = ShiftsActions.chooseShift();
+        currentShift = shiftService.chooseShift();
 
         if (currentShift == null) {
             start();
@@ -76,14 +76,14 @@ public class ShiftsMenu {
 
         switch (choice) {
             case 1:
-                ShiftsActions.printShiftDetails(currentShift);
+                shiftService.printShiftDetails(currentShift);
                 manageShiftMenu();
                 break;
             case 2:
                 updateMenu();
                 break;
             case 3:
-                ShiftsActions.removeShift(currentShift);
+                shiftService.removeShift(currentShift);
                 start();
                 break;
             case 4:

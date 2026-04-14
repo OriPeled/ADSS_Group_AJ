@@ -112,6 +112,7 @@ public class Assignments {
 
     /**public int countUnassignedValid(Shift shift, Role role) {
         // TODO
+        return 0;
     }
      */
 
