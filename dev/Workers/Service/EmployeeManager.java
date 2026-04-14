@@ -16,14 +16,16 @@ import java.util.*;
 public class EmployeeManager implements IManager<Employee> {
     // maps employee ID to Employee object
     private Map<Integer, Employee> employees;
-
+    private AccessService accessService = AccessService.getInstance() ;
     private static EmployeeManager instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
     private EmployeeManager() {
+
         this.employees = new HashMap<>();
+
     }
 
     /**
@@ -93,37 +95,6 @@ public class EmployeeManager implements IManager<Employee> {
     public Employee getById(int id) {
         return employees.get(id);
     }
-
-    /**
-     * Checks if password is incorrect (not implemented yet)
-     *
-     * @param password input password
-     * @return
-     */
-    public boolean wrongPassword(String password) {
-        // TODO
-        return false;
-    }
-
-    /**
-     * Checks if a user is registered (not implemented yet)
-     *
-     * @param enteredID employee ID
-     * @return
-     */
-    public boolean isRegisteredUser(int enteredID) {
-        // TODO
-        return false;
-    }
-
-    /**
-     * Sets password for a user (not implemented yet)
-     *
-     * @param nextLine password input
-     */
-    public void setPassword(String nextLine) {
-    }
-
     /**
      * Removes (terminates) an employee from the system.
      * Instead of deleting, marks employee as inactive by setting end date.
@@ -136,6 +107,7 @@ public class EmployeeManager implements IManager<Employee> {
 
         if (emp != null && emp.isActive()) {
             emp.terminateEmployee(LocalDate.now());
+            accessService.Remove(emp);
         } else {
             System.out.println("Employee ID " + id + " not active.");
         }

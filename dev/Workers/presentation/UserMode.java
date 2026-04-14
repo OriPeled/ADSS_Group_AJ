@@ -1,5 +1,6 @@
 package dev.Workers.presentation;
 
+import dev.Workers.Service.AccessService;
 import dev.Workers.Service.ConstraintManager;
 import dev.Workers.Service.EmployeeManager;
 import dev.Workers.domain.Enums.shiftType;
@@ -13,6 +14,7 @@ import static dev.Workers.presentation.Main.scanner;
 public class UserMode {
     static EmployeeManager employeeManager = EmployeeManager.getInstance();
     static ConstraintManager constraintManager = ConstraintManager.getInstance();
+    static AccessService accessService = AccessService.getInstance();
 
     static Employee employee;
 
@@ -27,10 +29,10 @@ public class UserMode {
                 Main.displayMenu();
         }
 
-        if (!employeeManager.isRegisteredUser(enteredID))
+        if (!accessService.isRegisteredUser(enteredID)) {
             System.out.println("Please Create Password.");
-            employeeManager.setPassword(scanner.nextLine());
-
+            accessService.Register(enteredID,scanner.nextLine());
+        }
         System.out.println("Please Enter Password:");
         String enteredPass = scanner.nextLine();
 
