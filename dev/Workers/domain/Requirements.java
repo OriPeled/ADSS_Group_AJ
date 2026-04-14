@@ -1,7 +1,6 @@
-package dev.Workers.service;
+package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Shift;
 
 import java.util.*;
 
