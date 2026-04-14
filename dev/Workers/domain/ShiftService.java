@@ -137,15 +137,30 @@ public class ShiftService {
 
         return isAvailable(employeeId, shift)
                 && isQualified(employeeId, role)
-                && isNeeded(shift, role);
+                && isNeeded(shift, role) && isActive(employeeId);
     }
 
+    /**
+     *
+     * @param employeeId
+     * @return true if active, else false
+     */
+    private boolean isActive(int employeeId) {
+        return employeeManager.getById(employeeId).isActive();
+    }
+
+    /**
+     *
+     * @param shift
+     * @param role
+     * @param employeeId
+     * @return true special assigtment case when there no free employee ,otherwise false
+     */
     private boolean isSpecialValid(Shift shift, Role role, int employeeId) {
 
         return isQualified(employeeId, role)
-                && isNeeded(shift, role);
+                && isNeeded(shift, role) && isActive(employeeId);
     }
-
     /**
      * Checks if employee is available according to constraints.
      */
@@ -174,6 +189,7 @@ public class ShiftService {
     public boolean nobodyToAssign(Shift shift, Role role) {
         return isNeeded(shift, role) && this.countUnassignedValid(shift, role) == 0;
     }
+
 
     public String getUnassignedValid(Shift shift) {
         EmployeeManager employeeManager = EmployeeManager.getInstance();

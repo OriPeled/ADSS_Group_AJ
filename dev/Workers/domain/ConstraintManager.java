@@ -4,8 +4,10 @@ import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Constraint;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 
+
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import static dev.Workers.domain.Enums.shiftType.*;
@@ -19,7 +21,7 @@ import static dev.Workers.domain.Enums.shiftType.*;
 public class ConstraintManager  {
 
     // deadline for submitting/updating constraints
-    private LocalDate deadline;
+    private LocalDateTime deadline;
     // maps employee ID to their constraints
     private Map<Integer, Constraint> employeeConstraints;
 
@@ -30,6 +32,13 @@ public class ConstraintManager  {
      */
     private ConstraintManager() {
         this.employeeConstraints = new HashMap<>();
+        setNextThursdayDeadline();//defult deadline is thursday
+    }
+
+    public void setNextThursdayDeadline() {
+        this.deadline = LocalDateTime.now()
+                .with(TemporalAdjusters.next(DayOfWeek.THURSDAY))
+                .withHour(23).withMinute(59).withSecond(59);
     }
     /**
      * @return the single instance of Constraint Manager
@@ -64,8 +73,8 @@ public class ConstraintManager  {
      * @param day day of week
      * @param shiftType desired shift type
      */
-    public void update(int id, DayOfWeek day, shiftType shiftType) {
-        if (this.deadline != null && !isOnTime(LocalDate.now())) {
+    public void update(int id, DayOfWeek day , shiftType shiftType) {
+        if (this.deadline != null && !isOnTime()) {
             throw new RuntimeException("Cannot update constraints after deadline");
         }
         Constraint employeeConstraints =display(id);
@@ -112,16 +121,16 @@ public class ConstraintManager  {
     /**
      * Checks if current date is before deadline
      *
-     * @param date date to check
+
      * @return true if still before deadline, false otherwise
      */
-    public boolean isOnTime(LocalDate date) {
-        return date.isBefore(this.deadline);
+    public boolean isOnTime() {
+        return LocalDateTime.now().isBefore(this.deadline);
     }
     /**
      * @return deadline for updating constraints
      */
-    public LocalDate getDeadline() {
+    public LocalDateTime getDeadline() {
         return deadline;
     }
     /**
@@ -129,7 +138,7 @@ public class ConstraintManager  {
      *
      * @param deadline new deadline
      */
-    public void setDeadline(LocalDate deadline) {
+    public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
     /**

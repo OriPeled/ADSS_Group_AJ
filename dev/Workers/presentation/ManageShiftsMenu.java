@@ -4,10 +4,11 @@ import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.shiftService;
+
 import dev.Workers.domain.ShiftService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static dev.Workers.presentation.Main.scanner;
 
@@ -59,7 +60,7 @@ public class ManageShiftsMenu {
             case 1:
                 updateShift();
             case 2:
-                removeShift();
+               // removeShift();
             case 3:
                 start();
             default:
@@ -161,7 +162,7 @@ public class ManageShiftsMenu {
         String dateString = String.valueOf(input);
         LocalDate date = Parser.stringToDate(dateString);
 
-        constraintManager.setDeadline(date);
+        constraintManager.setDeadline(date.atTime(23, 59, 59));
     }
 
     /*public static void assignEmployee() {
