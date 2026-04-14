@@ -1,11 +1,8 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Shift;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -62,7 +59,7 @@ public class Requirements {
      * @param role the role
      * @return required count (0 if not defined)
      */
-    public int get(Shift shift, Role role) {
+    public int countRequired(Shift shift, Role role) {
         return data
                 .getOrDefault(shift, Collections.emptyMap())
                 .getOrDefault(role, 0);

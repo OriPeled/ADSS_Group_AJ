@@ -6,9 +6,7 @@ import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ShiftService is the core business logic of the system.
@@ -30,6 +28,8 @@ public class ShiftService {
     private ConstraintManager constraintManager;
     //all the assigments
     private Assignments assignments;
+    // employees manager
+    private static EmployeeManager employeeManager = EmployeeManager.getInstance();
     // employee roles manager
     private static RoleManager roleManager = RoleManager.getInstance();
 
@@ -77,6 +77,7 @@ public class ShiftService {
      * @return getter for shift, null if not exist
      */
     public Shift getShift(LocalDate date, shiftType type) {
+        addShift(date, type);
         for (Shift s : shifts) {
             if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
                 return s;
@@ -103,7 +104,7 @@ public class ShiftService {
      * @return how much left to assiging
      */
     public int leftToAssign(Shift shift, Role role) {
-        return requirements.get(shift, role)
+        return requirements.countRequired(shift, role)
                 - assignments.countAssigned(shift, role);
     }
 
@@ -166,7 +167,7 @@ public class ShiftService {
      */
     private boolean isNeeded(Shift shift, Role role) {
         return assignments.countAssigned(shift, role)
-                < requirements.get(shift, role);
+                < requirements.countRequired(shift, role);
     }
 
     public boolean nobodyToAssign(Shift shift, Role role) {
@@ -212,6 +213,16 @@ public class ShiftService {
 
     public void setRequirements(Shift shift, Role role, int count) {
         requirements.set(shift, role, count);
+
+        while (assignments.countAssigned(shift, role) > requirements.countRequired(shift, role)) {
+            for (Integer id : assignments.getEmployees(shift, role)) {
+                System.out.println("Overstaff.");
+                removeEmployee(shift, role, id);
+                System.out.println("Employee"
+                                    + employeeManager.getById(id).getName()
+                                    + '(' + id + ") removed.");
+            }
+        }
     }
 
     public void removeEmployee(Shift shift, Role role, int employeeId) {
@@ -226,6 +237,44 @@ public class ShiftService {
         }
     }
 
+    private List<Shift> getNextWeekShifts() {
+        // TODO
+        return null;
+    }
+
+    public Map<Shift, String> weekAssignment() {
+        Map<Shift, String> weekStatuses = new HashMap<>();
+        List<Shift> weekShifts = getNextWeekShifts();
+        for (Shift shift : weekShifts) {
+            if (shift != null) {
+                String status = "complete";
+                for (Role role : Role.values()) {
+                    if (isNeeded(shift, role)) {
+                        status = "incomplete";
+                        break;
+                    }
+                }
+                weekStatuses.put(shift, status);
+            }
+            else weekStatuses.put(shift, "incomplete");
+        }
+        return weekStatuses;
+    }
+
+    public String displayWeekAssignments() {
+        StringBuilder sb = new StringBuilder();
+        Map<Shift, String> assignments = weekAssignment();
+
+        for (Map.Entry<Shift, String> entry : assignments.entrySet()) {
+            sb.append(entry.getKey().toStringByWeekDay())
+                    .append(": ")
+                    .append(entry.getValue())
+                    .append("\n");
+        }
+
+        return sb.toString().trim();
+    }
+
     /**
      *
      * @return  full shifts assignment history by date, shift type , amout
@@ -238,7 +287,7 @@ public class ShiftService {
         for (Shift shift : shifts) {
             result += "\nShift: " + shift + "\n";
             for (Role role : Role.values()) {
-                int required = requirements.get(shift, role);
+                int required = requirements.countRequired(shift, role);
                 Set<Integer> employees = assignments.getEmployees(shift, role);
                 int assigned = employees.size();
                 if (required > 0 || assigned > 0) {
@@ -260,7 +309,7 @@ public class ShiftService {
     public String getShiftDetails(Shift shift) {
         String result = "Shift: " + shift + "\n";
         for (Role role : Role.values()) {
-            int required = requirements.get(shift, role);
+            int required = requirements.countRequired(shift, role);
             Set<Integer> employees = assignments.getEmployees(shift, role);
             int assigned = employees.size();
             if (required > 0) {
