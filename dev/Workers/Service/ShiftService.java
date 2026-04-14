@@ -1,9 +1,11 @@
-package dev.Workers.domain;
+package dev.Workers.Service;
 
+import dev.Workers.domain.Assignments;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Objects.Employee;
-import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.Employee;
+import dev.Workers.domain.Shift;
+import dev.Workers.domain.Requirements;
 
 import java.time.LocalDate;
 import java.util.*;

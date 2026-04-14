@@ -1,11 +1,11 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.ConstraintManager;
+import dev.Workers.Service.ConstraintManager;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.Shift;
 import dev.Workers.domain.shiftService;
-import dev.Workers.domain.ShiftService;
+import dev.Workers.Service.ShiftService;
 
 import java.time.LocalDate;
 

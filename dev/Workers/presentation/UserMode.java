@@ -1,9 +1,9 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.ConstraintManager;
-import dev.Workers.domain.EmployeeManager;
+import dev.Workers.Service.ConstraintManager;
+import dev.Workers.Service.EmployeeManager;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Objects.Employee;
+import dev.Workers.domain.Employee;
 
 import java.time.DayOfWeek;
 

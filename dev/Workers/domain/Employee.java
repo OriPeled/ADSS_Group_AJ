@@ -1,4 +1,4 @@
-package dev.Workers.domain.Objects;
+package dev.Workers.domain;
 
 import java.time.LocalDate;
 

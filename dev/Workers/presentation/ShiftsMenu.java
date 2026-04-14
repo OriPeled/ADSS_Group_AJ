@@ -1,7 +1,7 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.ShiftService;
+import dev.Workers.domain.Shift;
+import dev.Workers.Service.ShiftService;
 
 import static dev.Workers.presentation.Main.scanner;
 

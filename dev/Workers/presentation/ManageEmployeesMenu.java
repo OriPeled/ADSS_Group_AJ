@@ -1,15 +1,15 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.*;
+import dev.Workers.Service.ConstraintManager;
+import dev.Workers.Service.EmployeeManager;
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.SalaryType;
-import dev.Workers.domain.Objects.Constraint;
-import dev.Workers.domain.Objects.Employee;
-import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.Constraint;
+import dev.Workers.domain.Employee;
+import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;
 
-import static dev.Workers.presentation.Main.displayMenu;
 import static dev.Workers.presentation.Main.scanner;
 
 public class ManageEmployeesMenu {
