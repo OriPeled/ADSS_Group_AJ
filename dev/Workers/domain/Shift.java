@@ -1,9 +1,8 @@
-package dev.Workers.domain.Objects;
+package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.shiftType;
 
 import java.time.LocalDate;
-import java.time.DayOfWeek;
 import java.util.Objects;
 
 public class Shift {

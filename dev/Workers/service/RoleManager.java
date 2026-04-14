@@ -1,6 +1,7 @@
-package dev.Workers.domain;
+package dev.Workers.service;
 
 import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.IListManager;
 
 import java.util.*;
 

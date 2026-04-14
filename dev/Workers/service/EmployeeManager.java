@@ -1,7 +1,8 @@
-package dev.Workers.domain;
+package dev.Workers.service;
 
-import dev.Workers.domain.Objects.Employee;
-import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.IManager;
+import dev.Workers.domain.Employee;
+import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;
 import java.util.*;

@@ -1,11 +1,10 @@
-package dev.Workers.domain.Objects;
+package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.shiftType;
 
 import java.time.DayOfWeek;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static dev.Workers.domain.Enums.shiftType.wholeDay;
      /**
