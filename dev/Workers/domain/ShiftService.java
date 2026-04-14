@@ -132,9 +132,7 @@ public class ShiftService {
 
         assignments.add(shift, role, employeeId);
     }
-    /*
 
-     */
     private boolean isValid(Shift shift, Role role, int employeeId) {
 
         return isAvailable(employeeId, shift)
