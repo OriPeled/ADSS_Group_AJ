@@ -23,7 +23,7 @@ public class AccessService {
         return instance;
     }
 
-    public void Register(int id,  String password) {
+    public void Register(int id, String password) {
 
         if (isPasswordEmpty(password)){
             throw new IllegalArgumentException("Password cannot be empty");
@@ -74,7 +74,6 @@ public class AccessService {
     }
 
     public boolean isPasswordEmpty(String password) {
-
         return password.equals("") || password ==null;
     }
 

@@ -6,6 +6,7 @@ import dev.Workers.domain.Constraint;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import static dev.Workers.domain.Enums.shiftType.*;
@@ -16,8 +17,7 @@ import static dev.Workers.domain.Enums.shiftType.*;
  * It allows updating constraints, checking availability,
  * and managing deadlines for constraint submissions.
  */
-public class ConstraintManager  {
-
+public class ConstraintManager {
     // deadline for submitting/updating constraints
     private LocalDate deadline;
     // maps employee ID to their constraints
@@ -30,6 +30,12 @@ public class ConstraintManager  {
      */
     private ConstraintManager() {
         this.employeeConstraints = new HashMap<>();
+        setNextThursdayDeadline();//defult deadline is thursday
+    }
+
+    public void setNextThursdayDeadline() {
+        this.deadline = LocalDate.now()
+                .with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
     }
     /**
      * @return the single instance of Constraint Manager

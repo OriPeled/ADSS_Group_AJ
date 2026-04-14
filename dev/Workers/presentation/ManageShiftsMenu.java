@@ -4,7 +4,6 @@ import dev.Workers.Service.ConstraintManager;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Shift;
-import dev.Workers.domain.shiftService;
 import dev.Workers.Service.ShiftService;
 
 import java.time.LocalDate;
@@ -25,6 +24,28 @@ public class ManageShiftsMenu {
         // monday morning EMPTY
         // ...
         // saturday evening FULL
+        System.out.println("1. Manage Shifts Week");
+        System.out.println("2. Get Shifts History");
+        System.out.println("3. Back");
+
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                manageShiftsWeek();
+                break;
+            case 2:
+                getShiftsHistory();
+                break;
+            case 3:
+                AdminMode.start();
+                break;
+            default:
+                System.out.println("Invalid choice.");
+        }
+    }
+
+    private static void manageShiftsWeek() {
+        System.out.println(shiftService.displayWeekAssignments());
         System.out.println("Manage Shifts Week");
         System.out.println("1. Enter Day (1-7)");
         int dayNumber = scanner.nextInt();
@@ -34,20 +55,7 @@ public class ManageShiftsMenu {
         shiftType shiftT = shiftType.valueOf(type);
         shift = shiftService.getShift(date, shiftT);
         manageShift();
-
-        /*int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                accessShift();
-            case 2:
-                addShift();
-            case 3:
-                AdminMode.start();
-            default:
-                System.out.println("Invalid choice.");
-        }*/
     }
-    
 
     private static void manageShift() {
         System.out.println("1. Update Shift");
@@ -65,6 +73,20 @@ public class ManageShiftsMenu {
             default:
                 System.out.println("Invalid choice.");
         }
+    }
+
+    private static void removeShift() {
+        System.out.println("Are you sure you want to remove this shift? If yes, enter 1, else enter 0.");
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                shiftService.removeShift(shift);
+                System.out.println("Shift successfully removed.");
+                break;
+            case 2:
+                manageShift();
+        }
+
     }
 
     private static void updateShift() {
@@ -162,6 +184,13 @@ public class ManageShiftsMenu {
         LocalDate date = Parser.stringToDate(dateString);
 
         constraintManager.setDeadline(date);
+    }
+
+    public static void getShiftsHistory() {
+        System.out.println(shiftService.ShiftHistory());
+        System.out.print("Enter 0 to go back:");
+        if (scanner.nextInt() == 0)
+            start();
     }
 
     /*public static void assignEmployee() {

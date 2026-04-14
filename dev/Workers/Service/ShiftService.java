@@ -23,7 +23,6 @@ public class ShiftService {
 
     // all system shifts
     private static Set<Shift> shifts;
-
     // required roles per shift
     private Requirements requirements;
     // employee availability constraints
@@ -86,6 +85,12 @@ public class ShiftService {
             }
         }
         return null;
+    }
+
+    public void removeShift(Shift shift) {
+        shifts.remove(shift);
+        requirements.init(shift);
+        assignments.init(shift);
     }
 
     /**

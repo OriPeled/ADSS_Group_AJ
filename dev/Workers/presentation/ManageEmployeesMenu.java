@@ -2,6 +2,7 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintManager;
 import dev.Workers.Service.EmployeeManager;
+import dev.Workers.Service.RoleManager;
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.SalaryType;
 import dev.Workers.domain.Constraint;
@@ -15,6 +16,7 @@ import static dev.Workers.presentation.Main.scanner;
 public class ManageEmployeesMenu {
     static EmployeeManager employeeManager = EmployeeManager.getInstance();
     static ConstraintManager constraintManager = ConstraintManager.getInstance();
+    static RoleManager roleManager = RoleManager.getInstance();
     static int id;
     static Employee employee;
 
@@ -29,7 +31,7 @@ public class ManageEmployeesMenu {
             case 1:
                accessEmployee();
             case 2:
-                addEmployeeMenu();
+               addEmployeeMenu();
             case 3:
                 AdminMode.start();
             default:
@@ -55,7 +57,8 @@ public class ManageEmployeesMenu {
         System.out.println("2. Employee Details");
         System.out.println("3. Promote/Demote");
         System.out.println("4. Remove");
-        System.out.println("5. Back");
+        System.out.println("5. Add Role");
+        System.out.println("6. Back");
 
         int choice = scanner.nextInt();
         switch (choice) {
@@ -66,6 +69,8 @@ public class ManageEmployeesMenu {
             case 4:
                 remove();
             case 5:
+                addRole();
+            case 6:
                 accessEmployee();
             default:
                 System.out.println("Invalid choice.");
@@ -194,6 +199,12 @@ public class ManageEmployeesMenu {
             case 2:
                 accessEmployee();
         }
+    }
+
+    private static void addRole() {
+        // TODO
+        System.out.println("1 for ");
+        roleManager.addSingleItem(employee.getId(), );
     }
 
     private static void addEmployeeMenu() {
