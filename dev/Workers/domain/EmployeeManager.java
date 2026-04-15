@@ -15,7 +15,8 @@ import java.util.Map;
 public class EmployeeManager implements IManager<Employee> {
     // maps employee ID to Employee object
     private Map<Integer, Employee> employees;
-    private AccessService accessService = AccessService.getInstance() ;
+    private AccessService accessService = AccessService.getInstance();
+    private
     private static EmployeeManager instance;
 
     /**

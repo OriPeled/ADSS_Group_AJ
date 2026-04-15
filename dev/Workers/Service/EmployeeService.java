@@ -1,5 +1,6 @@
 package dev.Workers.Service;
 
+import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.Employee;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.EmployeeTerms;
@@ -11,18 +12,14 @@ import java.time.LocalDate;
  * Handles validations, cross-service communication, and delegates data storage to EmployeeManager.
  */
 public class EmployeeService {
-
     private static EmployeeService instance;
-    private EmployeeManager employeeManager;
+    private static final EmployeeManager employeeManager = EmployeeManager.getInstance();
     private AccessService accessService;
 
     /**
      * Private constructor to enforce the Singleton pattern.
      */
     private EmployeeService() {
-        // Initialize dependencies for data management and access control
-        this.employeeManager = EmployeeManager.getInstance();
-
     }
 
     /**
@@ -60,10 +57,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Cannot add employee: Invalid bank account details.");
         }
 
-        // 2. Create the Employee object
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
-
-        // 3. Save to the repository via the Manager
         employeeManager.add(id, newEmp);
     }
 
@@ -74,10 +68,9 @@ public class EmployeeService {
      * @throws IllegalArgumentException if the employee is not found or is already inactive
      */
     public void remove(int id) {
-        // Retrieve the employee from the repository
         Employee emp = employeeManager.getById(id);
 
-        if (emp != null && emp.isActive()) {
+        if (emp.isActive()) {
             // Update termination date (business logic)
             emp.terminateEmployee(LocalDate.now());
 
@@ -88,7 +81,7 @@ public class EmployeeService {
                 // Ignore if the employee didn't have a configured password
             }
         } else {
-            throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " not found or already inactive.");
+            throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " already inactive.");
         }
     }
 
@@ -99,6 +92,10 @@ public class EmployeeService {
      * @return the Employee object, or null if not found
      */
     public Employee getEmployee(int id) {
-        return employeeManager.getById(id);
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new NullPointerException("Employee doesn't exist");
+        }
+        return emp;
     }
 }

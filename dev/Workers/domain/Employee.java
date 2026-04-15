@@ -24,7 +24,7 @@ public class Employee {
     // employee end Date
     private LocalDate endDate;
     // checking if manger or HR
-    private boolean isManager;
+    //private boolean isManager;
     // private UserDetails userDetails;
  //   private List<Role> certifiedRoles;
  // private List<Constraint>
@@ -47,7 +47,6 @@ public class Employee {
         this.terms = terms;
         this.startDate = startDate;
         this.endDate = null;
-        this.isManager = false;
        // this.certifiedRoles = new ArrayList<>();
     }
     /**
@@ -63,7 +62,6 @@ public class Employee {
         this.terms = other.terms;
         this.startDate = other.startDate;
         this.endDate = other.endDate;
-        this.isManager = other.isManager;
     }
     /**
      * getter for name
@@ -133,20 +131,7 @@ public class Employee {
     public LocalDate getStartLocalDate() {
         return startDate;
     }
-    /**
-     * Promotes or demotes an employee to/from shift manager.
-     *
 
-     */
-    public void promoteDemote() {
-        if (isManager) {
-            isManager = false;
-            System.out.println(name + " is no longer shift manager.");
-        } else {
-            isManager = true;
-            System.out.println(name + " is now shift manager.");
-        }
-    }
     /**
      * @return string representation of employee details
      */

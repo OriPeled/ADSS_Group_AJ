@@ -47,7 +47,7 @@ public class ManageEmployeesMenu {
         if (id == 0)
             start();
 
-        employee = employeeService.getById(id);
+        employee = employeeService.getEmployee(id);
         System.out.println("Employee chosen");
         manageEmployee();
     }
@@ -183,7 +183,7 @@ public class ManageEmployeesMenu {
     }
 
     private static void promoteDemote() {
-        employee.promoteDemote();
+        roleService.promoteDemote(employee.getId());
     }
 
     private static void remove() {
@@ -279,6 +279,8 @@ public class ManageEmployeesMenu {
         Constraint constraint = new Constraint();
         constraintService.getEmployeeConstraints().put(id, constraint);
         System.out.println("Employee added.");
-        start();
+
+        employee = employeeService.getEmployee(id);
+        manageEmployee();
     }
 }

@@ -7,10 +7,8 @@ import dev.Workers.domain.Constraint;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
-import static dev.Workers.domain.Enums.shiftType.*;
 /**
  * Manages all employees' constraints in the system.
  *
@@ -19,19 +17,20 @@ import static dev.Workers.domain.Enums.shiftType.*;
  * and managing deadlines for constraint submissions.
  */
 public class ConstraintService {
-    // deadline for submitting/updating constraints
-    private LocalDate deadline;
-    // maps employee ID to their constraints
-    private Map<Integer, Constraint> employeeConstraints;
-
-    private static ConstraintManager constraintManager = ConstraintManager.getInstance();
+    private static final ConstraintManager constraintManager = ConstraintManager.getInstance();
+    private static ConstraintService instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
     private ConstraintService() {
-        this.employeeConstraints = new HashMap<>();
-        setNextThursdayDeadline();//defult deadline is thursday
+    }
+
+    public static ConstraintService getInstance() {
+        if (instance == null) {
+            instance = new ConstraintService();
+        }
+        return instance;
     }
 
     public void setNextThursdayDeadline() {
@@ -42,7 +41,7 @@ public class ConstraintService {
      * @return map of all employee constraints
      */
     public Map<Integer, Constraint> getEmployeeConstraints() {
-        constraintManager.getEmployeeConstraints();
+        return constraintManager.getConstraintsByID();
     }
 
     /**
@@ -52,7 +51,7 @@ public class ConstraintService {
      * @return Constraint object
      */
     public Constraint display(int id) {
-        constraintManager.display(id);
+        return constraintManager.getConstraints(id);
     }
 
     /**
@@ -75,7 +74,7 @@ public class ConstraintService {
      * @return true if available, false otherwise
      */
     public boolean isEmployeeAvailable(int id, DayOfWeek day, shiftType shiftType) {
-        constraintManager.isEmployeeAvailable(id, day, shiftType);
+        return constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
     /**
      * Array representing days of the week (Sunday = 1)
@@ -97,7 +96,7 @@ public class ConstraintService {
      * @return corresponding DayOfWeek
      */
     public static DayOfWeek getDayFromNumber(int dayNumber) {
-        constraintManager.
+        return ConstraintManager.getDayFromNumber(dayNumber);
     }
     /**
      * Checks if current date is before deadline
@@ -106,13 +105,13 @@ public class ConstraintService {
      * @return true if still before deadline, false otherwise
      */
     public boolean isOnTime(LocalDate date) {
-        return date.isBefore(this.deadline);
+        return constraintManager.isOnTime(date);
     }
     /**
      * @return deadline for updating constraints
      */
     public LocalDate getDeadline() {
-        return deadline;
+        return constraintManager.getDeadline();
     }
     /**
      * Sets deadline for updating constraints
@@ -120,7 +119,7 @@ public class ConstraintService {
      * @param deadline new deadline
      */
     public void setDeadline(LocalDate deadline) {
-        this.deadline = deadline;
+        constraintManager.setDeadline(deadline);
     }
     /**
      * Resets all employees' constraints.
@@ -129,14 +128,7 @@ public class ConstraintService {
      * - All days in the week will be set to wholeDay
      */
     public void resetAllConstraints() {
-        for (Constraint constraint : employeeConstraints.values()) {
-            // Reset each day in the week to default (wholeDay)
-            for (DayOfWeek day : DayOfWeek.values()) {
-                constraint.setShiftType(day, wholeDay);
-            }
-        }
-
-        System.out.println("All constraints have been reset.");
+        constraintManager.resetAllConstraints();
     }
 
 }

@@ -21,7 +21,7 @@ public class ConstraintManager {
     // deadline for submitting/updating constraints
     private LocalDate deadline;
     // maps employee ID to their constraints
-    private Map<Integer, Constraint> employeeConstraints;
+    private Map<Integer, Constraint> constraintsByID;
 
     private static ConstraintManager instance;
 
@@ -29,7 +29,7 @@ public class ConstraintManager {
      * Private constructor to enforce Singleton pattern
      */
     private ConstraintManager() {
-        this.employeeConstraints = new HashMap<>();
+        this.constraintsByID = new HashMap<>();
         setNextThursdayDeadline();//defult deadline is thursday
     }
 
@@ -49,8 +49,8 @@ public class ConstraintManager {
     /**
      * @return map of all employee constraints
      */
-    public Map<Integer, Constraint> getEmployeeConstraints() {
-        return employeeConstraints;
+    public Map<Integer, Constraint> getConstraintsByID() {
+        return constraintsByID;
     }
 
     /**
@@ -59,8 +59,8 @@ public class ConstraintManager {
      * @param id employee ID
      * @return Constraint object
      */
-    public Constraint display(int id) {
-        return employeeConstraints.get(id);
+    public Constraint getConstraints(int id) {
+        return constraintsByID.get(id);
     }
 
     /**
@@ -74,7 +74,7 @@ public class ConstraintManager {
         if (this.deadline != null && !isOnTime(LocalDate.now())) {
             throw new RuntimeException("Cannot update constraints after deadline");
         }
-        Constraint employeeConstraints =display(id);
+        Constraint employeeConstraints = getConstraints(id);
         employeeConstraints.getWeekConstraints().put(day, shiftType);
     }
 
@@ -87,8 +87,8 @@ public class ConstraintManager {
      * @return true if available, false otherwise
      */
     public boolean isEmployeeAvailable(int id, DayOfWeek day, shiftType shiftType) {
-        return (employeeConstraints.get(id).getShiftType(day) == shiftType
-                || employeeConstraints.get(id).getShiftType(day) == wholeDay)
+        return (constraintsByID.get(id).getShiftType(day) == shiftType
+                || constraintsByID.get(id).getShiftType(day) == wholeDay)
                 && shiftType != notWorking;
     }
     /**
@@ -145,14 +145,12 @@ public class ConstraintManager {
      * - All days in the week will be set to wholeDay
      */
     public void resetAllConstraints() {
-        for (Constraint constraint : employeeConstraints.values()) {
+        for (Constraint constraint : constraintsByID.values()) {
             // Reset each day in the week to default (wholeDay)
             for (DayOfWeek day : DayOfWeek.values()) {
                 constraint.setShiftType(day, wholeDay);
             }
         }
-
-        System.out.println("All constraints have been reset.");
     }
 
 }

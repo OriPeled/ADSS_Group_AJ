@@ -16,7 +16,7 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
  * It supports assigning roles to employees, removing roles,
  * and querying employees by roles.
  */
-public class RoleManager implements IListManager<Role> {
+public class RoleManager {
     // maps employee ID to list of roles
     private Map<Integer, List<Role>> employeeRoles;
 
@@ -45,10 +45,10 @@ public class RoleManager implements IListManager<Role> {
      * @param id    employee ID
      * @param items list of roles
      */
-    @Override
+    /*@Override
     public void addFullList(int id, List<Role> items) {
         employeeRoles.put(id, items);
-    }
+    }*/
 
     /**
      * Adds a single role to an employee
@@ -56,8 +56,7 @@ public class RoleManager implements IListManager<Role> {
      * @param id   employee ID
      * @param role role to add
      */
-    @Override
-    public void addSingleItem(int id, Role role) {
+    public void addRoleToEmployee(int id, Role role) {
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }
@@ -146,14 +145,23 @@ public class RoleManager implements IListManager<Role> {
      * @param role
      * @return true if role beloge to id , otherwise false
      */
-    public boolean containsRole(int Id,Role role) {
-        for (Integer id : employeeRoles.keySet()) {
-            List<Role> roles = getListById(id);
-            if (roles.contains(role)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean containsRole(int id, Role role) {
+        List<Role> roles = getListById(id);
+        return roles != null && roles.contains(role);
     }
 
+    /**
+     * Promotes or demotes an employee to/from shift manager.
+     *
+
+     */
+    public void promoteDemote(int id) {
+        if (employeeRoles.get(id).contains(shiftManager)) {
+            employeeRoles.get(id).remove(shiftManager);
+            System.out.println("Employee is no longer shift manager.");
+        } else {
+            employeeRoles.get(id).add(shiftManager);
+            System.out.println("Employee is now shift manager.");
+        }
+    }
 }
