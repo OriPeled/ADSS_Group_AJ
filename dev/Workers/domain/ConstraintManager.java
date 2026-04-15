@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dev.Workers.domain.Enums.shiftType.notWorking;
-import static dev.Workers.domain.Enums.shiftType.wholeDay;
+import static dev.Workers.domain.Enums.shiftType.any;
 /**
  * Manages all employees' constraints in the system.
  *
@@ -90,7 +90,7 @@ public class ConstraintManager {
      */
     public boolean isEmployeeAvailable(int id, DayOfWeek day, shiftType shiftType) {
         return (constraintsByID.get(id).getShiftType(day) == shiftType
-                || constraintsByID.get(id).getShiftType(day) == wholeDay)
+                || constraintsByID.get(id).getShiftType(day) == any)
                 && shiftType != notWorking;
     }
     /**
@@ -150,7 +150,7 @@ public class ConstraintManager {
         for (Constraint constraint : constraintsByID.values()) {
             // Reset each day in the week to default (wholeDay)
             for (DayOfWeek day : DayOfWeek.values()) {
-                constraint.setShiftType(day, wholeDay);
+                constraint.setShiftType(day, any);
             }
         }
     }

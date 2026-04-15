@@ -75,6 +75,8 @@ public class UserMode {
         System.out.println("Choose a shift constraint to change or enter 0 to exit.");
         System.out.println("Choose 1-7 for day");
         int dayNumber = scanner.nextInt();
+        if (dayNumber == 0)
+            start();
         DayOfWeek day = ConstraintService.getDayFromNumber(dayNumber);
         //System.out.println("Choose 1 for morning and 2 for evening");
         System.out.println("Choose 1 for morning, 2 for evening, 3 for rest");
@@ -90,14 +92,11 @@ public class UserMode {
             case 3:
                 shiftType = notWorking;
                 break;
-
             default:
-                shiftType = wholeDay;
+                shiftType = any;
                 break;
-
         }
         constraintService.update(employee.getId(), day, shiftType);
-        System.out.println(constraintService.display(employee.getId()));
-        start();
+        updateConstraints();
     }
 }

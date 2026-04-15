@@ -3,10 +3,10 @@ package dev.Workers.domain;
 import dev.Workers.domain.Enums.shiftType;
 
 import java.time.DayOfWeek;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.shiftType.wholeDay;
+import static dev.Workers.domain.Enums.shiftType.any;
      /**
       *  Represents employee constraints for working shifts.
      *
@@ -23,6 +23,7 @@ public class Constraint {
     private shiftType shiftType;
     //Weekly constraints mapping each day to allowed shift type
     private Map<DayOfWeek, shiftType> weekConstraints;
+    //private Map<DayOfWeek, shiftType> weekConstraints = new EnumMap<>(DayOfWeek.class);
     //private boolean can;
 
     /**
@@ -30,9 +31,9 @@ public class Constraint {
     * Initializes all days in the week to wholeDay (no restriction).
     */
     public Constraint() {
-       this.weekConstraints = new HashMap<>();
+        this.weekConstraints = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek d : DayOfWeek.values()) {
-            weekConstraints.put(d, wholeDay);
+            weekConstraints.put(d, any);
         }
     }
 
@@ -80,12 +81,43 @@ public class Constraint {
         return day.equals(that.day) && shiftType == that.shiftType;
     }
 
-         @Override
-         public String toString() {
-             return "Constraint{" +
-                     "day=" + day +
-                     ", shiftType=" + shiftType +
-                     ", weekConstraints=" + weekConstraints +
-                     '}';
+     @Override
+     public String toString() {
+         StringBuilder sb = new StringBuilder("=== My Week Constraints ===\n");
+
+         // Define the custom order starting with Sunday
+         DayOfWeek[] orderedDays = {
+                 DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+                 DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY
+         };
+
+         int columnWidth = 30; // Increased width for plenty of space
+
+         // Loop 4 times (for the 4 rows needed to cover all 7 days)
+         for (int i = 0; i < 4; i++) {
+             // Column 1: Sunday through Wednesday (Indices 0, 1, 2, 3)
+             String dayLeft = formatDay(orderedDays[i]);
+             String shiftLeft = weekConstraints.get(orderedDays[i]).toString();
+             String leftEntry = dayLeft + " - " + shiftLeft;
+
+             sb.append(String.format("%-" + columnWidth + "s", leftEntry));
+
+             // Column 2: Thursday through Saturday (Indices 4, 5, 6)
+             if (i + 4 < orderedDays.length) {
+                 String dayRight = formatDay(orderedDays[i + 4]);
+                 String shiftRight = weekConstraints.get(orderedDays[i + 4]).toString();
+                 sb.append(dayRight).append(" - ").append(shiftRight);
+             }
+
+             sb.append("\n");
          }
+
+         return sb.toString();
      }
+
+     // Helper to make "SUNDAY" into "Sunday"
+     private String formatDay(DayOfWeek d) {
+         String name = d.toString().toLowerCase();
+         return name.substring(0, 1).toUpperCase() + name.substring(1);
+     }
+ }
