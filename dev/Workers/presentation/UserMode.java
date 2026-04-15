@@ -1,8 +1,8 @@
 package dev.Workers.presentation;
 
 import dev.Workers.Service.AccessService;
-import dev.Workers.Service.ConstraintManager;
-import dev.Workers.Service.EmployeeManager;
+import dev.Workers.Service.ConstraintService;
+import dev.Workers.Service.EmployeeService;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Employee;
 
@@ -12,8 +12,8 @@ import static dev.Workers.domain.Enums.shiftType.*;
 import static dev.Workers.presentation.Main.scanner;
 
 public class UserMode {
-    static EmployeeManager employeeManager = EmployeeManager.getInstance();
-    static ConstraintManager constraintManager = ConstraintManager.getInstance();
+    static EmployeeService employeeService = EmployeeService.getInstance();
+    static ConstraintService constraintService = ConstraintService.getInstance();
     static AccessService accessService = AccessService.getInstance();
 
     static Employee employee;
@@ -22,7 +22,7 @@ public class UserMode {
         System.out.println("User Mode");
         System.out.println("Please Enter ID:");
         int enteredID = scanner.nextInt();
-        while (!employeeManager.isEmployee(enteredID)) {
+        while (!employeeService.isEmployee(enteredID)) {
             System.out.println("No Such Employee. Try again or enter 0 to exit.");
             enteredID = scanner.nextInt();
             if (enteredID == 0)
@@ -43,7 +43,7 @@ public class UserMode {
             if (input == 0)
                 Main.displayMenu();
         }
-        employee = employeeManager.getById(enteredID);
+        employee = employeeService.getById(enteredID);
         start();
     }
 
@@ -68,12 +68,12 @@ public class UserMode {
     }
 
     public static void updateConstraints() {
-        constraintManager.display(employee.getId());
+        constraintService.display(employee.getId());
         // sunday - morning(yes), evening(yes)
         System.out.println("Choose a shift constraint to change");
         System.out.println("Choose 1-7 for day");
         int dayNumber = scanner.nextInt();
-        DayOfWeek day = ConstraintManager.getDayFromNumber(dayNumber);
+        DayOfWeek day = ConstraintService.getDayFromNumber(dayNumber);
         //System.out.println("Choose 1 for morning and 2 for evening");
         System.out.println("Choose 1 for morning, 2 for evening, 3 for rest");
         int choice = scanner.nextInt();
@@ -92,6 +92,6 @@ public class UserMode {
                 shiftType = wholeDay;
                 break;
         }
-        constraintManager.update(employee.getId(), day, shiftType);
+        constraintService.update(employee.getId(), day, shiftType);
     }
 }

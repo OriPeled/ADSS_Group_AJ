@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.Service.ConstraintManager;
+import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Shift;
@@ -12,7 +12,7 @@ import static dev.Workers.presentation.Main.scanner;
 
 public class ManageShiftsMenu {
     static ShiftService shiftService = ShiftService.getInstance();
-    static ConstraintManager constraintManager = ConstraintManager.getInstance();
+    static ConstraintService constraintService = ConstraintService.getInstance();
     static Parser parser;
     static Shift shift;
     //static int id;
@@ -187,7 +187,7 @@ public class ManageShiftsMenu {
         String dateString = String.valueOf(input);
         LocalDate date = Parser.stringToDate(dateString);
 
-        constraintManager.setDeadline(date);
+        constraintService.setDeadline(date);
     }
 
     public static void getShiftsHistory() {

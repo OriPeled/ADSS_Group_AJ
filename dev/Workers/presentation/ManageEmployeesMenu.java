@@ -1,8 +1,8 @@
 package dev.Workers.presentation;
 
-import dev.Workers.Service.ConstraintManager;
-import dev.Workers.Service.EmployeeManager;
-import dev.Workers.Service.RoleManager;
+import dev.Workers.Service.ConstraintService;
+import dev.Workers.Service.EmployeeService;
+import dev.Workers.Service.RoleService;
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.SalaryType;
@@ -11,14 +11,13 @@ import dev.Workers.domain.Employee;
 import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;
-import java.util.Scanner;
 
 import static dev.Workers.presentation.Main.scanner;
 
 public class ManageEmployeesMenu {
-    static EmployeeManager employeeManager = EmployeeManager.getInstance();
-    static ConstraintManager constraintManager = ConstraintManager.getInstance();
-    static RoleManager roleManager = RoleManager.getInstance();
+    static EmployeeService employeeService = EmployeeService.getInstance();
+    static ConstraintService constraintService = ConstraintService.getInstance();
+    static RoleService roleService = RoleService.getInstance();
     static int id;
     static Employee employee;
 
@@ -48,7 +47,7 @@ public class ManageEmployeesMenu {
         if (id == 0)
             start();
 
-        employee = employeeManager.getById(id);
+        employee = employeeService.getById(id);
         System.out.println("Employee chosen");
         manageEmployee();
     }
@@ -194,7 +193,7 @@ public class ManageEmployeesMenu {
         int choice = scanner.nextInt();
         switch (choice) {
             case 1:
-                employeeManager.remove(id);
+                employeeService.remove(id);
                 System.out.println("Employee removed.");
                 accessEmployee();
                 break;
@@ -218,7 +217,7 @@ public class ManageEmployeesMenu {
         }
         Role selectedRole = roles[choice - 1];
         try {
-            roleManager.addSingleItem(employee.getId(), selectedRole);
+            roleService.addSingleItem(employee.getId(), selectedRole);
             System.out.println("Role " + selectedRole + " added to " + employee.getName());
         } catch (Exception e) {
             System.out.println("Failed to add role: " + e.getMessage());
@@ -276,9 +275,9 @@ public class ManageEmployeesMenu {
         System.out.println("Enter start date:");
         String startDateString = scanner.nextLine();
         LocalDate date = Parser.stringToDate(startDateString);
-        employeeManager.add(name, id, bankAccount, salary, terms, date);
+        employeeService.add(name, id, bankAccount, salary, terms, date);
         Constraint constraint = new Constraint();
-        constraintManager.getEmployeeConstraints().put(id, constraint);
+        constraintService.getEmployeeConstraints().put(id, constraint);
         System.out.println("Employee added.");
         start();
     }

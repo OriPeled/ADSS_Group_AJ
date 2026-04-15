@@ -14,26 +14,26 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
  * It supports assigning roles to employees, removing roles,
  * and querying employees by roles.
  */
-public class RoleManager implements IListManager<Role> {
+public class RoleService implements IListManager<Role> {
     // maps employee ID to list of roles
     private Map<Integer, List<Role>> employeeRoles;
 
 
-    private static RoleManager instance;
+    private static RoleService instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
-    private RoleManager() {
+    private RoleService() {
         this.employeeRoles = new HashMap<>();
     }
 
     /**
      * @return the single instance of RoleManager
      */
-    public static RoleManager getInstance() {
+    public static RoleService getInstance() {
         if (instance == null)
-            instance = new RoleManager();
+            instance = new RoleService();
         return instance;
     }
 

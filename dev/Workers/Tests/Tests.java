@@ -22,18 +22,18 @@ import static org.junit.jupiter.api.Assertions.*;
 public class Tests {
 
     private ShiftService shiftService;
-    private RoleManager roleManager;
-    private ConstraintManager constraintManager;
-    private EmployeeManager employeeManager;
+    private RoleService roleService;
+    private ConstraintService constraintService;
+    private EmployeeService employeeService;
     private AccessService accessService;
 
     @BeforeEach
     void setUp() {
         // Initialize instances
         shiftService = ShiftService.getInstance();
-        roleManager = RoleManager.getInstance();
-        constraintManager = ConstraintManager.getInstance();
-        employeeManager = EmployeeManager.getInstance();
+        roleService = RoleService.getInstance();
+        constraintService = ConstraintService.getInstance();
+        employeeService = EmployeeService.getInstance();
         accessService = AccessService.getInstance();
 
     }
@@ -83,24 +83,24 @@ public class Tests {
     @DisplayName("ConstraintManager: Verify deadline enforcement")
     void testDeadlineLogic() {
         LocalDate futureDate = LocalDate.now().plusDays(5);
-        constraintManager.setDeadline(futureDate);
-        assertTrue(constraintManager.isOnTime(LocalDate.now()),
+        constraintService.setDeadline(futureDate);
+        assertTrue(constraintService.isOnTime(LocalDate.now()),
                 "Should return true when current date is before deadline.");
 
         LocalDate pastDate = LocalDate.now().minusDays(1);
-        constraintManager.setDeadline(pastDate);
-        assertFalse(constraintManager.isOnTime(LocalDate.now()),
+        constraintService.setDeadline(pastDate);
+        assertFalse(constraintService.isOnTime(LocalDate.now()),
                 "Should return false when current date is after deadline.");
     }
 
     @Test
     @DisplayName("ConstraintManager: Map number to DayOfWeek")
     void testDayFromNumber() {
-        assertEquals(DayOfWeek.SUNDAY, ConstraintManager.getDayFromNumber(1));
-        assertEquals(DayOfWeek.SATURDAY, ConstraintManager.getDayFromNumber(7));
+        assertEquals(DayOfWeek.SUNDAY, ConstraintService.getDayFromNumber(1));
+        assertEquals(DayOfWeek.SATURDAY, ConstraintService.getDayFromNumber(7));
 
         assertThrows(IllegalArgumentException.class, () -> {
-            ConstraintManager.getDayFromNumber(8);
+            ConstraintService.getDayFromNumber(8);
         }, "Should throw exception for days outside the 1-7 range.");
     }
 
@@ -143,9 +143,9 @@ public class Tests {
     void testAddEmployee() {
         int empId = 500;
         // Adding an employee with basic valid parameters
-        employeeManager.add("Yossi", empId, 12345, 8000.0, null, LocalDate.now());
+        employeeService.add("Yossi", empId, 12345, 8000.0, null, LocalDate.now());
 
-        assertTrue(employeeManager.isEmployee(empId), "Employee should exist after being added.");
+        assertTrue(employeeService.isEmployee(empId), "Employee should exist after being added.");
     }
 
     @Test
@@ -153,9 +153,9 @@ public class Tests {
     void testAddEmployeeNegativeSalary() {
         int empId = 501;
         // Should print an error message and NOT add the employee
-        employeeManager.add("Dana", empId, 12345, -500.0, null, LocalDate.now());
+        employeeService.add("Dana", empId, 12345, -500.0, null, LocalDate.now());
 
-        assertFalse(employeeManager.isEmployee(empId), "Employee with negative salary should not be added.");
+        assertFalse(employeeService.isEmployee(empId), "Employee with negative salary should not be added.");
     }
 
 
@@ -170,15 +170,15 @@ public class Tests {
 
         List<Role> roles = new ArrayList<>(Arrays.asList(Role.Cashier, Role.shiftManager));
 
-        roleManager.addFullList(empId, roles);
-        assertEquals(2, roleManager.getListById(empId).size(), "Employee should have 2 roles.");
+        roleService.addFullList(empId, roles);
+        assertEquals(2, roleService.getListById(empId).size(), "Employee should have 2 roles.");
 
 
-        roleManager.removeSingleItem(empId, Role.Cashier);
-        assertEquals(1, roleManager.getListById(empId).size(), "Employee should have 1 role left.");
+        roleService.removeSingleItem(empId, Role.Cashier);
+        assertEquals(1, roleService.getListById(empId).size(), "Employee should have 1 role left.");
 
-        roleManager.removeAll(empId);
-        assertTrue(roleManager.getListById(empId).isEmpty(), "Employee should have no roles left.");
+        roleService.removeAll(empId);
+        assertTrue(roleService.getListById(empId).isEmpty(), "Employee should have no roles left.");
     }
 
 
@@ -199,10 +199,10 @@ public class Tests {
     @Test
     @DisplayName("Null Check: ConstraintManager - isOnTime with Null date")
     void testConstraintManagerNullDate() {
-        constraintManager.setDeadline(LocalDate.now());
+        constraintService.setDeadline(LocalDate.now());
         // null.isBefore(deadline) will throw NullPointerException
         assertThrows(NullPointerException.class, () -> {
-            constraintManager.isOnTime(null);
+            constraintService.isOnTime(null);
         }, "Checking isOnTime with null date should throw NullPointerException.");
     }
 

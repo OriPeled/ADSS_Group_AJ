@@ -1,5 +1,6 @@
 package dev.Workers.Service;
 
+import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Constraint;
 
@@ -17,40 +18,31 @@ import static dev.Workers.domain.Enums.shiftType.*;
  * It allows updating constraints, checking availability,
  * and managing deadlines for constraint submissions.
  */
-public class ConstraintManager {
+public class ConstraintService {
     // deadline for submitting/updating constraints
     private LocalDate deadline;
     // maps employee ID to their constraints
     private Map<Integer, Constraint> employeeConstraints;
 
-    private static ConstraintManager instance;
+    private static ConstraintManager constraintManager = ConstraintManager.getInstance();
 
     /**
      * Private constructor to enforce Singleton pattern
      */
-    private ConstraintManager() {
+    private ConstraintService() {
         this.employeeConstraints = new HashMap<>();
         setNextThursdayDeadline();//defult deadline is thursday
     }
 
     public void setNextThursdayDeadline() {
-        this.deadline = LocalDate.now()
-                .with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
+        constraintManager.setNextThursdayDeadline();
     }
-    /**
-     * @return the single instance of Constraint Manager
-     */
-    public static ConstraintManager getInstance() {
-        if (instance == null) {
-            instance = new ConstraintManager();
-        }
-        return instance;
-    }
+
     /**
      * @return map of all employee constraints
      */
     public Map<Integer, Constraint> getEmployeeConstraints() {
-        return employeeConstraints;
+        constraintManager.getEmployeeConstraints();
     }
 
     /**
@@ -60,7 +52,7 @@ public class ConstraintManager {
      * @return Constraint object
      */
     public Constraint display(int id) {
-        return employeeConstraints.get(id);
+        constraintManager.display(id);
     }
 
     /**
@@ -71,11 +63,7 @@ public class ConstraintManager {
      * @param shiftType desired shift type
      */
     public void update(int id, DayOfWeek day, shiftType shiftType) {
-        if (this.deadline != null && !isOnTime(LocalDate.now())) {
-            throw new RuntimeException("Cannot update constraints after deadline");
-        }
-        Constraint employeeConstraints =display(id);
-        employeeConstraints.getWeekConstraints().put(day, shiftType);
+        constraintManager.update(id, day, shiftType);
     }
 
     /**
@@ -87,9 +75,7 @@ public class ConstraintManager {
      * @return true if available, false otherwise
      */
     public boolean isEmployeeAvailable(int id, DayOfWeek day, shiftType shiftType) {
-        return (employeeConstraints.get(id).getShiftType(day) == shiftType
-                || employeeConstraints.get(id).getShiftType(day) == wholeDay)
-                && shiftType != notWorking;
+        constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
     /**
      * Array representing days of the week (Sunday = 1)
@@ -103,6 +89,7 @@ public class ConstraintManager {
             DayOfWeek.FRIDAY,
             DayOfWeek.SATURDAY
     };
+
     /**
      * Converts a number (1-7) to a DayOfWeek
      *
@@ -110,10 +97,7 @@ public class ConstraintManager {
      * @return corresponding DayOfWeek
      */
     public static DayOfWeek getDayFromNumber(int dayNumber) {
-        if (dayNumber < 1 || dayNumber > 7) {
-            throw new IllegalArgumentException("Day must be between 1-7");
-        }
-        return days[dayNumber - 1];
+        constraintManager.
     }
     /**
      * Checks if current date is before deadline
