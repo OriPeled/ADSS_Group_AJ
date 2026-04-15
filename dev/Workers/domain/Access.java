@@ -1,6 +1,10 @@
 package dev.Workers.domain;
 
 public class Access {
+    public String getPassword() {
+        return password;
+    }
+
     private String password;
 
     public Access(String password) {
@@ -13,5 +17,8 @@ public class Access {
 
     public boolean isWrongPassword(String password) {
         return !this.password.equals(password);
+    }
+    public boolean isPasswordEmpty(String password) {
+        return password.equals("") || password ==null;
     }
 }

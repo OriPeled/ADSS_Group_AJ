@@ -192,7 +192,7 @@ public class ShiftService {
         for (Role role : Role.values()) {
             if (isNeeded(shift, role)) {
                 result.append("--- ").append(role).append(" ---\n");
-                List<Integer> qualifiedIds = roleManager.getListByRole(role);
+                List<java.lang.Integer> qualifiedIds = roleManager.getListByRole(role);
 
                 for (int id : qualifiedIds) {
                     if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
@@ -212,7 +212,7 @@ public class ShiftService {
 
     public int countUnassignedValid(Shift shift, Role role) {
         int count = 0;
-        List<Integer> qualifiedIds = roleManager.getListByRole(role);
+        List<java.lang.Integer> qualifiedIds = roleManager.getListByRole(role);
         for (int id : qualifiedIds) {
             if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
                 count++;
@@ -223,14 +223,13 @@ public class ShiftService {
 
     public void setRequirements(Shift shift, Role role, int count) {
         requirements.set(shift, role, count);
-
         while (assignments.countAssigned(shift, role) > requirements.countRequired(shift, role)) {
             for (Integer id : assignments.getEmployees(shift, role)) {
                 System.out.println("Overstaff.");
                 removeEmployee(shift, role, id);
                 System.out.println("Employee"
-                                    + employeeManager.getById(id).getName()
-                                    + '(' + id + ") removed.");
+                        + employeeManager.getById(id).getName()
+                        + '(' + id + ") removed.");
             }
         }
     }
@@ -247,9 +246,23 @@ public class ShiftService {
         }
     }
 
+    /**
+     * Returns all shifts for the next week (7 days from today).
+     */
     private List<Shift> getNextWeekShifts() {
-        // TODO
-        return null;
+        List<Shift> result = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        for (int i = 1; i <= 7; i++) {
+            LocalDate date = today.plusDays(i);
+            for (shiftType type : shiftType.values()) {
+                Shift shift = getShift(date, type);
+                if (shift != null) {
+                    result.add(shift);
+                }
+            }
+        }
+
+        return result;
     }
 
     public Map<Shift, String> weekAssignment() {

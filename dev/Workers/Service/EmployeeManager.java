@@ -92,7 +92,7 @@ public class EmployeeManager implements IManager<Employee> {
      * @param id employee ID
      * @return Employee object or null if not found
      */
-    public Employee getById(int id) {
+    public Employee getById(Employee id) {
         return employees.get(id);
     }
     /**
@@ -107,9 +107,14 @@ public class EmployeeManager implements IManager<Employee> {
 
         if (emp != null && emp.isActive()) {
             emp.terminateEmployee(LocalDate.now());
-            accessService.Remove(emp);
+            accessService.Remove(id);
         } else {
             System.out.println("Employee ID " + id + " not active.");
         }
+    }
+
+    @Override
+    public Employee getById(int id) {
+        return employees.get(id);
     }
 }

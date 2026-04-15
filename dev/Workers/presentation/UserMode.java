@@ -36,10 +36,10 @@ public class UserMode {
         System.out.println("Please Enter Password:");
         String enteredPass = scanner.nextLine();
 
-        while (employeeManager.wrongPassword(enteredPass)) {
+        while (accessService.getAccess(enteredID).getPassword() != enteredPass) {
             System.out.println("Wrong Password: Try Again or enter 0 to exit.");
             enteredPass = scanner.nextLine();
-            Integer input = Integer.valueOf(enteredPass);
+            java.lang.Integer input = java.lang.Integer.valueOf(enteredPass);
             if (input == 0)
                 Main.displayMenu();
         }

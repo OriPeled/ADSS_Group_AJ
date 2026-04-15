@@ -66,10 +66,13 @@ public class ManageShiftsMenu {
         switch (choice) {
             case 1:
                 updateShift();
+                break;
             case 2:
                 removeShift();
+                break;
             case 3:
                 start();
+                break;
             default:
                 System.out.println("Invalid choice.");
         }
@@ -85,6 +88,7 @@ public class ManageShiftsMenu {
                 break;
             case 2:
                 manageShift();
+                break;
         }
 
     }

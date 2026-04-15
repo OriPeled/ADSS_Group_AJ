@@ -4,12 +4,14 @@ import dev.Workers.Service.ConstraintManager;
 import dev.Workers.Service.EmployeeManager;
 import dev.Workers.Service.RoleManager;
 import dev.Workers.domain.Enums.JobStatus;
+import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.SalaryType;
 import dev.Workers.domain.Constraint;
 import dev.Workers.domain.Employee;
 import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;
+import java.util.Scanner;
 
 import static dev.Workers.presentation.Main.scanner;
 
@@ -200,11 +202,29 @@ public class ManageEmployeesMenu {
                 accessEmployee();
         }
     }
-
+    /**
+     * Adds a role to an employee after validating input.
+     */
     private static void addRole() {
-        // TODO
-        System.out.println("1 for ");
-        roleManager.addSingleItem(employee.getId(), );
+        Role[] roles = Role.values();
+
+        System.out.println("Choose role to add:");
+        int choice = scanner.nextInt();
+        for (int i = 0; i < roles.length; i++) {
+            System.out.println((i + 1) + ". " + roles[i]);
+        }
+        if (choice < 1 || choice > roles.length) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+        Role selectedRole = roles[choice - 1];
+
+        try {
+            roleManager.addSingleItem(employee.getId(), selectedRole);
+            System.out.println("Role " + selectedRole + " added to " + employee.getName());
+        } catch (Exception e) {
+            System.out.println("Failed to add role: " + e.getMessage());
+        }
     }
 
     private static void addEmployeeMenu() {
