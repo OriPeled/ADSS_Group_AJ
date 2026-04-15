@@ -104,6 +104,15 @@ public class RoleService {
     }
 
     public void promoteDemote(int id) {
+        List<Role> roles = roleManager.getListById(id);
+
+        // If employee has no roles yet, we should initialize them first
+        // or the Domain's .get(id) will crash.
+        if (roles.isEmpty() && roleManager.getListById(id).isEmpty()) {
+            roleManager.addRoleToEmployee(id, Role.shiftManager);
+            return;
+        }
+
         roleManager.promoteDemote(id);
     }
 

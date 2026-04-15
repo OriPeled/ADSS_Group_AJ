@@ -156,11 +156,12 @@ public class RoleManager {
 
      */
     public void promoteDemote(int id) {
+        // if employeeRoles == null?
         if (employeeRoles.get(id).contains(shiftManager)) {
             employeeRoles.get(id).remove(shiftManager);
             System.out.println("Employee is no longer shift manager.");
         } else {
-            employeeRoles.get(id).add(shiftManager);
+            addRoleToEmployee(id, shiftManager);
             System.out.println("Employee is now shift manager.");
         }
     }
