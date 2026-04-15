@@ -1,35 +1,34 @@
 package dev.Workers.Service;
 
-import dev.Workers.domain.IManager;
 import dev.Workers.domain.Employee;
+import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;
-import java.util.*;
 
 /**
- * Manages all employees in the system.
- * <p>
- * This class is implemented as a Singleton.
- * Provides functionality to add, remove, and retrieve employees.
+ * Service class for Employee business logic.
+ * Handles validations, cross-service communication, and delegates data storage to EmployeeManager.
  */
-public class EmployeeService implements IManager<Employee> {
-    // maps employee ID to Employee object
-    private Map<Integer, Employee> employees;
-    private AccessService accessService = AccessService.getInstance() ;
+public class EmployeeService {
+
     private static EmployeeService instance;
+    private EmployeeManager employeeManager;
+    private AccessService accessService;
 
     /**
-     * Private constructor to enforce Singleton pattern
+     * Private constructor to enforce the Singleton pattern.
      */
     private EmployeeService() {
-
-        this.employees = new HashMap<>();
+        // Initialize dependencies for data management and access control
+        this.employeeManager = EmployeeManager.getInstance();
 
     }
 
     /**
-     * @return the single instance of EmployeeManager
+     * Retrieves the single instance of the EmployeeService.
+     *
+     * @return the singleton instance of EmployeeService
      */
     public static EmployeeService getInstance() {
         if (instance == null) {
@@ -39,82 +38,67 @@ public class EmployeeService implements IManager<Employee> {
     }
 
     /**
-     * Checks if employee exists in the system
+     * Creates and adds a new employee to the system with business validations.
      *
-     * @param id employee ID
-     * @return true if exists, false otherwise
-     */
-    public boolean isEmployee(int id) {
-        return getById(id) != null;
-    }
-
-    /**
-     * Adds an employee object to the system
-     *
-     * @param id       employee ID (not used directly, taken from employee object)
-     * @param employee employee object
-     */
-    @Override
-    public void add(int id, Employee employee) {
-        employees.put(employee.getId(), employee);
-    }
-
-    /**
-     * Creates and adds a new employee to the system
-     *
-     * @param name        employee name
-     * @param id          employee ID
-     * @param bankAccount bank account number
-     * @param salary      employee salary
-     * @param terms       employment terms
-     * @param startDate   employment start date
+     * @param name        the name of the employee
+     * @param id          the unique ID of the employee
+     * @param bankAccount the bank account number
+     * @param salary      the starting salary
+     * @param terms       the employment terms
+     * @param startDate   the start date of employment
+     * @throws IllegalArgumentException if the ID already exists, or if salary or bank account are invalid
      */
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
-        if (isEmployee(id)) {
-            System.out.println("Employee already works.");
-            return;
+        // 1. Business logic validations
+        if (employeeManager.isEmployee(id)) {
+            throw new IllegalArgumentException("Cannot add employee: Employee ID " + id + " already exists.");
         }
         if (salary <= 0) {
-            System.out.println("Salary must be a positive number.");
-            return;
+            throw new IllegalArgumentException("Cannot add employee: Salary must be a positive number.");
         }
         if (bankAccount <= 0) {
-            System.out.println("Invalid bank account details.");
-            return;
+            throw new IllegalArgumentException("Cannot add employee: Invalid bank account details.");
         }
+
+        // 2. Create the Employee object
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
-        add(id, newEmp);
+
+        // 3. Save to the repository via the Manager
+        employeeManager.add(id, newEmp);
     }
 
     /**
-     * Retrieves an employee by ID
+     * Terminates an employee and removes their system access.
      *
-     * @param id employee ID
-     * @return Employee object or null if not found
+     * @param id the unique ID of the employee to remove
+     * @throws IllegalArgumentException if the employee is not found or is already inactive
      */
-    public Employee getById(Employee id) {
-        return employees.get(id);
-    }
-    /**
-     * Removes (terminates) an employee from the system.
-     * Instead of deleting, marks employee as inactive by setting end date.
-     *
-     * @param id employee ID
-     */
-    @Override
     public void remove(int id) {
-        Employee emp = employees.get(id);
+        // Retrieve the employee from the repository
+        Employee emp = employeeManager.getById(id);
 
         if (emp != null && emp.isActive()) {
+            // Update termination date (business logic)
             emp.terminateEmployee(LocalDate.now());
-            accessService.Remove(id);
+
+            // Remove system access
+            try {
+                accessService.Remove(id);
+            } catch (IllegalArgumentException e) {
+                // Ignore if the employee didn't have a configured password
+            }
         } else {
-            System.out.println("Employee ID " + id + " not active.");
+            throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " not found or already inactive.");
         }
     }
 
-    @Override
-    public Employee getById(int id) {
-        return employees.get(id);
+    /**
+     * Retrieves an employee by their ID.
+     *
+     * @param id the unique ID of the employee
+     * @return the Employee object, or null if not found
+     */
+    public Employee getEmployee(int id) {
+        return employeeManager.getById(id);
     }
 }
