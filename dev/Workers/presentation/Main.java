@@ -1,10 +1,21 @@
 package dev.Workers.presentation;
 import java.util.Scanner;
+import dev.Workers.setup.DataInitializer;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        System.out.println("Welcome to ADSS System");
+        System.out.println("Would you like to load Mock Data? (Enter 1 for Yes, 0 for No)");
+
+        int loadData = scanner.nextInt();
+        if (loadData == 1) {
+            DataInitializer.initSystem();
+        } else {
+            System.out.println("Starting system with empty data");
+        }
+
         while (true) {
             displayMenu();
         }
