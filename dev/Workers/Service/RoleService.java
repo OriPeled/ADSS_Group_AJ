@@ -14,26 +14,26 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
  * It supports assigning roles to employees, removing roles,
  * and querying employees by roles.
  */
-public class RoleManager implements IListManager<Role> {
+public class RoleService implements IListManager<Role> {
     // maps employee ID to list of roles
     private Map<Integer, List<Role>> employeeRoles;
 
 
-    private static RoleManager instance;
+    private static RoleService instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
-    private RoleManager() {
+    private RoleService() {
         this.employeeRoles = new HashMap<>();
     }
 
     /**
      * @return the single instance of RoleManager
      */
-    public static RoleManager getInstance() {
+    public static RoleService getInstance() {
         if (instance == null)
-            instance = new RoleManager();
+            instance = new RoleService();
         return instance;
     }
 
@@ -59,7 +59,7 @@ public class RoleManager implements IListManager<Role> {
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }
-        if (!employeeRoles.get(id).contains(role)) {
+        if (!containsRole(id, role)) {
             employeeRoles.get(id).add(role);
         }
     }
@@ -71,6 +71,7 @@ public class RoleManager implements IListManager<Role> {
      */
     public List<Integer> getAllManagers() {
         List<Integer> managers = new ArrayList<>();
+
         for (Integer id : employeeRoles.keySet()) {
             List<Role> roles = getListById(id);
             for (Role role : roles) {
@@ -135,6 +136,22 @@ public class RoleManager implements IListManager<Role> {
             }
         }
         return qualifiedEmployees;
+    }
+
+    /**
+     *
+     * @param Id
+     * @param role
+     * @return true if role beloge to id , otherwise false
+     */
+    public boolean containsRole(int Id,Role role) {
+        for (Integer id : employeeRoles.keySet()) {
+            List<Role> roles = getListById(id);
+            if (roles.contains(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

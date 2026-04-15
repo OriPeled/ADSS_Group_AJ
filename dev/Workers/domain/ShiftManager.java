@@ -1,11 +1,7 @@
-package dev.Workers.Service;
+package dev.Workers.domain;
 
-import dev.Workers.domain.Assignments;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Employee;
-import dev.Workers.domain.Shift;
-import dev.Workers.domain.Requirements;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -19,30 +15,30 @@ import java.util.*;
  * - Validation of constraints, roles, and requirements
  * - Reporting shift history and status
  */
-public class ShiftService {
+public class ShiftManager {
 
     // all system shifts
     private static Set<Shift> shifts;
     // required roles per shift
     private Requirements requirements;
     // employee availability constraints
-    private ConstraintService constraintService;
+    private ConstraintManager constraintManager;
     //all the assigments
     private Assignments assignments;
     // employees manager
-    private static EmployeeService employeeService = EmployeeService.getInstance();
+    private static EmployeeManager employeeManager = EmployeeManager.getInstance();
     // employee roles manager
-    private static RoleService roleService = RoleService.getInstance();
+    private static RoleManager roleManager = RoleManager.getInstance();
 
-    private static ShiftService instance;
+    private static ShiftManager instance;
 
     /**
      * singeltone
      * @return
      */
-    public static ShiftService getInstance() {
+    public static ShiftManager getInstance() {
         if (instance == null) {
-            instance = new ShiftService();
+            instance = new ShiftManager();
         }
         return instance;
     }
@@ -50,10 +46,10 @@ public class ShiftService {
     /**
      * constractor for service
      */
-    private ShiftService() {
+    private ShiftManager() {
         shifts = new HashSet<>();
         requirements = new Requirements();
-        constraintService = ConstraintService.getInstance();
+        constraintManager = ConstraintManager.getInstance();
         assignments = new Assignments();
     }
 
@@ -159,7 +155,7 @@ public class ShiftService {
      * Checks if employee is available according to constraints.
      */
     private boolean isAvailable(int id, Shift shift) {
-        return constraintService.isEmployeeAvailable(
+        return constraintManager.isEmployeeAvailable(
                 id,
                 shift.getShiftDate().getDayOfWeek(),
                 shift.getType()
@@ -169,7 +165,7 @@ public class ShiftService {
      * Checks if employee has the required role.
      */
     private boolean isQualified(int id, Role role) {
-        return roleService.getListById(id).contains(role);
+        return roleManager.getListById(id).contains(role);
     }
 
     /**
@@ -185,18 +181,18 @@ public class ShiftService {
     }
 
     public String getUnassignedValid(Shift shift) {
-        EmployeeService employeeService = EmployeeService.getInstance();
+        EmployeeManager employeeManager = EmployeeManager.getInstance();
         StringBuilder result = new StringBuilder("Available employees for shift:\n");
         boolean foundAny = false;
 
         for (Role role : Role.values()) {
             if (isNeeded(shift, role)) {
                 result.append("--- ").append(role).append(" ---\n");
-                List<java.lang.Integer> qualifiedIds = roleService.getListByRole(role);
+                List<Integer> qualifiedIds = roleManager.getListByRole(role);
 
                 for (int id : qualifiedIds) {
                     if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
-                        Employee emp = employeeService.getById(id);
+                        Employee emp = employeeManager.getById(id);
                         result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
                         foundAny = true;
                     }
@@ -212,7 +208,7 @@ public class ShiftService {
 
     public int countUnassignedValid(Shift shift, Role role) {
         int count = 0;
-        List<java.lang.Integer> qualifiedIds = roleService.getListByRole(role);
+        List<Integer> qualifiedIds = roleManager.getListByRole(role);
         for (int id : qualifiedIds) {
             if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
                 count++;
@@ -228,7 +224,7 @@ public class ShiftService {
                 System.out.println("Overstaff.");
                 removeEmployee(shift, role, id);
                 System.out.println("Employee"
-                        + employeeService.getById(id).getName()
+                        + employeeManager.getById(id).getName()
                         + '(' + id + ") removed.");
             }
         }

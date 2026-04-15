@@ -1,11 +1,10 @@
-package dev.Workers.Service;
+package dev.Workers.domain;
 
-import dev.Workers.domain.IManager;
-import dev.Workers.domain.Employee;
-import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.Service.AccessService;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages all employees in the system.
