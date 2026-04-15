@@ -59,7 +59,7 @@ public class RoleManager implements IListManager<Role> {
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }
-        if (!employeeRoles.get(id).contains(role)) {
+        if (!containsRole(id, role)) {
             employeeRoles.get(id).add(role);
         }
     }
@@ -71,6 +71,7 @@ public class RoleManager implements IListManager<Role> {
      */
     public List<Integer> getAllManagers() {
         List<Integer> managers = new ArrayList<>();
+
         for (Integer id : employeeRoles.keySet()) {
             List<Role> roles = getListById(id);
             for (Role role : roles) {
@@ -135,6 +136,22 @@ public class RoleManager implements IListManager<Role> {
             }
         }
         return qualifiedEmployees;
+    }
+
+    /**
+     *
+     * @param Id
+     * @param role
+     * @return true if role beloge to id , otherwise false
+     */
+    public boolean containsRole(int Id,Role role) {
+        for (Integer id : employeeRoles.keySet()) {
+            List<Role> roles = getListById(id);
+            if (roles.contains(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

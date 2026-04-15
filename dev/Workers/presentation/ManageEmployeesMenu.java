@@ -207,7 +207,6 @@ public class ManageEmployeesMenu {
      */
     private static void addRole() {
         Role[] roles = Role.values();
-
         System.out.println("Choose role to add:");
         int choice = scanner.nextInt();
         for (int i = 0; i < roles.length; i++) {
@@ -218,7 +217,6 @@ public class ManageEmployeesMenu {
             return;
         }
         Role selectedRole = roles[choice - 1];
-
         try {
             roleManager.addSingleItem(employee.getId(), selectedRole);
             System.out.println("Role " + selectedRole + " added to " + employee.getName());
