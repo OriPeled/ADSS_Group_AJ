@@ -146,7 +146,7 @@ public class ManageShiftsMenu {
     }
 
     private static void addAssignment() {
-        System.out.println(shiftService.getUnassignedValid(shift));
+        System.out.println(shiftService.getAvailableEmployeesForShift(shift));
 
         System.out.println("Enter Employee ID");
         int id = scanner.nextInt();
@@ -174,7 +174,7 @@ public class ManageShiftsMenu {
         Role role = Role.values()[roleNumber - 1];
         System.out.println("Enter new amount.");
         int amount = scanner.nextInt();
-        shiftService.setRequirements(shift, role, amount);
+        shiftService.setRequirement(shift, role, amount);
         System.out.println("Amount updated.");
         updateShift();
     }
@@ -191,7 +191,7 @@ public class ManageShiftsMenu {
     }
 
     public static void getShiftsHistory() {
-        System.out.println(shiftService.ShiftHistory());
+        System.out.println(shiftService.getShiftHistory());
         System.out.print("Enter 0 to go back:");
         if (scanner.nextInt() == 0)
             start();

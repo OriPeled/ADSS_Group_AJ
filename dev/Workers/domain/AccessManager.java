@@ -1,5 +1,7 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.Status;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,16 +46,16 @@ public class AccessManager {
      * @param password The password to be assigned to the user.
      * @throws IllegalArgumentException if the password is null/empty or if the user already exists.
      */
-    public void Register(int id, String password) {
+    public Status Register(int id, String password) {
         if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be empty");
+            return Status.failure;
         }
 
         if (accessMap.containsKey(id)) {
-            throw new IllegalArgumentException("User with ID " + id + " is already registered.");
+            return Status.failure;
         }
-
         accessMap.put(id, new Access(password));
+        return Status.success;
     }
 
     /**
@@ -61,11 +63,12 @@ public class AccessManager {
      * * @param id The unique identifier of the employee to remove.
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
-    public void Remove(int id) {
+    public Status Remove(int id) {
         if (accessMap.containsKey(id)) {
             accessMap.remove(id);
+            return Status.success;
         } else {
-            throw new IllegalArgumentException("User ID not found.");
+            return Status.failure;
         }
     }
 
@@ -75,12 +78,13 @@ public class AccessManager {
      * @param newPassword The new password to be set.
      * @throws IllegalArgumentException if the user is not registered in the system.
      */
-    public void updatePassword(int id, String newPassword) {
+    public Status updatePassword(int id, String newPassword) {
         Access access = accessMap.get(id);
         if (access != null) {
             access.setPassword(newPassword);
+            return Status.success;
         } else {
-            throw new IllegalArgumentException("Update failed: User not found.");
+            return Status.failure;
         }
     }
 

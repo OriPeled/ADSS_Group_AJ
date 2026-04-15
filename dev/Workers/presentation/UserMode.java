@@ -22,6 +22,7 @@ public class UserMode {
         System.out.println("User Mode");
         System.out.println("Please Enter ID:");
         int enteredID = scanner.nextInt();
+        scanner.nextLine();
         while (!employeeService.isEmployee(enteredID)) {
             System.out.println("No Such Employee. Try again or enter 0 to exit.");
             enteredID = scanner.nextInt();
@@ -31,19 +32,20 @@ public class UserMode {
 
         if (!accessService.isRegisteredUser(enteredID)) {
             System.out.println("Please Create Password.");
-            accessService.Register(enteredID,scanner.nextLine());
+            String enteredPassword = scanner.nextLine();
+            accessService.Register(enteredID,enteredPassword);
         }
         System.out.println("Please Enter Password:");
         String enteredPass = scanner.nextLine();
 
-        while (accessService.getAccess(enteredID).getPassword() != enteredPass) {
+        while (!accessService.getAccess(enteredID).getPassword().equals(enteredPass)) {
             System.out.println("Wrong Password: Try Again or enter 0 to exit.");
             enteredPass = scanner.nextLine();
             java.lang.Integer input = java.lang.Integer.valueOf(enteredPass);
             if (input == 0)
                 Main.displayMenu();
         }
-        employee = employeeService.getById(enteredID);
+        employee = employeeService.getEmployee(enteredID);
         start();
     }
 
@@ -68,9 +70,9 @@ public class UserMode {
     }
 
     public static void updateConstraints() {
-        constraintService.display(employee.getId());
+       System.out.println(constraintService.display(employee.getId()));
         // sunday - morning(yes), evening(yes)
-        System.out.println("Choose a shift constraint to change");
+        System.out.println("Choose a shift constraint to change or enter 0 to exit.");
         System.out.println("Choose 1-7 for day");
         int dayNumber = scanner.nextInt();
         DayOfWeek day = ConstraintService.getDayFromNumber(dayNumber);
@@ -88,10 +90,14 @@ public class UserMode {
             case 3:
                 shiftType = notWorking;
                 break;
+
             default:
                 shiftType = wholeDay;
                 break;
+
         }
         constraintService.update(employee.getId(), day, shiftType);
+        System.out.println(constraintService.display(employee.getId()));
+        start();
     }
 }

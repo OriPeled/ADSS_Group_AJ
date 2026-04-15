@@ -217,7 +217,7 @@ public class ManageEmployeesMenu {
         }
         Role selectedRole = roles[choice - 1];
         try {
-            roleService.addSingleItem(employee.getId(), selectedRole);
+            roleService.addRoleToEmployee(employee.getId(), selectedRole);
             System.out.println("Role " + selectedRole + " added to " + employee.getName());
         } catch (Exception e) {
             System.out.println("Failed to add role: " + e.getMessage());

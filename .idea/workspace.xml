@@ -1,41 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="466538d2-b427-42ec-824d-3175c9ccd4fd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/adss_v01.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ADSS_Group_AJ.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dev/Workers/setup/DataInitializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ADSS_Group_AJ1.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/adss_v0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/adss_v0.xml" afterDir="false" />
+    <list default="true" id="466538d2-b427-42ec-824d-3175c9ccd4fd" name="Changes" comment="add emp ser">
+      <change afterPath="$PROJECT_DIR$/dev/Workers/domain/Enums/Status.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/Service/AccessService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/Service/AccessService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/Service/EmployeeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/Service/EmployeeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/Service/ShiftService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/Service/ShiftService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/Tests/Tests.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/Tests/Tests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/domain/AccessManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/domain/AccessManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/domain/Constraint.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/domain/Constraint.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/domain/ConstraintManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/domain/ConstraintManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/domain/EmployeeManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/domain/EmployeeManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/domain/RoleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/domain/RoleManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/domain/ShiftManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/domain/ShiftManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dev/Workers/presentation/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/presentation/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ADSS_Group_AJ1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ADSS_Group_AJ1/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/presentation/ManageEmployeesMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/presentation/ManageEmployeesMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/presentation/ManageShiftsMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/presentation/ManageShiftsMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/presentation/UserMode.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/presentation/UserMode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Workers/setup/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Workers/setup/DataInitializer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="Enum" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="3COv9WowKhtWcaWoU3vBaL6MYHL" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.Main.executor": "Debug",
+    "Application.Main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "208743476__316893130__207165986",
-    "kotlin-language-version-configured": "true"
+    "kotlin-language-version-configured": "true",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
   <component name="RunManager">
@@ -51,6 +72,17 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="ADSS_Group_AJ" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="ADSS_Group_AJ" />
+      <option name="filePath" />
+      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
@@ -69,15 +101,8 @@
     </task>
     <servers />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/dev/Workers/presentation/Main.java</url>
-          <line>19</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add emp ser" />
+    <option name="LAST_COMMIT_MESSAGE" value="add emp ser" />
   </component>
 </project>

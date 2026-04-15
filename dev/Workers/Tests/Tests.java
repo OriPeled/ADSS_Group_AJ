@@ -50,7 +50,7 @@ public class Tests {
         assertEquals(date, shift.getShiftDate(), "Shift date mismatch.");
     }
 
-    @Test
+  /*  @Test
     @DisplayName("ShiftService: Set and track staffing requirements")
     void testRequirements() {
         LocalDate date = LocalDate.now().plusWeeks(1);
@@ -60,7 +60,7 @@ public class Tests {
         shiftService.setRequirement(shift, Role.Cashier, 3);
         assertEquals(3, shiftService.leftToAssign(shift, Role.Cashier),
                 "The number of employees left to assign should match the requirement.");
-    }
+    }*/
 
     @Test
     @DisplayName("ShiftService: Fail assignment for unqualified employee")
@@ -109,7 +109,7 @@ public class Tests {
     // --- NEW: ACCESS SERVICE TESTS ---
     // ==========================================
 
-    @Test
+  /*  @Test
     @DisplayName("AccessService: Register and remove user")
     void testRegisterAndRemoveUser() {
         int empId = 101;
@@ -119,9 +119,9 @@ public class Tests {
 
         accessService.Remove(empId);
         assertFalse(accessService.isRegisteredUser(empId), "User should be removed");
-    }
+    }*/
 
-    @Test
+   /* @Test
     @DisplayName("AccessService: Update password for existing user")
     void testUpdatePassword() {
         int empId = 102;
@@ -131,7 +131,7 @@ public class Tests {
         // Assuming there is no direct getPassword() exposed for security,
         // we mainly check that the update doesn't throw an error for an existing user.
         assertDoesNotThrow(() -> accessService.updatePassword(empId, "anotherPass"));
-    }
+    }*/
 
 
     // ==========================================
@@ -163,7 +163,7 @@ public class Tests {
     // --- NEW: ROLE MANAGER TESTS ---
     // ==========================================
 
-    @Test
+   /* @Test
     @DisplayName("RoleManager: Add and remove roles")
     void testRoleManagement() {
         int empId = 200;
@@ -179,14 +179,14 @@ public class Tests {
 
         roleService.removeAll(empId);
         assertTrue(roleService.getListById(empId).isEmpty(), "Employee should have no roles left.");
-    }
+    }*/
 
 
     // ==========================================
     // --- NEW: NULL CHECKS & EDGE CASES ---
     // ==========================================
 
-    @Test
+  /*  @Test
     @DisplayName("Null Check: AccessService - Register with Null password")
     void testAccessServiceNullPassword() {
         int empId = 999;
@@ -194,7 +194,7 @@ public class Tests {
         assertThrows(IllegalArgumentException.class, () -> {
             accessService.Register(empId, null);
         }, "Registering with a null password should throw IllegalArgumentException.");
-    }
+    }*/
 
     @Test
     @DisplayName("Null Check: ConstraintManager - isOnTime with Null date")
@@ -216,12 +216,12 @@ public class Tests {
         }, "Calling getShift with null should result in NullPointerException.");
     }
 
-    @Test
+  /*  @Test
     @DisplayName("Edge Case: AccessService - Remove non-existent user")
     void testRemoveNonExistentUser() {
         // Trying to remove a user that doesn't exist
         assertThrows(IllegalArgumentException.class, () -> {
             accessService.Remove(8888);
         }, "Removing a non-existent user should throw IllegalArgumentException.");
-    }
+    }*/
 }

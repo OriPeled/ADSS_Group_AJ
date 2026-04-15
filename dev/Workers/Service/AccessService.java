@@ -1,36 +1,32 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.Access;
-import java.util.HashMap;
-import java.util.Map;
+import dev.Workers.domain.AccessManager;
 
 /**
- * Service class responsible for managing user credentials and access control.
- * This class follows the Singleton pattern to ensure a single point of access
- * to the credentials database.
+ * AccessService provides a high-level API for managing employee credentials.
+ * It acts as a facade for the {@link AccessManager} domain class, handling
+ * business-level validations and authentication logic.
+ * * This class is implemented as a Singleton.
  */
 public class AccessService {
 
-    /**
-     * Map storing the relationship between Employee ID and their Access credentials.
-     * Key: Integer (Employee ID)
-     * Value: Access (Password/Credential object)
-     */
-    private Map<Integer, Access> accessMap;
+    /** Reference to the domain-level access manager */
+    private final AccessManager accessManager;
 
-    /** The single instance of the service */
+    /** The single instance of AccessService */
     private static AccessService instance;
 
     /**
-     * Private constructor to prevent external instantiation.
+     * Private constructor to enforce Singleton pattern and initialize the domain reference.
      */
     private AccessService() {
-        this.accessMap = new HashMap<>();
+        this.accessManager = AccessManager.getInstance();
     }
 
     /**
-     * Retrieves the singleton instance of AccessService.
-     * * @return The active instance of AccessService.
+     * Returns the singleton instance of the AccessService.
+     * * @return The active AccessService instance.
      */
     public static AccessService getInstance() {
         if (instance == null) {
@@ -40,60 +36,70 @@ public class AccessService {
     }
 
     /**
-     * Registers a new user in the access system.
-     * * @param id The unique identifier of the employee.
-     * @param password The password to be assigned to the user.
-     * @throws IllegalArgumentException if the password is null/empty or if the user already exists.
+     * Registers a new employee in the access system with a specified password.
+     * Includes basic validation for password length.
+     * * @param id       The unique identifier of the employee.
+     * @param password The password to be assigned (must be at least 4 characters).
+     * @throws IllegalArgumentException If the password is invalid or the user is already registered.
      */
     public void Register(int id, String password) {
-        if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be empty");
+        if (password == null || password.length() < 4) {
+           return;
         }
-
-        if (accessMap.containsKey(id)) {
-            throw new IllegalArgumentException("User with ID " + id + " is already registered.");
-        }
-
-        accessMap.put(id, new Access(password));
+        accessManager.Register(id, password);
     }
 
     /**
-     * Removes a user's access credentials from the system.
+     * Removes an employee's access credentials from the system.
      * * @param id The unique identifier of the employee to remove.
-     * @throws IllegalArgumentException if the user ID is not found in the system.
+     * @throws IllegalArgumentException If the user ID does not exist in the system.
      */
-    public void Remove(int id) {
-        if (accessMap.containsKey(id)) {
-            accessMap.remove(id);
-        } else {
-            throw new IllegalArgumentException("User ID not found.");
-        }
+    public void removeUser(int id) {
+        accessManager.Remove(id);
     }
 
     /**
      * Updates the password for an existing registered user.
-     * * @param id The unique identifier of the employee.
+     * * @param id          The unique identifier of the employee.
      * @param newPassword The new password to be set.
-     * @throws IllegalArgumentException if the user is not registered in the system.
+     * @throws IllegalArgumentException If the user is not found or password is invalid.
      */
     public void updatePassword(int id, String newPassword) {
-        Access access = accessMap.get(id);
-        if (access != null) {
-            access.setPassword(newPassword);
-        } else {
-            throw new IllegalArgumentException("Update failed: User not found.");
+        if (newPassword == null || newPassword.length() < 4) {
+            throw new IllegalArgumentException("New password must be at least 4 characters.");
         }
+        accessManager.updatePassword(id, newPassword);
     }
 
     /**
-     * Checks if a specific employee ID is registered in the access system.
+     * Checks if a specific employee ID has registered credentials in the system.
      * * @param id The employee ID to check.
-     * @return true if the user is registered, false otherwise.
+     * @return {@code true} if the user is registered; {@code false} otherwise.
      */
     public boolean isRegisteredUser(int id) {
-        return accessMap.containsKey(id);
+        return accessManager.isRegisteredUser(id);
     }
+
+    /**
+     * Retrieves the Access object containing credentials for a specific employee.
+     * * @param id The unique identifier of the employee.
+     * @return The {@link Access} object, or {@code null} if the user is not found.
+     */
     public Access getAccess(int id) {
-        return accessMap.get(id);
+        return accessManager.getAccess(id);
+    }
+
+    /**
+     * Authenticates a user by comparing a provided password with the stored one.
+     * * @param id               The employee ID attempting to log in.
+     * @param providedPassword The password entered by the user.
+     * @return {@code true} if credentials match; {@code false} if user not found or password incorrect.
+     */
+    public boolean authenticate(int id, String providedPassword) {
+        Access access = accessManager.getAccess(id);
+        if (access == null || providedPassword == null) {
+            return false;
+        }
+        return access.getPassword().equals(providedPassword);
     }
 }

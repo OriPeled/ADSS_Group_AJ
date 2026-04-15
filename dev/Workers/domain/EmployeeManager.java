@@ -1,7 +1,5 @@
 package dev.Workers.domain;
 
-import dev.Workers.Service.AccessService;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +13,8 @@ import java.util.Map;
 public class EmployeeManager implements IManager<Employee> {
     // maps employee ID to Employee object
     private Map<Integer, Employee> employees;
-    private AccessService accessService = AccessService.getInstance();
-    private
+    private AccessManager accessManager = AccessManager.getInstance();
+
     private static EmployeeManager instance;
 
     /**
@@ -56,6 +54,7 @@ public class EmployeeManager implements IManager<Employee> {
      */
     @Override
     public void add(int id, Employee employee) {
+
         employees.put(employee.getId(), employee);
     }
 
@@ -107,7 +106,7 @@ public class EmployeeManager implements IManager<Employee> {
 
         if (emp != null && emp.isActive()) {
             emp.terminateEmployee(LocalDate.now());
-            accessService.Remove(id);
+            accessManager.Remove(id);
         } else {
             System.out.println("Employee ID " + id + " not active.");
         }

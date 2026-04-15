@@ -1,6 +1,6 @@
 package dev.Workers.Service;
 
-import dev.Workers.domain.ConstraintManager;
+
 import dev.Workers.domain.Employee;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.EmployeeTerms;
@@ -76,7 +76,7 @@ public class EmployeeService {
 
             // Remove system access
             try {
-                accessService.Remove(id);
+                accessService.removeUser(id);
             } catch (IllegalArgumentException e) {
                 // Ignore if the employee didn't have a configured password
             }
@@ -98,4 +98,8 @@ public class EmployeeService {
         }
         return emp;
     }
+    public boolean isEmployee(int id) {
+        return employeeManager.isEmployee(id);
+    }
+
 }

@@ -61,7 +61,6 @@ public class ShiftManager {
      */
     public void addShift(LocalDate date, shiftType type) {
         Shift shift = new Shift(date, type);
-
         shifts.add(shift);
         requirements.init(shift);
         assignments.init(shift);

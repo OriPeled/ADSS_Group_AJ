@@ -89,7 +89,7 @@ public class RoleManager {
      *
      * @param id employee ID
      */
-    @Override
+
     public void removeAll(int id) {
         employeeRoles.remove(id);
     }
@@ -100,7 +100,7 @@ public class RoleManager {
      * @param id   employee ID
      * @param role role to remove
      */
-    @Override
+
     public void removeSingleItem(int id, Role role) {
         if (employeeRoles.containsKey(id)) {
             employeeRoles.get(id).remove(role);
@@ -116,7 +116,7 @@ public class RoleManager {
      * @param id employee ID
      * @return list of roles (empty list if none exist)
      */
-    @Override
+
     public List<Role> getListById(int id) {
         return employeeRoles.getOrDefault(id, new ArrayList<>());
     }
@@ -141,7 +141,7 @@ public class RoleManager {
 
     /**
      *
-     * @param Id
+     * @param id
      * @param role
      * @return true if role beloge to id , otherwise false
      */

@@ -1,5 +1,6 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.Status;
 import dev.Workers.domain.Enums.shiftType;
 
 import java.time.DayOfWeek;
@@ -70,12 +71,13 @@ public class ConstraintManager {
      * @param day day of week
      * @param shiftType desired shift type
      */
-    public void update(int id, DayOfWeek day, shiftType shiftType) {
+    public Status update(int id, DayOfWeek day, shiftType shiftType) {
         if (this.deadline != null && !isOnTime(LocalDate.now())) {
-            throw new RuntimeException("Cannot update constraints after deadline");
+            return Status.failure; // Deadline has passed
         }
         Constraint employeeConstraints = getConstraints(id);
         employeeConstraints.getWeekConstraints().put(day, shiftType);
+        return Status.success;
     }
 
     /**

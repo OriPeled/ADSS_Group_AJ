@@ -79,4 +79,13 @@ public class Constraint {
         Constraint that = (Constraint) o;
         return day.equals(that.day) && shiftType == that.shiftType;
     }
-}
+
+         @Override
+         public String toString() {
+             return "Constraint{" +
+                     "day=" + day +
+                     ", shiftType=" + shiftType +
+                     ", weekConstraints=" + weekConstraints +
+                     '}';
+         }
+     }
