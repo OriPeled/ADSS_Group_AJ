@@ -1,8 +1,8 @@
 package dev.Workers.domain.Enums;
 
-public enum shiftType {
+public enum ShiftType {
     morning,
     evening,
     any,
-    notWorking,
+    rest,
 }

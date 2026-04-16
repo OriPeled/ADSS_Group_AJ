@@ -53,15 +53,15 @@ public class DataInitializer {
 
 
             // Set some constraints
-            constraintService.update(111, DayOfWeek.SUNDAY, shiftType.morning);
-            constraintService.update(333, DayOfWeek.MONDAY, shiftType.notWorking);
-            constraintService.update(444, DayOfWeek.TUESDAY, shiftType.evening);
-            constraintService.update(222, DayOfWeek.WEDNESDAY, shiftType.notWorking);
+            constraintService.update(111, DayOfWeek.SUNDAY, ShiftType.morning);
+            constraintService.update(333, DayOfWeek.MONDAY, ShiftType.rest);
+            constraintService.update(444, DayOfWeek.TUESDAY, ShiftType.evening);
+            constraintService.update(222, DayOfWeek.WEDNESDAY, ShiftType.rest);
 
             // Create a shift and assign some employees
             LocalDate tomorrow = LocalDate.now().plusDays(1);
-            shiftService.addShift(tomorrow, shiftType.morning);
-            Shift morningShift = shiftService.getShift(tomorrow, shiftType.morning);
+            shiftService.addShift(tomorrow, ShiftType.morning);
+            Shift morningShift = shiftService.getShift(tomorrow, ShiftType.morning);
 
             if (morningShift != null) {
                 shiftService.setRequirement(morningShift, Role.shiftManager, 1);
@@ -71,31 +71,31 @@ public class DataInitializer {
                 shiftService.assignEmployee(morningShift, Role.Cashier, 222);
             }
             LocalDate baseDate = LocalDate.now().plusDays(1);
-            shiftService.addShift(baseDate, shiftType.morning);
-            Shift s1 = shiftService.getShift(baseDate, shiftType.morning);
+            shiftService.addShift(baseDate, ShiftType.morning);
+            Shift s1 = shiftService.getShift(baseDate, ShiftType.morning);
             shiftService.setRequirement(s1, Role.shiftManager, 1);
             shiftService.setRequirement(s1, Role.Cashier, 1);
             shiftService.setRequirement(s1, Role.Storekeeper, 1);
-            shiftService.assignEmployee(s1, Role.shiftManager, 111); // Shira
-            shiftService.assignEmployee(s1, Role.Cashier, 222);      // Kokhava
+            //shiftService.assignEmployee(s1, Role.shiftManager, 111); // Shira
+            //shiftService.assignEmployee(s1, Role.Cashier, 222);      // Kokhava
             shiftService.assignEmployee(s1, Role.Storekeeper, 333);  // Nissim
             LocalDate day2 = baseDate.plusDays(1);
-            shiftService.addShift(day2, shiftType.evening);
-            Shift s2 = shiftService.getShift(day2, shiftType.evening);
+            shiftService.addShift(day2, ShiftType.evening);
+            Shift s2 = shiftService.getShift(day2, ShiftType.evening);
             shiftService.setRequirement(s2, Role.shiftManager, 1);
             shiftService.setRequirement(s2, Role.Storekeeper, 1);
             shiftService.assignEmployee(s2, Role.shiftManager, 111);
             shiftService.assignEmployee(s2, Role.Storekeeper, 444); // Ramzi
             LocalDate day3 = baseDate.plusDays(2);
-            shiftService.addShift(day3, shiftType.morning);
-            Shift s3 = shiftService.getShift(day3, shiftType.morning);
+            shiftService.addShift(day3, ShiftType.morning);
+            Shift s3 = shiftService.getShift(day3, ShiftType.morning);
             shiftService.setRequirement(s3, Role.Cashier, 1);
             shiftService.setRequirement(s3, Role.Storekeeper, 1);
-            shiftService.assignEmployee(s3, Role.Cashier, 222);
-            shiftService.assignEmployee(s3, Role.Storekeeper, 333);
+            //shiftService.assignEmployee(s3, Role.Cashier, 222);
+            //shiftService.assignEmployee(s3, Role.Storekeeper, 333);
             LocalDate day4 = baseDate.plusDays(3);
-            shiftService.addShift(day4, shiftType.evening);
-            Shift s4 = shiftService.getShift(day4, shiftType.evening);
+            shiftService.addShift(day4, ShiftType.evening);
+            Shift s4 = shiftService.getShift(day4, ShiftType.evening);
             shiftService.setRequirement(s4, Role.shiftManager, 1);
             shiftService.assignEmployee(s4, Role.shiftManager, 111);
             System.out.println("Mock data loaded successfully!");

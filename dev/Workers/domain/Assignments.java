@@ -12,10 +12,6 @@ import java.util.*;
  * are assigned to which role inside each shift.
  */
 public class Assignments {
-
-
-
-
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;
 
     /**
@@ -36,6 +32,9 @@ public class Assignments {
      */
 
     public void init(Shift shift) {
+        if (assignments.containsKey(shift))
+            return;
+
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
         for (Role role : Role.values()) {
             innerMap.put(role, new HashSet<>()); // ← new set for each role
@@ -94,6 +93,18 @@ public class Assignments {
         }
     }
 
+    public List<String> getShiftWeek(int id) {
+        List<String> employeeShifts = new ArrayList<>();
+        for (Shift shift : assignments.keySet()) {
+            for (Role role : assignments.get(shift).keySet()) {
+                if (isAssigned(shift, role, id)) {
+                    employeeShifts.add(shift.toStringByWeekDay());
+                }
+            }
+        }
+        return employeeShifts;
+    }
+
     /**
      * Returns all employees assigned to a specific role in a shift.
      *
@@ -117,9 +128,11 @@ public class Assignments {
     public int countAssigned(Shift shift, Role role) {
         return getEmployees(shift, role).size();
     }
+
     public Map<Shift, Map<Role, Set<Integer>>> getAssignments() {
         return assignments;
     }
+
     /**public int countUnassignedValid(Shift shift, Role role) {
      // TODO
      return 0;

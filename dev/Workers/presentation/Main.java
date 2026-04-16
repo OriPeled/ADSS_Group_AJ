@@ -14,14 +14,22 @@ public class Main {
     }
 
     public static void displayMenu() {
-        System.out.println("Choose Mode:");
-        System.out.println("1. User Mode");
-        System.out.println("2. HR Manager Mode");
-        System.out.println("3. Exit");
+        while (true) {
+            System.out.println("Choose Mode:");
+            System.out.println("1. User Mode");
+            System.out.println("2. HR Manager Mode");
+            System.out.println("3. Exit");
 
-        if (scanner.hasNextInt()) {
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            String input = scanner.nextLine();
+            int choice;
+
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
+                continue;
+            }
+
             switch (choice) {
                 case 1:
                     UserMode.login();
@@ -37,9 +45,6 @@ public class Main {
                 default:
                     System.out.println("Invalid input.");
             }
-        } else {
-            System.out.println("Invalid input.");
-            scanner.next();
         }
     }
 }

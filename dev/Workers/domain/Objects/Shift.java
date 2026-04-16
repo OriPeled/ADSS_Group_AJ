@@ -1,7 +1,8 @@
 package dev.Workers.domain.Objects;
 
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -10,19 +11,21 @@ public class Shift {
     //date of shift
     private LocalDate shiftDate;
     // type of the shift
-    private shiftType type;
+    private ShiftType type;
 
-    public Shift(LocalDate shiftDate, shiftType type) {
+    public Shift(LocalDate shiftDate, ShiftType type) {
         this.type = type;
         this.shiftDate = shiftDate;
     }
 
-    public shiftType getType() {
+    public ShiftType getType() {
         return type;
     }
     public LocalDate getShiftDate() {
         return shiftDate;
     }
+
+    public DayOfWeek getShiftDay() { return shiftDate.getDayOfWeek(); }
 
     /**
      *

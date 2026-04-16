@@ -1,7 +1,7 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Status;
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Constraint;
 
 import java.time.DayOfWeek;
@@ -10,8 +10,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.shiftType.notWorking;
-import static dev.Workers.domain.Enums.shiftType.any;
+import static dev.Workers.domain.Enums.ShiftType.rest;
+import static dev.Workers.domain.Enums.ShiftType.any;
 /**
  * Manages all employees' constraints in the system.
  *
@@ -72,7 +72,7 @@ public class ConstraintManager {
      * @param day day of week
      * @param shiftType desired shift type
      */
-    public Status update(int id, DayOfWeek day, shiftType shiftType) {
+    public Status update(int id, DayOfWeek day, ShiftType shiftType) {
         if (this.deadline != null && !isOnTime(LocalDate.now())) {
             return Status.failure; // Deadline has passed
         }
@@ -89,10 +89,10 @@ public class ConstraintManager {
      * @param shiftType shift type to check
      * @return true if available, false otherwise
      */
-    public boolean isEmployeeAvailable(int id, DayOfWeek day, shiftType shiftType) {
+    public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return (constraintsByID.get(id).getShiftType(day) == shiftType
                 || constraintsByID.get(id).getShiftType(day) == any)
-                && shiftType != notWorking;
+                && shiftType != rest;
     }
     /**
      * Array representing days of the week (Sunday = 1)
@@ -114,7 +114,7 @@ public class ConstraintManager {
      */
     public static DayOfWeek getDayFromNumber(int dayNumber) {
         if (dayNumber < 1 || dayNumber > 7) {
-            throw new IllegalArgumentException("Day must be between 1-7");
+            throw new IllegalArgumentException("Day number must be between 1 and 7");
         }
         return days[dayNumber - 1];
     }

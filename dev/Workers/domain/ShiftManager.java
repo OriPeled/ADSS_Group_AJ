@@ -1,10 +1,11 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -57,11 +58,13 @@ public class ShiftManager {
      * @param type
      * adding shift to the system if it doesn't already exist, else nothing
      */
-    public void addShift(LocalDate date, shiftType type) {
+    public void addShift(LocalDate date, ShiftType type) {
         Shift shift = new Shift(date, type);
-        shifts.add(shift);
-        requirements.init(shift);
-        assignments.init(shift);
+        if (!shifts.contains(shift)) {
+            shifts.add(shift);
+            requirements.init(shift);
+            assignments.init(shift);
+        }
     }
 
     /**
@@ -70,13 +73,21 @@ public class ShiftManager {
      * @param type
      * @return getter for shift, null if not exist
      */
-    public Shift getShift(LocalDate date, shiftType type) {
-        addShift(date, type);
+    public Shift getShift(LocalDate date, ShiftType type) {
         for (Shift s : shifts) {
             if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
                 return s;
             }
         }
+
+        addShift(date, type);
+
+        for (Shift s : shifts) {
+            if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
+                return s;
+            }
+        }
+
         return null;
     }
 
@@ -136,7 +147,6 @@ public class ShiftManager {
 
      */
     private boolean isValid(Shift shift, Role role, int employeeId) {
-
         return isAvailable(employeeId, shift)
                 && isQualified(employeeId, role)
                 && isNeeded(shift, role);
@@ -247,7 +257,7 @@ public class ShiftManager {
         LocalDate today = LocalDate.now();
         for (int i = 1; i <= 7; i++) {
             LocalDate date = today.plusDays(i);
-            for (shiftType type : shiftType.values()) {
+            for (ShiftType type : ShiftType.values()) {
                 Shift shift = getShift(date, type);
                 if (shift != null) {
                     result.add(shift);
@@ -299,22 +309,37 @@ public class ShiftManager {
         if (shifts.isEmpty()) {
             return "No shifts available.";
         }
-        String result = "SHIFT HISTORY:\n";
-        for (Shift shift : shifts) {
-            result += "\nShift: " + shift + "\n";
+
+        // 1. Convert Set to List so we can sort it
+        List<Shift> sortedShifts = new ArrayList<>(shifts);
+        sortedShifts.sort(Comparator.comparing(Shift::getShiftDate)
+                .thenComparing(Shift::getType));
+
+        StringBuilder result = new StringBuilder("=== SHIFT HISTORY ===\n");
+
+        for (Shift shift : sortedShifts) {
+            // 2. Use Arrays.stream() for the array returned by Role.values()
+            long assignedCount = Arrays.stream(Role.values())
+                    .mapToLong(role -> assignments.getEmployees(shift, role).size())
+                    .sum();
+
+            // Skip "rest" or "any" types if no one is assigned
+            if (assignedCount == 0 && (shift.getType() == ShiftType.rest || shift.getType() == ShiftType.any)) {
+                continue;
+            }
+
+            result.append(String.format("\nShift: %s - %s\n", shift.getShiftDate(), shift.getType()));
+
             for (Role role : Role.values()) {
-                int required = requirements.countRequired(shift, role);
-                Set<Integer> employees = assignments.getEmployees(shift, role);
-                int assigned = employees.size();
-                if (required > 0 || assigned > 0) {
-                    result += "- " + role +
-                            " | assigned: " + assigned +
-                            " | employees: " + employees + "\n";
+                var employees = assignments.getEmployees(shift, role);
+                if (!employees.isEmpty()) {
+                    result.append(String.format("  - %-12s | assigned: %d | employees: %s\n",
+                            role, employees.size(), employees));
                 }
             }
         }
 
-        return result;
+        return result.toString();
     }
 
     /**
@@ -366,5 +391,20 @@ public class ShiftManager {
         }
 
         return result;
+    }
+
+    // Helper to get short day names (Sun, Mon, etc.)
+    private String formatDayShort(DayOfWeek d) {
+        String name = d.toString().toLowerCase();
+        return name.substring(0, 1).toUpperCase() + name.substring(1, 3);
+    }
+
+    // Helper for sorting logic
+    private DayOfWeek getDayFromFormattedString(String s) {
+        String shortName = s.split(":")[0]; // Get "Sun" from "Sun: Morning..."
+        for (DayOfWeek d : DayOfWeek.values()) {
+            if (d.name().startsWith(shortName.toUpperCase())) return d;
+        }
+        return DayOfWeek.SUNDAY;
     }
 }

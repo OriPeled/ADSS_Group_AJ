@@ -1,7 +1,7 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.ConstraintManager;
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Constraint;
 
 import java.time.DayOfWeek;
@@ -61,7 +61,7 @@ public class ConstraintService {
      * @param day day of week
      * @param shiftType desired shift type
      */
-    public void update(int id, DayOfWeek day, shiftType shiftType) {
+    public void update(int id, DayOfWeek day, ShiftType shiftType) {
         constraintManager.update(id, day, shiftType);
     }
 
@@ -73,7 +73,7 @@ public class ConstraintService {
      * @param shiftType shift type to check
      * @return true if available, false otherwise
      */
-    public boolean isEmployeeAvailable(int id, DayOfWeek day, shiftType shiftType) {
+    public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
     /**

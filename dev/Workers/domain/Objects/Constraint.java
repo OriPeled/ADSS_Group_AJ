@@ -1,12 +1,12 @@
 package dev.Workers.domain.Objects;
 
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 
 import java.time.DayOfWeek;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.shiftType.any;
+import static dev.Workers.domain.Enums.ShiftType.any;
      /**
       *  Represents employee constraints for working shifts.
      *
@@ -20,9 +20,9 @@ public class Constraint {
     // Specific day constraint
     private DayOfWeek day;
     // Specific shift type constraint for a single day
-    private shiftType shiftType;
+    private ShiftType shiftType;
     //Weekly constraints mapping each day to allowed shift type
-    private Map<DayOfWeek, shiftType> weekConstraints;
+    private Map<DayOfWeek, ShiftType> weekConstraints;
     //private Map<DayOfWeek, shiftType> weekConstraints = new EnumMap<>(DayOfWeek.class);
     //private boolean can;
 
@@ -48,7 +48,7 @@ public class Constraint {
      * @param day
      * @return type of shift
      */
-    public shiftType getShiftType(DayOfWeek day) {
+    public ShiftType getShiftType(DayOfWeek day) {
         return weekConstraints.get(day);
     }
 
@@ -58,13 +58,13 @@ public class Constraint {
      * @param shiftType
      * Sets the shift type constraint for a specific day.
      */
-    public void setShiftType(DayOfWeek day, shiftType shiftType) {
+    public void setShiftType(DayOfWeek day, ShiftType shiftType) {
         weekConstraints.put(day, shiftType);
     }
     /**
     * @return the full weekly constraints map
     */
-    public Map<DayOfWeek, shiftType> getWeekConstraints() {
+    public Map<DayOfWeek, ShiftType> getWeekConstraints() {
         return weekConstraints;
     }
     /**

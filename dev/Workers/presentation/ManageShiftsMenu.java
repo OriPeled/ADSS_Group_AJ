@@ -2,12 +2,14 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.Service.ShiftService;
 
 import java.time.LocalDate;
 
+import static dev.Workers.domain.Enums.ShiftType.evening;
+import static dev.Workers.domain.Enums.ShiftType.morning;
 import static dev.Workers.presentation.Main.scanner;
 
 public class ManageShiftsMenu {
@@ -47,18 +49,23 @@ public class ManageShiftsMenu {
     private static void manageShiftsWeek() {
         System.out.println(shiftService.displayWeekAssignments());
         System.out.println("Manage Shifts Week");
+        //if (shiftService.allWeekAssigned()) { // assignments
+        //    System.out.println("All week shifts are assigned. Do you wish to mark the week schedule as finished?");
+            // shiftService/assignments.markWeekFinished();    // (constraints, deadline reset logic)
+        //}
         System.out.println("1. Enter Day (1-7)");
         int dayNumber = Integer.parseInt(scanner.nextLine());
         LocalDate date = Parser.dayNumberToDate(dayNumber);
         System.out.println("Enter Shift (1 for morning, 2 for evening)");
         int typeNumber = Integer.parseInt(scanner.nextLine());
-        shiftType shiftT;
+        ShiftType shiftT;
         switch (typeNumber) {
-            case 1: shiftT = shiftType.morning; break;
-            case 2: shiftT = shiftType.evening; break;
-            default:
+            case 1 -> shiftT = morning;
+            case 2 -> shiftT = evening;
+            default -> {
                 System.out.println("Invalid shift type.");
                 return;
+            }
         }
         shift = shiftService.getShift(date, shiftT);
         manageShift();
@@ -66,6 +73,7 @@ public class ManageShiftsMenu {
 
     private static void manageShift() {
         while (true) {
+            System.out.println();
             System.out.println("1. Update Shift");
             System.out.println("2. Remove Shift");
             System.out.println("3. Back");

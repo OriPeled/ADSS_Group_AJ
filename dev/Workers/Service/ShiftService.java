@@ -1,7 +1,7 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.shiftType;
+import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
 
@@ -35,11 +35,11 @@ public class ShiftService {
 
     // --- Shift Management ---
 
-    public void addShift(LocalDate date, shiftType type) {
+    public void addShift(LocalDate date, ShiftType type) {
         shiftManager.addShift(date, type);
     }
 
-    public Shift getShift(LocalDate date, shiftType type) {
+    public Shift getShift(LocalDate date, ShiftType type) {
         return shiftManager.getShift(date, type);
     }
 
