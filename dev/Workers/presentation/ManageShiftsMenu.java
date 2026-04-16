@@ -51,7 +51,7 @@ public class ManageShiftsMenu {
         System.out.println("Manage Shifts Week");
         //if (shiftService.allWeekAssigned()) { // assignments
         //    System.out.println("All week shifts are assigned. Do you wish to mark the week schedule as finished?");
-            // shiftService/assignments.markWeekFinished();    // (constraints, deadline reset logic)
+            // shiftService/assignments.markWeekFinished();    // (constraints, deadline reset + publicNextWeek logic)
         //}
         System.out.println("1. Enter Day (1-7)");
         int dayNumber = Integer.parseInt(scanner.nextLine());

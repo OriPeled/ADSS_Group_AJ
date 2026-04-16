@@ -78,8 +78,9 @@ public class UserMode {
         while (true) {
             System.out.println("Choose Option:");
             System.out.println("1. Update Constraints");
-            System.out.println("2. Watch Shifts Schedule");
-            System.out.println("3. Logout");
+            System.out.println("2. Watch Current Week's Shifts");
+            System.out.println("3. Watch Next Week's Shifts");
+            System.out.println("4. Logout");
 
             String input = scanner.nextLine();
             int choice;
@@ -99,6 +100,9 @@ public class UserMode {
                     watchShifts();
                     break;
                 case 3:
+                    watchNextWeeksShifts();
+                    break;
+                case 4:
                     return;
                 default:
                     System.out.println("Invalid input.");
@@ -129,6 +133,11 @@ public class UserMode {
                     System.out.println("Invalid input.");
             }
         }
+    }
+
+    // can be seen only after admin marks schedule as finished
+    private static void watchNextWeeksShifts() {
+
     }
 
     public static void updateConstraints() {
