@@ -98,7 +98,8 @@ public class UserMode {
     }
 
     private static void WatchShifts() {
-        System.out.println(shiftService.displayWeekAssignments());
+        String shifts = shiftService.getEmployeeShifts(employee.getId());
+        System.out.println(shifts);
     }
 
     public static void updateConstraints() {
@@ -108,7 +109,7 @@ public class UserMode {
         System.out.println("Choose 1-7 for day");
         int dayNumber = scanner.nextInt();
         if (dayNumber == 0)
-            start();
+            return;
         DayOfWeek day = ConstraintService.getDayFromNumber(dayNumber);
         //System.out.println("Choose 1 for morning and 2 for evening");
         System.out.println("Choose 1 for morning, 2 for evening, 3 for rest");

@@ -70,7 +70,34 @@ public class DataInitializer {
                 shiftService.assignEmployee(morningShift, Role.shiftManager, 111);
                 shiftService.assignEmployee(morningShift, Role.Cashier, 222);
             }
-
+            LocalDate baseDate = LocalDate.now().plusDays(1);
+            shiftService.addShift(baseDate, shiftType.morning);
+            Shift s1 = shiftService.getShift(baseDate, shiftType.morning);
+            shiftService.setRequirement(s1, Role.shiftManager, 1);
+            shiftService.setRequirement(s1, Role.Cashier, 1);
+            shiftService.setRequirement(s1, Role.Storekeeper, 1);
+            shiftService.assignEmployee(s1, Role.shiftManager, 111); // Shira
+            shiftService.assignEmployee(s1, Role.Cashier, 222);      // Kokhava
+            shiftService.assignEmployee(s1, Role.Storekeeper, 333);  // Nissim
+            LocalDate day2 = baseDate.plusDays(1);
+            shiftService.addShift(day2, shiftType.evening);
+            Shift s2 = shiftService.getShift(day2, shiftType.evening);
+            shiftService.setRequirement(s2, Role.shiftManager, 1);
+            shiftService.setRequirement(s2, Role.Storekeeper, 1);
+            shiftService.assignEmployee(s2, Role.shiftManager, 111);
+            shiftService.assignEmployee(s2, Role.Storekeeper, 444); // Ramzi
+            LocalDate day3 = baseDate.plusDays(2);
+            shiftService.addShift(day3, shiftType.morning);
+            Shift s3 = shiftService.getShift(day3, shiftType.morning);
+            shiftService.setRequirement(s3, Role.Cashier, 1);
+            shiftService.setRequirement(s3, Role.Storekeeper, 1);
+            shiftService.assignEmployee(s3, Role.Cashier, 222);
+            shiftService.assignEmployee(s3, Role.Storekeeper, 333);
+            LocalDate day4 = baseDate.plusDays(3);
+            shiftService.addShift(day4, shiftType.evening);
+            Shift s4 = shiftService.getShift(day4, shiftType.evening);
+            shiftService.setRequirement(s4, Role.shiftManager, 1);
+            shiftService.assignEmployee(s4, Role.shiftManager, 111);
             System.out.println("Mock data loaded successfully!");
 
         } catch (Exception e) {

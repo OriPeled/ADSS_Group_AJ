@@ -14,6 +14,8 @@ import java.util.*;
 public class Assignments {
 
 
+
+
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;
 
     /**
@@ -115,7 +117,9 @@ public class Assignments {
     public int countAssigned(Shift shift, Role role) {
         return getEmployees(shift, role).size();
     }
-
+    public Map<Shift, Map<Role, Set<Integer>>> getAssignments() {
+        return assignments;
+    }
     /**public int countUnassignedValid(Shift shift, Role role) {
      // TODO
      return 0;

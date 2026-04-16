@@ -343,7 +343,7 @@ public class ShiftManager {
         boolean found = false;
 
         // Iterate through all shifts in the assignments map
-        for (Map.Entry<Shift, Map<Role, Set<Integer>>> shiftEntry : assignments.entrySet()) {
+        for (Map.Entry<Shift, Map<Role, Set<Integer>>> shiftEntry : assignments.getAssignments().entrySet()) {
             Shift shift = shiftEntry.getKey();
             Map<Role, Set<Integer>> rolesInShift = shiftEntry.getValue();
 
