@@ -1,8 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.Service.AccessService;
-import dev.Workers.Service.ConstraintService;
-import dev.Workers.Service.EmployeeService;
+import dev.Workers.Service.*;
 import dev.Workers.domain.Enums.Status;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Employee;
@@ -17,6 +15,7 @@ public class UserMode {
     static EmployeeService employeeService = EmployeeService.getInstance();
     static ConstraintService constraintService = ConstraintService.getInstance();
     static AccessService accessService = AccessService.getInstance();
+    static ShiftService shiftService = ShiftService.getInstance();
 
     static Employee employee;
 
@@ -76,23 +75,30 @@ public class UserMode {
     }
 
     public static void start() {
-        System.out.println("Choose Option:");
-        System.out.println("1. Update Constraints");
-        System.out.println("2. Watch Shifts Schedule");
-        System.out.println("3. Logout");
+        while (true) {
+            System.out.println("Choose Option:");
+            System.out.println("1. Update Constraints");
+            System.out.println("2. Watch Shifts Schedule");
+            System.out.println("3. Logout");
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                updateConstraints();
-                break;
-            case 2:
-
-            case 3:
-                Main.displayMenu();
-            default:
-                System.out.println("Invalid input.");
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    updateConstraints();
+                    break;
+                case 2:
+                    WatchShifts();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
+            }
         }
+    }
+
+    private static void WatchShifts() {
+        System.out.println(shiftService.displayWeekAssignments());
     }
 
     public static void updateConstraints() {

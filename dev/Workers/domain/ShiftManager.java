@@ -337,4 +337,34 @@ public class ShiftManager {
         }
         return result;
     }
+
+    public String getEmployeeShiftsDisplay(int id) {
+        String result = "Shifts for Employee ID: " + id + "\n";
+        boolean found = false;
+
+        // Iterate through all shifts in the assignments map
+        for (Map.Entry<Shift, Map<Role, Set<Integer>>> shiftEntry : assignments.entrySet()) {
+            Shift shift = shiftEntry.getKey();
+            Map<Role, Set<Integer>> rolesInShift = shiftEntry.getValue();
+
+            // Check each role in the current shift for the employee ID
+            for (Map.Entry<Role, Set<Integer>> roleEntry : rolesInShift.entrySet()) {
+                Role role = roleEntry.getKey();
+                Set<Integer> assignedIds = roleEntry.getValue();
+
+                if (assignedIds.contains(id)) {
+                    result += "- " + shift.toString() + " | Role: " + role.toString() + "\n";
+                    found = true;
+                    // Assuming an employee has only one role per shift, move to next shift
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            return "No shifts found for employee ID: " + id;
+        }
+
+        return result;
+    }
 }

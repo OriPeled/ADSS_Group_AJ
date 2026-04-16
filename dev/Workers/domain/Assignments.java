@@ -7,10 +7,9 @@ import java.util.*;
 
 /**
  * Manages employee assignments for shifts.
- *
+ * <p>
  * This class is responsible for storing and managing which employees
  * are assigned to which role inside each shift.
- *
  */
 public class Assignments {
 
@@ -24,13 +23,15 @@ public class Assignments {
         this.assignments = new HashMap<>();
     }
 
-    /** public void init(Shift shift) {
-        Map<Role, Set<Integer>> innerMap = new HashMap<>();
-        Set<Integer> innerSet = new HashSet<>();
-        for (Role role : Role.values())
-            innerMap.put(role, innerSet);
-        assignments.put(shift, innerMap);
-    } */
+    /**
+     * public void init(Shift shift) {
+     * Map<Role, Set<Integer>> innerMap = new HashMap<>();
+     * Set<Integer> innerSet = new HashSet<>();
+     * for (Role role : Role.values())
+     * innerMap.put(role, innerSet);
+     * assignments.put(shift, innerMap);
+     * }
+     */
 
     public void init(Shift shift) {
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
@@ -42,12 +43,12 @@ public class Assignments {
 
     /**
      * Assigns an employee to a specific role in a shift.
-     *
+     * <p>
      * If the shift or role does not exist yet, they are created automatically.
      *
      * @param shift the shift to assign into
-     * @param role the role of the employee
-     * @param id the employee ID
+     * @param role  the role of the employee
+     * @param id    the employee ID
      */
     public void add(Shift shift, Role role, int id) {
         Map<Role, Set<Integer>> shiftMap = assignments.get(shift);
@@ -65,11 +66,11 @@ public class Assignments {
 
     /**
      * Removes an employee from a specific role in a shift.
-     *
+     * <p>
      * If the employee or role does not exist, nothing happens.
      *
-     * @param shift the shift
-     * @param role the role
+     * @param shift      the shift
+     * @param role       the role
      * @param employeeID the employee ID to remove
      */
     public void remove(Shift shift, Role role, int employeeID) {
@@ -95,7 +96,7 @@ public class Assignments {
      * Returns all employees assigned to a specific role in a shift.
      *
      * @param shift the shift
-     * @param role the role
+     * @param role  the role
      * @return set of employee IDs, or empty set if none exist
      */
     public Set<Integer> getEmployees(Shift shift, Role role) {
@@ -108,7 +109,7 @@ public class Assignments {
      * Returns how many employees are assigned to a role in a shift.
      *
      * @param shift the shift
-     * @param role the role
+     * @param role  the role
      * @return number of assigned employees
      */
     public int countAssigned(Shift shift, Role role) {
@@ -116,16 +117,16 @@ public class Assignments {
     }
 
     /**public int countUnassignedValid(Shift shift, Role role) {
-        // TODO
-        return 0;
-    }
+     // TODO
+     return 0;
+     }
      */
 
     /**
      * Checks if an employee is already assigned to a shift role.
      *
-     * @param shift the shift
-     * @param role the role
+     * @param shift      the shift
+     * @param role       the role
      * @param employeeID the employee ID
      * @return true if already assigned, false otherwise
      */
@@ -134,7 +135,6 @@ public class Assignments {
     }
 
     /**
-     *
      * @param shift
      * @param id
      * @return role of the employee in the shift, else null
@@ -155,6 +155,7 @@ public class Assignments {
     public Map<Shift, Map<Role, Set<Integer>>> getAllAssignments() {
         return assignments;
     }
+
     /**
      * Pretty print: one line per shift.
      */
@@ -170,7 +171,9 @@ public class Assignments {
             result += "Shift: " + shift + " | ";
             boolean first = true;
             for (Map.Entry<Role, Set<Integer>> roleEntry : roles.entrySet()) {
-                if (!first) {result += ", ";}
+                if (!first) {
+                    result += ", ";
+                }
                 result += roleEntry.getKey() + ": " + roleEntry.getValue().size();
                 first = false;
             }

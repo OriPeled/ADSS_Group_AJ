@@ -17,6 +17,7 @@ public class ShiftService {
     private final ShiftManager shiftManager;
     private static ShiftService instance;
 
+
     /**
      * Singleton access
      */
@@ -89,5 +90,9 @@ public class ShiftService {
 
     public String getShiftDetails(Shift shift) {
         return shiftManager.getShiftDetails(shift);
+    }
+
+    public String getEmployeeShifts(int id) {
+        return shiftManager.getEmployeeShiftsDisplay(id);
     }
 }
