@@ -6,8 +6,8 @@ import dev.Workers.Service.RoleService;
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.SalaryType;
-import dev.Workers.domain.Constraint;
-import dev.Workers.domain.Employee;
+import dev.Workers.domain.Objects.Constraint;
+import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;

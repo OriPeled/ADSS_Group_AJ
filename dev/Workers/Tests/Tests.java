@@ -3,14 +3,11 @@ package dev.Workers.Tests;
 import dev.Workers.Service.*;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Shift;
+import dev.Workers.domain.Objects.Shift;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 

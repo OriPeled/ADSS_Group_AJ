@@ -1,5 +1,10 @@
 package dev.Workers.domain.Enums;
 
 public enum Status {
-    success,failure
+    success,
+    failure,
+    wrongPassword,
+    notRegistered,
+    notInSystem,
+    invalidPassword
 }

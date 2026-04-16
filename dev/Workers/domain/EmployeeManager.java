@@ -1,5 +1,7 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Objects.Employee;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +45,8 @@ public class EmployeeManager implements IManager<Employee> {
      * @return true if exists, false otherwise
      */
     public boolean isEmployee(int id) {
-        return getById(id) != null;
+        Employee employee = getById(id);
+        return employee != null;
     }
 
     /**
@@ -106,7 +109,7 @@ public class EmployeeManager implements IManager<Employee> {
 
         if (emp != null && emp.isActive()) {
             emp.terminateEmployee(LocalDate.now());
-            accessManager.Remove(id);
+            accessManager.remove(id);
         } else {
             System.out.println("Employee ID " + id + " not active.");
         }

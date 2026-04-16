@@ -1,4 +1,6 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
+
+import dev.Workers.domain.EmployeeTerms;
 
 import java.time.LocalDate;
 

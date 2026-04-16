@@ -1,4 +1,4 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
 
 public class Access {
     public String getPassword() {

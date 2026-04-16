@@ -2,11 +2,10 @@ package dev.Workers.Service;
 
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Shift;
+import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 /**

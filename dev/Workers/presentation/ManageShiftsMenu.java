@@ -3,7 +3,7 @@ package dev.Workers.presentation;
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Shift;
+import dev.Workers.domain.Objects.Shift;
 import dev.Workers.Service.ShiftService;
 
 import java.time.LocalDate;

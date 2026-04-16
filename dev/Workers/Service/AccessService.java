@@ -1,7 +1,13 @@
 package dev.Workers.Service;
 
-import dev.Workers.domain.Access;
+import dev.Workers.domain.Enums.Status;
+import dev.Workers.domain.Objects.Access;
 import dev.Workers.domain.AccessManager;
+
+import java.util.Objects;
+
+import static dev.Workers.domain.Enums.Status.*;
+import static dev.Workers.domain.Enums.Status.success;
 
 /**
  * AccessService provides a high-level API for managing employee credentials.
@@ -42,11 +48,15 @@ public class AccessService {
      * @param password The password to be assigned (must be at least 4 characters).
      * @throws IllegalArgumentException If the password is invalid or the user is already registered.
      */
-    public void Register(int id, String password) {
-        if (password == null || password.length() < 4) {
-           return;
+    public Status Register(int id, String password) {
+        if (password.length() < 4) {
+           return invalidPassword;
         }
-        accessManager.Register(id, password);
+        return accessManager.register(id, password);
+    }
+
+    public Status login(int id, String password) {
+        return accessManager.login(id, password);
     }
 
     /**
@@ -55,7 +65,7 @@ public class AccessService {
      * @throws IllegalArgumentException If the user ID does not exist in the system.
      */
     public void removeUser(int id) {
-        accessManager.Remove(id);
+        accessManager.remove(id);
     }
 
     /**
@@ -86,6 +96,9 @@ public class AccessService {
      * @return The {@link Access} object, or {@code null} if the user is not found.
      */
     public Access getAccess(int id) {
+        Access access = accessManager.getAccess(id);
+        if (access == null)
+            throw new NullPointerException("No such employee.");
         return accessManager.getAccess(id);
     }
 

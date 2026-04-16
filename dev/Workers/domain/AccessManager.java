@@ -1,9 +1,12 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Status;
+import dev.Workers.domain.Objects.Access;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static dev.Workers.domain.Enums.Status.*;
 
 /**
  * Service class responsible for managing user credentials and access control.
@@ -17,6 +20,7 @@ public class AccessManager {
      * Key: Integer (Employee ID)
      * Value: Access (Password/Credential object)
      */
+    private static EmployeeManager employeeManager = EmployeeManager.getInstance();
     private Map<Integer, Access> accessMap;
 
     /** The single instance of the service */
@@ -46,7 +50,7 @@ public class AccessManager {
      * @param password The password to be assigned to the user.
      * @throws IllegalArgumentException if the password is null/empty or if the user already exists.
      */
-    public Status Register(int id, String password) {
+    public Status register(int id, String password) {
         if (password == null || password.trim().isEmpty()) {
             return Status.failure;
         }
@@ -58,18 +62,32 @@ public class AccessManager {
         return Status.success;
     }
 
+    public Status login(int id, String password) {
+        if (!employeeManager.isEmployee(id))
+            return notInSystem;
+        else if (!isRegisteredUser(id))
+            return notRegistered;
+        if (wrongPassword(id, password))
+            return wrongPassword;
+        return success;
+    }
+
     /**
      * Removes a user's access credentials from the system.
      * * @param id The unique identifier of the employee to remove.
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
-    public Status Remove(int id) {
+    public Status remove(int id) {
         if (accessMap.containsKey(id)) {
             accessMap.remove(id);
             return Status.success;
         } else {
             return Status.failure;
         }
+    }
+
+    public boolean wrongPassword(int id, String password) {
+        return !getAccess(id).getPassword().equals(password);
     }
 
     /**
@@ -96,7 +114,10 @@ public class AccessManager {
     public boolean isRegisteredUser(int id) {
         return accessMap.containsKey(id);
     }
+
     public Access getAccess(int id) {
+        if (accessMap.get(id) == null)
+            throw new NullPointerException("No such employee.");
         return accessMap.get(id);
     }
 }

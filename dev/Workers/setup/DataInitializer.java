@@ -3,6 +3,8 @@ package dev.Workers.setup;
 import dev.Workers.Service.*;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
+import dev.Workers.domain.Objects.Constraint;
+import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

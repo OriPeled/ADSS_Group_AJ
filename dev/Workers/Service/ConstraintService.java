@@ -2,7 +2,7 @@ package dev.Workers.Service;
 
 import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.Enums.shiftType;
-import dev.Workers.domain.Constraint;
+import dev.Workers.domain.Objects.Constraint;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
