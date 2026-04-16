@@ -16,8 +16,7 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
  * It supports assigning roles to employees, removing roles,
  * and querying employees by roles.
  */
-public class RoleManager {
-    // maps employee ID to list of roles
+public class RoleManager implements IListManager<Role> {    // maps employee ID to list of roles
     private Map<Integer, List<Role>> employeeRoles;
 
 

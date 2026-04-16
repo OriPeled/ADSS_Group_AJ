@@ -13,7 +13,6 @@ import static dev.Workers.presentation.Main.scanner;
 public class ManageShiftsMenu {
     static ShiftService shiftService = ShiftService.getInstance();
     static ConstraintService constraintService = ConstraintService.getInstance();
-    static Parser parser;
     static Shift shift;
     //static int id;
 
@@ -24,23 +23,24 @@ public class ManageShiftsMenu {
         // monday morning EMPTY
         // ...
         // saturday evening FULL
-        System.out.println("1. Manage Shifts Week");
-        System.out.println("2. Get Shifts History");
-        System.out.println("3. Back");
+        while (true) {
+            System.out.println("1. Manage Shifts Week");
+            System.out.println("2. Get Shifts History");
+            System.out.println("3. Back");
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                manageShiftsWeek();
-                break;
-            case 2:
-                getShiftsHistory();
-                break;
-            case 3:
-                AdminMode.start();
-                break;
-            default:
-                System.out.println("Invalid choice.");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    manageShiftsWeek();
+                    break;
+                case 2:
+                    getShiftsHistory();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
@@ -48,49 +48,58 @@ public class ManageShiftsMenu {
         System.out.println(shiftService.displayWeekAssignments());
         System.out.println("Manage Shifts Week");
         System.out.println("1. Enter Day (1-7)");
-        int dayNumber = scanner.nextInt();
+        int dayNumber = Integer.parseInt(scanner.nextLine());
         LocalDate date = Parser.dayNumberToDate(dayNumber);
-        System.out.println("2. Enter Shift (1 for morning, 2 for evening)");
-        String type = scanner.nextLine();
-        shiftType shiftT = shiftType.valueOf(type);
+        System.out.println("Enter Shift (1 for morning, 2 for evening)");
+        int typeNumber = Integer.parseInt(scanner.nextLine());
+        shiftType shiftT;
+        switch (typeNumber) {
+            case 1: shiftT = shiftType.morning; break;
+            case 2: shiftT = shiftType.evening; break;
+            default:
+                System.out.println("Invalid shift type.");
+                return;
+        }
         shift = shiftService.getShift(date, shiftT);
         manageShift();
     }
 
     private static void manageShift() {
-        System.out.println("1. Update Shift");
-        System.out.println("2. Remove Shift");
-        System.out.println("3. Back");
-        System.out.println("");
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                updateShift();
-                break;
-            case 2:
-                removeShift();
-                break;
-            case 3:
-                start();
-                break;
-            default:
-                System.out.println("Invalid choice.");
+        while (true) {
+            System.out.println("1. Update Shift");
+            System.out.println("2. Remove Shift");
+            System.out.println("3. Back");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    updateShift();
+                    break;
+                case 2:
+                    removeShift();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
     private static void removeShift() {
-        System.out.println("Are you sure you want to remove this shift? If yes, enter 1, else enter 0.");
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                shiftService.removeShift(shift);
-                System.out.println("Shift successfully removed.");
-                break;
-            case 2:
-                manageShift();
-                break;
+        while (true) {
+            System.out.println("Are you sure you want to remove this shift? If yes, enter 1, else enter 0.");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    shiftService.removeShift(shift);
+                    System.out.println("Shift successfully removed.");
+                    return;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
-
     }
 
     private static void updateShift() {
@@ -101,47 +110,49 @@ public class ManageShiftsMenu {
         // storekeeper: muhamad, mesi (2 assigned, 2 left to assign)
 
         //shiftService.assignEmployeeToShift();
-        System.out.println("1. Update Assignments");
-        System.out.println("2. Update Requirements");
-        System.out.println("3. Update Constraints Deadline");
-        System.out.println("4. Back");
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                updateAssignments();
-                break;
-            case 2:
-                updateRequirements();
-                break;
-            case 3:
-                updateDeadline();
-                break;
-            case 4:
-                start();
-                break;
-            default:
-                System.out.println("Invalid input.");
-                updateShift();
+        while (true) {
+            System.out.println("1. Update Assignments");
+            System.out.println("2. Update Requirements");
+            System.out.println("3. Update Constraints Deadline");
+            System.out.println("4. Back");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    updateAssignments();
+                    break;
+                case 2:
+                    updateRequirements();
+                    break;
+                case 3:
+                    updateDeadline();
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
+            }
         }
     }
 
+
     public static void updateAssignments() {
-        System.out.println("1. Add assignment");
-        System.out.println("2. Make a replacement");
-        System.out.println("3. Back");
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                addAssignment();
-                break;
-            case 2:
-                replace();
-                break;
-            case 3:
-                updateAssignments();
-                break;
-            default:
-                System.out.println("Invalid input.");
+        while (true) {
+            System.out.println("1. Add assignment");
+            System.out.println("2. Make a replacement");
+            System.out.println("3. Back");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    addAssignment();
+                    break;
+                case 2:
+                    replace();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
+            }
         }
     }
 
@@ -149,23 +160,21 @@ public class ManageShiftsMenu {
         System.out.println(shiftService.getAvailableEmployeesForShift(shift));
 
         System.out.println("Enter Employee ID");
-        int id = scanner.nextInt();
+        int id = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");
         int roleNumber = Integer.parseInt(scanner.nextLine());
         Role role = Role.values()[roleNumber - 1];
         shiftService.assignEmployee(shift, role, id);
         System.out.println("Employee assigned.");
-        updateAssignments();
     }
 
     private static void replace() {
         System.out.println("Enter the ID of the already assigned employee");
-        int currentEmployeeId = scanner.nextInt();
+        int currentEmployeeId = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter the ID of the employee to replace him");
-        int newEmployeeId = scanner.nextInt();
+        int newEmployeeId = Integer.parseInt(scanner.nextLine());
         shiftService.replaceEmployee(shift, currentEmployeeId, newEmployeeId);
         System.out.println("Replacement successful.");
-        updateAssignments();
     }
 
     private static void updateRequirements() {
@@ -173,17 +182,16 @@ public class ManageShiftsMenu {
         int roleNumber = Integer.parseInt(scanner.nextLine());
         Role role = Role.values()[roleNumber - 1];
         System.out.println("Enter new amount.");
-        int amount = scanner.nextInt();
+        int amount = Integer.parseInt(scanner.nextLine());
         shiftService.setRequirement(shift, role, amount);
         System.out.println("Amount updated.");
-        updateShift();
     }
 
     private static void updateDeadline() {
         System.out.print("Enter new date (dd/mm/yyyy) or 0 to go back:");
-        int input = scanner.nextInt();
+        int input = Integer.parseInt(scanner.nextLine());
         if (input == 0)
-            start();
+            return;
         String dateString = String.valueOf(input);
         LocalDate date = Parser.stringToDate(dateString);
 
@@ -192,14 +200,11 @@ public class ManageShiftsMenu {
 
     public static void getShiftsHistory() {
         System.out.println(shiftService.getShiftHistory());
-        System.out.print("Enter 0 to go back:");
-        if (scanner.nextInt() == 0)
-            start();
     }
 
     /*public static void assignEmployee() {
         System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         shiftService.assignEmployee(shift, choice, id);
     }
 
@@ -207,7 +212,7 @@ public class ManageShiftsMenu {
         System.out.println("Are you sure you want to remove " + shift.getType() + " (" + shift.getShiftDate() + ")?" +
                            "If yes - enter 1, else 0.");
 
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         switch (choice) {
             case 1:
                 shiftService.removeShift(shift);
@@ -220,7 +225,7 @@ public class ManageShiftsMenu {
 
     private static void addShift() {
         System.out.print("Enter date (dd/mm/yyyy) or 0 to go back:");
-        int input = scanner.nextInt();
+        int input = Integer.parseInt(scanner.nextLine());
         if (input == 0)
             start();
         String dateString = String.valueOf(input);

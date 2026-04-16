@@ -55,7 +55,7 @@ public class Employee {
      * Copy constructor - creates a deep copy of another Employee
      *
      * @param other the employee to copy
-     */
+
     public Employee(Employee other) {
         this.name = other.name;
         this.id = other.id;
@@ -64,7 +64,10 @@ public class Employee {
         this.terms = other.terms;
         this.startDate = other.startDate;
         this.endDate = other.endDate;
-    }
+    } ***no needed***
+     */
+
+
     /**
      * getter for name
      * @return employee name

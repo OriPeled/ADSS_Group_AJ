@@ -19,6 +19,6 @@ public class Access {
         return !this.password.equals(password);
     }
     public boolean isPasswordEmpty(String password) {
-        return password.equals("") || password ==null;
+        return password == null || password.isEmpty();
     }
 }

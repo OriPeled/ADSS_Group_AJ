@@ -22,66 +22,80 @@ public class ManageEmployeesMenu {
     static Employee employee;
 
     public static void start() {
-        System.out.println("Employees");
-        System.out.println("1. Manage existing Employee");
-        System.out.println("2. Add Employee");
-        System.out.println("3. Back");
+        while (true) {
+            System.out.println("Employees");
+            System.out.println("1. Manage existing Employee");
+            System.out.println("2. Add Employee");
+            System.out.println("3. Back");
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-               accessEmployee();
-            case 2:
-               addEmployeeMenu();
-            case 3:
-                AdminMode.start();
-            default:
-                System.out.println("Invalid choice.");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    accessEmployee();
+                    break;
+                case 2:
+                    addEmployeeMenu();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
     private static void accessEmployee() {
         System.out.println("Manage Employee");
         System.out.println("Enter employee ID or enter 0 to go back:");
-        id = scanner.nextInt();
+        id = Integer.parseInt(scanner.nextLine());
         if (id == 0)
-            start();
+            return;
 
-        employee = employeeService.getEmployee(id);
-        System.out.println("Employee chosen");
-        manageEmployee();
+        try {
+            employee = employeeService.getEmployee(id);
+            System.out.println("Employee chosen");
+            manageEmployee();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     public static void manageEmployee() {
-        System.out.println(employee.getName() + " (" + id + ")");
-        /*System.out.println("1. Update Constraints");*/
-        System.out.println("2. Employee Details");
-        System.out.println("3. Promote/Demote");
-        System.out.println("4. Remove");
-        System.out.println("5. Add Role");
-        System.out.println("6. Back");
+        while (true) {
+            System.out.println(employee.getName() + " (" + id + ")");
+            /*System.out.println("1. Update Constraints");*/
+            System.out.println("2. Employee Details");
+            System.out.println("3. Promote/Demote");
+            System.out.println("4. Remove");
+            System.out.println("5. Add Role");
+            System.out.println("6. Back");
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 2:
-                details();
-            case 3:
-                promoteDemote();
-            case 4:
-                remove();
-            case 5:
-                addRole();
-            case 6:
-                accessEmployee();
-            default:
-                System.out.println("Invalid choice.");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 2:
+                    details();
+                    break;
+                case 3:
+                    promoteDemote();
+                    break;
+                case 4:
+                    remove();
+                    return;           // after remove, go back up
+                case 5:
+                    addRole();
+                    break;
+                case 6:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
 /*    private static void updateConstraints() {
         System.out.print("Update Constraints");
         System.out.print("Enter date (dd/mm/yyyy) or 0 to go back:");
-        int input = scanner.nextInt();
+        int input = Integer.parseInt(scanner.nextLine());
         if (input == 0)
             manageEmployee();
         String dateString = String.valueOf(input);
@@ -95,7 +109,7 @@ public class ManageEmployeesMenu {
         System.out.print("Constraints updated.");
 
         System.out.print("Enter 1 to add another constraint or 0 to go back.");
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         switch (choice) {
             case 1:
                 updateConstraints();
@@ -105,80 +119,80 @@ public class ManageEmployeesMenu {
     }*/
 
     private static void details() {
-        System.out.print(employee.toString());
-        System.out.print("Choose 1-4 to update detail or 0 to go back:");
-        int choice = scanner.nextInt();
+        while (true) {
+            System.out.print(employee.toString());
+            System.out.print("Choose 1-4 to update detail or 0 to go back:");
+            int choice = Integer.parseInt(scanner.nextLine());
 
-        switch (choice) {
-            case 1:
-                System.out.print("Enter new name:");
-                String newName = scanner.nextLine();
-                employee.setName(newName);
-                System.out.println("Name updated.");
-                details();
-            case 2:
-                System.out.println("Enter new bank account:");
-                int newBankAccount = scanner.nextInt();
-                employee.setBankAccount(newBankAccount);
-                System.out.println("Bank account updated.");
-                details();
-            case 3:
-                System.out.println("Enter new salary:");
-                double newSalary = scanner.nextDouble();
-                employee.setSalary(newSalary);
-                System.out.println("Salary updated.");
-                details();
-            case 4:
-                updateTerms();
-            case 0:
-                manageEmployee();
-            default:
-                System.out.println("Invalid choice.");
-                details();
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter new name:");
+                    String newName = scanner.nextLine();
+                    employee.setName(newName);
+                    System.out.println("Name updated.");
+                    break;
+                case 2:
+                    System.out.println("Enter new bank account:");
+                    int newBankAccount = Integer.parseInt(scanner.nextLine());
+                    employee.setBankAccount(newBankAccount);
+                    System.out.println("Bank account updated.");
+                    break;
+                case 3:
+                    System.out.println("Enter new salary:");
+                    double newSalary = scanner.nextDouble();
+                    employee.setSalary(newSalary);
+                    System.out.println("Salary updated.");
+                    break;
+                case 4:
+                    updateTerms();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
     public static void updateTerms() {
         EmployeeTerms terms = employee.getTerms();
-        System.out.println(terms);
-        System.out.println("Choose 1-3 to update detail or 0 to go back:");
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                System.out.println("Enter 1 to change job status, 0 to cancel:");
-                choice = scanner.nextInt();
-                switch (choice) {
-                    case 1:
+        while (true) {
+            System.out.println(terms);
+            System.out.println("Choose 1-3 to update detail or 0 to go back:");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    System.out.println("Enter 1 to change job status, 0 to cancel:");
+                    int choice1 = Integer.parseInt(scanner.nextLine());
+                    if (choice1 == 1) {
                         terms.changeJobStatus();
-                        System.out.println("Job Status is now" + terms.getJobStatus());
-                        updateTerms();
-                    case 0:
-                        updateTerms();
-                }
-            case 2:
-                System.out.println("Enter 1 to change salary type, 0 to cancel:");
-                choice = scanner.nextInt();
-                switch (choice) {
-                    case 1:
+                        System.out.println("Job Status is now " + terms.getJobStatus());
+                    }
+                    break;
+                case 2:
+                    System.out.println("Enter 1 to change salary type, 0 to cancel:");
+                    int choice2 = Integer.parseInt(scanner.nextLine());
+                    if (choice2 == 1) {
                         terms.changeSalaryType();
-                        System.out.println("Salary Type is now" + terms.getSalaryType());
-                        updateTerms();
-                    case 0:
-                        updateTerms();
-                }
-            case 3:
-                System.out.println("Enter number of rest days (1-7) or 0 to cancel:");
-                choice = scanner.nextInt();
-                switch (choice) {
-                    case 1:
-                        terms.setRestDays(choice);
-                        System.out.println("Number of Rest Days is now" + terms.getRestDays());
-                        updateTerms();
-                    case 0:
-                        updateTerms();
-                }
-            case 0:
-                details();
+                        System.out.println("Salary Type is now " + terms.getSalaryType());
+                    }
+                    break;
+                case 3:
+                    System.out.println("Enter number of rest days (1-7) or 0 to cancel:");
+                    int newRestDays = Integer.parseInt(scanner.nextLine());
+                    if (newRestDays == 0) break;
+                    if (newRestDays < 1 || newRestDays > 7) {
+                        System.out.println("Invalid: must be between 1 and 7.");
+                        break;
+                    }
+                    terms.setRestDays(newRestDays);
+                    System.out.println("Number of Rest Days is now " + newRestDays);
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
@@ -188,17 +202,16 @@ public class ManageEmployeesMenu {
 
     private static void remove() {
         System.out.println("Are you sure you want to remove " + employee.getName() + " (" + id + ")?" +
-                           "If yes - enter 1, else 0.");
+                " If yes - enter 1, else 0.");
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
+        int choice = Integer.parseInt(scanner.nextLine());
+        if (choice == 1) {
+            try {
                 employeeService.remove(id);
                 System.out.println("Employee removed.");
-                accessEmployee();
-                break;
-            case 2:
-                accessEmployee();
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
     /**
@@ -207,7 +220,7 @@ public class ManageEmployeesMenu {
     private static void addRole() {
         Role[] roles = Role.values();
         System.out.println("Choose role to add:");
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         for (int i = 0; i < roles.length; i++) {
             System.out.println((i + 1) + ". " + roles[i]);
         }
@@ -227,20 +240,19 @@ public class ManageEmployeesMenu {
     private static void addEmployeeMenu() {
         System.out.println("New employee adding");
         System.out.println("Enter name or 0 to go back:");
-        int input = scanner.nextInt();
-        if (input == 0)
-            start();
-        String name = String.valueOf(input);
+        scanner.nextLine();                           // consume leftover newline
+        String name = scanner.nextLine();
+        if (name.equals("0")) return;
         System.out.println("Enter ID:");
-        int id = scanner.nextInt();
+        int id = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter bank account:");
-        int bankAccount = scanner.nextInt();
+        int bankAccount = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter salary:");
         double salary = scanner.nextDouble();
         System.out.println("Enter terms:");
         System.out.println("Enter job status");
         System.out.println("1 for full time, 2 for half time");
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         JobStatus jobStatus=null;
         switch (choice) {
             case 1:
@@ -256,7 +268,7 @@ public class ManageEmployeesMenu {
 
         System.out.println("Enter salary type");
         System.out.println("1 for hourly, 2 for  global");
-        choice = scanner.nextInt();
+        choice = Integer.parseInt(scanner.nextLine());
         SalaryType salaryType=null;
         switch (choice) {
             case 1:
@@ -270,7 +282,7 @@ public class ManageEmployeesMenu {
 
         }
         System.out.println("Enter rest days");
-        int restDays = scanner.nextInt();
+        int restDays = Integer.parseInt(scanner.nextLine());
         EmployeeTerms terms = new EmployeeTerms(jobStatus ,salaryType,  restDays);
         System.out.println("Enter start date:");
         String startDateString = scanner.nextLine();

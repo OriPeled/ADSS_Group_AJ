@@ -24,11 +24,19 @@ public class Assignments {
         this.assignments = new HashMap<>();
     }
 
-    public void init(Shift shift) {
+    /** public void init(Shift shift) {
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
         Set<Integer> innerSet = new HashSet<>();
         for (Role role : Role.values())
             innerMap.put(role, innerSet);
+        assignments.put(shift, innerMap);
+    } */
+
+    public void init(Shift shift) {
+        Map<Role, Set<Integer>> innerMap = new HashMap<>();
+        for (Role role : Role.values()) {
+            innerMap.put(role, new HashSet<>()); // ← new set for each role
+        }
         assignments.put(shift, innerMap);
     }
 
@@ -42,19 +50,16 @@ public class Assignments {
      * @param id the employee ID
      */
     public void add(Shift shift, Role role, int id) {
-
         Map<Role, Set<Integer>> shiftMap = assignments.get(shift);
         if (shiftMap == null) {
             shiftMap = new HashMap<>();
             assignments.put(shift, shiftMap);
         }
-
         Set<Integer> set = shiftMap.get(role);
         if (set == null) {
             set = new HashSet<>();
             shiftMap.put(role, set);
         }
-
         set.add(id);
     }
 

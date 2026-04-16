@@ -3,13 +3,11 @@ package dev.Workers.presentation;
 import dev.Workers.Service.AccessService;
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.Service.EmployeeService;
-import dev.Workers.domain.Enums.Status;
 import dev.Workers.domain.Enums.shiftType;
 import dev.Workers.domain.Objects.Employee;
 
 import java.time.DayOfWeek;
 
-import static dev.Workers.domain.Enums.Status.*;
 import static dev.Workers.domain.Enums.shiftType.*;
 import static dev.Workers.presentation.Main.scanner;
 
@@ -22,57 +20,31 @@ public class UserMode {
 
     public static void login() {
         System.out.println("User Mode");
-        while (true) {
-            System.out.println("Please enter ID or 0 to cancel:");
-            String idInput = scanner.nextLine();
-            int enteredID;
-            try {
-                enteredID = Integer.parseInt(idInput);
-                if (enteredID == 0) return;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid ID format.");
-                continue;
-            }
-
-            System.out.println("Please enter password or 0 to cancel:");
-            String enteredPassword = scanner.nextLine();
-            if (enteredPassword.equals("0")) return;
-
-            Status loginResponse = accessService.login(enteredID, enteredPassword);
-
-            if (loginResponse == success) {
-                employee = employeeService.getEmployee(enteredID);
-                start();
-                return;
-            }
-            else if (loginResponse == wrongPassword) {
-                System.out.println("Wrong password.");
-            }
-            else if (loginResponse == notRegistered) {
-                handleRegistration(enteredID);
-            }
-            else if (loginResponse == notInSystem) {
-                System.out.println("No such employee.");
-            }
+        System.out.println("Please Enter ID:");
+        int enteredID = Integer.parseInt(scanner.nextLine());
+        while (!employeeService.isEmployee(enteredID)) {
+            System.out.println("No Such Employee. Try again or enter 0 to exit.");
+            enteredID = Integer.parseInt(scanner.nextLine());
+            if (enteredID == 0)
+                Main.displayMenu();
         }
-    }
 
-    private static void handleRegistration(int id) {
-        System.out.println("User not registered. Please create password (at least 4 characters).");
-        while (true) {
-            System.out.println("Please enter new password or 0 to cancel:");
-            String newPass = scanner.nextLine();
-            if (newPass.equals("0")) return;
-
-            Status registerResponse = accessService.Register(id, newPass);
-
-            if (registerResponse == invalidPassword) {
-                System.out.println("Invalid Password. Please enter at least 4 characters.");
-            } else {
-                System.out.println("Successfully registered.");
-                break;
-            }
+        if (!accessService.isRegisteredUser(enteredID)) {
+            System.out.println("Please Create Password.");
+            accessService.Register(enteredID,scanner.nextLine());
         }
+        System.out.println("Please Enter Password:");
+        String enteredPass = scanner.nextLine();
+
+        while (!accessService.getAccess(enteredID).getPassword().equals(enteredPass)) {
+            System.out.println("Wrong Password: Try Again or enter 0 to exit.");
+            enteredPass = scanner.nextLine();
+            java.lang.Integer input = java.lang.Integer.valueOf(enteredPass);
+            if (input == 0)
+                Main.displayMenu();
+        }
+        employee = employeeService.getEmployee(enteredID);
+        start();
     }
 
     public static void start() {
@@ -81,7 +53,7 @@ public class UserMode {
         System.out.println("2. Watch Shifts Schedule");
         System.out.println("3. Logout");
 
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         switch (choice) {
             case 1:
                 updateConstraints();
@@ -96,17 +68,15 @@ public class UserMode {
     }
 
     public static void updateConstraints() {
-       System.out.println(constraintService.display(employee.getId()));
+        constraintService.display(employee.getId());
         // sunday - morning(yes), evening(yes)
-        System.out.println("Choose a shift constraint to change or enter 0 to exit.");
+        System.out.println("Choose a shift constraint to change");
         System.out.println("Choose 1-7 for day");
-        int dayNumber = scanner.nextInt();
-        if (dayNumber == 0)
-            start();
+        int dayNumber = Integer.parseInt(scanner.nextLine());
         DayOfWeek day = ConstraintService.getDayFromNumber(dayNumber);
         //System.out.println("Choose 1 for morning and 2 for evening");
         System.out.println("Choose 1 for morning, 2 for evening, 3 for rest");
-        int choice = scanner.nextInt();
+        int choice = Integer.parseInt(scanner.nextLine());
         shiftType shiftType;
         switch (choice) {
             case 1:
@@ -123,6 +93,5 @@ public class UserMode {
                 break;
         }
         constraintService.update(employee.getId(), day, shiftType);
-        updateConstraints();
     }
 }

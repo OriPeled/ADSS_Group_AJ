@@ -131,4 +131,7 @@ public class ConstraintService {
         constraintManager.resetAllConstraints();
     }
 
+    public void initConstraintForEmployee(int id) {
+        constraintManager.initConstraintForEmployee(id);
+    }
 }

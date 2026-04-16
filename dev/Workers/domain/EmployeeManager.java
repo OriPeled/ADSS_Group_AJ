@@ -15,8 +15,6 @@ import java.util.Map;
 public class EmployeeManager implements IManager<Employee> {
     // maps employee ID to Employee object
     private Map<Integer, Employee> employees;
-    private AccessManager accessManager = AccessManager.getInstance();
-
     private static EmployeeManager instance;
 
     /**
@@ -71,6 +69,7 @@ public class EmployeeManager implements IManager<Employee> {
      * @param terms       employment terms
      * @param startDate   employment start date
      */
+
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         if (isEmployee(id)) {
             System.out.println("Employee already works.");
@@ -88,31 +87,13 @@ public class EmployeeManager implements IManager<Employee> {
         add(id, newEmp);
     }
 
-    /**
-     * Retrieves an employee by ID
-     *
-     * @param id employee ID
-     * @return Employee object or null if not found
-     */
-    public Employee getById(Employee id) {
-        return employees.get(id);
-    }
-    /**
-     * Removes (terminates) an employee from the system.
-     * Instead of deleting, marks employee as inactive by setting end date.
-     *
-     * @param id employee ID
-     */
     @Override
     public void remove(int id) {
         Employee emp = employees.get(id);
-
-        if (emp != null && emp.isActive()) {
-            emp.terminateEmployee(LocalDate.now());
-            accessManager.remove(id);
-        } else {
-            System.out.println("Employee ID " + id + " not active.");
+        if (emp == null || !emp.isActive()) {
+            throw new IllegalArgumentException("Employee " + id + " not found or already inactive.");
         }
+        emp.terminateEmployee(LocalDate.now());
     }
 
     @Override

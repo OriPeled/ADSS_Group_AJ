@@ -156,4 +156,8 @@ public class ConstraintManager {
         }
     }
 
+    public void initConstraintForEmployee(int id) {
+        constraintsByID.put(id, new Constraint());
+    }
+
 }

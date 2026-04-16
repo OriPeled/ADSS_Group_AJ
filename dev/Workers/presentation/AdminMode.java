@@ -22,44 +22,48 @@ public class AdminMode {
     public static void login() {
         System.out.println("HR Manager Mode");
         if (!isRegistered) {
-            // First-time setup: create password
             System.out.println("Please Create Password:");
             password = scanner.nextLine();
             System.out.println("Password Created.");
-
             isRegistered = true;
         }
-        // Password authentication
-        System.out.println("Please Enter Password:");
-        String enteredPass = scanner.nextLine();
-        while (enteredPass != password) {
-            System.out.println("Wrong Password: Try Again or enter 0 to exit.");
-            enteredPass = scanner.nextLine();
-            Integer input = Integer.valueOf(enteredPass);
-            if (input == 0)
-                Main.displayMenu();
+
+        System.out.println("Please Enter Password (or 0 to cancel):");
+        while (true) {
+            String enteredPass = scanner.nextLine();
+            if (enteredPass.equals("0")) {
+                return;                         // back to Main's loop
+            }
+            if (enteredPass.equals(password)) {
+                start();                        // go to admin menu
+                return;                         // after start() finishes, leave login
+            }
+            System.out.println("Wrong Password. Try Again or enter 0 to cancel:");
         }
-        start();
     }
     /**
      * Displays admin management menu and routes user actions.
      */
     public static void start() {
-        System.out.println("Choose to Manage:");
-        System.out.println("1. Employees");
-        System.out.println("2. Shifts");
-        System.out.println("3. Logout");
+        while (true) {
+            System.out.println("Choose to Manage:");
+            System.out.println("1. Employees");
+            System.out.println("2. Shifts");
+            System.out.println("3. Logout");
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                ManageEmployeesMenu.start();
-            case 2:
-                ManageShiftsMenu.start();
-            case 3:
-                Main.displayMenu();
-            default:
-                System.out.println("Invalid input.");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    ManageEmployeesMenu.start();
+                    break;
+                case 2:
+                    ManageShiftsMenu.start();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
+            }
         }
     }
 }

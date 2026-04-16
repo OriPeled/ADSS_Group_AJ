@@ -19,20 +19,14 @@ import java.util.*;
  */
 public class ShiftManager {
 
-    // all system shifts
-    private static Set<Shift> shifts;
-    // required roles per shift
-    private Requirements requirements;
-    // employee availability constraints
-    private ConstraintManager constraintManager;
-    //all the assigments
-    private Assignments assignments;
-    // employees manager
-    private static EmployeeManager employeeManager = EmployeeManager.getInstance();
-    // employee roles manager
-    private static RoleManager roleManager = RoleManager.getInstance();
+    private final Set<Shift> shifts;
+    private final Requirements requirements;
+    private final ConstraintManager constraintManager;
+    private final Assignments assignments;
+    private final EmployeeManager employeeManager;
+    private final RoleManager roleManager;
 
-    private static ShiftManager instance;
+    private static ShiftManager instance;   // this one stays static — singleton pattern requires it
 
     /**
      * singeltone
@@ -49,10 +43,12 @@ public class ShiftManager {
      * constractor for service
      */
     private ShiftManager() {
-        shifts = new HashSet<>();
-        requirements = new Requirements();
-        constraintManager = ConstraintManager.getInstance();
-        assignments = new Assignments();
+        this.shifts = new HashSet<>();
+        this.requirements = new Requirements();
+        this.constraintManager = ConstraintManager.getInstance();
+        this.assignments = new Assignments();
+        this.employeeManager = EmployeeManager.getInstance();
+        this.roleManager = RoleManager.getInstance();
     }
 
     /**

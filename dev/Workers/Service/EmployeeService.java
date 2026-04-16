@@ -14,8 +14,7 @@ import java.time.LocalDate;
 public class EmployeeService {
     private static EmployeeService instance;
     private static final EmployeeManager employeeManager = EmployeeManager.getInstance();
-    private AccessService accessService;
-
+    private static final AccessService accessService = AccessService.getInstance();
     /**
      * Private constructor to enforce the Singleton pattern.
      */
@@ -66,7 +65,7 @@ public class EmployeeService {
      *
      * @param id the unique ID of the employee to remove
      * @throws IllegalArgumentException if the employee is not found or is already inactive
-     */
+
     public void remove(int id) {
         Employee emp = employeeManager.getById(id);
 
@@ -82,6 +81,13 @@ public class EmployeeService {
             }
         } else {
             throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " already inactive.");
+        }
+    } */
+
+    public void remove(int id) {
+        employeeManager.remove(id); // terminate (throws if invalid)
+        if (accessService.isRegisteredUser(id)) {
+            accessService.removeUser(id); // clean up access
         }
     }
 
