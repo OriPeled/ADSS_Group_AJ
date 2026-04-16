@@ -20,14 +20,18 @@ public class UserMode {
 
     public static void login() {
         System.out.println("User Mode");
-        System.out.println("Please Enter ID:");
-        int enteredID = scanner.nextInt();
-        scanner.nextLine();
-        while (!employeeService.isEmployee(enteredID)) {
-            System.out.println("No Such Employee. Try again or enter 0 to exit.");
-            enteredID = scanner.nextInt();
-            if (enteredID == 0)
-                Main.displayMenu();
+        int enteredID;
+        while(true) {
+            System.out.println("Please Enter ID or 0 to return:");
+            String input = scanner.nextLine();
+            try {
+                enteredID = Integer.parseInt(input);
+                if (enteredID == 0) Main.displayMenu(); // return
+                if (employeeService.isEmployee(enteredID)) break; // valid ID
+                else {System.out.println("No Such Employee. Try again or enter 0 to exit.");}
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
+            }
         }
 
         if (!accessService.isRegisteredUser(enteredID)) {
@@ -35,9 +39,9 @@ public class UserMode {
             String enteredPassword = scanner.nextLine();
             accessService.Register(enteredID,enteredPassword);
         }
+
         System.out.println("Please Enter Password:");
         String enteredPass = scanner.nextLine();
-
         while (!accessService.getAccess(enteredID).getPassword().equals(enteredPass)) {
             System.out.println("Wrong Password: Try Again or enter 0 to exit.");
             enteredPass = scanner.nextLine();
