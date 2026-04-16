@@ -29,20 +29,33 @@ public class DataInitializer {
             accessService.Register(111, "1111");
             roleService.addRoleToEmployee(111, Role.shiftManager);
             constraintService.initConstraintForEmployee(111);   // new method we'll add
-
+            accessService.login(111, "1111"); // Log in to initialize session for constraints
             // Employee 2 — Kokhava
             EmployeeTerms terms2 = new EmployeeTerms(JobStatus.halfTime, SalaryType.hourly, 3);
             employeeService.add("Kokhava Shavit", 222, 200200, 40.0, terms2, LocalDate.now().minusMonths(6));
             accessService.Register(222, "2222");
             roleService.addRoleToEmployee(222, Role.Cashier);
             constraintService.initConstraintForEmployee(222);
+            accessService.login(222, "2222");
 
-            // ... and so on for 333, 444, 555
+            EmployeeTerms termsNissim = new EmployeeTerms(JobStatus.fullTime, SalaryType.hourly, 30);
+            employeeService.add("Nissim", 333, 300300, 32.0, termsNissim, LocalDate.now().minusYears(2));
+            accessService.Register(333, "3333");
+            roleService.addRoleToEmployee(333, Role.Storekeeper);
+            constraintService.initConstraintForEmployee(333);
+            accessService.login(333, "3333");
+
+            EmployeeTerms termsRamzi = new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 5);
+            employeeService.add("Ramzi", 444, 444444, 8000.0, termsRamzi, LocalDate.now().minusYears(7));
+            accessService.Register(444, "44444");
+            roleService.addRoleToEmployee(444, Role.Storekeeper);
+            constraintService.initConstraintForEmployee(444);
+
 
             // Set some constraints
             constraintService.update(111, DayOfWeek.SUNDAY, shiftType.morning);
-            constraintService.update(444, DayOfWeek.MONDAY, shiftType.notWorking);
-            constraintService.update(555, DayOfWeek.TUESDAY, shiftType.evening);
+            constraintService.update(333, DayOfWeek.MONDAY, shiftType.notWorking);
+            constraintService.update(444, DayOfWeek.TUESDAY, shiftType.evening);
             constraintService.update(222, DayOfWeek.WEDNESDAY, shiftType.notWorking);
 
             // Create a shift and assign some employees
@@ -55,7 +68,7 @@ public class DataInitializer {
                 shiftService.setRequirement(morningShift, Role.Cashier, 2);
                 shiftService.setRequirement(morningShift, Role.Storekeeper, 1);
                 shiftService.assignEmployee(morningShift, Role.shiftManager, 111);
-                shiftService.assignEmployee(morningShift, Role.Cashier, 555);
+                shiftService.assignEmployee(morningShift, Role.Cashier, 222);
             }
 
             System.out.println("Mock data loaded successfully!");
