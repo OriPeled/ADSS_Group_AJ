@@ -88,6 +88,7 @@ public class DataInitializer {
 
                 LocalDate date = nextSunday.plusDays(i);
 
+                shiftService.addShift(date, ShiftType.morning);
                 Shift shift = shiftService.getShift(date, ShiftType.morning);
 
                 // Set requirements
@@ -103,6 +104,23 @@ public class DataInitializer {
                 shiftService.assignEmployee(shift, Role.Storekeeper, 333);
                 shiftService.assignEmployee(shift, Role.Storekeeper, 444);
                 shiftService.assignEmployee(shift, Role.Storekeeper, 445);
+
+
+                shiftService.addShift(date, ShiftType.evening);
+                Shift eveningShift = shiftService.getShift(date, ShiftType.evening);
+
+                shiftService.setRequirement(eveningShift, Role.shiftManager, 3);
+                shiftService.setRequirement(eveningShift, Role.Cashier, 3);
+                shiftService.setRequirement(eveningShift, Role.Storekeeper, 3);
+                shiftService.assignEmployee(eveningShift, Role.shiftManager, 111);
+                shiftService.assignEmployee(eveningShift, Role.shiftManager, 112);
+                shiftService.assignEmployee(eveningShift, Role.shiftManager, 113);
+                shiftService.assignEmployee(eveningShift, Role.Cashier, 222);
+                shiftService.assignEmployee(eveningShift, Role.Cashier, 223);
+                shiftService.assignEmployee(eveningShift, Role.Cashier, 224);
+                shiftService.assignEmployee(eveningShift, Role.Storekeeper, 333);
+                shiftService.assignEmployee(eveningShift, Role.Storekeeper, 444);
+                shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
 
 
             }

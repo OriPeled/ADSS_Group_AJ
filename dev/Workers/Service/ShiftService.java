@@ -51,8 +51,6 @@ public class ShiftService {
         shiftManager.removeShift(shift);
     }
 
-
-
     public void setRequirement(Shift shift, Role role, int count) {
         shiftManager.setRequirement(shift, role, count);
     }
@@ -86,6 +84,11 @@ public class ShiftService {
         shiftManager.replaceEmployee(shift, currentId, newId);
     }
 
+    public void publishWeekSchedule() {
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        shiftManager.publishWeekSchedule(nextSunday);
+    }
+
     // --- Queries & Reports ---
 
     public String getAvailableEmployeesForShift(Shift shift) {
@@ -117,14 +120,7 @@ public class ShiftService {
         return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
     }
 
-    public void publishWeekSchedule() {
-    }
-
     public WeekStatus getWeekStatus() {
-
         return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());
     }
-
-
-
 }

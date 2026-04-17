@@ -37,6 +37,7 @@ public class Assignments {
         if (assignments.containsKey(shift))
             return;
 
+        //System.out.println("COME ONNNNNN");
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
         for (Role role : Role.values()) {
             innerMap.put(role, new HashSet<>()); // ← new set for each role
@@ -124,6 +125,8 @@ public class Assignments {
      * @return set of employee IDs, or empty set if none exist
      */
     public Set<Integer> getEmployees(Shift shift, Role role) {
+        //System.out.println(assignments.get(shift));
+        System.out.println(assignments.size());
         return assignments
                 .getOrDefault(shift, Collections.emptyMap())
                 .getOrDefault(role, Collections.emptySet());

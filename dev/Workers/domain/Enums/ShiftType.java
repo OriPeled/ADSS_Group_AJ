@@ -4,5 +4,5 @@ public enum ShiftType {
     morning,
     evening,
     any,
-    rest,
+    rest
 }

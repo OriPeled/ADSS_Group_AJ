@@ -111,7 +111,7 @@ public class ManageShiftsMenu {
                 return;
             }
         }
-         shift = shiftService.getShift(date, shiftT);
+        shift = shiftService.getShift(date, shiftT);
         manageShift();
     }
 
@@ -229,6 +229,7 @@ public class ManageShiftsMenu {
         Role role = Role.values()[roleNumber - 1];
         shiftService.assignEmployee(shift, role, id);
         System.out.println("Employee assigned.");
+        checkShiftsWeek();
     }
 
     private static void replace() {

@@ -25,8 +25,9 @@ public class ShiftManager {
 
     private final Set<Shift> shifts;
     private final Requirements requirements;
-    private final ConstraintManager constraintManager;
     private final Assignments assignments;
+
+    private final ConstraintManager constraintManager;
     private final EmployeeManager employeeManager;
     private final RoleManager roleManager;
 
@@ -62,11 +63,11 @@ public class ShiftManager {
      * adding shift to the system if it doesn't already exist, else nothing
      */
     public void addShift(LocalDate date, ShiftType type) {
-        Shift shift = new Shift(date, type);
-        if (!shifts.contains(shift)) {
-            shifts.add(shift);
-            requirements.init(shift);
-            assignments.init(shift);
+        Shift newShift = new Shift(date, type);
+
+        if (shifts.add(newShift)) {
+            requirements.init(newShift);
+            assignments.init(newShift);
         }
     }
 
@@ -83,11 +84,13 @@ public class ShiftManager {
             }
         }
 
-        addShift(date, type);
+        if (type == ShiftType.morning || type == ShiftType.evening) {
+            addShift(date, type);
 
-        for (Shift s : shifts) {
-            if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
-                return s;
+            for (Shift s : shifts) {
+                if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
+                    return s;
+                }
             }
         }
 
@@ -172,6 +175,8 @@ public class ShiftManager {
      * Checks if role still has available demand in shift.
      */
     private boolean isNeeded(Shift shift, Role role) {
+        //System.out.println("assigned "+assignments.countAssigned(shift, role));
+        //System.out.println("required "+requirements.countRequired(shift, role));
         return assignments.countAssigned(shift, role)
                 < requirements.countRequired(shift, role);
     }
@@ -269,7 +274,7 @@ public class ShiftManager {
         for (int i = 0; i < 7; i++) {
             LocalDate date = startDay.plusDays(i);
 
-            for (ShiftType type : ShiftType.values()) {
+            for (ShiftType type : new ShiftType[]{ShiftType.morning, ShiftType.evening}) {
                 Shift shift = getShift(date, type);
                 if (shift != null) {
                     result.add(shift);
@@ -303,6 +308,7 @@ public class ShiftManager {
         List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
         for (Shift shift : weekShifts) {
             for (Role role : Role.values()) {
+                System.out.println(role);
                 if (isNeeded(shift, role)) return false;
             }
         }
@@ -354,22 +360,46 @@ public class ShiftManager {
     }
 
     public String displayWeekAssignments() {
-        StringBuilder sb = new StringBuilder();
         Map<Shift, String> assignments = weekAssignment();
 
-        for (Map.Entry<Shift, String> entry : assignments.entrySet()) {
-            Shift shift = entry.getKey();
-            if (shift.getType() != ShiftType.morning &&
-                    shift.getType() != ShiftType.evening) {
-                continue;
+        // 1. Filter and Sort: Sun -> Sat, Morning -> Evening
+        List<String> formattedLines = assignments.keySet().stream()
+                .filter(s -> s.getType() == ShiftType.morning || s.getType() == ShiftType.evening)
+                .sorted(Comparator.comparing(Shift::getShiftDate)
+                        .thenComparing(Shift::getType))
+                // REMOVED: manually adding (shiftType) here
+                .map(s -> String.format("%s: %s", s.toStringByWeekDay(), assignments.get(s)))
+                .collect(Collectors.toList());
+
+        if (formattedLines.isEmpty()) return "No shifts to display.";
+
+        // 2. Column logic (Total 14 shifts: 5 + 5 + 4)
+        StringBuilder sb = new StringBuilder();
+        int col1Count = 5;
+        int col2Count = 5;
+
+        // Determine padding based on the longest string to keep columns aligned
+        int padding = formattedLines.stream().mapToInt(String::length).max().orElse(25) + 4;
+
+        // 3. Print row by row (max 5 rows)
+        for (int row = 0; row < 5; row++) {
+            // Column 1 (Indices 0-4)
+            sb.append(String.format("%-" + padding + "s", formattedLines.get(row)));
+
+            // Column 2 (Indices 5-9)
+            if (row + col1Count < formattedLines.size()) {
+                sb.append(String.format("%-" + padding + "s", formattedLines.get(row + col1Count)));
             }
-            sb.append(entry.getKey().toStringByWeekDay())
-                    .append(": ")
-                    .append(entry.getValue())
-                    .append("\n");
+
+            // Column 3 (Indices 10-13)
+            if (row + col1Count + col2Count < formattedLines.size()) {
+                sb.append(formattedLines.get(row + col1Count + col2Count));
+            }
+
+            sb.append("\n");
         }
 
-        return sb.toString().trim();
+        return sb.toString();
     }
 
     /**
@@ -381,20 +411,33 @@ public class ShiftManager {
             return "No shifts available.";
         }
 
-        // 1. Convert Set to List so we can sort it
-        List<Shift> sortedShifts = new ArrayList<>(shifts);
-        sortedShifts.sort(Comparator.comparing(Shift::getShiftDate)
-                .thenComparing(Shift::getType));
+        // 1. Filter only published shifts and sort them
+        List<Shift> publishedShifts = shifts.stream()
+                .filter(shift -> {
+                    // Find the week this shift belongs to
+                    LocalDate sunday = shift.getShiftDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+                    WeekSchedule week = weekSchedules.get(sunday);
 
-        StringBuilder result = new StringBuilder("=== SHIFT HISTORY ===\n");
+                    // Only include if the week exists AND is published
+                    return week != null && week.isPublished();
+                })
+                .sorted(Comparator.comparing(Shift::getShiftDate)
+                        .thenComparing(Shift::getType))
+                .collect(Collectors.toList());
 
-        for (Shift shift : sortedShifts) {
-            // 2. Use Arrays.stream() for the array returned by Role.values()
+        if (publishedShifts.isEmpty()) {
+            return "No published shifts to display.";
+        }
+
+        StringBuilder result = new StringBuilder("=== PUBLISHED SHIFT HISTORY ===\n");
+
+        for (Shift shift : publishedShifts) {
+            // ... (Existing logic to count assignments and append to result)
             long assignedCount = Arrays.stream(Role.values())
                     .mapToLong(role -> assignments.getEmployees(shift, role).size())
                     .sum();
 
-            // Skip "rest" or "any" types if no one is assigned
+            // Optional: Keep your skip logic if you want to hide empty shifts even if published
             if (assignedCount == 0 && (shift.getType() == ShiftType.rest || shift.getType() == ShiftType.any)) {
                 continue;
             }
