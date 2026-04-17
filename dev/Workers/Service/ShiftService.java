@@ -1,6 +1,7 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Enums.ShiftResponse;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
@@ -61,10 +62,22 @@ public class ShiftService {
     }
 
     public void assignEmployee(Shift shift, Role role, int employeeId) {
-        // Business logic (validations) happens inside the domain's assignEmployee
-        shiftManager.assignEmployee(shift, role, employeeId);
+
+        ShiftResponse response = shiftManager.assignEmployee(shift, role, employeeId);
+
+        if (response == ShiftResponse.notValid) {
+            throw new RuntimeException("NOT_VALID: Employee " + employeeId +
+                    " cannot be assigned to shift " + shift +
+                    " for role " + role);
+        } else if (response == ShiftResponse.special) {
+            throw new RuntimeException("Employee constraints don't match. Special approval needed. Are you sure you want to preceed?");
+
+        }
     }
 
+    public void forceAssignEmployee(Shift shift, Role role, int employeeId) {
+        shiftManager.forceAssign(shift, role, employeeId);
+    }
     public void removeEmployeeFromShift(Shift shift, Role role, int employeeId) {
         shiftManager.removeEmployee(shift, role, employeeId);
     }

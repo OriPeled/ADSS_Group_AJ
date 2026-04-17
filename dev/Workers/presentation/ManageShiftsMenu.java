@@ -2,6 +2,7 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Enums.ShiftResponse;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;

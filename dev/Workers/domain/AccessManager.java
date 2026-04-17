@@ -1,12 +1,12 @@
 package dev.Workers.domain;
 
-import dev.Workers.domain.Enums.Status;
+import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.Access;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.Status.*;
+import static dev.Workers.domain.Enums.UserResponse.*;
 
 /**
  * Service class responsible for managing user credentials and access control.
@@ -50,19 +50,19 @@ public class AccessManager {
      * @param password The password to be assigned to the user.
      * @throws IllegalArgumentException if the password is null/empty or if the user already exists.
      */
-    public Status register(int id, String password) {
+    public UserResponse register(int id, String password) {
         if (password == null || password.trim().isEmpty()) {
-            return Status.failure;
+            return UserResponse.failure;
         }
 
         if (accessMap.containsKey(id)) {
-            return Status.failure;
+            return UserResponse.failure;
         }
         accessMap.put(id, new Access(password));
-        return Status.success;
+        return UserResponse.success;
     }
 
-    public Status login(int id, String password) {
+    public UserResponse login(int id, String password) {
 
         if (!employeeManager.isEmployee(id))
             return notInSystem;
@@ -81,12 +81,12 @@ public class AccessManager {
      * * @param id The unique identifier of the employee to remove.
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
-    public Status remove(int id) {
+    public UserResponse remove(int id) {
         if (accessMap.containsKey(id)) {
             accessMap.remove(id);
-            return Status.success;
+            return UserResponse.success;
         } else {
-            return Status.failure;
+            return UserResponse.failure;
         }
     }
 
@@ -100,13 +100,13 @@ public class AccessManager {
      * @param newPassword The new password to be set.
      * @throws IllegalArgumentException if the user is not registered in the system.
      */
-    public Status updatePassword(int id, String newPassword) {
+    public UserResponse updatePassword(int id, String newPassword) {
         Access access = accessMap.get(id);
         if (access != null) {
             access.setPassword(newPassword);
-            return Status.success;
+            return UserResponse.success;
         } else {
-            return Status.failure;
+            return UserResponse.failure;
         }
     }
 

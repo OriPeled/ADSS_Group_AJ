@@ -1,8 +1,6 @@
 package dev.Workers.domain;
 
-import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.ShiftType;
-import dev.Workers.domain.Enums.WeekStatus;
+import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.Objects.WeekSchedule;
@@ -12,8 +10,6 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static dev.Workers.domain.Enums.WeekStatus.*;
 
 /**
  * ShiftService is the core business logic of the system.
@@ -124,19 +120,20 @@ public class ShiftManager {
      *  Prints error message if assignment fails.
      *
      */
-    public void assignEmployee(Shift shift, Role role, int employeeId) {
+    public ShiftResponse assignEmployee(Shift shift, Role role, int employeeId) {
         if (nobodyToAssign(shift, role) && isSpecialValid(shift, role, employeeId)) {
             System.out.println("Special approve granted.");
-            assignments.add(shift, role, employeeId);
-            return;
+            return ShiftResponse.special;
         }
 
         if (!isValid(shift, role, employeeId)) {
-          throw new RuntimeException("Cannot assign employee " + employeeId + " to shift " + shift +
-                                     " for role " + role + ". Check constraints, qualifications, and requirements.");
 
+            return ShiftResponse.notValid;
         }
-
+        assignments.add(shift, role, employeeId);
+        return ShiftResponse.assigned;
+    }
+    public void forceAssign(Shift shift, Role role, int employeeId) {
         assignments.add(shift, role, employeeId);
     }
     /*

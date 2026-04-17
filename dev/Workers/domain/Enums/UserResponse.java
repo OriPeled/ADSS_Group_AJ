@@ -1,6 +1,6 @@
 package dev.Workers.domain.Enums;
 
-public enum Status {
+public enum UserResponse {
     success,
     failure,
     wrongPassword,

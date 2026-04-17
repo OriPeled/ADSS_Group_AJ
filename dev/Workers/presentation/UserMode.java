@@ -1,15 +1,12 @@
 package dev.Workers.presentation;
 
 import dev.Workers.Service.*;
-import dev.Workers.domain.Enums.Status;
+import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
-import dev.Workers.domain.Objects.Employee;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 
-import static dev.Workers.domain.Enums.Status.*;
+import static dev.Workers.domain.Enums.UserResponse.*;
 import static dev.Workers.domain.Enums.ShiftType.*;
 import static dev.Workers.presentation.Main.scanner;
 
@@ -39,7 +36,7 @@ public class UserMode {
             String enteredPassword = scanner.nextLine();
             if (enteredPassword.equals("0")) return;
 
-            Status loginResponse = accessService.login(enteredID, enteredPassword);
+            UserResponse loginResponse = accessService.login(enteredID, enteredPassword);
 
             if (loginResponse == success) {
                 employeeId = enteredID;
@@ -68,7 +65,7 @@ public class UserMode {
             String newPass = scanner.nextLine();
             if (newPass.equals("0")) return;
 
-            Status registerResponse = accessService.Register(id, newPass);
+            UserResponse registerResponse = accessService.Register(id, newPass);
 
             if (registerResponse == invalidPassword) {
                 System.out.println("Invalid Password. Please enter at least 4 characters.");

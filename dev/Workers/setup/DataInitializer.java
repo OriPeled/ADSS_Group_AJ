@@ -53,7 +53,7 @@ public class DataInitializer {
             // Cashiers
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Kokhava Shavit", 222, Role.Cashier);
-
+            accessService.Register(222, "2222");
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Lior Mizrahi", 223, Role.Cashier);
 
