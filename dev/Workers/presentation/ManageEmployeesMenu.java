@@ -19,7 +19,6 @@ public class ManageEmployeesMenu {
     static ConstraintService constraintService = ConstraintService.getInstance();
     static RoleService roleService = RoleService.getInstance();
     static int id;
-    static Employee employee;
 
     public static void start() {
         while (true) {
@@ -52,7 +51,10 @@ public class ManageEmployeesMenu {
             return;
 
         try {
-            employee = employeeService.getEmployee(id);
+            if (!employeeService.exists(id)) {
+                System.out.println("Employee not found.");
+                return;
+            }
             System.out.println("Employee chosen");
             manageEmployee();
         } catch (Exception e) {
@@ -62,8 +64,7 @@ public class ManageEmployeesMenu {
 
     public static void manageEmployee() {
         while (true) {
-            System.out.println(employee.getName() + " (" + id + ")");
-            /*System.out.println("1. Update Constraints");*/
+            System.out.println(employeeService.getEmployeeName(id) + " (" + id + ")");
             System.out.println("2. Employee Details");
             System.out.println("3. Promote/Demote");
             System.out.println("4. Remove");
@@ -120,7 +121,7 @@ public class ManageEmployeesMenu {
 
     private static void details() {
         while (true) {
-            System.out.print(employee.toString());
+            System.out.print(employeeService.getEmployeeDetails(id));
             System.out.print("Choose 1-4 to update detail or 0 to go back:");
             int choice = Integer.parseInt(scanner.nextLine());
 
@@ -128,20 +129,32 @@ public class ManageEmployeesMenu {
                 case 1:
                     System.out.print("Enter new name:");
                     String newName = scanner.nextLine();
-                    employee.setName(newName);
-                    System.out.println("Name updated.");
+                    try {
+                        employeeService.updateName(id, newName);
+                        System.out.println("Name updated.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
                 case 2:
                     System.out.println("Enter new bank account:");
                     int newBankAccount = Integer.parseInt(scanner.nextLine());
-                    employee.setBankAccount(newBankAccount);
-                    System.out.println("Bank account updated.");
+                    try {
+                        employeeService.updateBankAccount(id, newBankAccount);
+                        System.out.println("Bank account updated.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
                 case 3:
                     System.out.println("Enter new salary:");
-                    double newSalary = scanner.nextDouble();
-                    employee.setSalary(newSalary);
-                    System.out.println("Salary updated.");
+                    double newSalary = Double.parseDouble(scanner.nextLine());
+                    try {
+                        employeeService.updateSalary(id, newSalary);
+                        System.out.println("Salary updated.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
                 case 4:
                     updateTerms();
@@ -155,9 +168,8 @@ public class ManageEmployeesMenu {
     }
 
     public static void updateTerms() {
-        EmployeeTerms terms = employee.getTerms();
         while (true) {
-            System.out.println(terms);
+            System.out.println(employeeService.getEmployeeTermsDisplay(id));  // read-only display
             System.out.println("Choose 1-3 to update detail or 0 to go back:");
             int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
@@ -165,28 +177,36 @@ public class ManageEmployeesMenu {
                     System.out.println("Enter 1 to change job status, 0 to cancel:");
                     int choice1 = Integer.parseInt(scanner.nextLine());
                     if (choice1 == 1) {
-                        terms.changeJobStatus();
-                        System.out.println("Job Status is now " + terms.getJobStatus());
+                        try {
+                            employeeService.updateJobStatus(id);
+                            System.out.println("Job Status updated.");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Error: " + e.getMessage());
+                        }
                     }
                     break;
                 case 2:
                     System.out.println("Enter 1 to change salary type, 0 to cancel:");
                     int choice2 = Integer.parseInt(scanner.nextLine());
                     if (choice2 == 1) {
-                        terms.changeSalaryType();
-                        System.out.println("Salary Type is now " + terms.getSalaryType());
+                        try {
+                            employeeService.updateSalaryType(id);
+                            System.out.println("Salary Type updated.");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Error: " + e.getMessage());
+                        }
                     }
                     break;
                 case 3:
                     System.out.println("Enter number of rest days (1-7) or 0 to cancel:");
                     int newRestDays = Integer.parseInt(scanner.nextLine());
                     if (newRestDays == 0) break;
-                    if (newRestDays < 1 || newRestDays > 7) {
-                        System.out.println("Invalid: must be between 1 and 7.");
-                        break;
+                    try {
+                        employeeService.updateRestDays(id, newRestDays);
+                        System.out.println("Rest days updated.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
                     }
-                    terms.setRestDays(newRestDays);
-                    System.out.println("Number of Rest Days is now " + newRestDays);
                     break;
                 case 0:
                     return;
@@ -197,12 +217,11 @@ public class ManageEmployeesMenu {
     }
 
     private static void promoteDemote() {
-        roleService.promoteDemote(employee.getId());
+        roleService.promoteDemote(id);
     }
 
     private static void remove() {
-        System.out.println("Are you sure you want to remove " + employee.getName() + " (" + id + ")?" +
-                " If yes - enter 1, else 0.");
+        System.out.println("Are you sure you want to remove " + employeeService.getEmployeeName(id) + " (" + id + ")?" + " If yes - enter 1, else 0.");
 
         int choice = Integer.parseInt(scanner.nextLine());
         if (choice == 1) {
@@ -230,8 +249,8 @@ public class ManageEmployeesMenu {
         }
         Role selectedRole = roles[choice - 1];
         try {
-            roleService.addRoleToEmployee(employee.getId(), selectedRole);
-            System.out.println("Role " + selectedRole + " added to " + employee.getName());
+            roleService.addRoleToEmployee(id, selectedRole);
+            System.out.println("Role " + selectedRole + " added to " + employeeService.getEmployeeName(id));
         } catch (Exception e) {
             System.out.println("Failed to add role: " + e.getMessage());
         }
@@ -292,7 +311,6 @@ public class ManageEmployeesMenu {
         constraintService.getEmployeeConstraints().put(id, constraint);
         System.out.println("Employee added.");
 
-        employee = employeeService.getEmployee(id);
         manageEmployee();
     }
 }

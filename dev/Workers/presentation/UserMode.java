@@ -17,7 +17,7 @@ public class UserMode {
     static AccessService accessService = AccessService.getInstance();
     static ShiftService shiftService = ShiftService.getInstance();
 
-    static Employee employee;
+    static int employeeId;
 
     public static void login() {
         System.out.println("User Mode");
@@ -40,7 +40,7 @@ public class UserMode {
             Status loginResponse = accessService.login(enteredID, enteredPassword);
 
             if (loginResponse == success) {
-                employee = employeeService.getEmployee(enteredID);
+                employeeId = enteredID;
                 start();
                 return;
             }
@@ -112,7 +112,7 @@ public class UserMode {
 
     private static void watchShifts() {
         while (true) {
-            String shifts = shiftService.getEmployeeShifts(employee.getId());
+            String shifts = shiftService.getEmployeeShifts(employeeId);
             System.out.println(shifts);
 
             System.out.println("Enter 0 to return.");
@@ -142,7 +142,7 @@ public class UserMode {
 
     public static void updateConstraints() {
         while (true) {
-            System.out.println(constraintService.display(employee.getId()));
+            System.out.println(constraintService.display(employeeId));
             // sunday - morning(yes), evening(yes)
             System.out.println("Choose a shift constraint to change or enter 0 to exit.");
 
@@ -195,7 +195,7 @@ public class UserMode {
                     System.out.println("Invalid input.");
                     continue;
             }
-            constraintService.update(employee.getId(), day, shiftType);
+            constraintService.update(employeeId, day, shiftType);
         }
     }
 }

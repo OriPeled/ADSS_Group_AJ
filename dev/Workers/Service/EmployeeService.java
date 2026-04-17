@@ -15,6 +15,7 @@ public class EmployeeService {
     private static EmployeeService instance;
     private static final EmployeeManager employeeManager = EmployeeManager.getInstance();
     private static final AccessService accessService = AccessService.getInstance();
+
     /**
      * Private constructor to enforce the Singleton pattern.
      */
@@ -65,24 +66,25 @@ public class EmployeeService {
      *
      * @param id the unique ID of the employee to remove
      * @throws IllegalArgumentException if the employee is not found or is already inactive
-
-    public void remove(int id) {
-        Employee emp = employeeManager.getById(id);
-
-        if (emp.isActive()) {
-            // Update termination date (business logic)
-            emp.terminateEmployee(LocalDate.now());
-
-            // Remove system access
-            try {
-                accessService.removeUser(id);
-            } catch (IllegalArgumentException e) {
-                // Ignore if the employee didn't have a configured password
-            }
-        } else {
-            throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " already inactive.");
-        }
-    } */
+     *                                  <p>
+     *                                  public void remove(int id) {
+     *                                  Employee emp = employeeManager.getById(id);
+     *                                  <p>
+     *                                  if (emp.isActive()) {
+     *                                  // Update termination date (business logic)
+     *                                  emp.terminateEmployee(LocalDate.now());
+     *                                  <p>
+     *                                  // Remove system access
+     *                                  try {
+     *                                  accessService.removeUser(id);
+     *                                  } catch (IllegalArgumentException e) {
+     *                                  // Ignore if the employee didn't have a configured password
+     *                                  }
+     *                                  } else {
+     *                                  throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " already inactive.");
+     *                                  }
+     *                                  }
+     */
 
     public void remove(int id) {
         employeeManager.remove(id); // terminate (throws if invalid)
@@ -97,15 +99,119 @@ public class EmployeeService {
      * @param id the unique ID of the employee
      * @return the Employee object, or null if not found
      */
-    public Employee getEmployee(int id) {
-        Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new NullPointerException("Employee doesn't exist");
-        }
-        return emp;
-    }
+//    public Employee getEmployee(int id) {
+//        Employee emp = employeeManager.getById(id);
+//        if (emp == null) {
+//            throw new NullPointerException("Employee doesn't exist");
+//        }
+//        return emp;
+//    }
+
     public boolean isEmployee(int id) {
         return employeeManager.isEmployee(id);
     }
 
+    public void updateName(int id, String newName) {
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty.");
+        }
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        emp.setName(newName);
+    }
+
+    public void updateBankAccount(int id, int newBankAccount) {
+        if (newBankAccount < 0) {
+            throw new IllegalArgumentException("Invalid bank account.");
+        }
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        emp.setBankAccount(newBankAccount);
+    }
+
+    public void updateSalary(int id, double newSalary) {
+        if (newSalary <= 0) {
+            throw new IllegalArgumentException("Salary must be positive.");
+        }
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        emp.setSalary(newSalary);
+    }
+
+    public void updateJobStatus(int id) {
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        emp.getTerms().changeJobStatus();
+    }
+
+    public void updateSalaryType(int id) {
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        emp.getTerms().changeSalaryType();
+    }
+
+    public void updateRestDays(int id, int days) {
+        if (days < 1 || days > 7) {
+            throw new IllegalArgumentException("The number of days off must be positive..");
+        }
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        emp.getTerms().setRestDays(days);
+    }
+
+    // === Read methods ===
+
+    /**
+     * Checks if an employee exists and returns their name.
+     * @throws IllegalArgumentException if not found
+     */
+    public String getEmployeeName(int id) {
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        return emp.getName();
+    }
+
+    /**
+     * Returns a human-readable summary of the employee's details.
+     */
+    public String getEmployeeDetails(int id) {
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        return emp.toString();
+    }
+
+    /**
+     * Returns a human-readable summary of the employee's terms.
+     */
+    public String getEmployeeTermsDisplay(int id) {
+        Employee emp = employeeManager.getById(id);
+        if (emp == null) {
+            throw new IllegalArgumentException("Employee " + id + " not found.");
+        }
+        return emp.getTerms().toString();
+    }
+
+    /**
+     * Checks whether an employee with the given ID exists.
+     * Use this instead of getEmployee() when you only need a yes/no answer.
+     */
+    public boolean exists(int id) {
+        return employeeManager.isEmployee(id);
+    }
 }
