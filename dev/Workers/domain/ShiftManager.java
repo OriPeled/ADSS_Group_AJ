@@ -2,12 +2,18 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.Objects.WeekSchedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static dev.Workers.domain.Enums.WeekStatus.*;
 
 /**
  * ShiftService is the core business logic of the system.
@@ -19,6 +25,7 @@ import java.util.*;
  * - Reporting shift history and status
  */
 public class ShiftManager {
+    private final Map<LocalDate, WeekSchedule> weekSchedules = new HashMap<>();
 
     private final Set<Shift> shifts;
     private final Requirements requirements;
@@ -254,9 +261,16 @@ public class ShiftManager {
      */
     private List<Shift> getNextWeekShifts() {
         List<Shift> result = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-        for (int i = 1; i <= 7; i++) {
-            LocalDate date = today.plusDays(i);
+
+        // 1. Find the next Sunday relative to today
+        // Note: 'next(SUNDAY)' will always move to the future,
+        // even if today is already Sunday.
+        LocalDate startDay = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+
+        // 2. Iterate for 7 days starting from that Sunday
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = startDay.plusDays(i);
+
             for (ShiftType type : ShiftType.values()) {
                 Shift shift = getShift(date, type);
                 if (shift != null) {
@@ -285,6 +299,60 @@ public class ShiftManager {
             else weekStatuses.put(shift, "incomplete");
         }
         return weekStatuses;
+    }
+
+    private boolean isWeekAssigned(LocalDate dateInWeek) {
+        List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
+        for (Shift shift : weekShifts) {
+            for (Role role : Role.values()) {
+                if (isNeeded(shift, role)) return false;
+            }
+        }
+        return true;
+    }
+
+    private WeekSchedule getOrCreateWeek(LocalDate date) {
+        LocalDate sunday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        return weekSchedules.computeIfAbsent(sunday, WeekSchedule::new);
+    }
+
+    public WeekStatus getWeekStatus(LocalDate dateInWeek) {
+        WeekSchedule week = getOrCreateWeek(dateInWeek);
+        boolean assigned = isWeekAssigned(dateInWeek);
+        return week.calculateStatus(assigned);
+    }
+
+    public WeekSchedule getNextWeek() {
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        return getOrCreateWeek(nextSunday);
+    }
+
+    public void publishWeekSchedule(LocalDate dateInWeek) {
+        WeekStatus status = getWeekStatus(dateInWeek);
+
+        WeekSchedule week = getOrCreateWeek(dateInWeek);
+        week.setPublished(true);
+
+        constraintManager.setNextThursdayDeadline();
+        constraintManager.resetAllConstraints();
+    }
+
+    public boolean isNextWeekPublished() {
+        return getNextWeek().isPublished();
+    }
+
+    private List<Shift> getShiftsForWeek(LocalDate dateInWeek) {
+        LocalDate startDay = dateInWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        List<Shift> result = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = startDay.plusDays(i);
+            for (ShiftType type : ShiftType.values()) {
+                Shift shift = getShift(date, type);
+                if (shift != null) result.add(shift);
+            }
+        }
+        return result;
     }
 
     public String displayWeekAssignments() {
@@ -363,48 +431,39 @@ public class ShiftManager {
         return result;
     }
 
-    public String getEmployeeShiftsDisplay(int id) {
-        String result = "Shifts for Employee ID: " + id + "\n";
-        boolean found = false;
+    public String getEmployeeWeekDisplay(int id, LocalDate referenceDate) {
+        // 1. Get the domain object for this week
+        WeekSchedule week = getOrCreateWeek(referenceDate);
+        LocalDate startOfWeek = week.getStartOfWeek();
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
 
-        // Iterate through all shifts in the assignments map
-        for (Map.Entry<Shift, Map<Role, Set<Integer>>> shiftEntry : assignments.getAssignments().entrySet()) {
-            Shift shift = shiftEntry.getKey();
-            Map<Role, Set<Integer>> rolesInShift = shiftEntry.getValue();
-
-            // Check each role in the current shift for the employee ID
-            for (Map.Entry<Role, Set<Integer>> roleEntry : rolesInShift.entrySet()) {
-                Role role = roleEntry.getKey();
-                Set<Integer> assignedIds = roleEntry.getValue();
-
-                if (assignedIds.contains(id)) {
-                    result += "- " + shift.toString() + " | Role: " + role.toString() + "\n";
-                    found = true;
-                    // Assuming an employee has only one role per shift, move to next shift
-                    break;
-                }
-            }
+        // 2. Business Rule: Gatekeep based on the Published status
+        // (Optional: You might want to allow viewing the CURRENT week even if not published,
+        // but restricted for NEXT week).
+        if (!week.isPublished() && startOfWeek.isAfter(LocalDate.now())) {
+            return String.format("The schedule for the week of %s is not yet published.", startOfWeek);
         }
 
-        if (!found) {
-            return "No shifts found for employee ID: " + id;
+        // 3. Filter, Sort, and Format (Logic remains similar but uses 'week' metadata)
+        String shiftList = assignments.getAssignments().entrySet().stream()
+                .filter(entry -> {
+                    LocalDate shiftDate = entry.getKey().getShiftDate();
+                    return !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek);
+                })
+                .flatMap(shiftEntry -> shiftEntry.getValue().entrySet().stream()
+                        .filter(roleEntry -> roleEntry.getValue().contains(id))
+                        .map(roleEntry -> Map.entry(shiftEntry.getKey(), roleEntry.getKey()))
+                )
+                .sorted(Comparator.comparing((Map.Entry<Shift, Role> e) -> e.getKey().getShiftDate())
+                        .thenComparing(e -> e.getKey().getType()))
+                .map(e -> "- " + e.getKey().getShiftDate() + " (" + e.getKey().getType() + ") | Role: " + e.getValue())
+                .collect(Collectors.joining("\n"));
+
+        if (shiftList.isEmpty()) {
+            return String.format("No shifts for ID %d between %s and %s", id, startOfWeek, endOfWeek);
         }
 
-        return result;
-    }
-
-    // Helper to get short day names (Sun, Mon, etc.)
-    private String formatDayShort(DayOfWeek d) {
-        String name = d.toString().toLowerCase();
-        return name.substring(0, 1).toUpperCase() + name.substring(1, 3);
-    }
-
-    // Helper for sorting logic
-    private DayOfWeek getDayFromFormattedString(String s) {
-        String shortName = s.split(":")[0]; // Get "Sun" from "Sun: Morning..."
-        for (DayOfWeek d : DayOfWeek.values()) {
-            if (d.name().startsWith(shortName.toUpperCase())) return d;
-        }
-        return DayOfWeek.SUNDAY;
+        return String.format("Shifts for Employee ID: %d (Week of %s to %s)\n%s",
+                id, startOfWeek, endOfWeek, shiftList);
     }
 }

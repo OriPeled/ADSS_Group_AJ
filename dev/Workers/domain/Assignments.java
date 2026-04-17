@@ -2,7 +2,9 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.Objects.WeekSchedule;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -93,12 +95,21 @@ public class Assignments {
         }
     }
 
-    public List<String> getShiftWeek(int id) {
+    public List<String> getEmployeeShiftsWeek(int id, WeekSchedule week) {
         List<String> employeeShifts = new ArrayList<>();
-        for (Shift shift : assignments.keySet()) {
-            for (Role role : assignments.get(shift).keySet()) {
-                if (isAssigned(shift, role, id)) {
-                    employeeShifts.add(shift.toStringByWeekDay());
+        LocalDate start = week.getStartOfWeek();
+        LocalDate end = start.plusDays(6);
+
+        // Filter assignments only within this week's range
+        for (Map.Entry<Shift, Map<Role, Set<Integer>>> entry : assignments.entrySet()) {
+            Shift shift = entry.getKey();
+            LocalDate shiftDate = shift.getShiftDate();
+
+            if (!shiftDate.isBefore(start) && !shiftDate.isAfter(end)) {
+                for (Role role : entry.getValue().keySet()) {
+                    if (isAssigned(shift, role, id)) {
+                        employeeShifts.add(shift.toStringByWeekDay() + " (" + role + ")");
+                    }
                 }
             }
         }

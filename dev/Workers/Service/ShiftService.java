@@ -2,6 +2,7 @@ package dev.Workers.Service;
 
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
 
@@ -93,6 +94,16 @@ public class ShiftService {
     }
 
     public String getEmployeeShifts(int id) {
-        return shiftManager.getEmployeeShiftsDisplay(id);
+        //return shiftManager.getEmployeeWeekDisplay(id);
+        return "";
+        // TODO
+    }
+
+    public void publishWeekSchedule() {
+    }
+
+    public WeekStatus getWeekStatus() {
+        return null;
+        // TODO
     }
 }

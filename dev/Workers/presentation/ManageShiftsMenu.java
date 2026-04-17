@@ -3,6 +3,7 @@ package dev.Workers.presentation;
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.Service.ShiftService;
 
@@ -46,6 +47,47 @@ public class ManageShiftsMenu {
         }
     }
 
+    private static void checkShiftsWeek() {
+        WeekStatus status = shiftService.getWeekStatus();
+
+        switch (status) {
+            case INCOMPLETE:
+                manageShiftsWeek();
+                break;
+            case PUBLISHED:
+                break;
+            case READY_TO_PUBLISH:
+                handlePublishMenu();
+                break;
+        }
+    }
+
+    private static void handlePublishMenu() {
+        System.out.println("All shifts assigned. Do you wish to public the week schedule?");
+        System.out.println("Enter 1 to publish or 0 to continue managing the schedule.");
+        while (true) {
+            String input = scanner.nextLine();
+            int choice;
+
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
+                continue;
+            }
+
+            switch (choice) {
+                case 0:
+                    manageShiftsWeek();
+                    break;
+                case 1:
+                    shiftService.publishWeekSchedule();
+                    System.out.println("Shifts schedule published.");
+                    manageShiftsWeek();
+            }
+        }
+    }
+
     private static void manageShiftsWeek() {
         System.out.println(shiftService.displayWeekAssignments());
         System.out.println("Manage Shifts Week");
@@ -53,6 +95,7 @@ public class ManageShiftsMenu {
         //    System.out.println("All week shifts are assigned. Do you wish to mark the week schedule as finished?");
             // shiftService/assignments.markWeekFinished();    // (constraints, deadline reset + publicNextWeek logic)
         //}
+
         System.out.println("1. Enter Day (1-7)");
         int dayNumber = Integer.parseInt(scanner.nextLine());
         LocalDate date = Parser.dayNumberToDate(dayNumber);
