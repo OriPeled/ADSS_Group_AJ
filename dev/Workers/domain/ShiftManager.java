@@ -438,9 +438,9 @@ public class ShiftManager {
                     .sum();
 
             // Optional: Keep your skip logic if you want to hide empty shifts even if published
-            if (assignedCount == 0 && (shift.getType() == ShiftType.rest || shift.getType() == ShiftType.any)) {
+            /*if (assignedCount == 0 && (shift.getType() == ShiftType.rest || shift.getType() == ShiftType.any)) {
                 continue;
-            }
+            }*/
 
             result.append(String.format("\nShift: %s - %s\n", shift.getShiftDate(), shift.getType()));
 
