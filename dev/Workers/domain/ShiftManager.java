@@ -260,6 +260,10 @@ public class ShiftManager {
      * Returns all shifts for the next week (7 days from today).
      */
     private List<Shift> getNextWeekShifts() {
+        if (!getNextWeek().isViewableByUser()) {
+            throw new IllegalStateException("The schedule for the next week is not yet published.");
+        }
+
         List<Shift> result = new ArrayList<>();
 
         // 1. Find the next Sunday relative to today
@@ -440,7 +444,7 @@ public class ShiftManager {
         // 2. Business Rule: Gatekeep based on the Published status
         // (Optional: You might want to allow viewing the CURRENT week even if not published,
         // but restricted for NEXT week).
-        if (!week.isPublished() && startOfWeek.isAfter(LocalDate.now())) {
+        if (!week.isViewableByUser()) {
             return String.format("The schedule for the week of %s is not yet published.", startOfWeek);
         }
 

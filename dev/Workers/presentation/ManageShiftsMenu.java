@@ -34,7 +34,7 @@ public class ManageShiftsMenu {
             int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1:
-                    manageShiftsWeek();
+                    checkShiftsWeek();
                     break;
                 case 2:
                     getShiftsHistory();
