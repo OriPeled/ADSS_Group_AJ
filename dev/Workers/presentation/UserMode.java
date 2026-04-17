@@ -43,14 +43,11 @@ public class UserMode {
                 employeeId = enteredID;
                 start();
                 return;
-            }
-            else if (loginResponse == wrongPassword) {
+            } else if (loginResponse == wrongPassword) {
                 System.out.println("Wrong password.");
-            }
-            else if (loginResponse == notRegistered) {
+            } else if (loginResponse == notRegistered) {
                 handleRegistration(enteredID);
-            }
-            else if (loginResponse == notInSystem) {
+            } else if (loginResponse == notInSystem) {
                 System.out.println("No such employee.");
             }
         }
@@ -111,28 +108,8 @@ public class UserMode {
     }
 
     private static void watchShifts() {
-        while (true) {
-            String shifts = shiftService.getEmployeeShifts(employeeId);
-            System.out.println(shifts);
-
-            System.out.println("Enter 0 to return.");
-            String input = scanner.nextLine();
-            int choice;
-
-            try {
-                choice = Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input");
-                continue;
-            }
-
-            switch (choice) {
-                case 1:
-                    return;
-                case 2:
-                    System.out.println("Invalid input.");
-            }
-        }
+        String shifts = shiftService.getEmployeeShifts(employeeId);
+        System.out.println(shifts);
     }
 
     // can be seen only after admin marks schedule as finished
@@ -141,16 +118,13 @@ public class UserMode {
     }
 
     public static void updateConstraints() {
+        System.out.println(constraintService.display(employeeId));
         while (true) {
-            System.out.println(constraintService.display(employeeId));
-            // sunday - morning(yes), evening(yes)
             System.out.println("Choose a shift constraint to change or enter 0 to exit.");
-
             System.out.println("Choose 1-7 for day");
-            String dayInput = scanner.nextLine();
             int dayNumber;
             try {
-                dayNumber = Integer.parseInt(dayInput);
+                dayNumber = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input");
                 continue;
@@ -161,15 +135,15 @@ public class UserMode {
             DayOfWeek day;
             try {
                 day = ConstraintService.getDayFromNumber(dayNumber);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Day must be between 1 and 7.");
+                continue;
             }
 
             System.out.println("Choose 1 for morning, 2 for evening, 3 for any, 4 for rest");
-            String shiftInput = scanner.nextLine();
             int shiftChoice;
             try {
-                shiftChoice = Integer.parseInt(shiftInput);
+                shiftChoice = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input");
                 continue;
@@ -195,7 +169,9 @@ public class UserMode {
                     System.out.println("Invalid input.");
                     continue;
             }
+
             constraintService.update(employeeId, day, shiftType);
+            System.out.println(constraintService.display(employeeId));
         }
     }
 }
