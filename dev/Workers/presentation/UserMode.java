@@ -114,7 +114,8 @@ public class UserMode {
 
     // can be seen only after admin marks schedule as finished
     private static void watchNextWeeksShifts() {
-
+        String shifts = shiftService.getNextWeekEmployeeShifts(employeeId);
+        System.out.println(shifts);
     }
 
     public static void updateConstraints() {
