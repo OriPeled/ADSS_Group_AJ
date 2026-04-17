@@ -116,14 +116,7 @@ public class UserMode {
 
     // can be seen only after admin marks schedule as finished
     private static void watchNextWeeksShifts() {
-        // 1. Ask the manager if NEXT week is published
-        /*if (!shiftService.isNextWeekPublished()) {
-            System.out.println("The schedule for the next week is not yet published.");
-            return;
-        }*/
-
-        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        //System.out.println(shiftManager.getEmployeeWeekDisplay(employeeId, nextSunday));
+//
     }
 
     public static void updateConstraints() {

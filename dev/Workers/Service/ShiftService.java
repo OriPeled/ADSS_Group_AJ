@@ -6,7 +6,9 @@ import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Map;
 
 /**
@@ -94,9 +96,12 @@ public class ShiftService {
     }
 
     public String getEmployeeShifts(int id) {
-        //return shiftManager.getEmployeeWeekDisplay(id);
-        return "";
-        // TODO
+        return shiftManager.getEmployeeWeekDisplay(id, LocalDate.now());
+    }
+
+    public String getNextWeekEmployeeShifts(int id) {
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
     }
 
     public void publishWeekSchedule() {
