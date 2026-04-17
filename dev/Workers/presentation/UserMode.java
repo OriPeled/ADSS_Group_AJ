@@ -89,7 +89,6 @@ public class UserMode {
 
             String input = scanner.nextLine();
             int choice;
-
             try {
                 choice = Integer.parseInt(input);
             } catch (NumberFormatException e) {
@@ -131,6 +130,7 @@ public class UserMode {
         while (true) {
             System.out.println("Choose a shift constraint to change or enter 0 to exit.");
             System.out.println("Choose 1-7 for day");
+
             int dayNumber;
             try {
                 dayNumber = Integer.parseInt(scanner.nextLine());

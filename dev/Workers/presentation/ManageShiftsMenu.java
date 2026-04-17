@@ -154,19 +154,22 @@ public class ManageShiftsMenu {
     }
 
     private static void updateShift() {
-        System.out.println(shiftService.getShiftDetails(shift)); // (how many roles/employees left to assign)
-
-        // sunday morning
-        // cashier: ido, adi, ali (3 assigned, 4 left to assign)
-        // storekeeper: muhamad, mesi (2 assigned, 2 left to assign)
-
-        //shiftService.assignEmployeeToShift();
         while (true) {
+            System.out.println(shiftService.getShiftDetails(shift));
             System.out.println("1. Update Assignments");
             System.out.println("2. Update Requirements");
             System.out.println("3. Update Constraints Deadline");
             System.out.println("4. Back");
-            int choice = Integer.parseInt(scanner.nextLine());
+
+            String input = scanner.nextLine();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
+                continue;
+            }
+
             switch (choice) {
                 case 1:
                     updateAssignments();
@@ -191,7 +194,16 @@ public class ManageShiftsMenu {
             System.out.println("1. Add assignment");
             System.out.println("2. Make a replacement");
             System.out.println("3. Back");
-            int choice = Integer.parseInt(scanner.nextLine());
+
+            String input = scanner.nextLine();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
+                continue;
+            }
+
             switch (choice) {
                 case 1:
                     addAssignment();
@@ -209,7 +221,6 @@ public class ManageShiftsMenu {
 
     private static void addAssignment() {
         System.out.println(shiftService.getAvailableEmployeesForShift(shift));
-
         System.out.println("Enter Employee ID");
         int id = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");

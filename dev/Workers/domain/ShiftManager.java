@@ -108,17 +108,6 @@ public class ShiftManager {
      *
      * @param shift
      * @param role
-     * @param count
-     * update equirement to roll in shift
-     */
-    public void setRequirement(Shift shift, Role role, int count) {
-        requirements.set(shift, role, count);
-    }
-
-    /**
-     *
-     * @param shift
-     * @param role
      * @return how much left to assiging
      */
     public int leftToAssign(Shift shift, Role role) {
@@ -231,15 +220,23 @@ public class ShiftManager {
         return count;
     }
 
-    public void setRequirements(Shift shift, Role role, int count) {
+    public void setRequirement(Shift shift, Role role, int count) {
         requirements.set(shift, role, count);
-        while (assignments.countAssigned(shift, role) > requirements.countRequired(shift, role)) {
-            for (Integer id : assignments.getEmployees(shift, role)) {
-                System.out.println("Overstaff.");
+
+        Set<Integer> employees = assignments.getEmployees(shift, role);
+        int assigned = employees.size();
+        int required = requirements.countRequired(shift, role);
+
+        if (assigned > required) {
+            int toRemove = assigned - required;
+
+            List<Integer> idsToRemove = new ArrayList<>(employees).subList(0, toRemove);
+
+            for (Integer id : idsToRemove) {
                 removeEmployee(shift, role, id);
-                System.out.println("Employee"
-                        + employeeManager.getById(id).getName()
-                        + '(' + id + ") removed.");
+                System.out.println("Overstaffed: Employee " +
+                                    employeeManager.getById(id).getName() +
+                                    " (" + id + ") removed.");
             }
         }
     }
