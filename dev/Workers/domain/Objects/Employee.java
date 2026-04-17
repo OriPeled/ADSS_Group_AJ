@@ -160,6 +160,7 @@ public class Employee {
      */
     public void terminateEmployee(LocalDate terminationDate) {
         this.endDate = terminationDate;
+
     }
     /**
      * Checks if employee is still active

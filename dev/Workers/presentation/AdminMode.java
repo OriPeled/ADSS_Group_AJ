@@ -1,5 +1,7 @@
 package dev.Workers.presentation;
 
+import dev.Workers.domain.Objects.HR_Admin;
+
 import static dev.Workers.presentation.Main.scanner;
 
 /**
@@ -11,9 +13,8 @@ import static dev.Workers.presentation.Main.scanner;
  * - Navigation to employee/shift management menus
  */
 public class AdminMode {
-    private static String password;
-    private static boolean isRegistered = false;
 
+    private static final String HR_PASSWORD = "8888";
     /**
      * Handles admin login process.
      * If first time login, creates password.
@@ -21,20 +22,13 @@ public class AdminMode {
      */
     public static void login() {
         System.out.println("HR Manager Mode");
-        if (!isRegistered) {
-            System.out.println("Please Create Password:");
-            password = scanner.nextLine();
-            System.out.println("Password Created.");
-            isRegistered = true;
-        }
-
         System.out.println("Please Enter Password (or 0 to cancel):");
         while (true) {
             String enteredPass = scanner.nextLine();
             if (enteredPass.equals("0")) {
-                return;                         // back to Main's loop
+                return;      // back to Main's loop
             }
-            if (enteredPass.equals(password)) {
+            if (enteredPass.equals(HR_PASSWORD)) {
                 start();                        // go to admin menu
                 return;                         // after start() finishes, leave login
             }

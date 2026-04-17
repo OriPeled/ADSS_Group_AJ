@@ -260,9 +260,9 @@ public class ShiftManager {
      * Returns all shifts for the next week (7 days from today).
      */
     private List<Shift> getNextWeekShifts() {
-        if (!getNextWeek().isViewableByUser()) {
+       /* if (!getNextWeek().isViewableByUser()) {
             throw new IllegalStateException("The schedule for the next week is not yet published.");
-        }
+        }*/
 
         List<Shift> result = new ArrayList<>();
 
@@ -364,6 +364,11 @@ public class ShiftManager {
         Map<Shift, String> assignments = weekAssignment();
 
         for (Map.Entry<Shift, String> entry : assignments.entrySet()) {
+            Shift shift = entry.getKey();
+            if (shift.getType() != ShiftType.morning &&
+                    shift.getType() != ShiftType.evening) {
+                continue;
+            }
             sb.append(entry.getKey().toStringByWeekDay())
                     .append(": ")
                     .append(entry.getValue())

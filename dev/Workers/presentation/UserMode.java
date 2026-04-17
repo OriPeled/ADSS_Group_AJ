@@ -45,12 +45,18 @@ public class UserMode {
                 employeeId = enteredID;
                 start();
                 return;
-            } else if (loginResponse == wrongPassword) {
-                System.out.println("Wrong password.");
-            } else if (loginResponse == notRegistered) {
-                handleRegistration(enteredID);
             } else if (loginResponse == notInSystem) {
                 System.out.println("No such employee.");
+
+            }
+            else if (loginResponse == fired) {
+                System.out.println("You have been fired. Access denied.");
+                return;
+            }
+            else if (loginResponse == notRegistered) {
+                handleRegistration(enteredID);
+            } else if (loginResponse ==  wrongPassword) {
+                System.out.println("Wrong password.");
             }
         }
     }
@@ -116,7 +122,8 @@ public class UserMode {
 
     // can be seen only after admin marks schedule as finished
     private static void watchNextWeeksShifts() {
-//
+        String shifts = shiftService.getNextWeekEmployeeShifts(employeeId);
+        System.out.println(shifts);
     }
 
     public static void updateConstraints() {

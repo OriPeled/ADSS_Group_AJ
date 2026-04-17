@@ -42,7 +42,11 @@ public class Shift {
         return shiftDate.equals(shift1.shiftDate)
                 && type == shift1.type;
     }
-
+    public int compareTo(Shift other) {
+        int cmp = this.shiftDate.compareTo(other.shiftDate);
+        if (cmp != 0) return cmp;
+        return this.type.compareTo(other.type);
+    }
     @Override
     public int hashCode() {
         return Objects.hash(getShiftDate(), getType());

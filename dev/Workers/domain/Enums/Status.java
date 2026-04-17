@@ -6,5 +6,7 @@ public enum Status {
     wrongPassword,
     notRegistered,
     notInSystem,
-    invalidPassword
+    invalidPassword,
+    fired,
+    HrMode
 }

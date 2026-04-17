@@ -110,7 +110,7 @@ public class ManageShiftsMenu {
                 return;
             }
         }
-        shift = shiftService.getShift(date, shiftT);
+         shift = shiftService.getShift(date, shiftT);
         manageShift();
     }
 

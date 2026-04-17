@@ -63,12 +63,16 @@ public class AccessManager {
     }
 
     public Status login(int id, String password) {
+
         if (!employeeManager.isEmployee(id))
             return notInSystem;
-        else if (!isRegisteredUser(id))
+        else if (!employeeManager.getById(id).isActive()) {
+            return fired;
+        } else if (!isRegisteredUser(id))
             return notRegistered;
         if (wrongPassword(id, password))
             return wrongPassword;
+
         return success;
     }
 
@@ -120,4 +124,6 @@ public class AccessManager {
             throw new NullPointerException("No such employee.");
         return accessMap.get(id);
     }
+
+
 }

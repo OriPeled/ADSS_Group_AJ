@@ -108,7 +108,10 @@ public class ShiftService {
     }
 
     public WeekStatus getWeekStatus() {
-        return null;
-        // TODO
+
+        return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());
     }
+
+
+
 }
