@@ -222,6 +222,7 @@ public class ManageShiftsMenu {
 
     public static void updateAssignments() {
         while (true) {
+            System.out.println(shiftService.getShiftDetails(shift));
             System.out.println("1. Add assignment");
             System.out.println("2. Make a replacement");
             System.out.println("3. Back");
@@ -277,9 +278,21 @@ public class ManageShiftsMenu {
 
     private static void replace() {
         System.out.println("Enter the ID of the already assigned employee");
-        int currentEmployeeId = Integer.parseInt(scanner.nextLine());
+        int currentEmployeeId = 0;
+        try {
+            currentEmployeeId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+        }
+
         System.out.println("Enter the ID of the employee to replace him");
-        int newEmployeeId = Integer.parseInt(scanner.nextLine());
+        int newEmployeeId = 0;
+        try {
+            newEmployeeId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+        }
+
         shiftService.replaceEmployee(shift, currentEmployeeId, newEmployeeId);
         System.out.println("Replacement successful.");
     }

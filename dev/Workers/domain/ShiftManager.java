@@ -136,12 +136,60 @@ public class ShiftManager {
         assignments.add(shift, role, employeeId);
         return ShiftResponse.assigned;
     }
+
     public void forceAssign(Shift shift, Role role, int employeeId) {
         assignments.add(shift, role, employeeId);
     }
-    /*
 
-     */
+    public void removeEmployee(Shift shift, Role role, int employeeId) {
+        System.out.println("why");
+        assignments.remove(shift, role, employeeId);
+    }
+
+    public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
+        validateEmployeeBasic(currentEmployeeId);
+        validateEmployeeBasic(newEmployeeId);
+        if (!assignments.isAssignedToShift(shift, currentEmployeeId))
+            throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
+
+        Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
+        Role roleNew = assignments.getEmployeeRole(shift, newEmployeeId);
+
+        if (!isQualified(newEmployeeId, roleCur))
+            throw new IllegalArgumentException("Employee " + newEmployeeId + " not qualified for this role.");
+
+        if (roleNew != null) {   // if newEmployee is already in this shift
+            if (roleCur == roleNew) {
+                throw new IllegalArgumentException("Employee " + newEmployeeId + " already assigned to this role.");
+            }
+            if (!isQualified(currentEmployeeId, roleNew)) {
+                throw new IllegalArgumentException("Employee " + currentEmployeeId + " not qualified for this role.");
+            }
+            else if (isQualified(newEmployeeId, roleCur)) {
+                removeEmployee(shift, roleCur, currentEmployeeId);
+                removeEmployee(shift, roleNew, newEmployeeId);
+                assignEmployee(shift, roleNew, currentEmployeeId);
+                assignEmployee(shift, roleCur, newEmployeeId);
+            }
+        }
+
+        else {                   // if newEmployee is not in this shift
+            if (isQualified(newEmployeeId, roleCur)) {
+                removeEmployee(shift, roleCur, currentEmployeeId);
+                assignEmployee(shift, roleCur, newEmployeeId);
+            }
+            else {
+                if (!isAvailable(newEmployeeId, shift))
+                    throw new IllegalArgumentException("Employee " + newEmployeeId + " not available for this role.");
+            }
+        }
+    }
+
+    private void validateEmployeeBasic(int id) {
+        if (!employeeManager.isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
+        if (!employeeManager.getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
+    }
+
     private boolean isValid(Shift shift, Role role, int employeeId) {
         return isAvailable(employeeId, shift)
                 && isQualified(employeeId, role)
@@ -149,7 +197,6 @@ public class ShiftManager {
     }
 
     private boolean isSpecialValid(Shift shift, Role role, int employeeId) {
-
         return isQualified(employeeId, role)
                 && isNeeded(shift, role);
     }
@@ -239,51 +286,6 @@ public class ShiftManager {
                 System.out.println("Overstaffed: Employee " +
                                     employeeManager.getById(id).getName() +
                                     " (" + id + ") removed.");
-            }
-        }
-    }
-
-    public void removeEmployee(Shift shift, Role role, int employeeId) {
-        assignments.remove(shift, role, employeeId);
-    }
-
-    public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
-        if (!employeeManager.isEmployee(newEmployeeId))
-            throw new IllegalArgumentException("Unknown ID.");
-        if (!employeeManager.getById(newEmployeeId).isActive())
-            throw new IllegalArgumentException("Employee does not currently work here.");
-        if (!assignments.isAssignedToShift(shift, currentEmployeeId))
-            throw new IllegalArgumentException("Employee not assigned to this shift.");
-
-        Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
-        Role roleNew = assignments.getEmployeeRole(shift, newEmployeeId);
-        System.out.println(roleCur);
-        System.out.println(roleNew);
-        if (roleNew != null) {
-            if (roleCur == roleNew) {
-                throw new IllegalArgumentException("Employee already assigned to this role.");
-            }
-            else if (isQualified(newEmployeeId, roleCur)) {
-                removeEmployee(shift, roleNew, newEmployeeId);
-                assignEmployee(shift, roleCur, newEmployeeId);
-                removeEmployee(shift, roleCur, currentEmployeeId);
-                assignEmployee(shift, roleNew, currentEmployeeId);
-            }
-            else if (!isQualified(newEmployeeId, roleCur)) {
-                throw new IllegalArgumentException("Employee not qualified for this role.");
-            }
-            else if (!isAvailable(newEmployeeId, shift)) {
-                throw new IllegalArgumentException("Employee not available for this role.");
-            }
-        }
-
-        else {
-            if (isValid(shift, roleCur, newEmployeeId)) {
-                removeEmployee(shift, roleCur, currentEmployeeId);
-                assignEmployee(shift, roleCur, newEmployeeId);
-            }
-            else {
-                throw new IllegalArgumentException("Employee already assigned to this role.");
             }
         }
     }
