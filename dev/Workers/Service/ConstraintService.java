@@ -66,10 +66,10 @@ public class ConstraintService {
      * @param shiftType desired shift type
      */
     public void update(int id, DayOfWeek day, ShiftType shiftType) {
-        LocalDate deadline = LocalDate.from(constraintManager.getDeadline());
-        if (deadline != null && LocalDate.now().isAfter(deadline)) {
+        DayOfWeek deadline = DayOfWeek.from(constraintManager.getDeadline());
+       /* if (deadline != null && isOnTime()) {
             throw new RuntimeException("Submission failed: The deadline for submitting constraints (" + deadline + ") has passed.");
-        }
+        }*/
         constraintManager.update(id, day, shiftType);
     }
 

@@ -61,16 +61,7 @@ public class ShiftService {
 
     public void assignEmployee(Shift shift, Role role, int employeeId) {
 
-        ShiftResponse response = shiftManager.assignEmployee(shift, role, employeeId);
-
-        if (response == ShiftResponse.notValid) {
-            throw new RuntimeException("NOT_VALID: Employee " + employeeId +
-                    " cannot be assigned to shift " + shift +
-                    " for role " + role);
-        } else if (response == ShiftResponse.special) {
-            throw new RuntimeException("Employee constraints don't match. Special approval needed. Are you sure you want to preceed?");
-
-        }
+        shiftManager.assignEmployee(shift, role, employeeId);
     }
 
 

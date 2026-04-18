@@ -142,13 +142,19 @@ public class Employee {
      */
     @Override
     public String toString() {
-        return "Employee Details" +
+        String result = "Employee Details" +
                 "\nID: " + id +
                 "\n1. Name: " + name +
                 "\n2. Bank account: " + bankAccount +
                 "\n3. Salary: " + salary +
                 "\n4. Terms: " + terms +
                 "\nStart date: " + startDate;
+
+        if (endDate != null) {
+            result += "\nEnd date: " + endDate;
+        }
+
+        return result;
     }
     /**
      * @return employment end date ,null if still active

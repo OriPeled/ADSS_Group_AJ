@@ -79,9 +79,9 @@ public class ConstraintManager {
      * @param shiftType desired shift type
      */
     public UserResponse update(int id, DayOfWeek day, ShiftType shiftType) {
-        if (this.deadline != null && !isOnTime(LocalDate.now())) {
+       /* if (this.deadline != null && !isOnTime(LocalDate.now())) {
             return UserResponse.failure; // Deadline has passed
-        }
+        }*/
         Constraint employeeConstraints = getConstraints(id);
         employeeConstraints.getWeekConstraints().put(day, shiftType);
         return UserResponse.success;

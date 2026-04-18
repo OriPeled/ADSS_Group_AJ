@@ -74,11 +74,14 @@ public class DataInitializer {
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Ronaldo", 7, Role.shiftManager);
 
+            createEmployee(employeeService, accessService, roleService, constraintService,
+                    "Avicay", 101, Role.Cashier);
             // =========================
             // CONSTRAINTS (Optional)
             // =========================
             // Example constraints (system will handle them safely)
-           // constraintService.update(222, DayOfWeek.MONDAY, ShiftType.rest);
+            constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(101, DayOfWeek.SATURDAY, ShiftType.rest);
            // constraintService.update(111, DayOfWeek.SUNDAY, ShiftType.morning);
 
             // =========================
@@ -119,12 +122,13 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.shiftManager, 111);
                 shiftService.assignEmployee(eveningShift, Role.shiftManager, 112);
                 shiftService.assignEmployee(eveningShift, Role.shiftManager, 113);
-                shiftService.assignEmployee(eveningShift, Role.Cashier, 222);
+                //shiftService.assignEmployee(eveningShift, Role.Cashier, 222);
                 shiftService.assignEmployee(eveningShift, Role.Cashier, 223);
                 shiftService.assignEmployee(eveningShift, Role.Cashier, 224);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 333);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 444);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
+
 
             }
 

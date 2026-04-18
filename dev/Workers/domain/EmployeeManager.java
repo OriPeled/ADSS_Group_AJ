@@ -100,7 +100,7 @@ public class EmployeeManager implements IManager<Employee> {
         return employees.get(id);
     }
 
-    void validateEmployeeBasic(int id) {
+    public void validateEmployeeBasic(int id) {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
         if (!getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
     }

@@ -123,21 +123,17 @@ public class ShiftManager {
      *  Prints error message if assignment fails.
      *
      */
-    public ShiftResponse assignEmployee(Shift shift, Role role, int employeeId) {
-        if (nobodyToAssign(shift, role) && isSpecialValid(shift, role, employeeId)) {
-            System.out.println("Special approve granted.");
-            return ShiftResponse.special;
-        }
-
+    public void assignEmployee(Shift shift, Role role, int employeeId) {
         if (!isValid(shift, role, employeeId)) {
-
-            return ShiftResponse.notValid;
+            throw new IllegalArgumentException("Assignment failed due to constraint violation.");
         }
         assignments.add(shift, role, employeeId);
-        return ShiftResponse.assigned;
     }
-
     public void forceAssign(Shift shift, Role role, int employeeId) {
+        if (!isSpecialValid(shift, role, employeeId)) {
+
+            throw new RuntimeException("No available employees to assign for this role.");
+        }
         assignments.add(shift, role, employeeId);
     }
 

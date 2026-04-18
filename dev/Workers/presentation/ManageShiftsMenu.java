@@ -253,29 +253,44 @@ public class ManageShiftsMenu {
     }
 
     private static void addAssignment() {
+        int id = -1;
+        Role role = null;
+
         try {
             System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+
             System.out.println("Enter Employee ID:");
-            int id = Integer.parseInt(scanner.nextLine());
+            id = Integer.parseInt(scanner.nextLine());
+
             System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager):");
             int roleNumber = Integer.parseInt(scanner.nextLine());
-            Role role = Role.values()[roleNumber - 1];
-            boolean missing = shiftService.isRoleNeeded(shift, role);
-            if (!missing) {
-                System.out.println("Staffing shortage detected for " + role + ". Performing special assignment...");
-                shiftService.forceAssignEmployee(shift, role, id);
-                System.out.println("Employee assigned via special protocol (Requirement Override).");
-            } else {
-                shiftService.assignEmployee(shift, role, id);
-                System.out.println("Employee assigned successfully.");
+
+            if (roleNumber < 1 || roleNumber > Role.values().length) {
+                System.out.println("Invalid role choice.");
+                return;
             }
+
+            role = Role.values()[roleNumber - 1];
+
+            boolean roleNeeded = shiftService.isRoleNeeded(shift, role);
+            if (!roleNeeded) {
+                System.out.println("Staffing shortage detected for " + role + ".");
+                forceAssign(shift, role, id);
+                return;
+            }
+
+            shiftService.assignEmployee(shift, role, id);
+            System.out.println("Employee assigned successfully.");
 
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
 
         } catch (RuntimeException e) {
+            System.out.println("Regular assignment failed: " + e.getMessage());
 
-            System.out.println("Error: " + e.getMessage());
+            if (role != null && id != -1) {
+                forceAssign(shift, role, id);
+            }
         }
     }
 
@@ -330,6 +345,32 @@ public class ManageShiftsMenu {
         System.out.println(shiftService.getShiftHistory());
     }
 
+    private static void forceAssign(Shift shift, Role role, int id) {
+
+        while (true) {
+            System.out.println("Are you sure you want to force assign this employee?");
+            System.out.println("Press 1 to confirm, 0 to cancel:");
+
+            String input = scanner.nextLine();
+
+            if (input.equals("0")) {
+                System.out.println("Operation cancelled.");
+                return;
+            }
+
+            if (input.equals("1")) {
+                try {
+                    shiftService.forceAssignEmployee(shift, role, id);
+                    System.out.println("Employee assigned via special approval.");
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+                return;
+            }
+
+            System.out.println("Invalid input. Please enter 1 or 0.");
+        }
+    }
     /*public static void assignEmployee() {
         System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");
         int choice = Integer.parseInt(scanner.nextLine());

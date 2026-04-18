@@ -18,7 +18,7 @@ import static dev.Workers.domain.Enums.Role.shiftManager;
  */
 public class RoleManager  {    // maps employee ID to list of roles
     private Map<Integer, List<Role>> employeeRoles;
-
+    private EmployeeManager employeeManager=EmployeeManager.getInstance() ;
 
     private static RoleManager instance;
 
@@ -56,6 +56,7 @@ public class RoleManager  {    // maps employee ID to list of roles
      * @param role role to add
      */
     public void addRoleToEmployee(int id, Role role) {
+        employeeManager.validateEmployeeBasic(id);
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }

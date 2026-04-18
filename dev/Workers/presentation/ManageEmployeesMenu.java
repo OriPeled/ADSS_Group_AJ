@@ -71,24 +71,24 @@ public class ManageEmployeesMenu {
     public static void manageEmployee(int empId) {
         while (true) {
             System.out.println(employeeService.getEmployeeName(empId) + " (" + empId + ")");
-            System.out.println("2. Employee Details");
-            System.out.println("3. Promote/Demote");
-            System.out.println("4. Remove");
-            System.out.println("5. Add Role");
-            System.out.println("6. Back");
+            System.out.println("1. Employee Details");
+            System.out.println("2. Promote/Demote");
+            System.out.println("3. Remove");
+            System.out.println("4. Add Role");
+            System.out.println("5. Back");
 
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
 
                 switch (choice) {
-                    case 2 -> details(empId);
-                    case 3 -> roleService.promoteDemote(empId);
-                    case 4 -> {
+                    case 1 -> details(empId);
+                    case 2 -> promoteDemote(empId);
+                    case 3 -> {
                         remove(empId);
                         return;
                     }
-                    case 5 -> addRole(empId);
-                    case 6 -> { return; }
+                    case 4 -> addRole(empId);
+                    case 5 -> { return; }
                     default -> System.out.println("Invalid choice.");
                 }
 
@@ -239,7 +239,6 @@ public class ManageEmployeesMenu {
     private static void addRole(int empId) {
 
         Role[] roles = Role.values();
-
         while (true) {
 
             System.out.println("======================================");
