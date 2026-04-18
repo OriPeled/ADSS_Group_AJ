@@ -29,7 +29,8 @@ public class ManageShiftsMenu {
         while (true) {
             System.out.println("1. Manage Shifts Week");
             System.out.println("2. Get Shifts History");
-            System.out.println("3. Back");
+            System.out.println("3. Update Constraints Deadline");
+            System.out.println("4. Back");
 
             int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
@@ -40,6 +41,9 @@ public class ManageShiftsMenu {
                     getShiftsHistory();
                     break;
                 case 3:
+                    updateDeadline();
+                    break;
+                case 4:
                     return;
                 default:
                     System.out.println("Invalid choice.");
@@ -189,8 +193,7 @@ public class ManageShiftsMenu {
             System.out.println(shiftService.getShiftDetails(shift));
             System.out.println("1. Update Assignments");
             System.out.println("2. Update Requirements");
-            System.out.println("3. Update Constraints Deadline");
-            System.out.println("4. Back");
+            System.out.println("3. Back");
 
             String input = scanner.nextLine();
             int choice;
@@ -209,9 +212,6 @@ public class ManageShiftsMenu {
                     updateRequirements();
                     break;
                 case 3:
-                    updateDeadline();
-                    break;
-                case 4:
                     return;
                 default:
                     System.out.println("Invalid input.");
@@ -251,15 +251,28 @@ public class ManageShiftsMenu {
     }
 
     private static void addAssignment() {
-        System.out.println(shiftService.getAvailableEmployeesForShift(shift));
-        System.out.println("Enter Employee ID");
-        int id = Integer.parseInt(scanner.nextLine());
-        System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");
-        int roleNumber = Integer.parseInt(scanner.nextLine());
-        Role role = Role.values()[roleNumber - 1];
-        shiftService.assignEmployee(shift, role, id);
-        System.out.println("Employee assigned.");
-        checkShiftsWeek();
+        try {
+            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+            System.out.println("Enter Employee ID:");
+            int id = Integer.parseInt(scanner.nextLine());
+            System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager):");
+            int roleNumber = Integer.parseInt(scanner.nextLine());
+            Role role = Role.values()[roleNumber - 1];
+            boolean missing = shiftService.isRoleNeeded(shift, role);
+            if (missing) {
+                System.out.println("Staffing shortage detected for " + role + ". Performing special assignment...");
+                shiftService.forceAssignEmployee(shift, role, id);
+                System.out.println("Employee assigned via special protocol (Requirement Override).");
+            } else {
+                shiftService.assignEmployee(shift, role, id);
+                System.out.println("Employee assigned successfully.");
+            }
+
+        } catch (RuntimeException e) {
+
+            System.out.println("Error: " + e.getMessage());
+            System.out.println("Returning to menu...");
+        }
     }
 
     private static void replace() {

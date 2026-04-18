@@ -73,6 +73,10 @@ public class ShiftService {
         }
     }
 
+    public boolean isRoleNeeded(Shift shift, Role role) {
+        return shiftManager.isNeeded(shift, role);
+    }
+
     public void forceAssignEmployee(Shift shift, Role role, int employeeId) {
         shiftManager.forceAssign(shift, role, employeeId);
     }

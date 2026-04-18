@@ -174,7 +174,7 @@ public class ShiftManager {
     /**
      * Checks if role still has available demand in shift.
      */
-    private boolean isNeeded(Shift shift, Role role) {
+    public boolean isNeeded(Shift shift, Role role) {
         //System.out.println("assigned "+assignments.countAssigned(shift, role));
         //System.out.println("required "+requirements.countRequired(shift, role));
         return assignments.countAssigned(shift, role)
