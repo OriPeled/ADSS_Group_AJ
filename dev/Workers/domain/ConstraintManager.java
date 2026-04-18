@@ -21,7 +21,7 @@ import static dev.Workers.domain.Enums.ShiftType.any;
  */
 public class ConstraintManager {
     // deadline for submitting/updating constraints
-    private LocalDate deadline;
+    private DayOfWeek deadline = DayOfWeek.THURSDAY;
     // maps employee ID to their constraints
     private Map<Integer, Constraint> constraintsByID;
 
@@ -32,13 +32,19 @@ public class ConstraintManager {
      */
     private ConstraintManager() {
         this.constraintsByID = new HashMap<>();
-        setNextThursdayDeadline();//defult deadline is thursday
+        //setNextWeekDeadline();
     }
 
-    public void setNextThursdayDeadline() {
-        this.deadline = LocalDate.now()
-                .with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
+    /*public void setNextWeekDeadline() {
+        this.deadline = DayOfWeek.from(LocalDate.now()
+                .with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
     }
+
+    public void setThisWeekDeadline() {
+        this.deadline = DayOfWeek.from(LocalDate.now()
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.THURSDAY)));
+    }*/
+
     /**
      * @return the single instance of Constraint Manager
      */
@@ -94,43 +100,31 @@ public class ConstraintManager {
                 || constraintsByID.get(id).getShiftType(day) == any)
                 && shiftType != rest;
     }
-    /**
-     * Array representing days of the week (Sunday = 1)
-     */
-    private static final DayOfWeek[] days = {
-            DayOfWeek.SUNDAY,
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY
-    };
-    /**
-     * Converts a number (1-7) to a DayOfWeek
-     *
-     * @param dayNumber number representing the day (1=Sunday,...,7=Saturday)
-     * @return corresponding DayOfWeek
-     */
-    public static DayOfWeek getDayFromNumber(int dayNumber) {
-        if (dayNumber < 1 || dayNumber > 7) {
-            throw new IllegalArgumentException("Day number must be between 1 and 7");
-        }
-        return days[dayNumber - 1];
-    }
+
     /**
      * Checks if current date is before deadline
      *
      * @param date date to check
      * @return true if still before deadline, false otherwise
      */
+
     public boolean isOnTime(LocalDate date) {
-        return date.isBefore(this.deadline);
+        DayOfWeek currentDay = date.getDayOfWeek();
+
+        if (currentDay == DayOfWeek.SUNDAY) {
+            return true;
+        }
+
+        // Rule: If it's before the deadline day, it's open.
+        // Since Mon=1, Tue=2, Wed=3, and Thu=4:
+        // Any value less than 4 (Thursday) is allowed.
+        return currentDay.getValue() < deadline.getValue();
     }
+
     /**
      * @return deadline for updating constraints
      */
-    public LocalDate getDeadline() {
+    public DayOfWeek getDeadline() {
         return deadline;
     }
     /**
@@ -138,9 +132,11 @@ public class ConstraintManager {
      *
      * @param deadline new deadline
      */
-    public void setDeadline(LocalDate deadline) {
+
+    public void setDeadline(DayOfWeek deadline) {
         this.deadline = deadline;
     }
+
     /**
      * Resets all employees' constraints.
      *

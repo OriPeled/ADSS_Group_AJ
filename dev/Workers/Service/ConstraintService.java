@@ -33,9 +33,13 @@ public class ConstraintService {
         return instance;
     }
 
-    public void setNextThursdayDeadline() {
-        constraintManager.setNextThursdayDeadline();
+    /*public void setNextThursdayDeadline() {
+        constraintManager.setNextWeekDeadline();
     }
+
+    public void setThisThursdayDeadline() {
+        constraintManager.setThisWeekDeadline();
+    }*/
 
     /**
      * @return map of all employee constraints
@@ -76,18 +80,6 @@ public class ConstraintService {
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
-    /**
-     * Array representing days of the week (Sunday = 1)
-     */
-    private static final DayOfWeek[] days = {
-            DayOfWeek.SUNDAY,
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY
-    };
 
     /**
      * Converts a number (1-7) to a DayOfWeek
@@ -95,9 +87,9 @@ public class ConstraintService {
      * @param dayNumber number representing the day (1=Sunday,...,7=Saturday)
      * @return corresponding DayOfWeek
      */
-    public static DayOfWeek getDayFromNumber(int dayNumber) {
-        return ConstraintManager.getDayFromNumber(dayNumber);
-    }
+    /*public static DayOfWeek getDayFromNumber(int dayNumber) {
+        return Parser.getDayFromNumber(dayNumber);
+    }*/
 
     /**
      * Checks if current date is before deadline
@@ -105,13 +97,14 @@ public class ConstraintService {
      * @param date date to check
      * @return true if still before deadline, false otherwise
      */
-    public boolean isOnTime(LocalDate date) {
-        return constraintManager.isOnTime(date);
+    public boolean isOnTime() {
+        return constraintManager.isOnTime(LocalDate.now());
     }
+
     /**
      * @return deadline for updating constraints
      */
-    public LocalDate getDeadline() {
+    public DayOfWeek getDeadline() {
         return constraintManager.getDeadline();
     }
     /**
@@ -119,9 +112,10 @@ public class ConstraintService {
      *
      * @param deadline new deadline
      */
-    public void setDeadline(LocalDate deadline) {
+    public void setDeadline(DayOfWeek deadline) {
         constraintManager.setDeadline(deadline);
     }
+
     /**
      * Resets all employees' constraints.
      *

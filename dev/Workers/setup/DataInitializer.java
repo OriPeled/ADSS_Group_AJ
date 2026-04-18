@@ -33,8 +33,9 @@ public class DataInitializer {
         System.out.println("Loading mock data into memory...");
 
         try {
-
-            constraintService.setDeadline(LocalDate.now().plusWeeks(1));
+            //constraintService.setDeadline(LocalDate.now().plusWeeks(1));
+            //constraintService.setThisThursdayDeadline();
+            //constraintService.setDeadline(DayOfWeek.THURSDAY);
 
             // =========================
             // EMPLOYEES CREATION
@@ -101,7 +102,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(shift, Role.shiftManager, 111);
                 shiftService.assignEmployee(shift, Role.shiftManager, 112);
                 shiftService.assignEmployee(shift, Role.shiftManager, 113);
-                shiftService.assignEmployee(shift, Role.Cashier, 222);
+                //shiftService.assignEmployee(shift, Role.Cashier, 222);
                 shiftService.assignEmployee(shift, Role.Cashier, 223);
                 shiftService.assignEmployee(shift, Role.Cashier, 224);
                 shiftService.assignEmployee(shift, Role.Storekeeper, 333);
@@ -125,8 +126,20 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 444);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
 
+            }
+
+            for (int i = 0; i < 6; i++) {
+
+                LocalDate date = nextSunday.plusDays(i);
+
+                shiftService.addShift(date, ShiftType.morning);
+                Shift shift = shiftService.getShift(date, ShiftType.morning);
+
+                shiftService.assignEmployee(shift, Role.Cashier, 222);
 
             }
+
+
 
             System.out.println("Mock data loaded successfully!");
 

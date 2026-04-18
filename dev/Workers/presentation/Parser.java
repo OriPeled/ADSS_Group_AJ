@@ -17,10 +17,42 @@ public class Parser {
             throw new IllegalArgumentException("Day number must be between 1 and 7");
         }
 
+        // israeli week starts at sunday
+        if (dayNumber == 1)
+            dayNumber = 7;
+        else
+            dayNumber = dayNumber - 1;
+
         DayOfWeek dow = DayOfWeek.of(dayNumber);
         LocalDate today = LocalDate.now();
         DayOfWeek targetDay = dow;
         return today.with(TemporalAdjusters.next(targetDay));
+    }
+
+    /**
+     * Array representing days of the week (Sunday = 1)
+     */
+    private static final DayOfWeek[] days = {
+            DayOfWeek.SUNDAY,
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
+            DayOfWeek.SATURDAY
+    };
+
+    /**
+     * Converts a number (1-7) to a DayOfWeek
+     *
+     * @param dayNumber number representing the day (1=Sunday,...,7=Saturday)
+     * @return corresponding DayOfWeek
+     */
+    public static DayOfWeek getDayFromNumber(int dayNumber) {
+        if (dayNumber < 1 || dayNumber > 7) {
+            throw new IllegalArgumentException("Day number must be between 1 and 7");
+        }
+        return days[dayNumber - 1];
     }
 
     // public static List<Integer>(String

@@ -23,7 +23,6 @@ public class EmployeeManager implements IManager<Employee> {
     private EmployeeManager() {
 
         this.employees = new HashMap<>();
-
     }
 
     /**
@@ -99,5 +98,10 @@ public class EmployeeManager implements IManager<Employee> {
     @Override
     public Employee getById(int id) {
         return employees.get(id);
+    }
+
+    void validateEmployeeBasic(int id) {
+        if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
+        if (!getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
     }
 }

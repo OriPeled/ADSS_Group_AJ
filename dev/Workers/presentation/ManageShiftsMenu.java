@@ -7,7 +7,9 @@ import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.Service.ShiftService;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import static dev.Workers.domain.Enums.ShiftType.evening;
 import static dev.Workers.domain.Enums.ShiftType.morning;
@@ -20,7 +22,6 @@ public class ManageShiftsMenu {
     //static int id;
 
     public static void start() {
-        System.out.println(shiftService.displayWeekAssignments());
         // sunday morning - FULL
         // sunday evening IN-PROCESS
         // monday morning EMPTY
@@ -69,8 +70,8 @@ public class ManageShiftsMenu {
 
     private static void handlePublishMenu() {
         System.out.println("All shifts assigned. Do you wish to public the week schedule?");
-        System.out.println("Enter 1 to publish or 0 to continue managing the schedule.");
         while (true) {
+            System.out.println("Enter 1 to publish or 0 to continue managing the schedule.");
             String input = scanner.nextLine();
             int choice;
 
@@ -260,7 +261,7 @@ public class ManageShiftsMenu {
             int roleNumber = Integer.parseInt(scanner.nextLine());
             Role role = Role.values()[roleNumber - 1];
             boolean missing = shiftService.isRoleNeeded(shift, role);
-            if (missing) {
+            if (!missing) {
                 System.out.println("Staffing shortage detected for " + role + ". Performing special assignment...");
                 shiftService.forceAssignEmployee(shift, role, id);
                 System.out.println("Employee assigned via special protocol (Requirement Override).");
@@ -269,10 +270,12 @@ public class ManageShiftsMenu {
                 System.out.println("Employee assigned successfully.");
             }
 
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+
         } catch (RuntimeException e) {
 
             System.out.println("Error: " + e.getMessage());
-            System.out.println("Returning to menu...");
         }
     }
 
@@ -308,14 +311,19 @@ public class ManageShiftsMenu {
     }
 
     private static void updateDeadline() {
-        System.out.print("Enter new date (dd/mm/yyyy) or 0 to go back:");
-        int input = Integer.parseInt(scanner.nextLine());
-        if (input == 0)
-            return;
-        String dateString = String.valueOf(input);
-        LocalDate date = Parser.stringToDate(dateString);
+        System.out.println("Current deadline: " + constraintService.getDeadline());
+        System.out.print("Enter new day (2-7) or 0 to go back:");
 
-        constraintService.setDeadline(date);
+        String dayNumber = scanner.nextLine();
+        if (dayNumber.equals("0")) return;
+
+        try {
+            DayOfWeek newDay = Parser.getDayFromNumber(Integer.parseInt(dayNumber));
+            constraintService.setDeadline(newDay);
+            System.out.println("Deadline updated to " + newDay);
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid format.");
+        }
     }
 
     public static void getShiftsHistory() {

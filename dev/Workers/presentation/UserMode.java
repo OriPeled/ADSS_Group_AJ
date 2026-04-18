@@ -123,6 +123,10 @@ public class UserMode {
     }
 
     public static void updateConstraints() {
+        if (!constraintService.isOnTime()) {
+            System.out.println("Deadline for updating has passed.");
+            return;
+        }
         System.out.println(constraintService.display(employeeId));
         while (true) {
             System.out.println("Choose a shift constraint to change or enter 0 to exit.");
@@ -140,7 +144,7 @@ public class UserMode {
 
             DayOfWeek day;
             try {
-                day = ConstraintService.getDayFromNumber(dayNumber);
+                day = Parser.getDayFromNumber(dayNumber);
             } catch (IllegalArgumentException e) {
                 System.out.println("Invalid input. Day must be between 1 and 7.");
                 continue;

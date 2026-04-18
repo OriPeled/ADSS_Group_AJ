@@ -147,10 +147,14 @@ public class ShiftManager {
     }
 
     public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
-        validateEmployeeBasic(currentEmployeeId);
-        validateEmployeeBasic(newEmployeeId);
+        if (assignments.isShiftEmpty(shift))
+            throw new IllegalArgumentException("Shift is empty.");
+        employeeManager.validateEmployeeBasic(currentEmployeeId);
+        employeeManager.validateEmployeeBasic(newEmployeeId);
         if (!assignments.isAssignedToShift(shift, currentEmployeeId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
+        if (currentEmployeeId == newEmployeeId)
+            throw new IllegalArgumentException("You entered the same ID twice.");
 
         Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
         Role roleNew = assignments.getEmployeeRole(shift, newEmployeeId);
@@ -158,7 +162,7 @@ public class ShiftManager {
         if (!isQualified(newEmployeeId, roleCur))
             throw new IllegalArgumentException("Employee " + newEmployeeId + " not qualified for this role.");
 
-        if (roleNew != null) {   // if newEmployee is already in this shift
+        if (assignments.isAssignedToRole(shift, roleCur, newEmployeeId)) {
             if (roleCur == roleNew) {
                 throw new IllegalArgumentException("Employee " + newEmployeeId + " already assigned to this role.");
             }
@@ -183,11 +187,6 @@ public class ShiftManager {
                     throw new IllegalArgumentException("Employee " + newEmployeeId + " not available for this role.");
             }
         }
-    }
-
-    private void validateEmployeeBasic(int id) {
-        if (!employeeManager.isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
-        if (!employeeManager.getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
     }
 
     private boolean isValid(Shift shift, Role role, int employeeId) {
@@ -230,32 +229,6 @@ public class ShiftManager {
 
     public boolean nobodyToAssign(Shift shift, Role role) {
         return isNeeded(shift, role) && this.countUnassignedValid(shift, role) == 0;
-    }
-
-    public String getUnassignedValid(Shift shift) {
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
-        StringBuilder result = new StringBuilder("Available employees for shift:\n");
-        boolean foundAny = false;
-
-        for (Role role : Role.values()) {
-            if (isNeeded(shift, role)) {
-                result.append("--- ").append(role).append(" ---\n");
-                List<Integer> qualifiedIds = roleManager.getListByRole(role);
-
-                for (int id : qualifiedIds) {
-                    if (isAvailable(id, shift) && !assignments.isAssignedToRole(shift, role, id)) {
-                        Employee emp = employeeManager.getById(id);
-                        result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
-                        foundAny = true;
-                    }
-                }
-            }
-        }
-
-        if (!foundAny) {
-            return "No available valid employees for this shift.";
-        }
-        return result.toString();
     }
 
     public int countUnassignedValid(Shift shift, Role role) {
@@ -339,11 +312,18 @@ public class ShiftManager {
         return weekStatuses;
     }
 
+    private boolean isShiftAssigned(Shift shift) {
+        for (Role role : Role.values()) {
+            if (isNeeded(shift, role))
+                return false;
+        }
+        return true;
+    }
+
     private boolean isWeekAssigned(LocalDate dateInWeek) {
         List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
         for (Shift shift : weekShifts) {
             for (Role role : Role.values()) {
-                //System.out.println(role);
                 if (isNeeded(shift, role)) return false;
             }
         }
@@ -372,7 +352,8 @@ public class ShiftManager {
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
 
-        constraintManager.setNextThursdayDeadline();
+        //constraintManager.setNextWeekDeadline();
+        //constraintManager.setDeadline();
         constraintManager.resetAllConstraints();
     }
 
@@ -392,6 +373,96 @@ public class ShiftManager {
             }
         }
         return result;
+    }
+
+    public String getUnassignedValid(Shift shift) {
+        if (isShiftAssigned(shift))
+            throw new IllegalStateException("All shift roles already assigned.");
+
+        EmployeeManager employeeManager = EmployeeManager.getInstance();
+        StringBuilder result = new StringBuilder("Available employees for shift:\n");
+        boolean foundAny = false;
+
+        for (Role role : Role.values()) {
+            if (!isNeeded(shift, role)) {
+                result.append("--- ").append(role).append(" ---\n");
+                result.append("Role assignment complete.\n");
+            }
+            else {
+                result.append("--- ").append(role).append(" ---\n");
+                List<Integer> qualifiedIds = roleManager.getListByRole(role);
+
+                for (int id : qualifiedIds) {
+                    if (isAvailable(id, shift) && !assignments.isAssignedToRole(shift, role, id)) {
+                        Employee emp = employeeManager.getById(id);
+                        result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
+                        foundAny = true;
+                    }
+                }
+            }
+        }
+
+        if (!foundAny) {
+            return "No available qualified employees for this shift.";
+        }
+        return result.toString();
+    }
+
+    /**
+     *
+     * @param shift
+     * @return String of shift detils
+     */
+    public String getShiftDetails(Shift shift) {
+        String result = "Shift: " + shift + "\n";
+        for (Role role : Role.values()) {
+            int required = requirements.countRequired(shift, role);
+            Set<Integer> employees = assignments.getEmployees(shift, role);
+            int assigned = employees.size();
+            if (required > 0) {
+                result += role +
+                        ": " + employees +
+                        " (" + assigned + " assigned, " +
+                        (required - assigned) + " left)\n";
+            }
+        }
+        return result;
+    }
+
+    public String getEmployeeWeekDisplay(int id, LocalDate referenceDate) {
+        // 1. Get the domain object for this week
+        WeekSchedule week = getOrCreateWeek(referenceDate);
+        LocalDate startOfWeek = week.getStartOfWeek();
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        // 2. Business Rule: Gatekeep based on the Published status
+        // (Optional: You might want to allow viewing the CURRENT week even if not published,
+        // but restricted for NEXT week).
+        if (!week.isViewableByUser()) {
+            return String.format("The schedule for the week of %s is not yet published.", startOfWeek);
+        }
+
+        // 3. Filter, Sort, and Format (Logic remains similar but uses 'week' metadata)
+        String shiftList = assignments.getAssignments().entrySet().stream()
+                .filter(entry -> {
+                    LocalDate shiftDate = entry.getKey().getShiftDate();
+                    return !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek);
+                })
+                .flatMap(shiftEntry -> shiftEntry.getValue().entrySet().stream()
+                        .filter(roleEntry -> roleEntry.getValue().contains(id))
+                        .map(roleEntry -> Map.entry(shiftEntry.getKey(), roleEntry.getKey()))
+                )
+                .sorted(Comparator.comparing((Map.Entry<Shift, Role> e) -> e.getKey().getShiftDate())
+                        .thenComparing(e -> e.getKey().getType()))
+                .map(e -> "- " + e.getKey().getShiftDate() + " (" + e.getKey().getType() + ") | Role: " + e.getValue())
+                .collect(Collectors.joining("\n"));
+
+        if (shiftList.isEmpty()) {
+            return String.format("No shifts for ID %d between %s and %s", id, startOfWeek, endOfWeek);
+        }
+
+        return String.format("Shifts for Employee ID: %d (Week of %s to %s)\n%s",
+                id, startOfWeek, endOfWeek, shiftList);
     }
 
     public String displayWeekAssignments() {
@@ -465,7 +536,7 @@ public class ShiftManager {
             return "No published shifts to display.";
         }
 
-        StringBuilder result = new StringBuilder("=== PUBLISHED SHIFT HISTORY ===\n");
+        StringBuilder result = new StringBuilder("=== SHIFT HISTORY ===\n");
 
         for (Shift shift : publishedShifts) {
             // ... (Existing logic to count assignments and append to result)
@@ -490,62 +561,5 @@ public class ShiftManager {
         }
 
         return result.toString();
-    }
-
-    /**
-     *
-     * @param shift
-     * @return String of shift detils
-     */
-    public String getShiftDetails(Shift shift) {
-        String result = "Shift: " + shift + "\n";
-        for (Role role : Role.values()) {
-            int required = requirements.countRequired(shift, role);
-            Set<Integer> employees = assignments.getEmployees(shift, role);
-            int assigned = employees.size();
-            if (required > 0) {
-                result += role +
-                        ": " + employees +
-                        " (" + assigned + " assigned, " +
-                        (required - assigned) + " left)\n";
-            }
-        }
-        return result;
-    }
-
-    public String getEmployeeWeekDisplay(int id, LocalDate referenceDate) {
-        // 1. Get the domain object for this week
-        WeekSchedule week = getOrCreateWeek(referenceDate);
-        LocalDate startOfWeek = week.getStartOfWeek();
-        LocalDate endOfWeek = startOfWeek.plusDays(6);
-
-        // 2. Business Rule: Gatekeep based on the Published status
-        // (Optional: You might want to allow viewing the CURRENT week even if not published,
-        // but restricted for NEXT week).
-        if (!week.isViewableByUser()) {
-            return String.format("The schedule for the week of %s is not yet published.", startOfWeek);
-        }
-
-        // 3. Filter, Sort, and Format (Logic remains similar but uses 'week' metadata)
-        String shiftList = assignments.getAssignments().entrySet().stream()
-                .filter(entry -> {
-                    LocalDate shiftDate = entry.getKey().getShiftDate();
-                    return !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek);
-                })
-                .flatMap(shiftEntry -> shiftEntry.getValue().entrySet().stream()
-                        .filter(roleEntry -> roleEntry.getValue().contains(id))
-                        .map(roleEntry -> Map.entry(shiftEntry.getKey(), roleEntry.getKey()))
-                )
-                .sorted(Comparator.comparing((Map.Entry<Shift, Role> e) -> e.getKey().getShiftDate())
-                        .thenComparing(e -> e.getKey().getType()))
-                .map(e -> "- " + e.getKey().getShiftDate() + " (" + e.getKey().getType() + ") | Role: " + e.getValue())
-                .collect(Collectors.joining("\n"));
-
-        if (shiftList.isEmpty()) {
-            return String.format("No shifts for ID %d between %s and %s", id, startOfWeek, endOfWeek);
-        }
-
-        return String.format("Shifts for Employee ID: %d (Week of %s to %s)\n%s",
-                id, startOfWeek, endOfWeek, shiftList);
     }
 }

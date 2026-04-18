@@ -34,10 +34,9 @@ public class Assignments {
      */
 
     public void init(Shift shift) {
-        if (assignments.containsKey(shift))
-            return;
+        /*if (assignments.containsKey(shift))
+            return;*/
 
-        //System.out.println("COME ONNNNNN");
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
         for (Role role : Role.values()) {
             innerMap.put(role, new HashSet<>()); // ← new set for each role
@@ -130,6 +129,18 @@ public class Assignments {
         return assignments
                 .getOrDefault(shift, Collections.emptyMap())
                 .getOrDefault(role, Collections.emptySet());
+    }
+
+    public boolean isShiftEmpty(Shift shift) {
+        Map<Role, Set<Integer>> shiftAssignments = assignments.get(shift);
+        if (shiftAssignments.isEmpty()) return false;
+
+        for (Set<Integer> roleAssignments: shiftAssignments.values()) {
+            if (!roleAssignments.isEmpty())
+                return false;
+        }
+
+        return true;
     }
 
     /**
