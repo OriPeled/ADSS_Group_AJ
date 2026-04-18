@@ -24,19 +24,15 @@ public class EmployeeTerms {
     private int restDays;
 
 
-    public EmployeeTerms(String jobStatus, String salaryType, int restDays) {
-        this.jobStatus = JobStatus.valueOf(jobStatus);
-        this.salaryType = SalaryType.valueOf(salaryType);
-        this.restDays = restDays;
-    }
     /**
-    * Constructor using enum values.
-    *
-    * @param jobStatus employment status
-    * @param salaryType salary type
-    * @param restDays number of rest days
-    */
+     * Constructor for EmployeeTerms with full validation logic.
+     *  @param jobStatus   The status of the job (Full time / Half time)
+     * @param salaryType  The way the employee is paid (Global / Hourly)
+     * @param restDays    Number of weekly rest days (Must be between 1 and 6)
+     * @throws IllegalArgumentException if any parameter is invalid.
+     */
     public EmployeeTerms(JobStatus jobStatus, SalaryType salaryType, int restDays){
+
         this.jobStatus = jobStatus;
         this.salaryType = salaryType;
         this.restDays = restDays;

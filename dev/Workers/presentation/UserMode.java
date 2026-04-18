@@ -179,9 +179,16 @@ public class UserMode {
                     System.out.println("Invalid input.");
                     continue;
             }
+            try {
 
-            constraintService.update(employeeId, day, shiftType);
-            System.out.println(constraintService.display(employeeId));
+                constraintService.update(employeeId, day, shiftType);
+                System.out.println("Constraint updated successfully.");
+                System.out.println(constraintService.display(employeeId));
+            } catch (RuntimeException e) {
+
+                System.out.println("\n>>> Error: " + e.getMessage());
+                return;
+            }
         }
     }
 }

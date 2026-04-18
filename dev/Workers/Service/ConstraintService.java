@@ -66,6 +66,10 @@ public class ConstraintService {
      * @param shiftType desired shift type
      */
     public void update(int id, DayOfWeek day, ShiftType shiftType) {
+        LocalDate deadline = LocalDate.from(constraintManager.getDeadline());
+        if (deadline != null && LocalDate.now().isAfter(deadline)) {
+            throw new RuntimeException("Submission failed: The deadline for submitting constraints (" + deadline + ") has passed.");
+        }
         constraintManager.update(id, day, shiftType);
     }
 
@@ -80,6 +84,18 @@ public class ConstraintService {
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
+    /**
+     * Array representing days of the week (Sunday = 1)
+     */
+    private static final DayOfWeek[] days = {
+            DayOfWeek.SUNDAY,
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
+            DayOfWeek.SATURDAY
+    };
 
     /**
      * Converts a number (1-7) to a DayOfWeek
@@ -87,20 +103,19 @@ public class ConstraintService {
      * @param dayNumber number representing the day (1=Sunday,...,7=Saturday)
      * @return corresponding DayOfWeek
      */
-    /*public static DayOfWeek getDayFromNumber(int dayNumber) {
+   /*public static DayOfWeek getDayFromNumber(int dayNumber) {
         return Parser.getDayFromNumber(dayNumber);
     }*/
+
 
     /**
      * Checks if current date is before deadline
      *
-     * @param date date to check
      * @return true if still before deadline, false otherwise
      */
     public boolean isOnTime() {
         return constraintManager.isOnTime(LocalDate.now());
     }
-
     /**
      * @return deadline for updating constraints
      */
@@ -114,8 +129,7 @@ public class ConstraintService {
      */
     public void setDeadline(DayOfWeek deadline) {
         constraintManager.setDeadline(deadline);
-    }
-
+     }
     /**
      * Resets all employees' constraints.
      *

@@ -56,6 +56,19 @@ public class EmployeeService {
         if (bankAccount <= 0) {
             throw new IllegalArgumentException("Cannot add employee: Invalid bank account details.");
         }
+        if (startDate == null) {
+            throw new IllegalArgumentException("Cannot add employee: Start date cannot be before current date.");
+        }
+        if (terms.getJobStatus() == null) {
+            throw new IllegalArgumentException("Cannot add employee: Job status cannot be null.");
+
+        }
+        if (terms.getSalaryType() == null) {
+            throw new IllegalArgumentException("Cannot add employee: Salary type cannot be null.");
+        }
+        if(terms.getRestDays() < 1 || terms.getRestDays() > 7) {
+            throw new IllegalArgumentException("Cannot add employee: Rest days must be between 1 and 7.");
+        }
 
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
         employeeManager.add(id, newEmp);

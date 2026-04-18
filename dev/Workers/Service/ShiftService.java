@@ -73,9 +73,7 @@ public class ShiftService {
         }
     }
 
-    public boolean isRoleNeeded(Shift shift, Role role) {
-        return shiftManager.isNeeded(shift, role);
-    }
+
 
     public void forceAssignEmployee(Shift shift, Role role, int employeeId) {
         shiftManager.forceAssign(shift, role, employeeId);
@@ -122,6 +120,10 @@ public class ShiftService {
     public String getNextWeekEmployeeShifts(int id) {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
+    }
+    public boolean isRoleNeeded(Shift shift, Role role) {
+
+        return shiftManager.isNeeded(shift, role);
     }
 
     public WeekStatus getWeekStatus() {

@@ -106,11 +106,12 @@ public class RoleService {
     public void promoteDemote(int id) {
         List<Role> roles = roleManager.getListById(id);
 
-        // If employee has no roles yet, we should initialize them first
-        // or the Domain's .get(id) will crash.
-        if (roles.isEmpty() && roleManager.getListById(id).isEmpty()) {
-            roleManager.addRoleToEmployee(id, Role.shiftManager);
-            return;
+        if (roles == null) {
+            throw new IllegalArgumentException("Employee roles not found for id: " + id);
+        }
+
+        if (roles.isEmpty()) {
+            throw new IllegalStateException("Employee has no roles. Cannot promote/demote.");
         }
 
         roleManager.promoteDemote(id);
