@@ -84,18 +84,6 @@ public class ConstraintService {
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return constraintManager.isEmployeeAvailable(id, day, shiftType);
     }
-    /**
-     * Array representing days of the week (Sunday = 1)
-     */
-    private static final DayOfWeek[] days = {
-            DayOfWeek.SUNDAY,
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY
-    };
 
     /**
      * Converts a number (1-7) to a DayOfWeek
@@ -106,7 +94,6 @@ public class ConstraintService {
    /*public static DayOfWeek getDayFromNumber(int dayNumber) {
         return Parser.getDayFromNumber(dayNumber);
     }*/
-
 
     /**
      * Checks if current date is before deadline

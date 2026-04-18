@@ -13,6 +13,7 @@ import java.time.format.DateTimeParseException;
 
 import static dev.Workers.domain.Enums.ShiftType.evening;
 import static dev.Workers.domain.Enums.ShiftType.morning;
+import static dev.Workers.domain.Enums.WeekStatus.READY_TO_PUBLISH;
 import static dev.Workers.presentation.Main.scanner;
 
 public class ManageShiftsMenu {
@@ -36,7 +37,7 @@ public class ManageShiftsMenu {
             int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1:
-                    checkShiftsWeek();
+                    manageShiftsWeek();
                     break;
                 case 2:
                     getShiftsHistory();
@@ -52,23 +53,7 @@ public class ManageShiftsMenu {
         }
     }
 
-    private static void checkShiftsWeek() {
-        WeekStatus status = shiftService.getWeekStatus();
-
-        switch (status) {
-            case INCOMPLETE:
-                manageShiftsWeek();
-                break;
-            case PUBLISHED:
-                manageShiftsWeek();
-                break;
-            case READY_TO_PUBLISH:
-                handlePublishMenu();
-                break;
-        }
-    }
-
-    private static void handlePublishMenu() {
+    private static boolean handlePublishMenu() {
         System.out.println("All shifts assigned. Do you wish to public the week schedule?");
         while (true) {
             System.out.println("Enter 1 to publish or 0 to continue managing the schedule.");
@@ -84,27 +69,23 @@ public class ManageShiftsMenu {
 
             switch (choice) {
                 case 0:
-                    manageShiftsWeek();
-                    return;
+                    return false;
                 case 1:
                     shiftService.publishWeekSchedule();
                     System.out.println("Shifts schedule published.");
-                    manageShiftsWeek();
-                    return;
+                    return true;
                 default:
-                    return;
             }
         }
     }
 
     private static void manageShiftsWeek() {
         while (true) {
+            if (shiftService.getWeekStatus() == READY_TO_PUBLISH) {
+                if (handlePublishMenu()) return;
+            }
             System.out.println(shiftService.displayWeekAssignments());
             System.out.println("Manage Shifts Week");
-            //if (shiftService.allWeekAssigned()) { // assignments
-            //    System.out.println("All week shifts are assigned. Do you wish to mark the week schedule as finished?");
-            // shiftService/assignments.markWeekFinished();    // (constraints, deadline reset + publicNextWeek logic)
-            //}
 
             System.out.println("1. Enter Day (1-7) or 0 to go back");
             int dayNumber;
