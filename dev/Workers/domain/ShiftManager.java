@@ -64,7 +64,6 @@ public class ShiftManager {
      */
     public void addShift(LocalDate date, ShiftType type) {
         Shift newShift = new Shift(date, type);
-
         if (shifts.add(newShift)) {
             requirements.init(newShift);
             assignments.init(newShift);
@@ -124,33 +123,33 @@ public class ShiftManager {
      *
      */
     public void assignEmployee(Shift shift, Role role, int employeeId) {
-        if (!isValid(shift, role, employeeId)) {
+        if (!isNeeded(shift, role))
+            throw new IllegalStateException("Role already assigned");
+        else if (!isValid(shift, role, employeeId)) {
             throw new IllegalArgumentException("Assignment failed due to constraint violation.");
         }
         assignments.add(shift, role, employeeId);
     }
     public void forceAssign(Shift shift, Role role, int employeeId) {
         if (!isSpecialValid(shift, role, employeeId)) {
-
             throw new RuntimeException("No available employees to assign for this role.");
         }
         assignments.add(shift, role, employeeId);
     }
 
     public void removeEmployee(Shift shift, Role role, int employeeId) {
-        System.out.println("why");
         assignments.remove(shift, role, employeeId);
     }
 
     public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
         if (assignments.isShiftEmpty(shift))
             throw new IllegalArgumentException("Shift is empty.");
+        if (currentEmployeeId == newEmployeeId)
+            throw new IllegalArgumentException("You entered the same ID twice.");
         employeeManager.validateEmployeeBasic(currentEmployeeId);
         employeeManager.validateEmployeeBasic(newEmployeeId);
         if (!assignments.isAssignedToShift(shift, currentEmployeeId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
-        if (currentEmployeeId == newEmployeeId)
-            throw new IllegalArgumentException("You entered the same ID twice.");
 
         Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
         Role roleNew = assignments.getEmployeeRole(shift, newEmployeeId);
@@ -158,31 +157,32 @@ public class ShiftManager {
         if (!isQualified(newEmployeeId, roleCur))
             throw new IllegalArgumentException("Employee " + newEmployeeId + " not qualified for this role.");
 
-        if (assignments.isAssignedToRole(shift, roleCur, newEmployeeId)) {
-            if (roleCur == roleNew) {
-                throw new IllegalArgumentException("Employee " + newEmployeeId + " already assigned to this role.");
-            }
-            if (!isQualified(currentEmployeeId, roleNew)) {
-                throw new IllegalArgumentException("Employee " + currentEmployeeId + " not qualified for this role.");
-            }
-            else if (isQualified(newEmployeeId, roleCur)) {
-                removeEmployee(shift, roleCur, currentEmployeeId);
-                removeEmployee(shift, roleNew, newEmployeeId);
-                assignEmployee(shift, roleNew, currentEmployeeId);
-                assignEmployee(shift, roleCur, newEmployeeId);
-            }
+        if (roleNew != null) { // if newEmployee is already in this shift
+            handleSwap(shift, currentEmployeeId, roleCur, newEmployeeId, roleNew);
+        } else { // if newEmployee is not in this shift
+            handleSimpleReplacement(shift, currentEmployeeId, roleCur, newEmployeeId);
         }
+    }
 
-        else {                   // if newEmployee is not in this shift
-            if (isQualified(newEmployeeId, roleCur)) {
-                removeEmployee(shift, roleCur, currentEmployeeId);
-                assignEmployee(shift, roleCur, newEmployeeId);
-            }
-            else {
-                if (!isAvailable(newEmployeeId, shift))
-                    throw new IllegalArgumentException("Employee " + newEmployeeId + " not available for this role.");
-            }
-        }
+    private void handleSwap(Shift shift, int currentEmployeeId, Role roleCur, int newEmployeeId, Role roleNew) {
+        if (roleCur == roleNew)
+            throw new IllegalArgumentException("Employee " + newEmployeeId + " already assigned to this role.");
+
+        if (!isQualified(currentEmployeeId, roleNew))
+            throw new IllegalArgumentException("Employee " + currentEmployeeId + "  not qualified for this role.");
+
+        removeEmployee(shift, roleCur, currentEmployeeId);
+        removeEmployee(shift, roleNew, newEmployeeId);
+        assignEmployee(shift, roleNew, currentEmployeeId);
+        assignEmployee(shift, roleCur, newEmployeeId);
+    }
+
+    private void handleSimpleReplacement(Shift shift, int currentEmployeeId, Role roleCur, int newEmployeeId) {
+        if (!isAvailable(newEmployeeId, shift))
+            throw new IllegalArgumentException("Employee " + newEmployeeId + " not available for this shift.");
+
+        removeEmployee(shift, roleCur, currentEmployeeId);
+        assignEmployee(shift, roleCur, newEmployeeId);
     }
 
     private boolean isValid(Shift shift, Role role, int employeeId) {
@@ -217,8 +217,6 @@ public class ShiftManager {
      * Checks if role still has available demand in shift.
      */
     public boolean isNeeded(Shift shift, Role role) {
-        //System.out.println("assigned "+assignments.countAssigned(shift, role));
-        //System.out.println("required "+requirements.countRequired(shift, role));
         return assignments.countAssigned(shift, role)
                 < requirements.countRequired(shift, role);
     }

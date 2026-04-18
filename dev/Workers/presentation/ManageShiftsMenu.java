@@ -3,7 +3,6 @@ package dev.Workers.presentation;
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
-import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.Service.ShiftService;
 
@@ -100,7 +99,7 @@ public class ManageShiftsMenu {
 
             LocalDate date;
             try {
-                date = Parser.getDateFromNumber(dayNumber);
+                date = Parser.getDateOfNextWeekFromNumber(dayNumber);
             } catch (IllegalArgumentException e) {
                 System.out.println("Invalid input. Day must be between 1 and 7.");
                 continue;
@@ -253,12 +252,12 @@ public class ManageShiftsMenu {
 
             role = Role.values()[roleNumber - 1];
 
-            boolean roleNeeded = shiftService.isRoleNeeded(shift, role);
+            /*boolean roleNeeded = shiftService.isRoleNeeded(shift, role);
             if (!roleNeeded) {
                 System.out.println("Staffing shortage detected for " + role + ".");
                 forceAssign(shift, role, id);
                 return;
-            }
+            }*/
 
             shiftService.assignEmployee(shift, role, id);
             System.out.println("Employee assigned successfully.");

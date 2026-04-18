@@ -60,7 +60,6 @@ public class ShiftService {
     }
 
     public void assignEmployee(Shift shift, Role role, int employeeId) {
-
         shiftManager.assignEmployee(shift, role, employeeId);
     }
 
@@ -113,7 +112,6 @@ public class ShiftService {
         return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
     }
     public boolean isRoleNeeded(Shift shift, Role role) {
-
         return shiftManager.isNeeded(shift, role);
     }
 

@@ -12,7 +12,7 @@ public class Parser {
         return date;
     }
 
-    public static LocalDate getDateFromNumber(int dayNumber) {
+    public static LocalDate getDateOfThisWeekFromNumber(int dayNumber) {
         if (dayNumber < 1 || dayNumber > 7) {
             throw new IllegalArgumentException("Day number must be between 1 and 7");
         }
@@ -27,6 +27,21 @@ public class Parser {
         LocalDate today = LocalDate.now();
         DayOfWeek targetDay = dow;
         return today.with(TemporalAdjusters.next(targetDay));
+    }
+
+
+    public static LocalDate getDateOfNextWeekFromNumber(int dayNumber) {
+        if (dayNumber < 1 || dayNumber > 7) {
+            throw new IllegalArgumentException("Day number must be between 1 and 7");
+        }
+
+        // israeli week starts at sunday
+        DayOfWeek targetDay = (dayNumber == 1) ? DayOfWeek.SUNDAY : DayOfWeek.of(dayNumber - 1);
+
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+
+        // Use nextOrSame so that if dayNumber is 1 (Sunday), it returns that Sunday itself
+        return nextSunday.with(TemporalAdjusters.nextOrSame(targetDay));
     }
 
     /**

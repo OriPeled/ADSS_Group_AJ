@@ -80,7 +80,7 @@ public class DataInitializer {
             // CONSTRAINTS (Optional)
             // =========================
             // Example constraints (system will handle them safely)
-            constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
+            //constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
             constraintService.update(101, DayOfWeek.SATURDAY, ShiftType.rest);
            // constraintService.update(111, DayOfWeek.SUNDAY, ShiftType.morning);
 
@@ -122,7 +122,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.shiftManager, 111);
                 shiftService.assignEmployee(eveningShift, Role.shiftManager, 112);
                 shiftService.assignEmployee(eveningShift, Role.shiftManager, 113);
-                //shiftService.assignEmployee(eveningShift, Role.Cashier, 222);
+                shiftService.assignEmployee(eveningShift, Role.Cashier, 222);
                 shiftService.assignEmployee(eveningShift, Role.Cashier, 223);
                 shiftService.assignEmployee(eveningShift, Role.Cashier, 224);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 333);
@@ -132,7 +132,7 @@ public class DataInitializer {
 
             }
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 5; i++) {
 
                 LocalDate date = nextSunday.plusDays(i);
 
