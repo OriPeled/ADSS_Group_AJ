@@ -2,7 +2,6 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.ShiftResponse;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
@@ -56,6 +55,7 @@ public class ManageShiftsMenu {
                 manageShiftsWeek();
                 break;
             case PUBLISHED:
+                manageShiftsWeek();
                 break;
             case READY_TO_PUBLISH:
                 handlePublishMenu();
@@ -80,39 +80,69 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 0:
                     manageShiftsWeek();
-                    break;
+                    return;
                 case 1:
                     shiftService.publishWeekSchedule();
                     System.out.println("Shifts schedule published.");
                     manageShiftsWeek();
+                    return;
+                default:
+                    return;
             }
         }
     }
 
     private static void manageShiftsWeek() {
-        System.out.println(shiftService.displayWeekAssignments());
-        System.out.println("Manage Shifts Week");
-        //if (shiftService.allWeekAssigned()) { // assignments
-        //    System.out.println("All week shifts are assigned. Do you wish to mark the week schedule as finished?");
+        while (true) {
+            System.out.println(shiftService.displayWeekAssignments());
+            System.out.println("Manage Shifts Week");
+            //if (shiftService.allWeekAssigned()) { // assignments
+            //    System.out.println("All week shifts are assigned. Do you wish to mark the week schedule as finished?");
             // shiftService/assignments.markWeekFinished();    // (constraints, deadline reset + publicNextWeek logic)
-        //}
+            //}
 
-        System.out.println("1. Enter Day (1-7)");
-        int dayNumber = Integer.parseInt(scanner.nextLine());
-        LocalDate date = Parser.dayNumberToDate(dayNumber);
-        System.out.println("Enter Shift (1 for morning, 2 for evening)");
-        int typeNumber = Integer.parseInt(scanner.nextLine());
-        ShiftType shiftT;
-        switch (typeNumber) {
-            case 1 -> shiftT = morning;
-            case 2 -> shiftT = evening;
-            default -> {
-                System.out.println("Invalid shift type.");
-                return;
+            System.out.println("1. Enter Day (1-7) or 0 to go back");
+            int dayNumber;
+            try {
+                dayNumber = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input");
+                continue;
             }
+
+            if (dayNumber == 0) return;
+
+            LocalDate date;
+            try {
+                date = Parser.getDateFromNumber(dayNumber);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Day must be between 1 and 7.");
+                continue;
+            }
+
+            System.out.println("Enter Shift (1 for morning, 2 for evening) or 0 to go back");
+            int typeNumber;
+            try {
+                typeNumber = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input");
+                continue;
+            }
+
+            if (typeNumber == 0) return;
+
+            ShiftType shiftType;
+            switch (typeNumber) {
+                case 1 -> shiftType = morning;
+                case 2 -> shiftType = evening;
+                default -> {
+                    System.out.println("Invalid shift type.");
+                    return;
+                }
+            }
+            shift = shiftService.getShift(date, shiftType);
+            manageShift();
         }
-        shift = shiftService.getShift(date, shiftT);
-        manageShift();
     }
 
     private static void manageShift() {

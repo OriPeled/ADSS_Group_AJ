@@ -98,6 +98,7 @@ public class ConstraintService {
     public static DayOfWeek getDayFromNumber(int dayNumber) {
         return ConstraintManager.getDayFromNumber(dayNumber);
     }
+
     /**
      * Checks if current date is before deadline
      *

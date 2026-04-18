@@ -108,7 +108,7 @@ public class Assignments {
 
             if (!shiftDate.isBefore(start) && !shiftDate.isAfter(end)) {
                 for (Role role : entry.getValue().keySet()) {
-                    if (isAssigned(shift, role, id)) {
+                    if (isAssignedToRole(shift, role, id)) {
                         employeeShifts.add(shift.toStringByWeekDay() + " (" + role + ")");
                     }
                 }
@@ -126,7 +126,7 @@ public class Assignments {
      */
     public Set<Integer> getEmployees(Shift shift, Role role) {
         //System.out.println(assignments.get(shift));
-        System.out.println(assignments.size());
+        //System.out.println(assignments.size());
         return assignments
                 .getOrDefault(shift, Collections.emptyMap())
                 .getOrDefault(role, Collections.emptySet());
@@ -161,8 +161,12 @@ public class Assignments {
      * @param employeeID the employee ID
      * @return true if already assigned, false otherwise
      */
-    public boolean isAssigned(Shift shift, Role role, int employeeID) {
+    public boolean isAssignedToRole(Shift shift, Role role, int employeeID) {
         return getEmployees(shift, role).contains(employeeID);
+    }
+
+    public boolean isAssignedToShift(Shift shift, int employeeID) {
+        return getEmployeeRole(shift, employeeID) != null;
     }
 
     /**
@@ -172,7 +176,7 @@ public class Assignments {
      */
     public Role getEmployeeRole(Shift shift, int id) {
         for (Role role : Role.values()) {
-            if (isAssigned(shift, role, id))
+            if (isAssignedToRole(shift, role, id))
                 return role;
         }
         return null;

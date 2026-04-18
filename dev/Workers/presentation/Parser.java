@@ -4,7 +4,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Date;
 
 public class Parser {
     public static LocalDate stringToDate(String dateString) {
@@ -13,7 +12,11 @@ public class Parser {
         return date;
     }
 
-    public static LocalDate dayNumberToDate(int dayNumber) {
+    public static LocalDate getDateFromNumber(int dayNumber) {
+        if (dayNumber < 1 || dayNumber > 7) {
+            throw new IllegalArgumentException("Day number must be between 1 and 7");
+        }
+
         DayOfWeek dow = DayOfWeek.of(dayNumber);
         LocalDate today = LocalDate.now();
         DayOfWeek targetDay = dow;

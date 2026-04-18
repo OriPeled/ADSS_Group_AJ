@@ -196,7 +196,7 @@ public class ShiftManager {
                 List<Integer> qualifiedIds = roleManager.getListByRole(role);
 
                 for (int id : qualifiedIds) {
-                    if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
+                    if (isAvailable(id, shift) && !assignments.isAssignedToRole(shift, role, id)) {
                         Employee emp = employeeManager.getById(id);
                         result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
                         foundAny = true;
@@ -215,7 +215,7 @@ public class ShiftManager {
         int count = 0;
         List<Integer> qualifiedIds = roleManager.getListByRole(role);
         for (int id : qualifiedIds) {
-            if (isAvailable(id, shift) && !assignments.isAssigned(shift, role, id)) {
+            if (isAvailable(id, shift) && !assignments.isAssignedToRole(shift, role, id)) {
                 count++;
             }
         }
@@ -248,10 +248,43 @@ public class ShiftManager {
     }
 
     public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
-        Role role = assignments.getEmployeeRole(shift, currentEmployeeId);
-        if (isValid(shift, role, newEmployeeId)) {
-            assignEmployee(shift, role, newEmployeeId);
-            removeEmployee(shift, role, currentEmployeeId);
+        if (!employeeManager.isEmployee(newEmployeeId))
+            throw new IllegalArgumentException("Unknown ID.");
+        if (!employeeManager.getById(newEmployeeId).isActive())
+            throw new IllegalArgumentException("Employee does not currently work here.");
+        if (!assignments.isAssignedToShift(shift, currentEmployeeId))
+            throw new IllegalArgumentException("Employee not assigned to this shift.");
+
+        Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
+        Role roleNew = assignments.getEmployeeRole(shift, newEmployeeId);
+        System.out.println(roleCur);
+        System.out.println(roleNew);
+        if (roleNew != null) {
+            if (roleCur == roleNew) {
+                throw new IllegalArgumentException("Employee already assigned to this role.");
+            }
+            else if (isQualified(newEmployeeId, roleCur)) {
+                removeEmployee(shift, roleNew, newEmployeeId);
+                assignEmployee(shift, roleCur, newEmployeeId);
+                removeEmployee(shift, roleCur, currentEmployeeId);
+                assignEmployee(shift, roleNew, currentEmployeeId);
+            }
+            else if (!isQualified(newEmployeeId, roleCur)) {
+                throw new IllegalArgumentException("Employee not qualified for this role.");
+            }
+            else if (!isAvailable(newEmployeeId, shift)) {
+                throw new IllegalArgumentException("Employee not available for this role.");
+            }
+        }
+
+        else {
+            if (isValid(shift, roleCur, newEmployeeId)) {
+                removeEmployee(shift, roleCur, currentEmployeeId);
+                assignEmployee(shift, roleCur, newEmployeeId);
+            }
+            else {
+                throw new IllegalArgumentException("Employee already assigned to this role.");
+            }
         }
     }
 
@@ -308,7 +341,7 @@ public class ShiftManager {
         List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
         for (Shift shift : weekShifts) {
             for (Role role : Role.values()) {
-                System.out.println(role);
+                //System.out.println(role);
                 if (isNeeded(shift, role)) return false;
             }
         }
@@ -419,7 +452,8 @@ public class ShiftManager {
                     WeekSchedule week = weekSchedules.get(sunday);
 
                     // Only include if the week exists AND is published
-                    return week != null && week.isPublished();
+                    //return week != null && week.isPublished();
+                    return week != null;
                 })
                 .sorted(Comparator.comparing(Shift::getShiftDate)
                         .thenComparing(Shift::getType))

@@ -70,6 +70,9 @@ public class DataInitializer {
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Eyal Peretz", 445, Role.Storekeeper);
 
+            createEmployee(employeeService, accessService, roleService, constraintService,
+                    "Ronaldo", 7, Role.shiftManager);
+
             // =========================
             // CONSTRAINTS (Optional)
             // =========================
