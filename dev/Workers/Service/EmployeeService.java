@@ -47,9 +47,6 @@ public class EmployeeService {
      */
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         // 1. Business logic validations
-        if (employeeManager.isEmployee(id)) {
-            throw new IllegalArgumentException("Cannot add employee: Employee ID " + id + " already exists.");
-        }
         if (salary <= 0) {
             throw new IllegalArgumentException("Cannot add employee: Salary must be a positive number.");
         }
@@ -70,8 +67,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Cannot add employee: Rest days must be between 1 and 7.");
         }
 
-        Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
-        employeeManager.add(id, newEmp);
+        employeeManager.add(name, id, bankAccount, salary, terms, startDate);
     }
 
     /**

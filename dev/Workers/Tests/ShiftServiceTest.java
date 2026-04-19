@@ -11,7 +11,6 @@ import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.SalaryType;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
-import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.Objects.WeekSchedule;
 
@@ -69,7 +68,7 @@ public class ShiftServiceTest {
         RoleManager roleManager = RoleManager.getInstance();
         ConstraintManager constraintManager = ConstraintManager.getInstance();
 
-        Employee employee = new Employee(
+        employeeManager.add(
                 name,
                 id,
                 100000 + id,
@@ -78,17 +77,19 @@ public class ShiftServiceTest {
                 LocalDate.of(2026, 4, 1)
         );
 
-        employeeManager.add(id, employee);
         roleManager.addRoleToEmployee(id, role);
         constraintManager.initConstraintForEmployee(id);
     }
 
     /**
-     * Helper method to access the internal weekSchedules map
-     * inside ShiftManager using reflection.
+     * Returns the internal WeekSchedule object for the week
+     * containing the given date.
+     *
+     * The method accesses ShiftManager internal storage using reflection.
      *
      * @param dateInWeek any date inside the requested week
      * @return the WeekSchedule object for that week, or null if not found
+     * @throws Exception if reflection access fails
      */
     private WeekSchedule getWeekSchedule(LocalDate dateInWeek) throws Exception {
         ShiftManager shiftManager = ShiftManager.getInstance();
@@ -163,10 +164,11 @@ public class ShiftServiceTest {
      * through ShiftService and publishWeekSchedule() is called.
      *
      * Scenario:
+     * - Three employees are registered with the required roles
      * - All morning and evening shifts for the current week are created
      * - Each shift requires one cashier, one storekeeper, and one shift manager
-     * - All required roles are assigned in every shift through ShiftService
-     * - The current week is published through ShiftService
+     * - All required employees are assigned to every shift
+     * - The current week is published
      *
      * Expected result:
      * - getWeekStatus returns PUBLISHED for the current week
@@ -215,6 +217,8 @@ public class ShiftServiceTest {
 
     /**
      * Clears all employees from EmployeeManager.
+     *
+     * @throws Exception if reflection access fails
      */
     private void clearEmployeeManager() throws Exception {
         EmployeeManager manager = EmployeeManager.getInstance();
@@ -225,6 +229,8 @@ public class ShiftServiceTest {
 
     /**
      * Clears all employee-role mappings from RoleManager.
+     *
+     * @throws Exception if reflection access fails
      */
     private void clearRoleManager() throws Exception {
         RoleManager manager = RoleManager.getInstance();
@@ -236,8 +242,10 @@ public class ShiftServiceTest {
     /**
      * Clears all employee constraints from ConstraintManager.
      *
-     * This method scans all fields and clears the first Map field found,
-     * avoiding dependency on an exact internal field name.
+     * This method scans all fields and clears every map field found,
+     * avoiding dependency on a specific internal field name.
+     *
+     * @throws Exception if reflection access fails
      */
     private void clearConstraintManager() throws Exception {
         ConstraintManager manager = ConstraintManager.getInstance();
@@ -255,6 +263,8 @@ public class ShiftServiceTest {
     /**
      * Clears all shift-related data from ShiftManager,
      * including shifts, published weeks, assignments, and requirements.
+     *
+     * @throws Exception if reflection access fails
      */
     private void clearShiftManager() throws Exception {
         ShiftManager manager = ShiftManager.getInstance();
@@ -291,7 +301,4 @@ public class ShiftServiceTest {
             }
         }
     }
-
-
-
 }

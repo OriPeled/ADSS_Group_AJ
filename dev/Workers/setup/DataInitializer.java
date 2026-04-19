@@ -63,7 +63,7 @@ public class DataInitializer {
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Dana Azulay", 224, Role.Cashier, LocalDate.of(2025, 2, 1));
 
-// Storekeepers
+            // Storekeepers
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Nissim", 333, Role.Storekeeper, LocalDate.of(2021, 9, 30));
 
@@ -277,7 +277,7 @@ public class DataInitializer {
         );
 
         employeeService.add(name, id, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
-        accessService.Register(id, String.format("%04d", id));
+        //accessService.Register(id, String.format("%04d", id));
         roleService.addRoleToEmployee(id, role);
         constraintService.initConstraintForEmployee(id);
     }

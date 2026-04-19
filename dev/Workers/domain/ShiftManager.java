@@ -154,7 +154,7 @@ public class ShiftManager {
             throw new IllegalArgumentException("You entered the same ID twice.");
         employeeManager.validateEmployeeBasic(currentEmployeeId);
         employeeManager.validateEmployeeBasic(newEmployeeId);
-        if (!assignments.isAssignedToShift(shift, newEmployeeId))
+        if (!assignments.isAssignedToShift(shift, currentEmployeeId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
 
         Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
@@ -251,9 +251,7 @@ public class ShiftManager {
 
             for (Integer id : idsToRemove) {
                 removeEmployee(shift, role, id);
-                System.out.println("Overstaffed: Employee " +
-                                    employeeManager.getById(id).getName() +
-                                    " (" + id + ") removed.");
+
             }
         }
     }

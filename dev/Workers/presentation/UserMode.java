@@ -24,38 +24,28 @@ public class UserMode {
 
         while (true) {
             System.out.println("Please enter ID or 0 to cancel:");
-            String idInput = scanner.nextLine();
-            int enteredID;
-            try {
-                enteredID = Integer.parseInt(idInput);
-                if (enteredID == 0) return;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid ID format.");
-                continue;
-            }
-
+            int enteredID =readIntSafe();
+            if (enteredID == 0) return;
             System.out.println("Please enter password or 0 to cancel:");
             String enteredPassword = scanner.nextLine();
             if (enteredPassword.equals("0")) return;
 
-            UserResponse loginResponse = accessService.login(enteredID, enteredPassword);
+            UserResponse loginResponse = null;
+            try {
+                loginResponse = accessService.login(enteredID, enteredPassword);
+                if (loginResponse == success) {
+                    employeeId = enteredID;
+                    start();
+                    return;
+                }
+                else if (loginResponse == notRegistered) {
+                    handleRegistration(enteredID);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                continue;
+            }
 
-            if (loginResponse == success) {
-                employeeId = enteredID;
-                start();
-                return;
-            } else if (loginResponse == notInSystem) {
-                System.out.println("No such employee.");
-            }
-            else if (loginResponse == fired) {
-                System.out.println("You have been fired. Access denied.");
-                return;
-            }
-            else if (loginResponse == notRegistered) {
-                handleRegistration(enteredID);
-            } else if (loginResponse ==  wrongPassword) {
-                System.out.println("Wrong password.");
-            }
         }
     }
 
@@ -68,9 +58,11 @@ public class UserMode {
             if (newPass.equals("0")) return;
             try {
                 accessService.Register(id, newPass);
+                return;
             }
              catch (Exception e) {
                 System.out.println(e.getMessage());
+
              }
 
 

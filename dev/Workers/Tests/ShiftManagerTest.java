@@ -7,7 +7,7 @@ import dev.Workers.domain.EmployeeTerms;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.RoleManager;
 import dev.Workers.domain.ShiftManager;
-import dev.Workers.domain.Objects.Employee;
+
 import dev.Workers.domain.Objects.Shift;
 
 
@@ -58,16 +58,10 @@ public class ShiftManagerTest {
         RoleManager roleManager = RoleManager.getInstance();
         ConstraintManager constraintManager = ConstraintManager.getInstance();
 
-        Employee employee = new Employee(
-                name,
-                id,
-                100000 + id,
-                5000,
-                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2),
-                LocalDate.of(2026, 4, 1)
-        );
+        EmployeeTerms terms;
 
-        employeeManager.add(id, employee);
+        terms=new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2);
+        employeeManager.add(name,id, 100000,5000,terms, LocalDate.of(2026, 4, 1));
         roleManager.addRoleToEmployee(id, role);
         constraintManager.initConstraintForEmployee(id);
     }
@@ -367,8 +361,7 @@ public class ShiftManagerTest {
      * - replaceEmployee completes successfully
      * - The role remains fully staffed
      */
-    @Test
-    void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
+public void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
         ShiftManager shiftManager = ShiftManager.getInstance();
         ConstraintManager constraintManager = ConstraintManager.getInstance();
 

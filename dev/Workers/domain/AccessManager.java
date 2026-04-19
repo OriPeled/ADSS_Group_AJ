@@ -60,14 +60,15 @@ public class AccessManager {
 
     public UserResponse login(int id, String password) {
         if (!employeeManager.isEmployee(id))
-            return notInSystem;
+            throw new IllegalArgumentException("No such Employee.");
         else if (!employeeManager.getById(id).isActive()) {
-            return fired;
-        } else if (!isRegisteredUser(id))
+           throw new IllegalArgumentException("Employee is not active.");
+        } else if (!isRegisteredUser(id)){
             return notRegistered;
-        if (wrongPassword(id, password))
-            return wrongPassword;
-
+        }
+        if (wrongPassword(id, password)){
+            throw new IllegalArgumentException("Wrong password.");
+        }
         return success;
     }
 
@@ -76,15 +77,14 @@ public class AccessManager {
      * * @param id The unique identifier of the employee to remove.
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
-    public UserResponse remove(int id) {
+    public void remove(int id) {
         if (accessMap.containsKey(id)) {
             accessMap.remove(id);
-            return UserResponse.success;
-        } else {
-            return UserResponse.failure;
-        }
-    }
 
+        } else {
+            throw new IllegalArgumentException("No such employee.");
+    }
+   }
     public boolean wrongPassword(int id, String password) {
         return !getAccess(id).getPassword().equals(password);
     }
@@ -95,13 +95,13 @@ public class AccessManager {
      * @param newPassword The new password to be set.
      * @throws IllegalArgumentException if the user is not registered in the system.
      */
-    public UserResponse updatePassword(int id, String newPassword) {
+    public void updatePassword(int id, String newPassword) {
         Access access = accessMap.get(id);
         if (access != null) {
             access.setPassword(newPassword);
-            return UserResponse.success;
+
         } else {
-            return UserResponse.failure;
+           throw new IllegalArgumentException("No such employee.");
         }
     }
 

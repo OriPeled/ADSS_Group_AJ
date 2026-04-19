@@ -11,7 +11,7 @@ import java.util.Map;
  * This class is implemented as a Singleton.
  * Provides functionality to add, remove, and retrieve employees.
  */
-public class EmployeeManager implements IManager<Employee> {
+public class EmployeeManager   {
     private Map<Integer, Employee> employees;   // Employee ID to Employee
     private static EmployeeManager instance;
 
@@ -43,17 +43,7 @@ public class EmployeeManager implements IManager<Employee> {
         return employee != null;
     }
 
-    /**
-     * Adds an employee object to the system
-     *
-     * @param id       employee ID (not used directly, taken from employee object)
-     * @param employee employee object
-     */
-    @Override
-    public void add(int id, Employee employee) {
 
-        employees.put(employee.getId(), employee);
-    }
 
     /**
      * Creates and adds a new employee to the system
@@ -68,22 +58,14 @@ public class EmployeeManager implements IManager<Employee> {
 
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         if (isEmployee(id)) {
-            System.out.println("Employee already works.");
-            return;
-        }
-        if (salary <= 0) {
-            System.out.println("Salary must be a positive number.");
-            return;
-        }
-        if (bankAccount <= 0) {
-            System.out.println("Invalid bank account details.");
-            return;
+            throw new IllegalArgumentException("Employee ID " + id + " already exists.");
+
         }
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
-        add(id, newEmp);
+        employees.put(newEmp.getId(), newEmp);
     }
 
-    @Override
+
     public void remove(int id) {
         Employee emp = employees.get(id);
         if (emp == null || !emp.isActive()) {
@@ -92,7 +74,7 @@ public class EmployeeManager implements IManager<Employee> {
         emp.terminateEmployee(LocalDate.now());
     }
 
-    @Override
+
     public Employee getById(int id) {
         return employees.get(id);
     }
