@@ -19,19 +19,19 @@ import static dev.Workers.presentation.Parser.getRoleFromNumber;
 /**
  * Handles the HR shift-management user interface.
  *
- * <p>This class is responsible for:
- * <ul>
- *     <li>Managing the weekly shifts menu</li>
- *     <li>Selecting a day and shift type</li>
- *     <li>Updating shift assignments</li>
- *     <li>Updating staffing requirements</li>
- *     <li>Removing shifts</li>
- *     <li>Publishing the weekly schedule</li>
- *     <li>Updating the constraints deadline</li>
- *     <li>Displaying shifts history</li>
- * </ul>
+ * This class is responsible for:
  *
- * <p>This class belongs to the presentation layer and communicates only
+ *     Managing the weekly shifts menu
+ *     Selecting a day and shift type
+ *     Updating shift assignments
+ *     Updating staffing requirements
+ *     Removing shifts
+ *     Publishing the weekly schedule
+ *     Updating the constraints deadline
+ *     Displaying shifts history
+ *
+ *
+ * This class belongs to the presentation layer and communicates only
  * with the relevant services.
  */
 public class ManageShiftsMenu {
@@ -45,13 +45,13 @@ public class ManageShiftsMenu {
     /**
      * Starts the main shifts menu loop.
      *
-     * <p>The user can:
-     * <ul>
-     *     <li>Manage the shifts of the week</li>
-     *     <li>View shifts history</li>
-     *     <li>Update the constraints deadline</li>
-     *     <li>Return to the previous menu</li>
-     * </ul>
+     * The user can:
+     *
+     *    Manage the shifts of the week
+     *     View shifts history
+     *     Update the constraints deadline
+     *     Return to the previous menu
+     *
      */
     public static void start() {
         while (true) {
@@ -73,13 +73,13 @@ public class ManageShiftsMenu {
     /**
      * Manages the weekly shifts flow.
      *
-     * <p>This method:
-     * <ul>
-     *     <li>Checks whether the week is ready to publish</li>
-     *     <li>Displays the current weekly assignments table</li>
-     *     <li>Allows the user to choose a day and shift type</li>
-     *     <li>Transfers control to the selected shift menu</li>
-     * </ul>
+     * This method:
+     *
+     *     Checks whether the week is ready to publish
+     *     Displays the current weekly assignments table
+     *     Allows the user to choose a day and shift type
+     *     Transfers control to the selected shift menu
+     *
      */
     private static void manageShiftsWeek() {
         while (true) {
@@ -134,12 +134,12 @@ public class ManageShiftsMenu {
     /**
      * Displays the update menu for a specific shift.
      *
-     * <p>The user can:
-     * <ul>
-     *     <li>Update assignments</li>
-     *     <li>Update role requirements</li>
-     *     <li>Go back</li>
-     * </ul>
+     * The user can:
+     *
+     *    Update assignments
+     *     Update role requirements
+     *    Go back
+     *
      *
      * @param shift the selected shift
      */

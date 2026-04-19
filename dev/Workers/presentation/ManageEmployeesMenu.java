@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import static dev.Workers.presentation.Main.scanner;
 import static dev.Workers.presentation.Parser.*;
 
-public class ManageEmployeesMenu {
+public class ManageEmployeesMenu  {
     static EmployeeService employeeService = EmployeeService.getInstance();
     static ConstraintService constraintService = ConstraintService.getInstance();
     static RoleService roleService = RoleService.getInstance();

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 /**
  * Manages employee assignments for shifts.
- * <p>
  * This class is responsible for storing and managing which employees
  * are assigned to which role inside each shift.
  */
@@ -25,19 +24,10 @@ public class Assignments {
         this.assignments = new HashMap<>();
     }
 
-    /**
-     * public void init(Shift shift) {
-     * Map<Role, Set<Integer>> innerMap = new HashMap<>();
-     * Set<Integer> innerSet = new HashSet<>();
-     * for (Role role : Role.values())
-     * innerMap.put(role, innerSet);
-     * assignments.put(shift, innerMap);
-     * }
-     */
+
 
     public void init(Shift shift) {
-        /*if (assignments.containsKey(shift))
-            return;*/
+
 
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
         for (Role role : Role.values()) {

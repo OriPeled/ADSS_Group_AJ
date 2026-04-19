@@ -20,8 +20,12 @@ public class Requirements {
 
     public void init(Shift shift) {
         Map<Role, Integer> innerMap = new HashMap<>();
+        innerMap.put(Role.shiftManager, 1);
         for (Role role : Role.values()) {
-            innerMap.put(role, 3);
+            if (role != Role.shiftManager) {
+                innerMap.put(role, 3);
+            }
+
         }
         data.put(shift, innerMap);
     }

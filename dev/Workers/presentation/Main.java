@@ -39,7 +39,7 @@ public class Main {
                     break;
                 case 0:
                     System.out.println("Have a good day.");
-                    //scanner.close();
+
                     //break;
                     System.exit(0);
                 default:

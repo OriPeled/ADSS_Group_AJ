@@ -50,16 +50,12 @@ public class AccessManager {
      * @param password The password to be assigned to the user.
      * @throws IllegalArgumentException if the password is null/empty or if the user already exists.
      */
-    public UserResponse register(int id, String password) {
+    public void register(int id, String password) {
         if (password == null || password.trim().isEmpty()) {
-            return UserResponse.failure;
-        }
-
-        if (accessMap.containsKey(id)) {
-            return UserResponse.failure;
+            throw new IllegalArgumentException("Password cannot be null or empty");
         }
         accessMap.put(id, new Access(password));
-        return UserResponse.success;
+
     }
 
     public UserResponse login(int id, String password) {

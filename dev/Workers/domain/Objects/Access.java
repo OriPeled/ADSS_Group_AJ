@@ -1,6 +1,10 @@
 package dev.Workers.domain.Objects;
 
+import java.util.Objects;
+
 public class Access {
+
+
     private String password;
 
     public Access(String password) {

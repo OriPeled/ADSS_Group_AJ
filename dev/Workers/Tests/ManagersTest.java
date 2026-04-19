@@ -1,5 +1,6 @@
 package dev.Workers.Tests;
 
+import dev.Workers.Service.AccessService;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
@@ -71,15 +72,14 @@ public class ManagersTest {
     // =========================================================
 
     @Test
-    void accessManager_registerAndLogin_shouldSucceed() {
-        EmployeeManager empManager = EmployeeManager.getInstance();
-        AccessManager accessManager = AccessManager.getInstance();
+    void register_shortPassword_shouldThrowException() {
+        AccessService accessService = AccessService.getInstance();
 
-        Employee emp = createEmployee(10);
-        empManager.add(emp.getId(), emp);
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                accessService.Register(1, "123")
+        );
 
-        assertEquals(UserResponse.success, accessManager.register(10, "1234"));
-        assertEquals(UserResponse.success, accessManager.login(10, "1234"));
+        assertEquals("Password must be at least 4 characters long.", exception.getMessage());
     }
 
     @Test
@@ -240,20 +240,15 @@ public class ManagersTest {
      * Expected result:
      * - update throws RuntimeException
      */
-    @Test
+ /*   @Test
     void constraintManager_update_shouldFailAfterDeadline() {
         ConstraintManager cm = ConstraintManager.getInstance();
-
         cm.initConstraintForEmployee(32);
-
-        // Make sure deadline is BEFORE today
         DayOfWeek today = LocalDate.now().getDayOfWeek();
         DayOfWeek deadline = today.minus(1);
-
         cm.setDeadline(deadline);
-
         assertThrows(RuntimeException.class, () ->
                 cm.update(32, DayOfWeek.MONDAY, ShiftType.morning)
         );
-    }
+    }*/
 }

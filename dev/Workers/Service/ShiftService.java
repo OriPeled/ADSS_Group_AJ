@@ -36,7 +36,7 @@ public class ShiftService {
         this.shiftManager = ShiftManager.getInstance();
     }
 
-    // --- Shift Management ---
+
 
     public void addShift(LocalDate date, ShiftType type) {
         shiftManager.addShift(date, type);
@@ -86,15 +86,13 @@ public class ShiftService {
         shiftManager.publishWeekSchedule(lastSunday);
     }
 
-    // --- Queries & Reports ---
+
 
     public String getAvailableEmployeesForShift(Shift shift) {
         return shiftManager.getUnassignedValid(shift);
     }
 
-    public Map<Shift, String> getWeekAssignmentStatus() {
-        return shiftManager.weekAssignment();
-    }
+
 
     public String displayWeekAssignments() {
         return shiftManager.displayWeekAssignments();
@@ -116,9 +114,7 @@ public class ShiftService {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
     }
-    public boolean isRoleNeeded(Shift shift, Role role) {
-        return shiftManager.isNeeded(shift, role);
-    }
+
 
     public WeekStatus getWeekStatus() {
         return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());

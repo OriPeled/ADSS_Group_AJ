@@ -79,24 +79,6 @@ public class EmployeeService {
      *
      * @param id the unique ID of the employee to remove
      * @throws IllegalArgumentException if the employee is not found or is already inactive
-     *                                  <p>
-     *                                  public void remove(int id) {
-     *                                  Employee emp = employeeManager.getById(id);
-     *                                  <p>
-     *                                  if (emp.isActive()) {
-     *                                  // Update termination date (business logic)
-     *                                  emp.terminateEmployee(LocalDate.now());
-     *                                  <p>
-     *                                  // Remove system access
-     *                                  try {
-     *                                  accessService.removeUser(id);
-     *                                  } catch (IllegalArgumentException e) {
-     *                                  // Ignore if the employee didn't have a configured password
-     *                                  }
-     *                                  } else {
-     *                                  throw new IllegalArgumentException("Cannot remove: Employee ID " + id + " already inactive.");
-     *                                  }
-     *                                  }
      */
 
     public void remove(int id) {
@@ -106,23 +88,8 @@ public class EmployeeService {
         }
     }
 
-    /**
-     * Retrieves an employee by their ID.
-     *
-     * @param id the unique ID of the employee
-     * @return the Employee object, or null if not found
-     */
-//    public Employee getEmployee(int id) {
-//        Employee emp = employeeManager.getById(id);
-//        if (emp == null) {
-//            throw new NullPointerException("Employee doesn't exist");
-//        }
-//        return emp;
-//    }
 
-    public boolean isEmployee(int id) {
-        return employeeManager.isEmployee(id);
-    }
+
 
     public void updateName(int id, String newName) {
         if (newName == null || newName.trim().isEmpty()) {
@@ -184,7 +151,7 @@ public class EmployeeService {
         emp.getTerms().setRestDays(days);
     }
 
-    // === Read methods ===
+
 
     /**
      * Checks if an employee exists and returns their name.

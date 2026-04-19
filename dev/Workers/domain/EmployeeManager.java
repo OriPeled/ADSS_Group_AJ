@@ -8,7 +8,6 @@ import java.util.Map;
 
 /**
  * Manages all employees in the system.
- * <p>
  * This class is implemented as a Singleton.
  * Provides functionality to add, remove, and retrieve employees.
  */

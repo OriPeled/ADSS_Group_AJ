@@ -33,20 +33,6 @@ public class ConstraintService {
         return instance;
     }
 
-    /*public void setNextThursdayDeadline() {
-        constraintManager.setNextWeekDeadline();
-    }
-
-    public void setThisThursdayDeadline() {
-        constraintManager.setThisWeekDeadline();
-    }*/
-
-    /**
-     * @return map of all employee constraints
-     */
-    public Map<Integer, Constraint> getEmployeeConstraints() {
-        return constraintManager.getConstraintsByID();
-    }
 
     /**
      * Returns constraints of a specific employee
@@ -70,17 +56,7 @@ public class ConstraintService {
         constraintManager.update(id, day, shiftType);
     }
 
-    /**
-     * Checks if an employee is available for a given shift
-     *
-     * @param id employee ID
-     * @param day day of week
-     * @param shiftType shift type to check
-     * @return true if available, false otherwise
-     */
-    public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
-        return constraintManager.isEmployeeAvailable(id, day, shiftType);
-    }
+
 
     /**
      * Converts a number (1-7) to a DayOfWeek
@@ -114,15 +90,7 @@ public class ConstraintService {
     public void setDeadline(DayOfWeek deadline) {
         constraintManager.setDeadline(deadline);
      }
-    /**
-     * Resets all employees' constraints.
-     *
-     * For every employee:
-     * - All days in the week will be set to wholeDay
-     */
-    public void resetAllConstraints() {
-        constraintManager.resetAllConstraints();
-    }
+
 
     public void initConstraintForEmployee(int id) {
         constraintManager.initConstraintForEmployee(id);

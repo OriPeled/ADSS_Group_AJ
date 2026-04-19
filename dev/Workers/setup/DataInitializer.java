@@ -92,7 +92,7 @@ public class DataInitializer {
             // LAST WEEK SHIFTS 12/04/2026
             // =========================
 
-            /*LocalDate lastSunday = LocalDate.now()
+            LocalDate lastSunday = LocalDate.now()
                     .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
                     .minusWeeks(1);
 
@@ -185,7 +185,7 @@ public class DataInitializer {
 
 
             }
-            shiftService.publishWeekSchedule();*/
+            shiftService.publishWeekSchedule();
 
             // =========================
             // NEXT WEEK SHIFTS 26/04/2026
@@ -277,7 +277,7 @@ public class DataInitializer {
         );
 
         employeeService.add(name, id, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
-        accessService.Register(id, String.valueOf(id));
+        accessService.Register(id, String.format("%04d", id));
         roleService.addRoleToEmployee(id, role);
         constraintService.initConstraintForEmployee(id);
     }

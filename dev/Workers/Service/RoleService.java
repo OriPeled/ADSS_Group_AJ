@@ -7,7 +7,6 @@ import java.util.*;
 
 /**
  * Manages roles assigned to employees.
- * <p>
  * This class is implemented as a Singleton.
  * It supports assigning roles to employees, removing roles,
  * and querying employees by roles.
@@ -83,46 +82,15 @@ public class RoleService {
         return roleManager.getListById(id);
     }
 
-    public List<Role> availableToAddRoles(int id) {
-        return roleManager.availableToAddRoles(id);
-    }
 
     public String getFormattedAvailableRoles(int id) {
         return roleManager.getFormattedAvailableRoles(id);
     }
 
-    /**
-     * Returns all employees who have a specific role
-     *
-     * @param role role to search for
-     * @return list of employee IDs
-     */
-    public List<Integer> getEmployeesByRole(Role role) {
-        return roleManager.getListByRole(role);
-    }
 
-    /**
-     *
-     * @param id
-     * @param role
-     * @return true if role beloge to id , otherwise false
-     */
-    public boolean hasRole(int id, Role role) {
-        return roleManager.hasRole(id, role);
-    }
 
-    public void promoteDemote(int id) {
-        List<Role> roles = roleManager.getListById(id);
 
-        /*if (roles == null) {
-            throw new IllegalArgumentException("Employee roles not found for id: " + id);
-        }
 
-        if (roles.isEmpty()) {
-            throw new IllegalStateException("Employee has no roles. Cannot promote/demote.");
-        }*/
 
-        roleManager.promoteDemote(id);
-    }
 
 }

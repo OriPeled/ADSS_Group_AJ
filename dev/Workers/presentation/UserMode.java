@@ -66,15 +66,14 @@ public class UserMode {
             System.out.println("Please enter new password or 0 to cancel:");
             String newPass = scanner.nextLine();
             if (newPass.equals("0")) return;
-
-            UserResponse registerResponse = accessService.Register(id, newPass);
-
-            if (registerResponse == invalidPassword) {
-                System.out.println("Invalid Password. Please enter at least 4 characters.");
-            } else {
-                System.out.println("Successfully registered.");
-                break;
+            try {
+                accessService.Register(id, newPass);
             }
+             catch (Exception e) {
+                System.out.println(e.getMessage());
+             }
+
+
         }
     }
 

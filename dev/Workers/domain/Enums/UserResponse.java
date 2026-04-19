@@ -8,5 +8,5 @@ public enum UserResponse {
     notInSystem,
     invalidPassword,
     fired,
-    HrMode
+
 }

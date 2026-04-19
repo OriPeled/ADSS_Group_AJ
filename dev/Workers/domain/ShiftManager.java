@@ -154,7 +154,7 @@ public class ShiftManager {
             throw new IllegalArgumentException("You entered the same ID twice.");
         employeeManager.validateEmployeeBasic(currentEmployeeId);
         employeeManager.validateEmployeeBasic(newEmployeeId);
-        if (!assignments.isAssignedToShift(shift, currentEmployeeId))
+        if (!assignments.isAssignedToShift(shift, newEmployeeId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
 
         Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
@@ -189,12 +189,6 @@ public class ShiftManager {
 
         removeEmployee(shift, roleCur, currentEmployeeId);
         assignEmployee(shift, roleCur, newEmployeeId);
-    }
-
-    private boolean isValid(Shift shift, Role role, int employeeId) {
-        return isAvailable(employeeId, shift)
-                && isQualified(employeeId, role)
-                && isNeeded(shift, role);
     }
 
     private boolean isSpecialValid(Shift shift, Role role, int employeeId) {
@@ -274,9 +268,6 @@ public class ShiftManager {
 
         List<Shift> result = new ArrayList<>();
 
-        // 1. Find the next Sunday relative to today
-        // Note: 'next(SUNDAY)' will always move to the future,
-        // even if today is already Sunday.
         LocalDate startDay = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
         // 2. Iterate for 7 days starting from that Sunday
@@ -342,9 +333,6 @@ public class ShiftManager {
 
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
-
-        //constraintManager.setNextWeekDeadline();
-        //constraintManager.setDeadline();
         constraintManager.resetAllConstraints();
     }
 
@@ -358,9 +346,6 @@ public class ShiftManager {
         return getOrCreateWeek(nextSunday);
     }
 
-    public boolean isNextWeekPublished() {
-        return getNextWeek().isPublished();
-    }
 
     private List<Shift> getShiftsForWeek(LocalDate dateInWeek) {
         LocalDate startDay = dateInWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));

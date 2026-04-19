@@ -45,11 +45,11 @@ public class AccessService {
      * @param password The password to be assigned (must be at least 4 characters).
      * @throws IllegalArgumentException If the password is invalid or the user is already registered.
      */
-    public UserResponse Register(int id, String password) {
+    public void Register(int id, String password) {
         if (password.length() < 4) {
-           return invalidPassword;
+          throw new IllegalArgumentException("Password must be at least 4 characters long.");
         }
-        return accessManager.register(id, password);
+         accessManager.register(id, password);
     }
 
     public UserResponse login(int id, String password) {
@@ -87,29 +87,5 @@ public class AccessService {
         return accessManager.isRegisteredUser(id);
     }
 
-    /**
-     * Retrieves the Access object containing credentials for a specific employee.
-     * * @param id The unique identifier of the employee.
-     * @return The {@link Access} object, or {@code null} if the user is not found.
-     */
-    public Access getAccess(int id) {
-        Access access = accessManager.getAccess(id);
-        if (access == null)
-            throw new NullPointerException("No such employee.");
-        return accessManager.getAccess(id);
-    }
 
-    /**
-     * Authenticates a user by comparing a provided password with the stored one.
-     * * @param id               The employee ID attempting to log in.
-     * @param providedPassword The password entered by the user.
-     * @return {@code true} if credentials match; {@code false} if user not found or password incorrect.
-     */
-    public boolean authenticate(int id, String providedPassword) {
-        Access access = accessManager.getAccess(id);
-        if (access == null || providedPassword == null) {
-            return false;
-        }
-        return access.getPassword().equals(providedPassword);
-    }
 }
