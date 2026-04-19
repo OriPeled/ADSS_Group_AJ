@@ -289,7 +289,7 @@ public class ManageEmployeesMenu  {
                 return;
             }
 
-            Role selectedRole = getRoleFromNumber(choice);
+            Role selectedRole = getRoleFromNumber(choice+1);
 
             try {
                 roleService.addRoleToEmployee(empId, selectedRole);

@@ -59,7 +59,6 @@ public class AccessManager {
     }
 
     public UserResponse login(int id, String password) {
-
         if (!employeeManager.isEmployee(id))
             return notInSystem;
         else if (!employeeManager.getById(id).isActive()) {

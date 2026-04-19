@@ -181,24 +181,4 @@ public class RoleManager  {    // maps employee ID to list of roles
         List<Role> roles = getListById(id);
         return roles != null && roles.contains(role);
     }
-
-    /**
-     * Promotes or demotes an employee to/from shift manager.
-     *
-
-     */
-    public void promoteDemote(int id) {
-        // if employeeRoles == null?
-        if (employeeRoles.get(id).contains(shiftManager)) {
-            employeeRoles.get(id).remove(shiftManager);
-            System.out.println("Employee is no longer shift manager.");
-        } else {
-            addRoleToEmployee(id, shiftManager);
-            for (Role role : Role.values()) {
-                if (!hasRole(id, role))
-                    addRoleToEmployee(id, role);
-            }
-            System.out.println("Employee is now shift manager.");
-        }
-    }
 }
