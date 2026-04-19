@@ -74,7 +74,7 @@ public class ShiftService {
         shiftManager.forceAssign(shift, role, employeeId2);
     }
 
-    public boolean nobodyToAssign(Shift shift, Role role) {
+    public boolean nobodyToAssignEmployee(Shift shift, Role role) {
         return shiftManager.nobodyToAssign(shift, role);
     }
 
@@ -132,5 +132,8 @@ public class ShiftService {
 
     public WeekStatus getWeekStatus() {
         return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());
+    }
+    public boolean nobodyToAssign(Shift shift, Role role) {
+        return shiftManager.nobodyToAssign(shift, role);
     }
 }

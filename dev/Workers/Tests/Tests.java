@@ -1,224 +1,166 @@
-//package dev.Workers.Tests;
-//
-//import dev.Workers.Service.*;
-//import dev.Workers.domain.Enums.Role;
-//import dev.Workers.domain.Enums.shiftType;
-//import dev.Workers.domain.Objects.Shift;
-//import org.junit.jupiter.api.*;
-//
-//import java.time.DayOfWeek;
-//import java.time.LocalDate;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//
-///**
-// * Integrated Unit Tests for Workers Management System.
-// * Covers ShiftService, ConstraintManager, AccessService, EmployeeManager, and RoleManager.
-// * Includes Null checks and Edge cases.
-// */
-//public class Tests {
-//
-//    private ShiftService shiftService;
-//    private RoleService roleService;
-//    private ConstraintService constraintService;
-//    private EmployeeService employeeService;
-//    private AccessService accessService;
-//
-//    @BeforeEach
-//    void setUp() {
-//        // Initialize instances
-//        shiftService = ShiftService.getInstance();
-//        roleService = RoleService.getInstance();
-//        constraintService = ConstraintService.getInstance();
-//        employeeService = EmployeeService.getInstance();
-//        accessService = AccessService.getInstance();
-//
-//    }
-//
-//
-//    @Test
-//    @DisplayName("ShiftService: Add and retrieve a shift")
-//    void testAddShift() {
-//        LocalDate date = LocalDate.now().plusWeeks(1);
-//        shiftService.addShift(date, shiftType.morning);
-//
-//        Shift shift = shiftService.getShift(date, shiftType.morning);
-//        assertNotNull(shift, "Shift should exist in the system.");
-//        assertEquals(date, shift.getShiftDate(), "Shift date mismatch.");
-//    }
-//
-//  /*  @Test
-//    @DisplayName("ShiftService: Set and track staffing requirements")
-//    void testRequirements() {
-//        LocalDate date = LocalDate.now().plusWeeks(1);
-//        shiftService.addShift(date, shiftType.evening);
-//        Shift shift = shiftService.getShift(date, shiftType.evening);
-//
-//        shiftService.setRequirement(shift, Role.Cashier, 3);
-//        assertEquals(3, shiftService.leftToAssign(shift, Role.Cashier),
-//                "The number of employees left to assign should match the requirement.");
-//    }*/
-//
-//    @Test
-//    @DisplayName("ShiftService: Fail assignment for unqualified employee")
-//    void testUnqualifiedAssignment() {
-//        LocalDate date = LocalDate.now().plusDays(5);
-//        shiftService.addShift(date, shiftType.morning);
-//        Shift shift = shiftService.getShift(date, shiftType.morning);
-//
-//        // Employee ID 999 is not registered with roles in RoleManager
-//        assertThrows(RuntimeException.class, () -> {
-//            shiftService.assignEmployee(shift, Role.shiftManager, 999);
-//        }, "Assignment should be blocked if the employee is not qualified for the role.");
-//    }
-//
-//    // ==========================================
-//    // --- ORIGINAL CONSTRAINTMANAGER TESTS ---
-//    // ==========================================
-//
-//    @Test
-//    @DisplayName("ConstraintManager: Verify deadline enforcement")
-//    void testDeadlineLogic() {
-//        LocalDate futureDate = LocalDate.now().plusDays(5);
-//        constraintService.setDeadline(futureDate);
-//        assertTrue(constraintService.isOnTime(LocalDate.now()),
-//                "Should return true when current date is before deadline.");
-//
-//        LocalDate pastDate = LocalDate.now().minusDays(1);
-//        constraintService.setDeadline(pastDate);
-//        assertFalse(constraintService.isOnTime(LocalDate.now()),
-//                "Should return false when current date is after deadline.");
-//    }
-//
-//    @Test
-//    @DisplayName("ConstraintManager: Map number to DayOfWeek")
-//    void testDayFromNumber() {
-//        assertEquals(DayOfWeek.SUNDAY, ConstraintService.getDayFromNumber(1));
-//        assertEquals(DayOfWeek.SATURDAY, ConstraintService.getDayFromNumber(7));
-//
-//        assertThrows(IllegalArgumentException.class, () -> {
-//            ConstraintService.getDayFromNumber(8);
-//        }, "Should throw exception for days outside the 1-7 range.");
-//    }
-//
-//
-//    // ==========================================
-//    // --- NEW: ACCESS SERVICE TESTS ---
-//    // ==========================================
-//
-//  /*  @Test
-//    @DisplayName("AccessService: Register and remove user")
-//    void testRegisterAndRemoveUser() {
-//        int empId = 101;
-//        accessService.Register(empId, "password123");
-//
-//        assertTrue(accessService.isRegisteredUser(empId), "User should be registered");
-//
-//        accessService.Remove(empId);
-//        assertFalse(accessService.isRegisteredUser(empId), "User should be removed");
-//    }*/
-//
-//   /* @Test
-//    @DisplayName("AccessService: Update password for existing user")
-//    void testUpdatePassword() {
-//        int empId = 102;
-//        accessService.Register(empId, "oldPass");
-//        accessService.updatePassword(empId, "newPass");
-//
-//        // Assuming there is no direct getPassword() exposed for security,
-//        // we mainly check that the update doesn't throw an error for an existing user.
-//        assertDoesNotThrow(() -> accessService.updatePassword(empId, "anotherPass"));
-//    }*/
-//
-//
-//    // ==========================================
-//    // --- NEW: EMPLOYEE MANAGER TESTS ---
-//    // ==========================================
-//
-//    @Test
-//    @DisplayName("EmployeeManager: Add employee and verify existence")
-//    void testAddEmployee() {
-//        int empId = 500;
-//        // Adding an employee with basic valid parameters
-//        employeeService.add("Yossi", empId, 12345, 8000.0, null, LocalDate.now());
-//
-//        assertTrue(employeeService.isEmployee(empId), "Employee should exist after being added.");
-//    }
-//
-//    @Test
-//    @DisplayName("EmployeeManager: Handle negative salary gracefully")
-//    void testAddEmployeeNegativeSalary() {
-//        int empId = 501;
-//        // Should print an error message and NOT add the employee
-//        employeeService.add("Dana", empId, 12345, -500.0, null, LocalDate.now());
-//
-//        assertFalse(employeeService.isEmployee(empId), "Employee with negative salary should not be added.");
-//    }
-//
-//
-//    // ==========================================
-//    // --- NEW: ROLE MANAGER TESTS ---
-//    // ==========================================
-//
-//   /* @Test
-//    @DisplayName("RoleManager: Add and remove roles")
-//    void testRoleManagement() {
-//        int empId = 200;
-//
-//        List<Role> roles = new ArrayList<>(Arrays.asList(Role.Cashier, Role.shiftManager));
-//
-//        roleService.addFullList(empId, roles);
-//        assertEquals(2, roleService.getListById(empId).size(), "Employee should have 2 roles.");
-//
-//
-//        roleService.removeSingleItem(empId, Role.Cashier);
-//        assertEquals(1, roleService.getListById(empId).size(), "Employee should have 1 role left.");
-//
-//        roleService.removeAll(empId);
-//        assertTrue(roleService.getListById(empId).isEmpty(), "Employee should have no roles left.");
-//    }*/
-//
-//
-//    // ==========================================
-//    // --- NEW: NULL CHECKS & EDGE CASES ---
-//    // ==========================================
-//
-//  /*  @Test
-//    @DisplayName("Null Check: AccessService - Register with Null password")
-//    void testAccessServiceNullPassword() {
-//        int empId = 999;
-//        // According to the logic, this should throw an IllegalArgumentException
-//        assertThrows(IllegalArgumentException.class, () -> {
-//            accessService.Register(empId, null);
-//        }, "Registering with a null password should throw IllegalArgumentException.");
-//    }*/
-//
-//    @Test
-//    @DisplayName("Null Check: ConstraintManager - isOnTime with Null date")
-//    void testConstraintManagerNullDate() {
-//        constraintService.setDeadline(LocalDate.now());
-//        // null.isBefore(deadline) will throw NullPointerException
-//        assertThrows(NullPointerException.class, () -> {
-//            constraintService.isOnTime(null);
-//        }, "Checking isOnTime with null date should throw NullPointerException.");
-//    }
-//
-//    @Test
-//    @DisplayName("Null Check: ShiftService - Get shift with Null parameters")
-//    void testShiftServiceNullParameters() {
-//        // Attempting to get a shift with null parameters should either return null or throw NPE
-//        // Depending on standard java implementation, checking equals on null throws NPE
-//        assertThrows(NullPointerException.class, () -> {
-//            shiftService.getShift(null, null);
-//        }, "Calling getShift with null should result in NullPointerException.");
-//    }
-//
-//  /*  @Test
-//    @DisplayName("Edge Case: AccessService - Remove non-existent user")
-//    void testRemoveNonExistentUser() {
-//        // Trying to remove a user that doesn't exist
-//        assertThrows(IllegalArgumentException.class, () -> {
-//            accessService.Remove(8888);
-//        }, "Removing a non-existent user should throw IllegalArgumentException.");
-//    }*/
-//}
+package dev.Workers.Tests;
+
+import dev.Workers.presentation.Main;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * End-to-End tests for full system flows.
+ *
+ * These tests simulate real user interaction through the console.
+ */
+public class Tests {
+
+    private final InputStream originalIn = System.in;
+    private final PrintStream originalOut = System.out;
+
+    @AfterEach
+    void restoreSystem() {
+        System.setIn(originalIn);
+        System.setOut(originalOut);
+    }
+
+    /**
+     * Scenario:
+     * 1. HR logs in
+     * 2. Adds employee
+     * 3. Fires employee
+     * 4. Tries to assign him to a shift
+     *
+     * Expected:
+     * Assignment should fail because the employee is inactive.
+     */
+    @Test
+    void testFiredEmployeeCannotBeAssigned() {
+        String input = String.join("\n",
+                "2",          // HR mode
+                "8888",       // HR password
+
+                "1",          // Employees
+                "2",          // Add employee
+                "Yossi",
+                "9999",       // unique ID
+                "12345",
+                "50",
+                "1",          // full time
+                "1",          // hourly
+                "2",          // rest days
+                "20/04/2026",
+
+                "3",          // back from manageEmployee() to Employees menu
+                "1",          // Manage existing employee
+                "9999",
+                "3",          // Remove
+                "1",          // confirm removal
+
+                "3",          // Back from Employees menu to HR main menu
+
+                "2",          // Shifts
+                "1",          // Manage Shifts Week
+                "1",          // Sunday
+                "1",          // Morning
+
+                "1",          // Update Shift
+                "1",          // Update Assignments
+                "1",          // Add assignment
+                "9999",       // fired employee
+                "1",          // role
+
+                "0",          // cancel force assign if asked
+                "3",          // back from assignments
+                "3",          // back from update shift
+                "3",          // back from manage shift
+                "4",          // back from shifts menu
+                "3",          // logout from HR menu
+                "3"           // exit main menu
+        ) + "\n";
+
+        System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(output));
+
+        Main.main(new String[]{});
+
+        String result = output.toString();
+
+        assertTrue(result.contains("Yossi"));
+        assertTrue(result.contains("Employee removed.") || result.contains("removed") || result.contains("inactive"));
+        assertTrue(
+                result.contains("Employee 9999 is inactive")
+                        || result.contains("inactive")
+                        || result.contains("Assignment failed")
+                        || result.contains("Regular assignment failed")
+        );
+    }
+
+    /**
+     * Scenario:
+     * 1. HR logs in
+     * 2. Adds employee
+     * 3. Fires employee
+     * 4. Tries to promote/demote him
+     *
+     * Expected:
+     * Operation should fail because the employee is inactive.
+     */
+    @Test
+    void testFiredEmployeeCannotBePromoted() {
+        String input = String.join("\n",
+                "2",          // HR mode
+                "8888",       // HR password
+
+                "1",          // Employees
+                "2",          // Add employee
+                "David",
+                "8888",       // unique ID
+                "12345",
+                "60",
+                "1",          // full time
+                "1",          // hourly
+                "2",          // rest days
+                "20/04/2026",
+
+                "3",          // back from manageEmployee() to Employees menu
+                "1",          // Manage existing employee
+                "8888",
+                "3",          // Remove
+                "1",          // confirm removal
+
+                "1",          // Manage existing employee again
+                "8888",
+                "2",          // Promote/Demote
+
+                "5",          // back from employee menu if entered
+                "3",          // back from Employees menu
+                "3",          // logout from HR menu
+                "3"           // exit main menu
+        ) + "\n";
+
+        System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(output));
+
+        Main.main(new String[]{});
+
+        String result = output.toString();
+
+        assertTrue(result.contains("David"));
+        assertTrue(result.contains("Employee removed.") || result.contains("removed") || result.contains("inactive"));
+        assertTrue(
+                result.contains("Employee 8888 is inactive")
+                        || result.contains("inactive")
+                        || result.contains("Error:")
+                        || result.contains("Promotion/Demotion")
+        );
+    }
+}

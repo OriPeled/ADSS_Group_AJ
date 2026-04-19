@@ -43,39 +43,41 @@ public class DataInitializer {
 
             // Shift Managers
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Shira Steinbuch", 111, Role.shiftManager);
+                    "Shira Steinbuch", 111, Role.shiftManager, LocalDate.of(2023, 1, 10));
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Daniel Cohen", 112, Role.shiftManager);
+                    "Daniel Cohen", 112, Role.shiftManager, LocalDate.of(2022, 6, 15));
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Noa Levi", 113, Role.shiftManager);
+                    "Noa Levi", 113, Role.shiftManager, LocalDate.of(2024, 3, 5));
 
-            // Cashiers
+// Cashiers
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Kokhava Shavit", 222, Role.Cashier);
+                    "Kokhava Shavit", 222, Role.Cashier, LocalDate.of(2023, 11, 20));
             accessService.Register(222, "2222");
-            createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Lior Mizrahi", 223, Role.Cashier);
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Dana Azulay", 224, Role.Cashier);
-
-            // Storekeepers
-            createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Nissim", 333, Role.Storekeeper);
+                    "Lior Mizrahi", 223, Role.Cashier, LocalDate.of(2024, 1, 12));
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Ramzi", 444, Role.Storekeeper);
+                    "Dana Azulay", 224, Role.Cashier, LocalDate.of(2025, 2, 1));
+
+// Storekeepers
+            createEmployee(employeeService, accessService, roleService, constraintService,
+                    "Nissim", 333, Role.Storekeeper, LocalDate.of(2021, 9, 30));
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Eyal Peretz", 445, Role.Storekeeper);
+                    "Ramzi", 444, Role.Storekeeper, LocalDate.of(2022, 12, 25));
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Ronaldo", 7, Role.shiftManager);
+                    "Eyal Peretz", 445, Role.Storekeeper, LocalDate.of(2023, 7, 18));
+
+// Mixed roles
+            createEmployee(employeeService, accessService, roleService, constraintService,
+                    "Ronaldo", 7, Role.shiftManager, LocalDate.of(2020, 5, 5));
 
             createEmployee(employeeService, accessService, roleService, constraintService,
-                    "Avicay", 101, Role.Cashier);
+                    "Avicay", 101, Role.Cashier, LocalDate.of(2025, 4, 15));
             // =========================
             // CONSTRAINTS (Optional)
             // =========================
@@ -165,7 +167,8 @@ public class DataInitializer {
             ConstraintService constraintService,
             String name,
             int id,
-            Role role
+            Role role,
+            LocalDate startDate
     ) {
 
         EmployeeTerms terms = new EmployeeTerms(
