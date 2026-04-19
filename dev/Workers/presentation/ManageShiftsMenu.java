@@ -119,7 +119,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> updateShift(shift);
                 case 2 -> {
-                    if (removeShift(shift)) {
+                    if (resetShift(shift)) {
                         return;
                     }
                 }
@@ -319,17 +319,17 @@ public class ManageShiftsMenu {
      * @param shift the selected shift
      * @return true if the shift was removed, otherwise false
      */
-    private static boolean removeShift(Shift shift) {
+    private static boolean resetShift(Shift shift) {
         while (true) {
-            System.out.println("Are you sure you want to remove this shift?");
+            System.out.println("Are you sure you want to reset this shift?");
             System.out.println("1. Yes");
             System.out.println("0. No");
 
             int choice = readIntSafe();
             switch (choice) {
                 case 1 -> {
-                    shiftService.removeShift(shift);
-                    System.out.println("Shift removed successfully.");
+                    shiftService.resetShift(shift);
+                    System.out.println("Shift reset successfully.");
                     return true;
                 }
                 case 0 -> {
@@ -508,7 +508,7 @@ public class ManageShiftsMenu {
         System.out.println();
         System.out.println("Managing shift: " + shift);
         System.out.println("1. Update Shift");
-        System.out.println("2. Remove Shift");
+        System.out.println("2. Reset Shift");
         System.out.println("0. Back");
     }
 

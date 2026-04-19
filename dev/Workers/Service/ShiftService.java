@@ -46,8 +46,8 @@ public class ShiftService {
         return shiftManager.getShift(date, type);
     }
 
-    public void removeShift(Shift shift) {
-        shiftManager.removeShift(shift);
+    public void resetShift(Shift shift) {
+        shiftManager.resetShift(shift);
     }
 
     public void setRequirement(Shift shift, Role role, int count) {

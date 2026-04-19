@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * - Reporting shift history and status
  */
 public class ShiftManager {
-    private final Map<LocalDate, WeekSchedule> weekSchedules = new HashMap<>();
+    private static final Map<LocalDate, WeekSchedule> weekSchedules = new HashMap<>();
 
     private final Set<Shift> shifts;
     private final Requirements requirements;
@@ -96,7 +96,7 @@ public class ShiftManager {
         return null;
     }
 
-    public void removeShift(Shift shift) {
+    public void resetShift(Shift shift) {
         shifts.remove(shift);
         requirements.init(shift);
         assignments.init(shift);
@@ -331,20 +331,10 @@ public class ShiftManager {
         return true;
     }
 
-    private WeekSchedule getOrCreateWeek(LocalDate date) {
-        LocalDate sunday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        return weekSchedules.computeIfAbsent(sunday, WeekSchedule::new);
-    }
-
     public WeekStatus getWeekStatus(LocalDate dateInWeek) {
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         boolean assigned = isWeekAssigned(dateInWeek);
         return week.calculateStatus(assigned);
-    }
-
-    public WeekSchedule getNextWeek() {
-        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        return getOrCreateWeek(nextSunday);
     }
 
     public void publishWeekSchedule(LocalDate dateInWeek) {
@@ -356,6 +346,16 @@ public class ShiftManager {
         //constraintManager.setNextWeekDeadline();
         //constraintManager.setDeadline();
         constraintManager.resetAllConstraints();
+    }
+
+    public static WeekSchedule getOrCreateWeek(LocalDate date) {
+        LocalDate sunday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        return weekSchedules.computeIfAbsent(sunday, WeekSchedule::new);
+    }
+
+    public static WeekSchedule getNextWeek() {
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        return getOrCreateWeek(nextSunday);
     }
 
     public boolean isNextWeekPublished() {
@@ -529,7 +529,6 @@ public class ShiftManager {
                     // Find the week this shift belongs to
                     LocalDate sunday = shift.getShiftDate()
                             .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-
                     WeekSchedule week = weekSchedules.get(sunday);
 
                     // Only include if the week exists

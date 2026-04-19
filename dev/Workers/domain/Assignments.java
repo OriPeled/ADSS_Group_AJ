@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * are assigned to which role inside each shift.
  */
 public class Assignments {
+
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;
 
     /**
@@ -96,63 +97,6 @@ public class Assignments {
         }
     }
 
-    public List<String> getEmployeeShiftsWeek(int id, WeekSchedule week) {
-        List<String> employeeShifts = new ArrayList<>();
-        LocalDate start = week.getStartOfWeek();
-        LocalDate end = start.plusDays(6);
-
-        // Filter assignments only within this week's range
-        for (Map.Entry<Shift, Map<Role, Set<Integer>>> entry : assignments.entrySet()) {
-            Shift shift = entry.getKey();
-            LocalDate shiftDate = shift.getShiftDate();
-
-            if (!shiftDate.isBefore(start) && !shiftDate.isAfter(end)) {
-                for (Role role : entry.getValue().keySet()) {
-                    if (isAssignedToRole(shift, role, id)) {
-                        employeeShifts.add(shift.toStringByWeekDay() + " (" + role + ")");
-                    }
-                }
-            }
-        }
-        return employeeShifts;
-    }
-
-    public String getEmployeeWeekDisplay(int id, LocalDate referenceDate) {
-        // 1. Get the domain object for this week
-        WeekSchedule week = getOrCreateWeek(referenceDate);
-        LocalDate startOfWeek = week.getStartOfWeek();
-        LocalDate endOfWeek = startOfWeek.plusDays(6);
-
-        // 2. Business Rule: Gatekeep based on the Published status
-        // (Optional: You might want to allow viewing the CURRENT week even if not published,
-        // but restricted for NEXT week).
-        if (!week.isViewableByUser()) {
-            return String.format("The schedule for the week of %s is not yet published.", startOfWeek);
-        }
-
-        // 3. Filter, Sort, and Format (Logic remains similar but uses 'week' metadata)
-        String shiftList = assignments.entrySet().stream()
-                .filter(entry -> {
-                    LocalDate shiftDate = entry.getKey().getShiftDate();
-                    return !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek);
-                })
-                .flatMap(shiftEntry -> shiftEntry.getValue().entrySet().stream()
-                        .filter(roleEntry -> roleEntry.getValue().contains(id))
-                        .map(roleEntry -> Map.entry(shiftEntry.getKey(), roleEntry.getKey()))
-                )
-                .sorted(Comparator.comparing((Map.Entry<Shift, Role> e) -> e.getKey().getShiftDate())
-                        .thenComparing(e -> e.getKey().getType()))
-                .map(e -> "- " + e.getKey().getShiftDate() + " (" + e.getKey().getType() + ") | Role: " + e.getValue())
-                .collect(Collectors.joining("\n"));
-
-        if (shiftList.isEmpty()) {
-            return String.format("No shifts for ID %d between %s and %s", id, startOfWeek, endOfWeek);
-        }
-
-        return String.format("Shifts for Employee ID: %d (Week of %s to %s)\n%s",
-                id, startOfWeek, endOfWeek, shiftList);
-    }
-
     /**
      * Returns all employees assigned to a specific role in a shift.
      *
@@ -161,8 +105,6 @@ public class Assignments {
      * @return set of employee IDs, or empty set if none exist
      */
     public Set<Integer> getEmployees(Shift shift, Role role) {
-        //System.out.println(assignments.get(shift));
-        //System.out.println(assignments.size());
         return assignments
                 .getOrDefault(shift, Collections.emptyMap())
                 .getOrDefault(role, Collections.emptySet());
