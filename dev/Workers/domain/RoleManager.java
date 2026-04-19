@@ -53,15 +53,21 @@ public class RoleManager  {    // maps employee ID to list of roles
      * Adds a single role to an employee
      *
      * @param id   employee ID
-     * @param role role to add
+     * @param newRole role to add
      */
-    public void addRoleToEmployee(int id, Role role) {
+    public void addRoleToEmployee(int id, Role newRole) {
         employeeManager.validateEmployeeBasic(id);
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }
-        if (!containsRole(id, role)) {
-            employeeRoles.get(id).add(role);
+        if (!hasRole(id, newRole)) {
+            employeeRoles.get(id).add(newRole);
+        }
+        if (newRole == shiftManager){
+            for (Role role : Role.values()) {
+                if (!hasRole(id, role))
+                    addRoleToEmployee(id, role);
+            }
         }
     }
 
@@ -145,7 +151,7 @@ public class RoleManager  {    // maps employee ID to list of roles
      * @param role
      * @return true if role beloge to id , otherwise false
      */
-    public boolean containsRole(int id, Role role) {
+    public boolean hasRole(int id, Role role) {
         List<Role> roles = getListById(id);
         return roles != null && roles.contains(role);
     }
@@ -162,6 +168,10 @@ public class RoleManager  {    // maps employee ID to list of roles
             System.out.println("Employee is no longer shift manager.");
         } else {
             addRoleToEmployee(id, shiftManager);
+            for (Role role : Role.values()) {
+                if (!hasRole(id, role))
+                    addRoleToEmployee(id, role);
+            }
             System.out.println("Employee is now shift manager.");
         }
     }

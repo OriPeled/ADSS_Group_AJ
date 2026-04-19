@@ -1,5 +1,6 @@
 package dev.Workers.Service;
 
+import dev.Workers.domain.Assignments;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftResponse;
 import dev.Workers.domain.Enums.ShiftType;
@@ -10,6 +11,7 @@ import dev.Workers.domain.ShiftManager;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,10 +19,10 @@ import java.util.Map;
  * It delegates all state management and business rules to the ShiftManager.
  */
 public class ShiftService {
-
     private final ShiftManager shiftManager;
     private static ShiftService instance;
 
+    private static Assignments assignments;
 
     /**
      * Singleton access
@@ -63,11 +65,24 @@ public class ShiftService {
         shiftManager.assignEmployee(shift, role, employeeId);
     }
 
-
-
     public void forceAssignEmployee(Shift shift, Role role, int employeeId) {
         shiftManager.forceAssign(shift, role, employeeId);
     }
+
+    public void forceReplaceEmployee(Shift shift, int employeeId1, int employeeId2) {
+        Role role = assignments.getEmployeeRole(shift, employeeId1);
+        shiftManager.forceAssign(shift, role, employeeId2);
+    }
+
+    public boolean nobodyToAssign(Shift shift, Role role) {
+        return shiftManager.nobodyToAssign(shift, role);
+    }
+
+    public boolean nobodyToReplace(Shift shift, int id) {
+        Role role = assignments.getEmployeeRole(shift, id);
+        return shiftManager.nobodyToAssign(shift, role);
+    }
+
     public void removeEmployeeFromShift(Shift shift, Role role, int employeeId) {
         shiftManager.removeEmployee(shift, role, employeeId);
     }

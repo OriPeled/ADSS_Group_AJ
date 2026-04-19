@@ -44,7 +44,6 @@ public class UserMode {
                 return;
             } else if (loginResponse == notInSystem) {
                 System.out.println("No such employee.");
-
             }
             else if (loginResponse == fired) {
                 System.out.println("You have been fired. Access denied.");

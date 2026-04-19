@@ -123,16 +123,22 @@ public class ShiftManager {
      *
      */
     public void assignEmployee(Shift shift, Role role, int employeeId) {
+        employeeManager.validateEmployeeBasic(employeeId);
+        if (assignments.isAssignedToShift(shift, employeeId))
+            throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getShiftDate());
+        if (!isQualified(employeeId, role))
+            throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role.");
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
-        else if (!isValid(shift, role, employeeId)) {
-            throw new IllegalArgumentException("Assignment failed due to constraint violation.");
+        if (!isAvailable(employeeId, shift)) {
+            throw new IllegalArgumentException("Employee " + employeeId + " is not available for this shift.");
         }
         assignments.add(shift, role, employeeId);
     }
+
     public void forceAssign(Shift shift, Role role, int employeeId) {
         if (!isSpecialValid(shift, role, employeeId)) {
-            throw new RuntimeException("No available employees to assign for this role.");
+            throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
         }
         assignments.add(shift, role, employeeId);
     }
@@ -222,14 +228,15 @@ public class ShiftManager {
     }
 
     public boolean nobodyToAssign(Shift shift, Role role) {
-        return isNeeded(shift, role) && this.countUnassignedValid(shift, role) == 0;
+        return isNeeded(shift, role) && countUnassignedValid(shift, role) == 0;
     }
 
+    // unassigned qualified, not available
     public int countUnassignedValid(Shift shift, Role role) {
         int count = 0;
         List<Integer> qualifiedIds = roleManager.getListByRole(role);
         for (int id : qualifiedIds) {
-            if (isAvailable(id, shift) && !assignments.isAssignedToRole(shift, role, id)) {
+            if (isAvailable(id, shift) && !assignments.isAssignedToShift(shift, id)) {
                 count++;
             }
         }
@@ -387,7 +394,7 @@ public class ShiftManager {
                 List<Integer> qualifiedIds = roleManager.getListByRole(role);
 
                 for (int id : qualifiedIds) {
-                    if (isAvailable(id, shift) && !assignments.isAssignedToRole(shift, role, id)) {
+                    if (isAvailable(id, shift) && !assignments.isAssignedToShift(shift, id)) {
                         Employee emp = employeeManager.getById(id);
                         result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
                         foundAny = true;

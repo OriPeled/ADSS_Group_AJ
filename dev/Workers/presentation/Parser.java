@@ -1,5 +1,7 @@
 package dev.Workers.presentation;
 
+import dev.Workers.domain.Enums.Role;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -68,6 +70,13 @@ public class Parser {
             throw new IllegalArgumentException("Day number must be between 1 and 7");
         }
         return days[dayNumber - 1];
+    }
+
+    public static Role getRoleFromNumber(int roleNumber) {
+        if (roleNumber < 1 || roleNumber > Role.values().length) {
+            throw new IllegalArgumentException("Invalid role choice.");
+        }
+        return Role.values()[roleNumber - 1];
     }
 
     // public static List<Integer>(String

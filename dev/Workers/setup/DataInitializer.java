@@ -82,6 +82,8 @@ public class DataInitializer {
             // Example constraints (system will handle them safely)
             //constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
             constraintService.update(101, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(7, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(444, DayOfWeek.SATURDAY, ShiftType.rest);
            // constraintService.update(111, DayOfWeek.SUNDAY, ShiftType.morning);
 
             // =========================
@@ -99,9 +101,9 @@ public class DataInitializer {
                 Shift shift = shiftService.getShift(date, ShiftType.morning);
 
                 // Set requirements
-                shiftService.setRequirement(shift, Role.shiftManager, 3);
-                shiftService.setRequirement(shift, Role.Cashier, 3);
-                shiftService.setRequirement(shift, Role.Storekeeper, 3);
+                //shiftService.setRequirement(shift, Role.shiftManager, 3);
+                //shiftService.setRequirement(shift, Role.Cashier, 3);
+                //shiftService.setRequirement(shift, Role.Storekeeper, 3);
                 shiftService.assignEmployee(shift, Role.shiftManager, 111);
                 shiftService.assignEmployee(shift, Role.shiftManager, 112);
                 shiftService.assignEmployee(shift, Role.shiftManager, 113);
@@ -109,7 +111,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(shift, Role.Cashier, 223);
                 shiftService.assignEmployee(shift, Role.Cashier, 224);
                 shiftService.assignEmployee(shift, Role.Storekeeper, 333);
-                shiftService.assignEmployee(shift, Role.Storekeeper, 444);
+                //shiftService.assignEmployee(shift, Role.Storekeeper, 444);
                 shiftService.assignEmployee(shift, Role.Storekeeper, 445);
 
 
@@ -126,7 +128,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.Cashier, 223);
                 shiftService.assignEmployee(eveningShift, Role.Cashier, 224);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 333);
-                shiftService.assignEmployee(eveningShift, Role.Storekeeper, 444);
+                //shiftService.assignEmployee(eveningShift, Role.Storekeeper, 444);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
 
 

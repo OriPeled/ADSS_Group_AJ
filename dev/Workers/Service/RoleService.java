@@ -41,7 +41,6 @@ public class RoleService {
      * @param role role to add
      */
     public void addRoleToEmployee(int id, Role role) {
-
         roleManager.addRoleToEmployee(id, role);
     }
 
@@ -101,7 +100,7 @@ public class RoleService {
      * @return true if role beloge to id , otherwise false
      */
     public boolean hasRole(int id, Role role) {
-        return roleManager.containsRole(id, role);
+        return roleManager.hasRole(id, role);
     }
 
     public void promoteDemote(int id) {

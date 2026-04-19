@@ -236,67 +236,86 @@ public class ManageShiftsMenu {
         int id = -1;
         Role role = null;
 
-        try {
-            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+        while (true) {
+            try {
+                System.out.println(shiftService.getAvailableEmployeesForShift(shift));
 
-            System.out.println("Enter Employee ID:");
-            id = Integer.parseInt(scanner.nextLine());
+                System.out.println("Enter Employee ID or 0 to cancel:");
+                try {
+                    id = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input");
+                    continue;
+                }
 
-            System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager):");
-            int roleNumber = Integer.parseInt(scanner.nextLine());
+                if (id == 0) return;
 
-            if (roleNumber < 1 || roleNumber > Role.values().length) {
-                System.out.println("Invalid role choice.");
-                return;
-            }
+                System.out.println("Enter role (1 for cashier, 2 for storekeeper, 3 for manager) or 0 to cancel:");
+                int roleNumber;
+                try {
+                    roleNumber = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input");
+                    continue;
+                }
 
-            role = Role.values()[roleNumber - 1];
+                if (roleNumber == 0) return;
 
-            /*boolean roleNeeded = shiftService.isRoleNeeded(shift, role);
-            if (!roleNeeded) {
-                System.out.println("Staffing shortage detected for " + role + ".");
-                forceAssign(shift, role, id);
-                return;
-            }*/
+                try {
+                    role = Parser.getRoleFromNumber(roleNumber);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid input. Role must be between 1 and 3.");
+                    continue;
+                }
 
-            shiftService.assignEmployee(shift, role, id);
-            System.out.println("Employee assigned successfully.");
+                shiftService.assignEmployee(shift, role, id);
+                System.out.println("Employee assigned successfully.");
 
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
+            } catch (IllegalStateException e) {
+                System.out.println(e.getMessage());
 
-        } catch (RuntimeException e) {
-            System.out.println("Regular assignment failed: " + e.getMessage());
-
-            if (role != null && id != -1) {
-                forceAssign(shift, role, id);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+                if (role != null && id != -1) {
+                    if (shiftService.nobodyToAssign(shift, role)) {
+                        forceAssign(shift, role, id);
+                    }
+                }
             }
         }
     }
 
     private static void replace() {
-        System.out.println("Enter the ID of the already assigned employee");
-        int currentEmployeeId = 0;
-        try {
-            currentEmployeeId = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input.");
-        }
+        int currentEmployeeId = -1;
+        int newEmployeeId = -1;
+        while (true) {
+            try {
+                System.out.println("Enter the ID of the already assigned employee");
+                try {
+                    currentEmployeeId = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input.");
+                }
 
-        System.out.println("Enter the ID of the employee to replace him");
-        int newEmployeeId = 0;
-        try {
-            newEmployeeId = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input.");
-        }
+                System.out.println("Enter the ID of the employee to replace him");
 
-        shiftService.replaceEmployee(shift, currentEmployeeId, newEmployeeId);
-        System.out.println("Replacement successful.");
+                try {
+                    newEmployeeId = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input.");
+                }
+
+                shiftService.replaceEmployee(shift, currentEmployeeId, newEmployeeId);
+                System.out.println("Replacement successful.");
+
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     private static void updateRequirements() {
-        System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");
+        System.out.println("Enter role (1 for cashier, 2 for storekeeper, 3 for manager)");
         int roleNumber = Integer.parseInt(scanner.nextLine());
         Role role = Role.values()[roleNumber - 1];
         System.out.println("Enter new amount.");
@@ -326,7 +345,6 @@ public class ManageShiftsMenu {
     }
 
     private static void forceAssign(Shift shift, Role role, int id) {
-
         while (true) {
             System.out.println("Are you sure you want to force assign this employee?");
             System.out.println("Press 1 to confirm, 0 to cancel:");
@@ -343,14 +361,15 @@ public class ManageShiftsMenu {
                     shiftService.forceAssignEmployee(shift, role, id);
                     System.out.println("Employee assigned via special approval.");
                 } catch (Exception e) {
-                    System.out.println("Error: " + e.getMessage());
+                    System.out.println(e.getMessage());
                 }
                 return;
             }
 
-            System.out.println("Invalid input. Please enter 1 or 0.");
+            System.out.println("Invalid input.");
         }
     }
+
     /*public static void assignEmployee() {
         System.out.println("Enter role (1 for cashier, 2 for housekeeper, 3 for manager)");
         int choice = Integer.parseInt(scanner.nextLine());
