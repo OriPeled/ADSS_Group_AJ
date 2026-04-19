@@ -360,36 +360,54 @@ public class ShiftManager {
     }
 
     public String getUnassignedValid(Shift shift) {
-        if (isShiftAssigned(shift))
-            throw new IllegalStateException("All shift roles already assigned.");
-
         EmployeeManager employeeManager = EmployeeManager.getInstance();
-        StringBuilder result = new StringBuilder("Available employees for shift:\n");
-        boolean foundAny = false;
+        StringBuilder result = new StringBuilder("=== Shift Assignment Assistant ===\n");
+        boolean foundAnyOverall = false;
 
         for (Role role : Role.values()) {
-            if (!isNeeded(shift, role)) {
-                result.append("--- ").append(role).append(" ---\n");
-                result.append("Role assignment complete.\n");
-            }
-            else {
-                result.append("--- ").append(role).append(" ---\n");
-                List<Integer> qualifiedIds = roleManager.getListByRole(role);
+            if (!isNeeded(shift, role)) continue; // Skip roles that are already full
 
-                for (int id : qualifiedIds) {
-                    if (isAvailable(id, shift) && !assignments.isAssignedToShift(shift, id)) {
-                        Employee emp = employeeManager.getById(id);
-                        result.append("- ").append(emp.getName()).append(" (ID: ").append(id).append(")\n");
-                        foundAny = true;
+            result.append("\n--- ").append(role).append(" ---\n");
+            List<Integer> qualifiedIds = roleManager.getListByRole(role);
+
+            // Check if we are in "Desperation Mode" (Needed but nobody available)
+            boolean desperationMode = nobodyToAssign(shift, role);
+
+            if (desperationMode) {
+                result.append("!!! NO AVAILABLE EMPLOYEES !!!\n");
+                result.append("Qualified employees with constraint conflicts:\n");
+            }
+
+            boolean foundForRole = false;
+            for (int id : qualifiedIds) {
+                boolean available = isAvailable(id, shift);
+                boolean assigned = assignments.isAssignedToShift(shift, id);
+                Employee emp = employeeManager.getById(id);
+
+                if (desperationMode) {
+                    // Logic: Qualified, NOT available, and NOT already in this shift
+                    if (!available && !assigned) {
+                        result.append(String.format("  [REJECTED] %s (ID: %d)\n",
+                                emp.getName(), id));
+                        foundForRole = true;
+                    }
+                } else {
+                    // Logic: Qualified and Available
+                    if (available && !assigned) {
+                        result.append(String.format("  [READY] %s (ID: %d)\n", emp.getName(), id));
+                        foundForRole = true;
+                        foundAnyOverall = true;
                     }
                 }
             }
+
+            if (!foundForRole) {
+                result.append(desperationMode ? "  (No qualified employees found even with conflicts)\n"
+                        : "  (No available qualified employees)\n");
+            }
         }
 
-        if (!foundAny) {
-            return "No available qualified employees for this shift.";
-        }
-        return result.toString();
+        return foundAnyOverall || result.length() > 30 ? result.toString() : "No assignment actions possible.";
     }
 
     /**

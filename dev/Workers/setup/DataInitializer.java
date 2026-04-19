@@ -84,15 +84,20 @@ public class DataInitializer {
             // =========================
             // Example constraints (system will handle them safely)
             //constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
-            constraintService.update(101, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(223, DayOfWeek.SATURDAY, ShiftType.rest);
             constraintService.update(7, DayOfWeek.SATURDAY, ShiftType.rest);
-            constraintService.update(444, DayOfWeek.SATURDAY, ShiftType.any);
+            constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(444, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(112, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(224, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(223, DayOfWeek.SATURDAY, ShiftType.rest);
+            constraintService.update(111, DayOfWeek.SATURDAY, ShiftType.rest);
            // constraintService.update(111, DayOfWeek.SUNDAY, ShiftType.morning);
             // =========================
             // LAST WEEK SHIFTS 12/04/2026
             // =========================
 
-            LocalDate lastSunday = LocalDate.now()
+            /*LocalDate lastSunday = LocalDate.now()
                     .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
                     .minusWeeks(1);
 
@@ -136,13 +141,13 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 444);
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
             }
-            shiftService.publishLastWeekSchedule();
+            shiftService.publishLastWeekSchedule();*/
 
             // =========================
             // This WEEK SHIFTS (SMART) 19/04/2026
             // =========================
 
-            LocalDate thisSunday = LocalDate.now()
+            /*LocalDate thisSunday = LocalDate.now()
                     .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
             for (int i = 0; i < 7; i++) {
@@ -185,7 +190,7 @@ public class DataInitializer {
 
 
             }
-            shiftService.publishWeekSchedule();
+            shiftService.publishWeekSchedule();*/
 
             // =========================
             // NEXT WEEK SHIFTS 26/04/2026
