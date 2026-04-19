@@ -62,6 +62,8 @@ public class RoleManager  {    // maps employee ID to list of roles
         }
         if (!hasRole(id, newRole)) {
             employeeRoles.get(id).add(newRole);
+        } else {
+            throw new IllegalArgumentException("Employee already qualified for this role.");
         }
         if (newRole == shiftManager){
             for (Role role : Role.values()) {
@@ -127,6 +129,30 @@ public class RoleManager  {    // maps employee ID to list of roles
         return employeeRoles.getOrDefault(id, new ArrayList<>());
     }
 
+    public List<Role> availableToAddRoles(int id) {
+        List<Role> rolesList = new ArrayList<>();
+        for (Role role : Role.values()) {
+            if (!hasRole(id, role)) {
+                rolesList.add(role);
+            }
+        }
+        return rolesList;
+    }
+
+    public String getFormattedAvailableRoles(int id) {
+        List<Role> roles = availableToAddRoles(id);
+
+        if (roles.isEmpty()) {
+            return "No available roles to add.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < roles.size(); i++) {
+            sb.append(i + 1).append(". ").append(roles.get(i)).append("\n");
+        }
+
+        return sb.toString().trim();
+    }
 
     /**
      * Returns all employees who have a specific role

@@ -40,23 +40,27 @@ public class AdminMode {
      */
     public static void start() {
         while (true) {
-            System.out.println("Choose to Manage:");
-            System.out.println("1. Employees");
-            System.out.println("2. Shifts");
-            System.out.println("3. Logout");
+            try {
+                System.out.println("Choose to Manage:");
+                System.out.println("1. Employees");
+                System.out.println("2. Shifts");
+                System.out.println("3. Logout");
 
-            int choice = Integer.parseInt(scanner.nextLine());
-            switch (choice) {
-                case 1:
-                    ManageEmployeesMenu.start();
-                    break;
-                case 2:
-                    ManageShiftsMenu.start();
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Invalid input.");
+                int choice = Integer.parseInt(scanner.nextLine());
+                switch (choice) {
+                    case 1:
+                        ManageEmployeesMenu.start();
+                        break;
+                    case 2:
+                        ManageShiftsMenu.start();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Invalid input.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input.");
             }
         }
     }

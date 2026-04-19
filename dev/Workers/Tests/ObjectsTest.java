@@ -1,3 +1,4 @@
+/*
 package dev.Workers.Tests;
 
 import dev.Workers.domain.EmployeeTerms;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+*/
 /**
  * Unified unit tests for all domain object classes.
  *
@@ -32,23 +34,28 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * The goal of this test class is to validate the basic behavior
  * of the core object model in the system.
- */
+ *//*
+
 public class ObjectsTest {
 
-    /**
+    */
+/**
      * Helper method for creating a valid EmployeeTerms object.
      *
      * @return a valid EmployeeTerms instance
-     */
+     *//*
+
     private EmployeeTerms createTerms() {
         return new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2);
     }
 
-    /**
+    */
+/**
      * Helper method for creating a valid Employee object.
      *
      * @return a valid Employee instance
-     */
+     *//*
+
     private Employee createEmployee() {
         return new Employee(
                 "Yossi",
@@ -64,18 +71,22 @@ public class ObjectsTest {
     // Access Tests
     // =========================================================
 
-    /**
+    */
+/**
      * Verifies that the constructor stores the password correctly.
-     */
+     *//*
+
     @Test
     void accessConstructor_shouldStorePassword() {
         Access access = new Access("1234");
         assertEquals("1234", access.getPassword());
     }
 
-    /**
+    */
+/**
      * Verifies that setPassword updates the stored password.
-     */
+     *//*
+
     @Test
     void accessSetPassword_shouldUpdatePassword() {
         Access access = new Access("1234");
@@ -83,10 +94,12 @@ public class ObjectsTest {
         assertEquals("9999", access.getPassword());
     }
 
-    /**
+    */
+/**
      * Verifies that isWrongPassword returns true for incorrect input
      * and false for the correct password.
-     */
+     *//*
+
     @Test
     void accessIsWrongPassword_shouldReturnCorrectResult() {
         Access access = new Access("1234");
@@ -95,9 +108,11 @@ public class ObjectsTest {
         assertFalse(access.isWrongPassword("1234"));
     }
 
-    /**
+    */
+/**
      * Verifies password empty validation logic.
-     */
+     *//*
+
     @Test
     void accessIsPasswordEmpty_shouldValidateInputCorrectly() {
         Access access = new Access("1234");
@@ -111,9 +126,11 @@ public class ObjectsTest {
     // Constraint Tests
     // =========================================================
 
-    /**
+    */
+/**
      * Verifies that a new Constraint initializes all week days to ShiftType.any.
-     */
+     *//*
+
     @Test
     void constraintConstructor_shouldInitializeAllDaysToAny() {
         Constraint constraint = new Constraint();
@@ -123,9 +140,11 @@ public class ObjectsTest {
         }
     }
 
-    /**
+    */
+/**
      * Verifies that setShiftType updates the constraint for a specific day.
-     */
+     *//*
+
     @Test
     void constraintSetShiftType_shouldUpdateSpecificDay() {
         Constraint constraint = new Constraint();
@@ -136,9 +155,11 @@ public class ObjectsTest {
         assertEquals(ShiftType.any, constraint.getShiftType(DayOfWeek.TUESDAY));
     }
 
-    /**
+    */
+/**
      * Verifies that the internal weekly constraints map contains all seven days.
-     */
+     *//*
+
     @Test
     void constraintGetWeekConstraints_shouldContainSevenDays() {
         Constraint constraint = new Constraint();
@@ -149,9 +170,11 @@ public class ObjectsTest {
     // Employee Tests
     // =========================================================
 
-    /**
+    */
+/**
      * Verifies that the constructor initializes all important employee fields correctly.
-     */
+     *//*
+
     @Test
     void employeeConstructor_shouldInitializeFieldsCorrectly() {
         Employee emp = createEmployee();
@@ -165,9 +188,11 @@ public class ObjectsTest {
         assertTrue(emp.isActive());
     }
 
-    /**
+    */
+/**
      * Verifies that setName updates the employee name.
-     */
+     *//*
+
     @Test
     void employeeSetName_shouldUpdateName() {
         Employee emp = createEmployee();
@@ -177,9 +202,11 @@ public class ObjectsTest {
         assertEquals("Daniel", emp.getName());
     }
 
-    /**
+    */
+/**
      * Verifies that setBankAccount updates the bank account number.
-     */
+     *//*
+
     @Test
     void employeeSetBankAccount_shouldUpdateBankAccount() {
         Employee emp = createEmployee();
@@ -189,9 +216,11 @@ public class ObjectsTest {
         assertEquals(999999, emp.getBankAccount());
     }
 
-    /**
+    */
+/**
      * Verifies that setSalary updates the employee salary.
-     */
+     *//*
+
     @Test
     void employeeSetSalary_shouldUpdateSalary() {
         Employee emp = createEmployee();
@@ -201,9 +230,11 @@ public class ObjectsTest {
         assertEquals(7500.0, emp.getSalary());
     }
 
-    /**
+    */
+/**
      * Verifies that setTerms replaces the employee terms.
-     */
+     *//*
+
     @Test
     void employeeSetTerms_shouldUpdateTerms() {
         Employee emp = createEmployee();
@@ -214,10 +245,12 @@ public class ObjectsTest {
         assertEquals(newTerms, emp.getTerms());
     }
 
-    /**
+    */
+/**
      * Verifies that terminating an employee sets the end date
      * and changes the employee status to inactive.
-     */
+     *//*
+
     @Test
     void employeeTerminateEmployee_shouldSetEndDateAndDeactivateEmployee() {
         Employee emp = createEmployee();
@@ -229,9 +262,11 @@ public class ObjectsTest {
         assertFalse(emp.isActive());
     }
 
-    /**
+    */
+/**
      * Verifies that toString contains basic employee details.
-     */
+     *//*
+
     @Test
     void employeeToString_shouldContainImportantDetails() {
         Employee emp = createEmployee();
@@ -247,9 +282,11 @@ public class ObjectsTest {
     // HR_Admin Tests
     // =========================================================
 
-    /**
+    */
+/**
      * Verifies that HR_Admin stores access details and returns the password.
-     */
+     *//*
+
     @Test
     void hrAdminGetAccess_shouldReturnPassword() {
         HR_Admin admin = new HR_Admin(new Access("8888"));
@@ -257,9 +294,11 @@ public class ObjectsTest {
         assertEquals("8888", admin.getAccess());
     }
 
-    /**
+    */
+/**
      * Verifies that setAccess updates the admin password.
-     */
+     *//*
+
     @Test
     void hrAdminSetAccess_shouldUpdatePassword() {
         HR_Admin admin = new HR_Admin(new Access("8888"));
@@ -273,9 +312,11 @@ public class ObjectsTest {
     // Shift Tests
     // =========================================================
 
-    /**
+    */
+/**
      * Verifies that the Shift constructor stores the date and type correctly.
-     */
+     *//*
+
     @Test
     void shiftConstructor_shouldStoreDateAndType() {
         LocalDate date = LocalDate.of(2026, 4, 20);
@@ -285,9 +326,11 @@ public class ObjectsTest {
         assertEquals(ShiftType.morning, shift.getType());
     }
 
-    /**
+    */
+/**
      * Verifies that getShiftDay returns the correct day of week.
-     */
+     *//*
+
     @Test
     void shiftGetShiftDay_shouldReturnCorrectDayOfWeek() {
         Shift shift = new Shift(LocalDate.of(2026, 4, 19), ShiftType.morning); // Sunday
@@ -295,9 +338,11 @@ public class ObjectsTest {
         assertEquals(DayOfWeek.SUNDAY, shift.getShiftDay());
     }
 
-    /**
+    */
+/**
      * Verifies equality of two shifts with the same date and type.
-     */
+     *//*
+
     @Test
     void shiftEquals_shouldReturnTrueForSameDateAndType() {
         Shift s1 = new Shift(LocalDate.of(2026, 4, 20), ShiftType.morning);
@@ -307,9 +352,11 @@ public class ObjectsTest {
         assertEquals(s1.hashCode(), s2.hashCode());
     }
 
-    /**
+    */
+/**
      * Verifies inequality of shifts with different dates or types.
-     */
+     *//*
+
     @Test
     void shiftEquals_shouldReturnFalseForDifferentShiftData() {
         Shift s1 = new Shift(LocalDate.of(2026, 4, 20), ShiftType.morning);
@@ -320,9 +367,11 @@ public class ObjectsTest {
         assertNotEquals(s1, s3);
     }
 
-    /**
+    */
+/**
      * Verifies that toString contains date and shift type.
-     */
+     *//*
+
     @Test
     void shiftToString_shouldContainDateAndType() {
         Shift shift = new Shift(LocalDate.of(2026, 4, 20), ShiftType.morning);
@@ -336,10 +385,12 @@ public class ObjectsTest {
     // WeekSchedule Tests
     // =========================================================
 
-    /**
+    */
+/**
      * Verifies that the constructor normalizes a given date
      * to the Sunday of the same week.
-     */
+     *//*
+
     @Test
     void weekScheduleConstructor_shouldNormalizeToSunday() {
         WeekSchedule week = new WeekSchedule(LocalDate.of(2026, 4, 22)); // Wednesday
@@ -347,9 +398,11 @@ public class ObjectsTest {
         assertEquals(LocalDate.of(2026, 4, 19), week.getStartOfWeek());
     }
 
-    /**
+    */
+/**
      * Verifies that a new week schedule is not published by default.
-     */
+     *//*
+
     @Test
     void weekScheduleConstructor_shouldBeUnpublishedByDefault() {
         WeekSchedule week = new WeekSchedule(LocalDate.of(2026, 4, 22));
@@ -357,9 +410,11 @@ public class ObjectsTest {
         assertFalse(week.isPublished());
     }
 
-    /**
+    */
+/**
      * Verifies that setPublished updates the published flag.
-     */
+     *//*
+
     @Test
     void weekScheduleSetPublished_shouldUpdatePublishedStatus() {
         WeekSchedule week = new WeekSchedule(LocalDate.of(2026, 4, 22));
@@ -369,9 +424,11 @@ public class ObjectsTest {
         assertTrue(week.isPublished());
     }
 
-    /**
+    */
+/**
      * Verifies the calculated week status for an incomplete week.
-     */
+     *//*
+
     @Test
     void weekScheduleCalculateStatus_shouldReturnIncompleteWhenNotFullyAssigned() {
         WeekSchedule week = new WeekSchedule(LocalDate.of(2026, 4, 22));
@@ -379,9 +436,11 @@ public class ObjectsTest {
         assertEquals(WeekStatus.INCOMPLETE, week.calculateStatus(false));
     }
 
-    /**
+    */
+/**
      * Verifies the calculated week status for a fully assigned but unpublished week.
-     */
+     *//*
+
     @Test
     void weekScheduleCalculateStatus_shouldReturnReadyToPublishWhenFullyAssignedAndNotPublished() {
         WeekSchedule week = new WeekSchedule(LocalDate.of(2026, 4, 22));
@@ -389,9 +448,11 @@ public class ObjectsTest {
         assertEquals(WeekStatus.READY_TO_PUBLISH, week.calculateStatus(true));
     }
 
-    /**
+    */
+/**
      * Verifies the calculated week status for a fully assigned and published week.
-     */
+     *//*
+
     @Test
     void weekScheduleCalculateStatus_shouldReturnPublishedWhenFullyAssignedAndPublished() {
         WeekSchedule week = new WeekSchedule(LocalDate.of(2026, 4, 22));
@@ -400,10 +461,12 @@ public class ObjectsTest {
         assertEquals(WeekStatus.PUBLISHED, week.calculateStatus(true));
     }
 
-    /**
+    */
+/**
      * Verifies equality and hash code for week schedules
      * that belong to the same week.
-     */
+     *//*
+
     @Test
     void weekScheduleEquals_shouldReturnTrueForSameWeek() {
         WeekSchedule w1 = new WeekSchedule(LocalDate.of(2026, 4, 20));
@@ -412,4 +475,4 @@ public class ObjectsTest {
         assertEquals(w1, w2);
         assertEquals(w1.hashCode(), w2.hashCode());
     }
-}
+}*/

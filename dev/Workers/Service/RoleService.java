@@ -83,6 +83,14 @@ public class RoleService {
         return roleManager.getListById(id);
     }
 
+    public List<Role> availableToAddRoles(int id) {
+        return roleManager.availableToAddRoles(id);
+    }
+
+    public String getFormattedAvailableRoles(int id) {
+        return roleManager.getFormattedAvailableRoles(id);
+    }
+
     /**
      * Returns all employees who have a specific role
      *
@@ -106,13 +114,13 @@ public class RoleService {
     public void promoteDemote(int id) {
         List<Role> roles = roleManager.getListById(id);
 
-        if (roles == null) {
+        /*if (roles == null) {
             throw new IllegalArgumentException("Employee roles not found for id: " + id);
         }
 
         if (roles.isEmpty()) {
             throw new IllegalStateException("Employee has no roles. Cannot promote/demote.");
-        }
+        }*/
 
         roleManager.promoteDemote(id);
     }

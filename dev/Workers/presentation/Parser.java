@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 
+import static dev.Workers.presentation.Main.scanner;
+
 public class Parser {
     public static LocalDate stringToDate(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -77,6 +79,26 @@ public class Parser {
             throw new IllegalArgumentException("Invalid role choice.");
         }
         return Role.values()[roleNumber - 1];
+    }
+
+    static int readIntSafe() {
+        while (true) {
+            try {
+                return Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again:");
+            }
+        }
+    }
+
+    static double readDoubleSafe() {
+        while (true) {
+            try {
+                return Double.parseDouble(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again:");
+            }
+        }
     }
 
     // public static List<Integer>(String

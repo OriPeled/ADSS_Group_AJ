@@ -13,15 +13,13 @@ import java.util.Map;
  * Provides functionality to add, remove, and retrieve employees.
  */
 public class EmployeeManager implements IManager<Employee> {
-    // maps employee ID to Employee object
-    private Map<Integer, Employee> employees;
+    private Map<Integer, Employee> employees;   // Employee ID to Employee
     private static EmployeeManager instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
     private EmployeeManager() {
-
         this.employees = new HashMap<>();
     }
 
