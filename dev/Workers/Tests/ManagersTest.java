@@ -229,4 +229,31 @@ public class ManagersTest {
 
         assertEquals(Role.Cashier, assignments.getEmployeeRole(shift, 200));
     }
+    /**
+     * Verifies that updating constraints after the deadline is not allowed.
+     *
+     * Scenario:
+     * - An employee has initialized constraints
+     * - The submission deadline has already passed (earlier day in the week)
+     * - An update is attempted after the deadline
+     *
+     * Expected result:
+     * - update throws RuntimeException
+     */
+    @Test
+    void constraintManager_update_shouldFailAfterDeadline() {
+        ConstraintManager cm = ConstraintManager.getInstance();
+
+        cm.initConstraintForEmployee(32);
+
+        // Make sure deadline is BEFORE today
+        DayOfWeek today = LocalDate.now().getDayOfWeek();
+        DayOfWeek deadline = today.minus(1);
+
+        cm.setDeadline(deadline);
+
+        assertThrows(RuntimeException.class, () ->
+                cm.update(32, DayOfWeek.MONDAY, ShiftType.morning)
+        );
+    }
 }

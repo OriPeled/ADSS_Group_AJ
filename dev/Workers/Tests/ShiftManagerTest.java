@@ -1,21 +1,21 @@
 package dev.Workers.Tests;
 
+
 import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.RoleManager;
 import dev.Workers.domain.ShiftManager;
-import dev.Workers.domain.Enums.JobStatus;
-import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.SalaryType;
-import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
+
 
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,6 +71,7 @@ public class ShiftManagerTest {
         roleManager.addRoleToEmployee(id, role);
         constraintManager.initConstraintForEmployee(id);
     }
+
     /**
      * Verifies that a qualified and available employee
      * can be assigned successfully to a required role in a shift.
@@ -352,42 +353,167 @@ public class ShiftManagerTest {
         );
     }
     /**
-     * Verifies that a terminated employee cannot be assigned to a shift.
+     * Verifies that a newly added employee can replace
+     * another assigned employee in a shift.
+     *
+     * Scenario:
+     * - Two employees are added to the system
+     * - Both employees have the required role
+     * - Both employees are available for the shift
+     * - The first employee is assigned
+     * - The first employee is then replaced by the second employee
+     *
+     * Expected result:
+     * - replaceEmployee completes successfully
+     * - The role remains fully staffed
+     */
+    @Test
+    void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
+        ShiftManager shiftManager = ShiftManager.getInstance();
+        ConstraintManager constraintManager = ConstraintManager.getInstance();
+
+        registerEmployee(70, "Mia", Role.Cashier);
+        registerEmployee(71, "Noah", Role.Cashier);
+
+        Shift shift = createShift(7);
+        DayOfWeek day = shift.getShiftDate().getDayOfWeek();
+
+        constraintManager.update(70, day, ShiftType.morning);
+        constraintManager.update(71, day, ShiftType.morning);
+
+        shiftManager.setRequirement(shift, Role.Cashier, 1);
+        shiftManager.assignEmployee(shift, Role.Cashier, 70);
+
+        shiftManager.replaceEmployee(shift, 70, 71);
+
+        assertEquals(0, shiftManager.leftToAssign(shift, Role.Cashier));
+        assertFalse(shiftManager.isNeeded(shift, Role.Cashier));
+    }
+    /**
+     * Verifies that replacement fails when the new employee
+     * was added to the system and later terminated.
+     *
+     * Scenario:
+     * - Two employees are added to the system
+     * - Both have the required role
+     * - One employee is assigned to the shift
+     * - The replacement employee is terminated before replacement
+     *
+     * Expected result:
+     * - replaceEmployee throws IllegalArgumentException
+     */
+    @Test
+    void replaceEmployee_shouldFailWhenNewEmployeeWasTerminated() {
+        ShiftManager shiftManager = ShiftManager.getInstance();
+        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        EmployeeManager employeeManager = EmployeeManager.getInstance();
+
+        registerEmployee(80, "Olivia", Role.Cashier);
+        registerEmployee(81, "Emma", Role.Cashier);
+
+        Shift shift = createShift(8);
+        DayOfWeek day = shift.getShiftDate().getDayOfWeek();
+
+        constraintManager.update(80, day, ShiftType.morning);
+        constraintManager.update(81, day, ShiftType.morning);
+
+        shiftManager.setRequirement(shift, Role.Cashier, 1);
+        shiftManager.assignEmployee(shift, Role.Cashier, 80);
+
+        employeeManager.remove(81);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                shiftManager.replaceEmployee(shift, 80, 81)
+        );
+    }
+    /**
+     * Verifies that a terminated employee cannot receive a new role.
+     *
+     * Scenario:
+     * - An employee is added to the system
+     * - The employee is terminated
+     * - A new role is assigned after termination
+     *
+     * Expected result:
+     * - addRoleToEmployee throws IllegalArgumentException
+     */
+    @Test
+    void addRoleToEmployee_shouldFailWhenEmployeeIsTerminated() {
+        EmployeeManager employeeManager = EmployeeManager.getInstance();
+        RoleManager roleManager = RoleManager.getInstance();
+
+        registerEmployee(90, "Sophia", Role.Cashier);
+
+        employeeManager.remove(90);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                roleManager.addRoleToEmployee(90, Role.Storekeeper)
+        );
+    }
+    /**
+     * Verifies that replacing an employee with the same employee ID
+     * is not allowed.
+     *
+     * Scenario:
+     * - The employee is already assigned to the shift
+     * - replaceEmployee is called with the same ID as both current and new employee
+     *
+     * Expected result:
+     * - replaceEmployee throws IllegalArgumentException
+     */
+    @Test
+    void replaceEmployee_shouldFailWhenReplacingWithSameEmployee() {
+        ShiftManager shiftManager = ShiftManager.getInstance();
+        ConstraintManager constraintManager = ConstraintManager.getInstance();
+
+        registerEmployee(110, "Lior", Role.Cashier);
+
+        Shift shift = createShift(10);
+        DayOfWeek day = shift.getShiftDate().getDayOfWeek();
+
+        constraintManager.update(110, day, ShiftType.morning);
+
+        shiftManager.setRequirement(shift, Role.Cashier, 1);
+        shiftManager.assignEmployee(shift, Role.Cashier, 110);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                shiftManager.replaceEmployee(shift, 110, 110)
+        );
+    }
+    /**
+     * Verifies that an employee cannot be assigned twice
+     * to the same shift.
      *
      * Scenario:
      * - The employee exists in the system
      * - The employee has the required role
-     * - The employee is marked as inactive (terminated)
-     * - The employee is otherwise available for the shift
+     * - The employee is available for the shift
+     * - The employee is already assigned to that shift
      *
      * Expected result:
      * - assignEmployee throws IllegalArgumentException
      */
     @Test
-    void assignEmployee_shouldFailWhenEmployeeIsTerminated() {
+    void assignEmployee_shouldFailWhenEmployeeAlreadyAssignedToSameShift() {
         ShiftManager shiftManager = ShiftManager.getInstance();
         ConstraintManager constraintManager = ConstraintManager.getInstance();
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
 
-        // Register a valid employee
-        registerEmployee(60, "Liam", Role.Cashier);
+        registerEmployee(100, "Daniel", Role.Cashier);
 
-        // Terminate the employee
-        employeeManager.remove(60);
-
-        // Create a test shift
-        Shift shift = createShift(6);
-
-        // Make the employee available for that exact day and shift type
+        Shift shift = createShift(9);
         DayOfWeek day = shift.getShiftDate().getDayOfWeek();
-        constraintManager.update(60, day, ShiftType.morning);
 
-        // Define that the shift needs one Cashier
-        shiftManager.setRequirement(shift, Role.Cashier, 1);
+        constraintManager.update(100, day, ShiftType.morning);
 
-        // Verify that assignment fails because the employee is inactive
+        shiftManager.setRequirement(shift, Role.Cashier, 2);
+
+        // First assignment succeeds
+        shiftManager.assignEmployee(shift, Role.Cashier, 100);
+
+        // Second assignment to the same shift should fail
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.assignEmployee(shift, Role.Cashier, 60)
+                shiftManager.assignEmployee(shift, Role.Cashier, 100)
         );
     }
+
 }
