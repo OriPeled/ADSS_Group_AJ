@@ -7,11 +7,11 @@ import java.time.DayOfWeek;
 import java.util.List;
 
 public class WeekSchedule {
-    private final LocalDate startOfWeek; // Always a Sunday
+    private final LocalDate startOfWeek;    // always a Sunday
     private boolean published = false;
 
     public WeekSchedule(LocalDate dateWithinWeek) {
-        // Normalize any date to the Sunday of that week
+        // normalize any date to the Sunday of that week
         this.startOfWeek = dateWithinWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
     }
 

@@ -18,7 +18,7 @@ public class Main {
             System.out.println("Choose Mode:");
             System.out.println("1. User Mode");
             System.out.println("2. HR Manager Mode");
-            System.out.println("3. Exit");
+            System.out.println("0. Exit");
 
             String input = scanner.nextLine();
             int choice;
@@ -37,7 +37,7 @@ public class Main {
                 case 2:
                     AdminMode.login();
                     break;
-                case 3:
+                case 0:
                     System.out.println("Have a good day.");
                     //scanner.close();
                     //break;

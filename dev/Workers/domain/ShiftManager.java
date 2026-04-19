@@ -511,7 +511,7 @@ public class ShiftManager {
 
     /**
      *
-     * @return  full shifts assignment history by date, shift type , amout
+     * @return  full shifts assignment history by date, shift type , amount
      */
     public String ShiftHistory() {
         if (shifts.isEmpty()) {

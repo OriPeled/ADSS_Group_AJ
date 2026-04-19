@@ -11,25 +11,13 @@ import java.time.LocalDate;
  * salary information, and employment status (active/terminated).
  */
 public class Employee {
-    // employee full name
     private String name;
-    // employee id
     private int id;
-    // employee bank Account
     private int bankAccount;
-    // employee salary
     private double salary;
-    // employee terms- jobStatus ,salary Type , rest Days
-    private EmployeeTerms terms;
-    // employee start Date
+    private EmployeeTerms terms;        // jobStatus, salary type, rest days
     private LocalDate startDate;
-    // employee end Date
-    private LocalDate endDate;
-    // checking if manger or HR
-    //private boolean isManager;
-    // private UserDetails userDetails;
- //   private List<Role> certifiedRoles;
- // private List<Constraint>
+    private LocalDate endDate;          // updated if fired
 
     /**
      * Constructor for creating a new employee.
@@ -49,8 +37,8 @@ public class Employee {
         this.terms = terms;
         this.startDate = startDate;
         this.endDate = null;
-       // this.certifiedRoles = new ArrayList<>();
     }
+
     /**
      * Copy constructor - creates a deep copy of another Employee
      *
@@ -156,6 +144,7 @@ public class Employee {
 
         return result;
     }
+
     /**
      * @return employment end date ,null if still active
      */
@@ -164,10 +153,12 @@ public class Employee {
      * Terminates employee by setting end date
      * @param terminationDate date of termination
      */
+
     public void terminateEmployee(LocalDate terminationDate) {
         this.endDate = terminationDate;
 
     }
+
     /**
      * Checks if employee is still active
      * @return true if active, false otherwise

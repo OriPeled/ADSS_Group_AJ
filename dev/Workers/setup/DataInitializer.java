@@ -92,7 +92,7 @@ public class DataInitializer {
             // LAST WEEK SHIFTS 12/04/2026
             // =========================
 
-            LocalDate lastSunday = LocalDate.now()
+            /*LocalDate lastSunday = LocalDate.now()
                     .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
                     .minusWeeks(1);
 
@@ -137,6 +137,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
             }
             shiftService.publishLastWeekSchedule();
+
             // =========================
             // This WEEK SHIFTS (SMART) 19/04/2026
             // =========================
@@ -184,7 +185,8 @@ public class DataInitializer {
 
 
             }
-            shiftService.publishWeekSchedule();
+            shiftService.publishWeekSchedule();*/
+
             // =========================
             // NEXT WEEK SHIFTS 26/04/2026
             // =========================
@@ -192,7 +194,7 @@ public class DataInitializer {
             LocalDate nextSunday = LocalDate.now()
                     .with(java.time.temporal.TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
-            for (int i = 0; i < 7; i++) {
+            /*for (int i = 0; i < 7; i++) {
 
                 LocalDate date = nextSunday.plusDays(i);
 
@@ -231,8 +233,8 @@ public class DataInitializer {
                 shiftService.assignEmployee(eveningShift, Role.Storekeeper, 445);
 
 
-            }
-            shiftService.publishNextWeekSchedule();
+            }*/
+            //shiftService.publishNextWeekSchedule();
             for (int i = 0; i < 5; i++) {
 
                 LocalDate date = nextSunday.plusDays(i);

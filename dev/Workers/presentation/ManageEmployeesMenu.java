@@ -12,8 +12,7 @@ import dev.Workers.domain.EmployeeTerms;
 import java.time.LocalDate;
 
 import static dev.Workers.presentation.Main.scanner;
-import static dev.Workers.presentation.Parser.readDoubleSafe;
-import static dev.Workers.presentation.Parser.readIntSafe;
+import static dev.Workers.presentation.Parser.*;
 
 public class ManageEmployeesMenu {
     static EmployeeService employeeService = EmployeeService.getInstance();
@@ -23,10 +22,7 @@ public class ManageEmployeesMenu {
 
     public static void start() {
         while (true) {
-            System.out.println("Employees");
-            System.out.println("1. Manage existing Employee");
-            System.out.println("2. Add Employee");
-            System.out.println("0. Back");
+            printMainMenu();
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
 
@@ -46,45 +42,31 @@ public class ManageEmployeesMenu {
     private static void accessEmployee() {
         System.out.println("Enter employee ID (0 to go back):");
 
-        try {
-            int empId = Integer.parseInt(scanner.nextLine());
+        int empId = readIntSafe();
 
-            if (empId == 0) return;
+        if (empId == 0) return;
 
-            if (!employeeService.exists(empId)) {
-                System.out.println("Employee not found.");
-                return;
-            }
-            manageEmployee(empId);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID.");
+        if (!employeeService.exists(empId)) {
+            System.out.println("Employee not found.");
+            return;
         }
+        manageEmployee(empId);
     }
 
     public static void manageEmployee(int empId) {
         while (true) {
             System.out.println(employeeService.getEmployeeName(empId) + " (" + empId + ")");
-            System.out.println("1. Employee Details");
-            System.out.println("2. Employee Roles");
-            System.out.println("3. Remove Employee");
-            System.out.println("0. Back");
+            printManageEmployeeMenu();
 
-            try {
-                int choice = Integer.parseInt(scanner.nextLine());
-
-                switch (choice) {
-                    case 1 -> details(empId);
-                    case 2 -> roles(empId);
-                    case 3 -> {
-                        remove(empId);
-                        return;}
-                    case 0 -> { return; }
-                    default -> System.out.println("Invalid choice.");
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1 -> details(empId);
+                case 2 -> roles(empId);
+                case 3 -> {
+                    remove(empId);
+                    return;}
+                case 0 -> { return; }
+                default -> System.out.println("Invalid choice.");
             }
         }
     }
@@ -101,17 +83,9 @@ public class ManageEmployeesMenu {
             System.out.println(employeeService.getEmployeeDetails(empId));
             System.out.println("======================================");
 
-            System.out.println("""
-                Please choose an action:
-                1 - Update employee name
-                2 - Update bank account number
-                3 - Update salary
-                4 - Update employment terms
-                0 - Back to previous menu
-                """);
+            printDetailsMenu();
 
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> updateName(empId);
                 case 2 -> updateBankAccount(empId);
@@ -120,8 +94,6 @@ public class ManageEmployeesMenu {
                 case 0 -> {return;}
                 default -> System.out.println("Invalid choice. Please select a valid option (0-4).");
             }
-
-            System.out.println();
         }
     }
 
@@ -133,17 +105,12 @@ public class ManageEmployeesMenu {
 
             if (name.equals("0")) return;
 
-            if (name.trim().isEmpty()) {
-                System.out.println("Employee name cannot be empty.");
-                continue;
-            }
-
             try {
                 employeeService.updateName(empId, name);
                 System.out.println("Employee name updated successfully.");
                 return;
             } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -156,17 +123,12 @@ public class ManageEmployeesMenu {
 
             if (bank == 0) return;
 
-            if (bank <= 0) {
-                System.out.println("Bank account must be positive.");
-                continue;
-            }
-
             try {
                 employeeService.updateBankAccount(empId, bank);
                 System.out.println("Bank account updated successfully.");
                 return;
             } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -179,17 +141,12 @@ public class ManageEmployeesMenu {
 
             if (salary == 0) return;
 
-            if (salary <= 0) {
-                System.out.println("Salary must be positive.");
-                continue;
-            }
-
             try {
                 employeeService.updateSalary(empId, salary);
                 System.out.println("Salary updated successfully.");
                 return;
             } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -207,16 +164,8 @@ public class ManageEmployeesMenu {
             System.out.println(employeeService.getEmployeeTermsDisplay(empId));
             System.out.println("======================================");
 
-            System.out.println("""
-                Please choose an option to update:
-                1 - Change job status
-                2 - Change salary type
-                3 - Change number of rest days
-                0 - Back
-                """);
-
+            printUpdateTermsMenu();
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> changeJobStatus(empId);
                 case 2 -> changeSalaryType(empId);
@@ -237,14 +186,17 @@ public class ManageEmployeesMenu {
         System.out.println("1 - confirm, 0 - cancel");
 
         int choice = readIntSafe();
-
-        if (choice != 1) return;
-
-        try {
-            employeeService.updateJobStatus(empId);
-            System.out.println("Job status updated successfully.");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
+        switch (choice) {
+            case 1 -> {
+                try {
+                    employeeService.updateJobStatus(empId);
+                    System.out.println("Job status updated successfully.");
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            case 0 -> {}
+            default -> System.out.println("Invalid input.");
         }
     }
 
@@ -256,14 +208,17 @@ public class ManageEmployeesMenu {
         System.out.println("1 - confirm, 0 - cancel");
 
         int choice = readIntSafe();
-
-        if (choice != 1) return;
-
-        try {
-            employeeService.updateSalaryType(empId);
-            System.out.println("Salary type updated successfully.");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
+        switch (choice) {
+            case 1 -> {
+                try {
+                    employeeService.updateSalaryType(empId);
+                    System.out.println("Salary type updated successfully.");
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            case 0 -> {}
+            default -> System.out.println("Invalid input.");
         }
     }
 
@@ -300,18 +255,12 @@ public class ManageEmployeesMenu {
             System.out.println("2. Remove Role");
             System.out.println("0. Back");
 
-            try {
-                int choice = Integer.parseInt(scanner.nextLine());
-
-                switch (choice) {
-                    case 1 -> addRole(empId);
-                    case 2 -> removeRole(empId);
-                    case 0 -> { return; }
-                    default -> System.out.println("Invalid choice.");
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1 -> addRole(empId);
+                case 2 -> removeRole(empId);
+                case 0 -> { return; }
+                default -> System.out.println("Invalid choice.");
             }
         }
     }
@@ -331,7 +280,6 @@ public class ManageEmployeesMenu {
 
             System.out.println("======================================");
             System.out.println("Available roles to assign:");
-
             System.out.println(roleService.getFormattedAvailableRoles(empId));
             System.out.println("Please choose a role to add (0 to cancel):");
 
@@ -341,12 +289,7 @@ public class ManageEmployeesMenu {
                 return;
             }
 
-            if (choice < 1 || choice > roles.length) {
-                System.out.println("Invalid choice. Please select a valid role number.");
-                continue;
-            }
-
-            Role selectedRole = roles[choice - 1];
+            Role selectedRole = getRoleFromNumber(choice);
 
             try {
                 roleService.addRoleToEmployee(empId, selectedRole);
@@ -356,7 +299,7 @@ public class ManageEmployeesMenu {
                 return;
 
             } catch (Exception e) {
-                System.out.println("Failed to add role: " + e.getMessage());
+                System.out.println(e.getMessage());
                 return;
             }
         }
@@ -377,12 +320,7 @@ public class ManageEmployeesMenu {
                 return;
             }
 
-            if (choice < 1 || choice > roles.length) {
-                System.out.println("Invalid choice. Please select a valid role number.");
-                continue;
-            }
-
-            Role selectedRole = roles[choice - 1];
+            Role selectedRole = getRoleFromNumber(choice);
 
             try {
                 roleService.removeSpecificRole(empId, selectedRole);
@@ -397,15 +335,6 @@ public class ManageEmployeesMenu {
         }
     }
 
-    /*private static void promoteDemote(int empId) {
-        try {
-            roleService.promoteDemote(empId);
-            System.out.println("Promotion/Demotion applied.");
-        } catch (IllegalStateException | IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }*/
-
     private static void remove(int empId) {
         System.out.println("Are you sure you want to remove " +
                 employeeService.getEmployeeName(empId) +
@@ -413,13 +342,17 @@ public class ManageEmployeesMenu {
 
         int choice = readIntSafe();
 
-        if (choice != 1) return;
-
-        try {
-            employeeService.remove(empId);
-            System.out.println("Employee removed.");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        switch (choice) {
+            case 1 -> {
+                try {
+                    employeeService.remove(empId);
+                    System.out.println("Employee removed.");
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            case 0 -> {}
+            default -> System.out.println("Invalid input.");
         }
     }
 
@@ -620,5 +553,35 @@ public class ManageEmployeesMenu {
             }
         }
         return new EmployeeTerms(jobStatus, salaryType, restDays);
+    }
+
+    public static void printMainMenu() {
+        System.out.println("Employees");
+        System.out.println("1. Manage existing Employee");
+        System.out.println("2. Add Employee");
+        System.out.println("0. Back");
+    }
+
+    public static void printManageEmployeeMenu() {
+        System.out.println("1. Employee Details");
+        System.out.println("2. Employee Roles");
+        System.out.println("3. Remove Employee");
+        System.out.println("0. Back");
+    }
+
+    public static void printDetailsMenu() {
+        System.out.println("Please choose an action:");
+        System.out.println("1. Update employee name");
+        System.out.println("2. Update bank account number");
+        System.out.println("3. Update salary");
+        System.out.println("4. Update employment terms");
+        System.out.println("0. Back");
+    }
+
+    public static void printUpdateTermsMenu() {
+        System.out.println("1. Change job status");
+        System.out.println("2. Change salary type");
+        System.out.println("3. Change number of rest days");
+        System.out.println("0. Back");
     }
 }

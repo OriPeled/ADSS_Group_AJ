@@ -17,14 +17,9 @@ import static dev.Workers.domain.Enums.ShiftType.any;
      *   By default, all days are initialized to wholeDay (no restriction).
      */
 public class Constraint {
-    // Specific day constraint
-    private DayOfWeek day;
-    // Specific shift type constraint for a single day
-    private ShiftType shiftType;
-    //Weekly constraints mapping each day to allowed shift type
-    private Map<DayOfWeek, ShiftType> weekConstraints;
-    //private Map<DayOfWeek, shiftType> weekConstraints = new EnumMap<>(DayOfWeek.class);
-    //private boolean can;
+    private DayOfWeek day;                              // Specific day constraint
+    private ShiftType shiftType;                        // Specific shift type constraint for a single day
+    private Map<DayOfWeek, ShiftType> weekConstraints;  // weekly constraints to allowed shift type
 
     /**
     *  constructor.
@@ -40,7 +35,6 @@ public class Constraint {
     public Constraint(DayOfWeek day, String shiftTypeString) {
         this.day = day;
         this.shiftType = shiftType.valueOf(shiftTypeString);
-        //this.can = false;
     }
 
     /**
@@ -61,12 +55,14 @@ public class Constraint {
     public void setShiftType(DayOfWeek day, ShiftType shiftType) {
         weekConstraints.put(day, shiftType);
     }
+
     /**
     * @return the full weekly constraints map
     */
     public Map<DayOfWeek, ShiftType> getWeekConstraints() {
         return weekConstraints;
     }
+
     /**
      * Compares two constraints based on day and shift type.
      *

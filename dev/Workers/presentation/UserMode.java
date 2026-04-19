@@ -9,6 +9,7 @@ import java.time.DayOfWeek;
 import static dev.Workers.domain.Enums.UserResponse.*;
 import static dev.Workers.domain.Enums.ShiftType.*;
 import static dev.Workers.presentation.Main.scanner;
+import static dev.Workers.presentation.Parser.readIntSafe;
 
 public class UserMode {
     static EmployeeService employeeService = EmployeeService.getInstance();
@@ -20,6 +21,7 @@ public class UserMode {
 
     public static void login() {
         System.out.println("User Mode");
+
         while (true) {
             System.out.println("Please enter ID or 0 to cancel:");
             String idInput = scanner.nextLine();
@@ -59,6 +61,7 @@ public class UserMode {
 
     private static void handleRegistration(int id) {
         System.out.println("User not registered. Please create password (at least 4 characters).");
+
         while (true) {
             System.out.println("Please enter new password or 0 to cancel:");
             String newPass = scanner.nextLine();
@@ -77,21 +80,9 @@ public class UserMode {
 
     public static void start() {
         while (true) {
-            System.out.println("Choose Option:");
-            System.out.println("1. Update Constraints");
-            System.out.println("2. Watch Current Week's Shifts");
-            System.out.println("3. Watch Next Week's Shifts");
-            System.out.println("4. Logout");
+            printMainMenu();
 
-            String input = scanner.nextLine();
-            int choice;
-            try {
-                choice = Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
-                continue;
-            }
-
+            int choice = readIntSafe();
             switch (choice) {
                 case 1:
                     updateConstraints();
@@ -102,7 +93,7 @@ public class UserMode {
                 case 3:
                     watchNextWeeksShifts();
                     break;
-                case 4:
+                case 0:
                     return;
                 default:
                     System.out.println("Invalid input.");
@@ -115,7 +106,7 @@ public class UserMode {
         System.out.println(shifts);
     }
 
-    // can be seen only after admin marks schedule as finished
+    // can be seen only after admin publishes schedule
     private static void watchNextWeeksShifts() {
         String shifts = shiftService.getNextWeekEmployeeShifts(employeeId);
         System.out.println(shifts);
@@ -128,16 +119,9 @@ public class UserMode {
         }
         System.out.println(constraintService.display(employeeId));
         while (true) {
-            System.out.println("Choose a shift constraint to change or enter 0 to exit.");
+            System.out.println("Choose a shift constraint to change or enter 0 to cancel.");
             System.out.println("Choose 1-7 for day");
-
-            int dayNumber;
-            try {
-                dayNumber = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input");
-                continue;
-            }
+            int dayNumber = readIntSafe();
 
             if (dayNumber == 0) return;
 
@@ -149,17 +133,9 @@ public class UserMode {
                 continue;
             }
 
-            System.out.println("Choose 1 for morning, 2 for evening, 3 for any, 4 for rest");
-            int shiftChoice;
-            try {
-                shiftChoice = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input");
-                continue;
-            }
+            System.out.println("Choose 1 for morning, 2 for evening, 3 for any, 4 for rest, 0 to cancel");
 
-            if (shiftChoice == 0) return;
-
+            int shiftChoice = readIntSafe();
             ShiftType shiftType;
             switch (shiftChoice) {
                 case 1:
@@ -174,20 +150,29 @@ public class UserMode {
                 case 4:
                     shiftType = rest;
                     break;
+                case 0:
+                    return;
                 default:
                     System.out.println("Invalid input.");
                     continue;
             }
             try {
-
                 constraintService.update(employeeId, day, shiftType);
                 System.out.println("Constraint updated successfully.");
                 System.out.println(constraintService.display(employeeId));
-            } catch (RuntimeException e) {
-
-                System.out.println("\n>>> Error: " + e.getMessage());
+            }
+            catch (RuntimeException e) {
+                System.out.println(e.getMessage());
                 return;
             }
         }
+    }
+
+    public static void printMainMenu() {
+        System.out.println("Choose Option:");
+        System.out.println("1. Update Constraints");
+        System.out.println("2. Watch Current Week's Shifts");
+        System.out.println("3. Watch Next Week's Shifts");
+        System.out.println("0. Logout");
     }
 }

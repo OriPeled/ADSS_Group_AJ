@@ -13,6 +13,8 @@ import static dev.Workers.domain.Enums.ShiftType.evening;
 import static dev.Workers.domain.Enums.ShiftType.morning;
 import static dev.Workers.domain.Enums.WeekStatus.READY_TO_PUBLISH;
 import static dev.Workers.presentation.Main.scanner;
+import static dev.Workers.presentation.Parser.getDateOfNextWeekFromDayNumber;
+import static dev.Workers.presentation.Parser.getRoleFromNumber;
 
 /**
  * Handles the HR shift-management user interface.
@@ -54,13 +56,13 @@ public class ManageShiftsMenu {
     public static void start() {
         while (true) {
             printMainMenu();
-            int choice = readIntSafe();
 
+            int choice = readIntSafe();
             switch (choice) {
                 case 1 -> manageShiftsWeek();
                 case 2 -> showShiftsHistory();
                 case 3 -> updateDeadline();
-                case 4 -> {
+                case 0 -> {
                     return;
                 }
                 default -> System.out.println("Invalid choice.");
@@ -112,8 +114,8 @@ public class ManageShiftsMenu {
     private static void manageShift(Shift shift) {
         while (true) {
             printManageShiftMenu(shift);
-            int choice = readIntSafe();
 
+            int choice = readIntSafe();
             switch (choice) {
                 case 1 -> updateShift(shift);
                 case 2 -> {
@@ -121,7 +123,7 @@ public class ManageShiftsMenu {
                         return;
                     }
                 }
-                case 3 -> {
+                case 0 -> {
                     return;
                 }
                 default -> System.out.println("Invalid choice.");
@@ -147,11 +149,10 @@ public class ManageShiftsMenu {
             printUpdateShiftMenu();
 
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> updateAssignments(shift);
                 case 2 -> updateRequirements(shift);
-                case 3 -> {
+                case 0 -> {
                     return;
                 }
                 default -> System.out.println("Invalid input.");
@@ -170,11 +171,10 @@ public class ManageShiftsMenu {
             printAssignmentsMenu();
 
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> addAssignment(shift);
                 case 2 -> replaceEmployee(shift);
-                case 3 -> {
+                case 0 -> {
                     return;
                 }
                 default -> System.out.println("Invalid input.");
@@ -215,10 +215,43 @@ public class ManageShiftsMenu {
             System.out.println(e.getMessage());
 
         } catch (RuntimeException e) {
-            System.out.println("Regular assignment failed: " + e.getMessage());
+            System.out.println(e.getMessage());
 
-            if (role != null && employeeId != -1 && shiftService.nobodyToAssignEmployee(shift, role)) {
+            if (role != null && employeeId != -1 && shiftService.nobodyToAssign(shift, role)) {
                 forceAssign(shift, role, employeeId);
+            }
+        }
+    }
+
+    /**
+     * Handles the force-assignment approval flow.
+     *
+     * @param shift the selected shift
+     * @param role the role to assign
+     * @param employeeId the employee to assign
+     */
+    private static void forceAssign(Shift shift, Role role, int employeeId) {
+        while (true) {
+            System.out.println("Do you want to force assign this employee?");
+            System.out.println("1. Yes");
+            System.out.println("0. No");
+
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1 -> {
+                    try {
+                        shiftService.forceAssignEmployee(shift, role, employeeId);
+                        System.out.println("Employee assigned via special approval.");
+                    } catch (RuntimeException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    return;
+                }
+                case 0 -> {
+                    System.out.println("Operation cancelled.");
+                    return;
+                }
+                default -> System.out.println("Invalid input.");
             }
         }
     }
@@ -253,10 +286,11 @@ public class ManageShiftsMenu {
                 return;
 
             } catch (RuntimeException e) {
-                System.out.println("Replacement failed: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }
+
     /**
      * Updates the required number of employees for a given role in a shift.
      *
@@ -292,7 +326,6 @@ public class ManageShiftsMenu {
             System.out.println("0. No");
 
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> {
                     shiftService.removeShift(shift);
@@ -303,40 +336,6 @@ public class ManageShiftsMenu {
                     return false;
                 }
                 default -> System.out.println("Invalid choice.");
-            }
-        }
-    }
-
-    /**
-     * Handles the force-assignment approval flow.
-     *
-     * @param shift the selected shift
-     * @param role the role to assign
-     * @param employeeId the employee to assign
-     */
-    private static void forceAssign(Shift shift, Role role, int employeeId) {
-        while (true) {
-            System.out.println("Do you want to force assign this employee?");
-            System.out.println("1. Yes");
-            System.out.println("0. No");
-
-            int choice = readIntSafe();
-
-            switch (choice) {
-                case 1 -> {
-                    try {
-                        shiftService.forceAssignEmployee(shift, role, employeeId);
-                        System.out.println("Employee assigned via special approval.");
-                    } catch (RuntimeException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    return;
-                }
-                case 0 -> {
-                    System.out.println("Operation cancelled.");
-                    return;
-                }
-                default -> System.out.println("Invalid input.");
             }
         }
     }
@@ -354,7 +353,6 @@ public class ManageShiftsMenu {
             System.out.println("0. Continue managing");
 
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> {
                     shiftService.publishWeekSchedule();
@@ -379,17 +377,19 @@ public class ManageShiftsMenu {
             System.out.println("Manage Shifts Week");
             System.out.println("Enter day number (1-7) or 0 to go back:");
             int dayNumber = readIntSafe();
+
             if (dayNumber == 0) {
                 return null;
             }
 
-            if (dayNumber < 1 || dayNumber > 7) {
-                System.out.println("Invalid input. Day must be between 1 and 7.");
-                continue;
+            LocalDate weekDay = null;
+            try {
+                weekDay = getDateOfNextWeekFromDayNumber(dayNumber);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-            LocalDate nextSunday = LocalDate.now()
-                    .with(java.time.temporal.TemporalAdjusters.next(DayOfWeek.SUNDAY));
-            return nextSunday.plusDays(dayNumber - 1);
+
+            return weekDay;
         }
     }
 
@@ -406,7 +406,6 @@ public class ManageShiftsMenu {
             System.out.println("0. Back");
 
             int choice = readIntSafe();
-
             switch (choice) {
                 case 1 -> {
                     return morning;
@@ -443,11 +442,7 @@ public class ManageShiftsMenu {
                 return null;
             }
 
-            if (choice >= 1 && choice <= roles.length) {
-                return roles[choice - 1];
-            }
-
-            System.out.println("Invalid role choice.");
+            return getRoleFromNumber(choice);
         }
     }
 
@@ -506,37 +501,26 @@ public class ManageShiftsMenu {
         System.out.println("1. Manage Shifts Week");
         System.out.println("2. Get Shifts History");
         System.out.println("3. Update Constraints Deadline");
-        System.out.println("4. Back");
+        System.out.println("0. Back");
     }
 
-    /**
-     * Prints the menu of actions for a selected shift.
-     *
-     * @param shift the selected shift
-     */
     private static void printManageShiftMenu(Shift shift) {
         System.out.println();
         System.out.println("Managing shift: " + shift);
         System.out.println("1. Update Shift");
         System.out.println("2. Remove Shift");
-        System.out.println("3. Back");
+        System.out.println("0. Back");
     }
 
-    /**
-     * Prints the shift update menu.
-     */
     private static void printUpdateShiftMenu() {
         System.out.println("1. Update Assignments");
         System.out.println("2. Update Requirements");
-        System.out.println("3. Back");
+        System.out.println("0. Back");
     }
 
-    /**
-     * Prints the assignments update menu.
-     */
     private static void printAssignmentsMenu() {
         System.out.println("1. Add assignment");
         System.out.println("2. Replace employee");
-        System.out.println("3. Back");
+        System.out.println("0. Back");
     }
 }

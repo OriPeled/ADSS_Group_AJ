@@ -1,6 +1,7 @@
 package dev.Workers.presentation;
 
 import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Objects.WeekSchedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -34,18 +35,16 @@ public class Parser {
     }
 
 
-    public static LocalDate getDateOfNextWeekFromNumber(int dayNumber) {
+    public static LocalDate getDateOfNextWeekFromDayNumber(int dayNumber) {
         if (dayNumber < 1 || dayNumber > 7) {
-            throw new IllegalArgumentException("Day number must be between 1 and 7");
+            throw new IllegalArgumentException("Invalid input. Day must be between 1 and 7.");
         }
 
-        // israeli week starts at sunday
-        DayOfWeek targetDay = (dayNumber == 1) ? DayOfWeek.SUNDAY : DayOfWeek.of(dayNumber - 1);
+        LocalDate nextSunday = LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
-        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-
-        // Use nextOrSame so that if dayNumber is 1 (Sunday), it returns that Sunday itself
-        return nextSunday.with(TemporalAdjusters.nextOrSame(targetDay));
+        // israeli week adapt
+        return nextSunday.plusDays(dayNumber - 1);
     }
 
     /**

@@ -3,6 +3,7 @@ package dev.Workers.presentation;
 //import dev.Workers.domain.Objects.HR_Admin;
 
 import static dev.Workers.presentation.Main.scanner;
+import static dev.Workers.presentation.Parser.readIntSafe;
 
 /**
  * Handles Admin (HR Manager) mode UI flow.
@@ -26,41 +27,38 @@ public class AdminMode {
         while (true) {
             String enteredPass = scanner.nextLine();
             if (enteredPass.equals("0")) {
-                return;      // back to Main's loop
+                return;
             }
             if (enteredPass.equals(HR_PASSWORD)) {
-                start();                        // go to admin menu
-                return;                         // after start() finishes, leave login
+                start();
+                return;
             }
             System.out.println("Wrong Password. Try Again or enter 0 to cancel:");
         }
     }
+
     /**
      * Displays admin management menu and routes user actions.
      */
     public static void start() {
         while (true) {
-            try {
-                System.out.println("Choose to Manage:");
-                System.out.println("1. Employees");
-                System.out.println("2. Shifts");
-                System.out.println("3. Logout");
+            System.out.println("Choose to Manage:");
+            System.out.println("1. Employees");
+            System.out.println("2. Shifts");
+            System.out.println("0. Logout");
 
-                int choice = Integer.parseInt(scanner.nextLine());
-                switch (choice) {
-                    case 1:
-                        ManageEmployeesMenu.start();
-                        break;
-                    case 2:
-                        ManageShiftsMenu.start();
-                        break;
-                    case 3:
-                        return;
-                    default:
-                        System.out.println("Invalid input.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1:
+                    ManageEmployeesMenu.start();
+                    break;
+                case 2:
+                    ManageShiftsMenu.start();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
             }
         }
     }
