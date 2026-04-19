@@ -518,15 +518,23 @@ public class ShiftManager {
             return "No shifts available.";
         }
 
-        // 1. Filter only published shifts and sort them
+        // Filter only past shifts (up to yesterday), and sort them
         List<Shift> publishedShifts = shifts.stream()
                 .filter(shift -> {
+                    // Include only shifts before today
+                    if (!shift.getShiftDate().isBefore(LocalDate.now())) {
+                        return false;
+                    }
+
                     // Find the week this shift belongs to
-                    LocalDate sunday = shift.getShiftDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+                    LocalDate sunday = shift.getShiftDate()
+                            .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
                     WeekSchedule week = weekSchedules.get(sunday);
 
-                    // Only include if the week exists AND is published
-                    //return week != null && week.isPublished();
+                    // Only include if the week exists
+                    // If you want only published weeks, replace with:
+                    // return week != null && week.isPublished();
                     return week != null;
                 })
                 .sorted(Comparator.comparing(Shift::getShiftDate)
@@ -540,15 +548,9 @@ public class ShiftManager {
         StringBuilder result = new StringBuilder("=== SHIFT HISTORY ===\n");
 
         for (Shift shift : publishedShifts) {
-            // ... (Existing logic to count assignments and append to result)
             long assignedCount = Arrays.stream(Role.values())
                     .mapToLong(role -> assignments.getEmployees(shift, role).size())
                     .sum();
-
-            // Optional: Keep your skip logic if you want to hide empty shifts even if published
-            /*if (assignedCount == 0 && (shift.getType() == ShiftType.rest || shift.getType() == ShiftType.any)) {
-                continue;
-            }*/
 
             result.append(String.format("\nShift: %s - %s\n", shift.getShiftDate(), shift.getType()));
 
