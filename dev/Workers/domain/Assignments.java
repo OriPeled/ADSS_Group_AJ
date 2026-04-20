@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
  * are assigned to which role inside each shift.
  */
 public class Assignments {
-
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;
 
     /**
@@ -24,11 +23,7 @@ public class Assignments {
         this.assignments = new HashMap<>();
     }
 
-
-
     public void init(Shift shift) {
-
-
         Map<Role, Set<Integer>> innerMap = new HashMap<>();
         for (Role role : Role.values()) {
             innerMap.put(role, new HashSet<>()); // ← new set for each role
@@ -68,23 +63,16 @@ public class Assignments {
      * @param role       the role
      * @param employeeID the employee ID to remove
      */
-    public void remove(Shift shift, Role role, int employeeID) {
-        Map<Role, Set<Integer>> shiftAssignments = assignments.get(shift);
-        if (shiftAssignments == null) return;
+    public void remove(Shift shift, int employeeID) {
+        if (isShiftEmpty(shift))
+            throw new IllegalArgumentException("Shift is empty.");
 
-        Set<Integer> employees = shiftAssignments.get(role);
-        if (employees == null) return;
+        Role role = getEmployeeRole(shift, employeeID);
+        if (getEmployeeRole(shift, employeeID) == null)
+            throw new IllegalArgumentException("Employee not assigned to shift.");
 
+        Set<Integer> employees = getEmployees(shift, role);
         employees.remove(employeeID);
-
-        // Clean up empty structures to keep memory clean
-        if (employees.isEmpty()) {
-            shiftAssignments.remove(role);
-        }
-
-        if (shiftAssignments.isEmpty()) {
-            assignments.remove(shift);
-        }
     }
 
     /**
@@ -121,6 +109,10 @@ public class Assignments {
      */
     public int countAssigned(Shift shift, Role role) {
         return getEmployees(shift, role).size();
+    }
+
+    public boolean isRoleEmpty(Shift shift, Role role) {
+        return countAssigned(shift, role) == 0;
     }
 
     public Map<Shift, Map<Role, Set<Integer>>> getAssignments() {

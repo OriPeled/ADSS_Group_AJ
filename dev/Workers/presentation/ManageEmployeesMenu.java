@@ -100,7 +100,6 @@ public class ManageEmployeesMenu  {
     private static void updateName(int empId) {
         while (true) {
             System.out.println("Please enter a new employee name (or 0 to cancel):");
-
             String name = scanner.nextLine();
 
             if (name.equals("0")) return;
@@ -118,7 +117,6 @@ public class ManageEmployeesMenu  {
     private static void updateBankAccount(int empId) {
         while (true) {
             System.out.println("Please enter a new bank account number (or 0 to cancel):");
-
             int bank = readIntSafe();
 
             if (bank == 0) return;
@@ -136,7 +134,6 @@ public class ManageEmployeesMenu  {
     private static void updateSalary(int empId) {
         while (true) {
             System.out.println("Please enter a new salary (or 0 to cancel):");
-
             double salary = readDoubleSafe();
 
             if (salary == 0) return;
@@ -227,7 +224,6 @@ public class ManageEmployeesMenu  {
      */
     private static void changeRestDays(int empId) {
         System.out.println("Enter number of rest days (1-7, 0 to cancel):");
-
         int days = readIntSafe();
 
         if (days == 0) return;
@@ -241,7 +237,7 @@ public class ManageEmployeesMenu  {
             employeeService.updateRestDays(empId, days);
             System.out.println("Rest days updated successfully.");
         } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -379,62 +375,47 @@ public class ManageEmployeesMenu  {
             System.out.println("Invalid name. Try again.");
         }
 
-        int Id;
+        int id;
         while (true) {
             System.out.println("Please enter the employee ID to continue ");
-            try {
-                Id = Integer.parseInt(scanner.nextLine());
+            id = readIntSafe();
 
-                if (Id <= 0) {
-                    System.out.println("ID must be positive.");
-                    continue;
-                }
-
-                if (employeeService.exists(Id)) {
-                    System.out.println("Employee already exists.");
-                    continue;
-                }
-                break;
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
+            if (id <= 0) {
+                System.out.println("ID must be positive.");
+                continue;
             }
+
+            if (employeeService.exists(id)) {
+                System.out.println("Employee already exists.");
+                continue;
+            }
+            break;
         }
 
         int bankAccount;
         while (true) {
             System.out.println("Please enter the bank account number:");
-            try {
-                bankAccount = Integer.parseInt(scanner.nextLine());
+            bankAccount = readIntSafe();
 
-                if (bankAccount <= 0) {
-                    System.out.println("Bank account must be positive.");
-                    continue;
-                }
-
-                break;
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
+            if (bankAccount <= 0) {
+                System.out.println("Bank account must be positive.");
+                continue;
             }
+
+            break;
         }
 
         double salary;
         while (true) {
             System.out.println("Please enter the employee salary:");
-            try {
-                salary = Double.parseDouble(scanner.nextLine());
+            salary = readDoubleSafe();
 
-                if (salary <= 0) {
-                    System.out.println("Salary must be positive.");
-                    continue;
-                }
-
-                break;
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
+            if (salary <= 0) {
+                System.out.println("Salary must be positive.");
+                continue;
             }
+
+            break;
         }
 
         EmployeeTerms terms = createEmployeeTermsFromInput();
@@ -462,7 +443,7 @@ public class ManageEmployeesMenu  {
             }
         }
 
-        addEmployee(name, Id, bankAccount, salary, terms, date);
+        addEmployee(name, id, bankAccount, salary, terms, date);
     }
 
     /**
@@ -497,59 +478,44 @@ public class ManageEmployeesMenu  {
         JobStatus jobStatus;
         while (true) {
             System.out.println("Select Job Status (1. Full Time, 2. Half Time):");
-            try {
-                int jobChoice = Integer.parseInt(scanner.nextLine());
+            int jobChoice = readIntSafe();
 
-                if (jobChoice == 1) {
-                    jobStatus = JobStatus.fullTime;
-                    break;
-                } else if (jobChoice == 2) {
-                    jobStatus = JobStatus.halfTime;
-                    break;
-                } else {
-                    System.out.println("Invalid choice. Try again.");
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Input must be a number. Try again.");
+            if (jobChoice == 1) {
+                jobStatus = JobStatus.fullTime;
+                break;
+            } else if (jobChoice == 2) {
+                jobStatus = JobStatus.halfTime;
+                break;
+            } else {
+                System.out.println("Invalid choice. Try again.");
             }
         }
 
         SalaryType salaryType;
         while (true) {
             System.out.println("Select Salary Type (1. Hourly, 2. Global):");
-            try {
-                int salaryChoice = Integer.parseInt(scanner.nextLine());
+            int salaryChoice = readIntSafe();
 
-                if (salaryChoice == 1) {
-                    salaryType = SalaryType.hourly;
-                    break;
-                } else if (salaryChoice == 2) {
-                    salaryType = SalaryType.global;
-                    break;
-                } else {
-                    System.out.println("Invalid choice. Try again.");
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Input must be a number. Try again.");
+            if (salaryChoice == 1) {
+                salaryType = SalaryType.hourly;
+                break;
+            } else if (salaryChoice == 2) {
+                salaryType = SalaryType.global;
+                break;
+            } else {
+                System.out.println("Invalid choice. Try again.");
             }
         }
 
         int restDays;
         while (true) {
             System.out.println("Enter number of rest days (1-7):");
-            try {
-                restDays = Integer.parseInt(scanner.nextLine());
+            restDays = readIntSafe();
 
-                if (restDays >= 1 && restDays <= 7) {
-                    break;
-                } else {
-                    System.out.println("Rest days must be between 1 and 7.");
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Input must be a number. Try again.");
+            if (restDays >= 1 && restDays <= 7) {
+                break;
+            } else {
+                System.out.println("Rest days must be between 1 and 7.");
             }
         }
         return new EmployeeTerms(jobStatus, salaryType, restDays);

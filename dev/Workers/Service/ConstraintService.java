@@ -52,45 +52,35 @@ public class ConstraintService {
      * @param shiftType desired shift type
      */
     public void update(int id, DayOfWeek day, ShiftType shiftType) {
-
         constraintManager.update(id, day, shiftType);
     }
-
-
-
-    /**
-     * Converts a number (1-7) to a DayOfWeek
-     *
-     * @param dayNumber number representing the day (1=Sunday,...,7=Saturday)
-     * @return corresponding DayOfWeek
-     */
-   /*public static DayOfWeek getDayFromNumber(int dayNumber) {
-        return Parser.getDayFromNumber(dayNumber);
-    }*/
 
     /**
      * Checks if current date is before deadline
      *
      * @return true if still before deadline, false otherwise
      */
+
     public boolean isOnTime() {
         return constraintManager.isOnTime(LocalDate.now());
     }
     /**
      * @return deadline for updating constraints
      */
+
     public DayOfWeek getDeadline() {
         return constraintManager.getDeadline();
     }
+
     /**
      * Sets deadline for updating constraints
      *
      * @param deadline new deadline
      */
+
     public void setDeadline(DayOfWeek deadline) {
         constraintManager.setDeadline(deadline);
      }
-
 
     public void initConstraintForEmployee(int id) {
         constraintManager.initConstraintForEmployee(id);

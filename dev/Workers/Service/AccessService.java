@@ -46,8 +46,8 @@ public class AccessService {
      * @throws IllegalArgumentException If the password is invalid or the user is already registered.
      */
     public void Register(int id, String password) {
-        if (password.length() < 4) {
-          throw new IllegalArgumentException("Password must be at least 4 characters long.");
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
         }
          accessManager.register(id, password);
     }
@@ -77,15 +77,4 @@ public class AccessService {
         }
         accessManager.updatePassword(id, newPassword);
     }
-
-    /**
-     * Checks if a specific employee ID has registered credentials in the system.
-     * * @param id The employee ID to check.
-     * @return {@code true} if the user is registered; {@code false} otherwise.
-     */
-    public boolean isRegisteredUser(int id) {
-        return accessManager.isRegisteredUser(id);
-    }
-
-
 }

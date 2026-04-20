@@ -51,8 +51,8 @@ public class AccessManager {
      * @throws IllegalArgumentException if the password is null/empty or if the user already exists.
      */
     public void register(int id, String password) {
-        if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be null or empty");
+        if (password.length() < 4) {
+            throw new IllegalArgumentException("Password must be at least 4 characters long.");
         }
         accessMap.put(id, new Access(password));
 
@@ -78,7 +78,7 @@ public class AccessManager {
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
     public void remove(int id) {
-        if (accessMap.containsKey(id)) {
+        if (isRegisteredUser(id)) {
             accessMap.remove(id);
 
         } else {

@@ -59,7 +59,6 @@ public class EmployeeManager   {
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         if (isEmployee(id)) {
             throw new IllegalArgumentException("Employee ID " + id + " already exists.");
-
         }
         Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
         employees.put(newEmp.getId(), newEmp);

@@ -10,7 +10,6 @@ import dev.Workers.domain.ShiftManager;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Map;
 
 /**
  * ShiftService acts as the entry point for UI/Web controllers.
@@ -36,8 +35,6 @@ public class ShiftService {
         this.shiftManager = ShiftManager.getInstance();
     }
 
-
-
     public void addShift(LocalDate date, ShiftType type) {
         shiftManager.addShift(date, type);
     }
@@ -58,7 +55,7 @@ public class ShiftService {
         shiftManager.assignEmployee(shift, role, employeeId);
     }
 
-    public void forceAssignEmployee(Shift shift, Role role, int employeeId) {
+    public void forceAssign(Shift shift, Role role, int employeeId) {
         shiftManager.forceAssign(shift, role, employeeId);
     }
 
@@ -68,6 +65,10 @@ public class ShiftService {
 
     public void replaceEmployee(Shift shift, int currentId, int newId) {
         shiftManager.replaceEmployee(shift, currentId, newId);
+    }
+
+    public void removeEmployee(Shift shift, int employeeId) {
+        shiftManager.removeEmployee(shift, employeeId);
     }
 
     public void publishWeekSchedule() {
@@ -86,13 +87,9 @@ public class ShiftService {
         shiftManager.publishWeekSchedule(lastSunday);
     }
 
-
-
     public String getAvailableEmployeesForShift(Shift shift) {
         return shiftManager.getUnassignedValid(shift);
     }
-
-
 
     public String displayWeekAssignments() {
         return shiftManager.displayWeekAssignments();
@@ -114,7 +111,6 @@ public class ShiftService {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
     }
-
 
     public WeekStatus getWeekStatus() {
         return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());

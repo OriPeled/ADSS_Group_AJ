@@ -137,14 +137,18 @@ public class ShiftManager {
     }
 
     public void forceAssign(Shift shift, Role role, int employeeId) {
-        if (!isSpecialValid(shift, role, employeeId)) {
+        employeeManager.validateEmployeeBasic(employeeId);
+        if (!isNeeded(shift, role))
+            throw new RuntimeException("Role already assigned.");
+        if (!isQualified(employeeId, role)) {
             throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
         }
         assignments.add(shift, role, employeeId);
     }
 
-    public void removeEmployee(Shift shift, Role role, int employeeId) {
-        assignments.remove(shift, role, employeeId);
+    public void removeEmployee(Shift shift, int employeeId) {
+        employeeManager.validateEmployeeBasic(employeeId);
+        assignments.remove(shift, employeeId);
     }
 
     public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
@@ -177,8 +181,8 @@ public class ShiftManager {
         if (!isQualified(currentEmployeeId, roleNew))
             throw new IllegalArgumentException("Employee " + currentEmployeeId + "  not qualified for this role.");
 
-        removeEmployee(shift, roleCur, currentEmployeeId);
-        removeEmployee(shift, roleNew, newEmployeeId);
+        removeEmployee(shift, currentEmployeeId);
+        removeEmployee(shift, newEmployeeId);
         assignEmployee(shift, roleNew, currentEmployeeId);
         assignEmployee(shift, roleCur, newEmployeeId);
     }
@@ -187,13 +191,8 @@ public class ShiftManager {
         if (!isAvailable(newEmployeeId, shift))
             throw new IllegalArgumentException("Employee " + newEmployeeId + " not available for this shift.");
 
-        removeEmployee(shift, roleCur, currentEmployeeId);
+        removeEmployee(shift, currentEmployeeId);
         assignEmployee(shift, roleCur, newEmployeeId);
-    }
-
-    private boolean isSpecialValid(Shift shift, Role role, int employeeId) {
-        return isQualified(employeeId, role)
-                && isNeeded(shift, role);
     }
 
     /**
@@ -250,7 +249,7 @@ public class ShiftManager {
             List<Integer> idsToRemove = new ArrayList<>(employees).subList(0, toRemove);
 
             for (Integer id : idsToRemove) {
-                removeEmployee(shift, role, id);
+                removeEmployee(shift, id);
 
             }
         }

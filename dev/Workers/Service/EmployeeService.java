@@ -47,11 +47,14 @@ public class EmployeeService {
      */
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         // 1. Business logic validations
-        if (salary <= 0) {
-            throw new IllegalArgumentException("Cannot add employee: Salary must be a positive number.");
+        if (id <= 0) {
+            throw new IllegalArgumentException("Cannot add employee: ID must be a positive number.");
         }
         if (bankAccount <= 0) {
             throw new IllegalArgumentException("Cannot add employee: Invalid bank account details.");
+        }
+        if (salary <= 0) {
+            throw new IllegalArgumentException("Cannot add employee: Salary must be a positive number.");
         }
         if (startDate == null) {
             throw new IllegalArgumentException("Cannot add employee: Start date cannot be before current date.");
@@ -78,14 +81,9 @@ public class EmployeeService {
      */
 
     public void remove(int id) {
-        employeeManager.remove(id); // terminate (throws if invalid)
-        if (accessService.isRegisteredUser(id)) {
-            accessService.removeUser(id); // clean up access
-        }
+        employeeManager.remove(id);   // terminate
+        accessService.removeUser(id); // clean up access
     }
-
-
-
 
     public void updateName(int id, String newName) {
         if (newName == null || newName.trim().isEmpty()) {
@@ -146,8 +144,6 @@ public class EmployeeService {
         }
         emp.getTerms().setRestDays(days);
     }
-
-
 
     /**
      * Checks if an employee exists and returns their name.

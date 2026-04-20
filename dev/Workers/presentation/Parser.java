@@ -74,10 +74,12 @@ public class Parser {
     }
 
     public static Role getRoleFromNumber(int roleNumber) {
-        if (roleNumber < 1 || roleNumber > Role.values().length) {
-            throw new IllegalArgumentException("Invalid role choice.");
+        while (true) {
+            if (roleNumber < 1 || roleNumber > Role.values().length) {
+                throw new IllegalArgumentException("Invalid role choice.");
+            }
+            return Role.values()[roleNumber - 1];
         }
-        return Role.values()[roleNumber - 1];
     }
 
     static int readIntSafe() {

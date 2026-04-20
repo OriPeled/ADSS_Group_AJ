@@ -383,7 +383,7 @@ public class ManagersTest {
 
         assignments.init(shift);
         assignments.add(shift, Role.Cashier, 101);
-        assignments.remove(shift, Role.Cashier, 101);
+        assignments.remove(shift, 101);
 
         assertFalse(assignments.isAssignedToRole(shift, Role.Cashier, 101));
     }

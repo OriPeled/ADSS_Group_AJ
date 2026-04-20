@@ -82,7 +82,6 @@ public class RoleService {
         return roleManager.getListById(id);
     }
 
-
     public String getFormattedAvailableRoles(int id) {
         return roleManager.getFormattedAvailableRoles(id);
     }

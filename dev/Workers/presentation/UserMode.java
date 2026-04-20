@@ -62,10 +62,7 @@ public class UserMode {
             }
              catch (Exception e) {
                 System.out.println(e.getMessage());
-
              }
-
-
         }
     }
 
