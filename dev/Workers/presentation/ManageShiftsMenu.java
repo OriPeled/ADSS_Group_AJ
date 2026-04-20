@@ -8,7 +8,6 @@ import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Objects;
 
 import static dev.Workers.domain.Enums.ShiftType.evening;
 import static dev.Workers.domain.Enums.ShiftType.morning;
@@ -36,10 +35,8 @@ import static dev.Workers.presentation.Parser.getRoleFromNumber;
  * with the relevant services.
  */
 public class ManageShiftsMenu {
-
     /** Service responsible for all shift-related operations. */
     private static final ShiftService shiftService = ShiftService.getInstance();
-
     /** Service responsible for employee constraints and deadline management. */
     private static final ConstraintService constraintService = ConstraintService.getInstance();
 

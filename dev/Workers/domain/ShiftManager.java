@@ -68,7 +68,6 @@ public class ShiftManager {
             requirements.init(newShift);
             assignments.init(newShift);
         }
-        System.out.println("added " + newShift);
     }
 
     /**
@@ -228,6 +227,7 @@ public class ShiftManager {
                 shift.getType()
         );
     }
+
     /**
      * Checks if employee has the required role.
      */
@@ -482,9 +482,6 @@ public class ShiftManager {
         LocalDate startOfWeek = week.getStartOfWeek();
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
-        // 2. Business Rule: Gatekeep based on the Published status
-        // (Optional: You might want to allow viewing the CURRENT week even if not published,
-        // but restricted for NEXT week).
         if (!week.isViewableByUser()) {
             return String.format("The schedule for the week of %s is not yet published.", startOfWeek);
         }

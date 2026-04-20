@@ -14,7 +14,6 @@ import static dev.Workers.presentation.Parser.readIntSafe;
  * - Navigation to employee/shift management menus
  */
 public class AdminMode {
-
     private static final String HR_PASSWORD = "8888";
     /**
      * Handles admin login process.

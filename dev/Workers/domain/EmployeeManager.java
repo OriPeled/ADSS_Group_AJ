@@ -44,8 +44,6 @@ public class EmployeeManager   {
         return employee != null;
     }
 
-
-
     /**
      * Creates and adds a new employee to the system
      *

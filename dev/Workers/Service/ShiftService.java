@@ -76,19 +76,26 @@ public class ShiftService {
     }
 
     public void publishWeekSchedule() {
-       // LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate thisSunday = LocalDate.now()
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         shiftManager.publishWeekSchedule(thisSunday);
     }
+
     public void publishNextWeekSchedule() {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         shiftManager.publishWeekSchedule(nextSunday);
     }
+
     public void publishLastWeekSchedule() {
         LocalDate lastSunday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
                 .minusWeeks(1);
         shiftManager.publishWeekSchedule(lastSunday);
+    }
+
+    public void publishWeekByDate(LocalDate date) {
+        LocalDate thisSunday = date
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        shiftManager.publishWeekSchedule(date);
     }
 
     public String getAvailableEmployeesForShift(Shift shift) {

@@ -12,7 +12,6 @@ import static dev.Workers.presentation.Main.scanner;
 import static dev.Workers.presentation.Parser.readIntSafe;
 
 public class UserMode {
-    static EmployeeService employeeService = EmployeeService.getInstance();
     static ConstraintService constraintService = ConstraintService.getInstance();
     static AccessService accessService = AccessService.getInstance();
     static ShiftService shiftService = ShiftService.getInstance();
@@ -27,26 +26,18 @@ public class UserMode {
             int enteredID = readIntSafe();
             if (enteredID == 0) return;
 
+            System.out.println("Please enter password or 0 to cancel:");
+            String enteredPassword = scanner.nextLine();
+            if (enteredPassword.equals("0")) return;
             try {
-                if (!employeeService.exists(enteredID)) {
-                    System.out.println("Employee not found.");
-                    continue;
-                }
-
-                if (!accessService.isRegistered(enteredID)) {
-                    handleRegistration(enteredID);
-                    continue;
-                }
-
-                System.out.println("Please enter password or 0 to cancel:");
-                String enteredPassword = scanner.nextLine();
-                if (enteredPassword.equals("0")) return;
-
                 UserResponse loginResponse = accessService.login(enteredID, enteredPassword);
                 if (loginResponse == success) {
                     employeeId = enteredID;
                     start();
                     return;
+                }
+                else if (loginResponse == notRegistered) {
+                    handleRegistration(enteredID);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

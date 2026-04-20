@@ -19,7 +19,6 @@ public class ManageEmployeesMenu  {
     static ConstraintService constraintService = ConstraintService.getInstance();
     static RoleService roleService = RoleService.getInstance();
 
-
     public static void start() {
         while (true) {
             printMainMenu();
