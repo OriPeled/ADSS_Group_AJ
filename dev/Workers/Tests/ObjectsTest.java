@@ -1,9 +1,8 @@
 package dev.Workers.Tests;
 
-import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.SalaryType;
-import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Access;
 import dev.Workers.domain.Objects.Employee;

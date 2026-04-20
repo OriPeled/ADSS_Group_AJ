@@ -2,12 +2,11 @@ package dev.Workers.setup;
 
 import dev.Workers.Service.*;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 
 /**
  * DataInitializer is responsible for loading mock data into the system.
@@ -31,7 +30,7 @@ public class DataInitializer {
         ShiftService shiftService = ShiftService.getInstance();
         ConstraintService constraintService = ConstraintService.getInstance();
 
-        System.out.println("Loading mock data into memory...");
+        //System.out.println("Loading mock data into memory...");
 
         try {
             //constraintService.setDeadline(LocalDate.now().plusWeeks(1));
@@ -41,8 +40,7 @@ public class DataInitializer {
             // =========================
             // EMPLOYEES CREATION
             // =========================
-
-            // Shift Managers
+// Shift Managers
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Shira Steinbuch", 111, Role.shiftManager, LocalDate.of(2023, 1, 10));
 
@@ -63,7 +61,7 @@ public class DataInitializer {
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Dana Azulay", 224, Role.Cashier, LocalDate.of(2025, 2, 1));
 
-            // Storekeepers
+// Storekeepers
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Nissim", 333, Role.Storekeeper, LocalDate.of(2021, 9, 30));
 
@@ -79,10 +77,10 @@ public class DataInitializer {
 
             createEmployee(employeeService, accessService, roleService, constraintService,
                     "Avicay", 101, Role.Cashier, LocalDate.of(2025, 4, 15));
+
             // =========================
-            // CONSTRAINTS =
+            // CONSTRAINTS
             // =========================
-            // Example constraints (system will handle them safely)
             //constraintService.update(222, DayOfWeek.SATURDAY, ShiftType.rest);
             constraintService.update(223, DayOfWeek.SATURDAY, ShiftType.rest);
             constraintService.update(7, DayOfWeek.SATURDAY, ShiftType.rest);

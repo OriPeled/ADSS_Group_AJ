@@ -1,4 +1,4 @@
-package dev.Workers.domain;
+package dev.Workers.domain.Objects;
 
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.SalaryType;

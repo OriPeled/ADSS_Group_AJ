@@ -3,7 +3,7 @@ package dev.Workers.Tests;
 
 import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.EmployeeManager;
-import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.RoleManager;
 import dev.Workers.domain.ShiftManager;

@@ -7,7 +7,7 @@ import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.SalaryType;
 
-import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
 

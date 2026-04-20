@@ -3,7 +3,7 @@ package dev.Workers.Service;
 
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.EmployeeManager;
-import dev.Workers.domain.EmployeeTerms;
+import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
 

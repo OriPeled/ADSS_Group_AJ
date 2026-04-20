@@ -1,6 +1,7 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Objects.Employee;
+import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
 import java.util.HashMap;

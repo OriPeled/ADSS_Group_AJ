@@ -7,7 +7,6 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        DataInitializer.initSystem();
         while (true) {
             displayMenu();
         }
@@ -18,6 +17,7 @@ public class Main {
             System.out.println("Choose Mode:");
             System.out.println("1. User Mode");
             System.out.println("2. HR Manager Mode");
+            System.out.println("3. Load external data");
             System.out.println("0. Exit");
 
             String input = scanner.nextLine();
@@ -36,6 +36,10 @@ public class Main {
                     break;
                 case 2:
                     AdminMode.login();
+                    break;
+                case 3:
+                    DataInitializer.initSystem();
+                    System.out.println("External data loaded.");
                     break;
                 case 0:
                     System.out.println("Have a good day.");
