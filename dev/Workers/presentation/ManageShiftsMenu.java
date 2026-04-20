@@ -550,8 +550,9 @@ public class ManageShiftsMenu {
      */
     private static void printMainMenu() {
         System.out.println("1. Manage Shifts Week");
-        System.out.println("2. Get Shifts History");
-        System.out.println("3. Update Constraints Deadline");
+        System.out.println("3. Manual shift changes (USE ONLY WHEN NECESSARY)");
+        System.out.println("3. Get Shifts History");
+        System.out.println("4. Update Constraints Deadline");
         System.out.println("0. Back");
     }
 
@@ -572,7 +573,6 @@ public class ManageShiftsMenu {
     private static void printAssignmentsMenu() {
         System.out.println("1. Add assignment");
         System.out.println("2. Replace employee");
-        System.out.println("3. Manual changes (USE ONLY WHEN NECESSARY)");
         System.out.println("0. Back");
     }
 
