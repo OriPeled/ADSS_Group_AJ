@@ -68,13 +68,15 @@ public class ShiftManager {
             requirements.init(newShift);
             assignments.init(newShift);
         }
+        System.out.println("added" + newShift);
     }
 
     /**
      *
      * @param date
      * @param type
-     * @return getter for shift, null if not exist
+     * @return getter for a next week's shift,
+     *         could be either already published or currently on assignment process
      */
     public Shift getShift(LocalDate date, ShiftType type) {
         for (Shift s : shifts) {
@@ -93,7 +95,28 @@ public class ShiftManager {
             }
         }
 
-        return null;
+        return null; // never occurs
+    }
+
+    /**
+     *
+     * @param date
+     * @param type
+     * @return getter for an existing shift, null if doesn't exist
+     */
+    public Shift getExistingShift(LocalDate date, ShiftType type) {
+        Shift shift = null;
+        for (Shift s : shifts) {
+            if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
+                shift = s;
+                break;
+            }
+        }
+
+        if (shift == null)
+            throw new IllegalArgumentException("Shift doesn't exist.");
+
+        return shift;
     }
 
     public void resetShift(Shift shift) {

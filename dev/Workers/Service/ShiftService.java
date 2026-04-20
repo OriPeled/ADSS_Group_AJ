@@ -43,6 +43,10 @@ public class ShiftService {
         return shiftManager.getShift(date, type);
     }
 
+    public Shift getExistingShift(LocalDate date, ShiftType type) {
+        return shiftManager.getExistingShift(date, type);
+    }
+
     public void resetShift(Shift shift) {
         shiftManager.resetShift(shift);
     }

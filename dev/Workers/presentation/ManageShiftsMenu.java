@@ -8,6 +8,7 @@ import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import static dev.Workers.domain.Enums.ShiftType.evening;
 import static dev.Workers.domain.Enums.ShiftType.morning;
@@ -60,8 +61,9 @@ public class ManageShiftsMenu {
             int choice = readIntSafe();
             switch (choice) {
                 case 1 -> manageShiftsWeek();
-                case 2 -> showShiftsHistory();
-                case 3 -> updateDeadline();
+                case 2 -> manualShiftChanges();
+                case 3 -> showShiftsHistory();
+                case 4 -> updateDeadline();
                 case 0 -> {
                     return;
                 }
@@ -90,6 +92,7 @@ public class ManageShiftsMenu {
             }
 
             System.out.println(shiftService.displayWeekAssignments());
+            System.out.println("Manage Shifts Week");
 
             LocalDate date = chooseDay();
             if (date == null) {
@@ -103,6 +106,33 @@ public class ManageShiftsMenu {
 
             Shift selectedShift = shiftService.getShift(date, shiftType);
             manageShift(selectedShift);
+        }
+    }
+
+    /**
+     * Handles the weekly schedule publication flow.
+     *
+     * @return true if the schedule was published, otherwise false
+     */
+    private static boolean handlePublishMenu() {
+        System.out.println("All shifts are assigned. Do you want to publish the week schedule?");
+
+        while (true) {
+            System.out.println("1. Publish");
+            System.out.println("0. Continue managing");
+
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1 -> {
+                    shiftService.publishWeekSchedule();
+                    System.out.println("Week schedule published.");
+                    return true;
+                }
+                case 0 -> {
+                    return false;
+                }
+                default -> System.out.println("Invalid input.");
+            }
         }
     }
 
@@ -282,6 +312,78 @@ public class ManageShiftsMenu {
         }
     }
 
+    /**
+     * Updates the required number of employees for a given role in a shift.
+     *
+     * @param shift the selected shift
+     */
+    private static void updateRequirements(Shift shift) {
+        Role role = chooseRole();
+        if (role == null) {
+            return;
+        }
+
+        System.out.println("Enter new required amount:");
+        int amount = readIntSafe();
+
+        try {
+            shiftService.setRequirement(shift, role, amount);
+            System.out.println("Requirement updated.");
+        } catch (RuntimeException e) {
+            System.out.println("Failed to update requirement: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Resets the selected shift after user confirmation.
+     *
+     * @param shift the selected shift
+     * @return true if the shift was reset, otherwise false
+     */
+    private static boolean resetShift(Shift shift) {
+        while (true) {
+            System.out.println("Are you sure you want to reset this shift?");
+            System.out.println("1. Yes");
+            System.out.println("0. No");
+
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1 -> {
+                    shiftService.resetShift(shift);
+                    System.out.println("Shift reset successfully.");
+                    return true;
+                }
+                case 0 -> {
+                    return false;
+                }
+                default -> System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    private static void manualShiftChanges() {
+        while (true) {
+            System.out.println(shiftService.displayWeekAssignments());
+
+            LocalDate date = chooseDate();
+            if (date == null) {
+                return;
+            }
+
+            ShiftType shiftType = chooseShiftType();
+            if (shiftType == null) {
+                continue;
+            }
+
+            try {
+                Shift selectedShift = shiftService.getExistingShift(date, shiftType);
+                manualChanges(selectedShift);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
     private static void manualChanges(Shift shift) {
         while (true) {
             System.out.println(shiftService.getShiftDetails(shift));
@@ -291,6 +393,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> manualAssignment(shift);
                 case 2 -> manualRemoval(shift);
+                case 3 -> updateRequirements(shift);
                 case 0 -> {
                     return;
                 }
@@ -339,89 +442,12 @@ public class ManageShiftsMenu {
     }
 
     /**
-     * Updates the required number of employees for a given role in a shift.
-     *
-     * @param shift the selected shift
-     */
-    private static void updateRequirements(Shift shift) {
-        Role role = chooseRole();
-        if (role == null) {
-            return;
-        }
-
-        System.out.println("Enter new required amount:");
-        int amount = readIntSafe();
-
-        try {
-            shiftService.setRequirement(shift, role, amount);
-            System.out.println("Requirement updated.");
-        } catch (RuntimeException e) {
-            System.out.println("Failed to update requirement: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Removes the selected shift after user confirmation.
-     *
-     * @param shift the selected shift
-     * @return true if the shift was removed, otherwise false
-     */
-    private static boolean resetShift(Shift shift) {
-        while (true) {
-            System.out.println("Are you sure you want to reset this shift?");
-            System.out.println("1. Yes");
-            System.out.println("0. No");
-
-            int choice = readIntSafe();
-            switch (choice) {
-                case 1 -> {
-                    shiftService.resetShift(shift);
-                    System.out.println("Shift reset successfully.");
-                    return true;
-                }
-                case 0 -> {
-                    return false;
-                }
-                default -> System.out.println("Invalid choice.");
-            }
-        }
-    }
-
-    /**
-     * Handles the weekly schedule publication flow.
-     *
-     * @return true if the schedule was published, otherwise false
-     */
-    private static boolean handlePublishMenu() {
-        System.out.println("All shifts are assigned. Do you want to publish the week schedule?");
-
-        while (true) {
-            System.out.println("1. Publish");
-            System.out.println("0. Continue managing");
-
-            int choice = readIntSafe();
-            switch (choice) {
-                case 1 -> {
-                    shiftService.publishWeekSchedule();
-                    System.out.println("Week schedule published.");
-                    return true;
-                }
-                case 0 -> {
-                    return false;
-                }
-                default -> System.out.println("Invalid input.");
-            }
-        }
-    }
-
-    /**
      * Lets the user choose a day in the current work week.
      *
      * @return the selected date, or null if the user chose to go back
      */
     private static LocalDate chooseDay() {
         while (true) {
-            System.out.println("Manage Shifts Week");
             System.out.println("Enter day number (1-7) or 0 to go back:");
             int dayNumber = readIntSafe();
 
@@ -498,6 +524,36 @@ public class ManageShiftsMenu {
     }
 
     /**
+     * Lets the user enter a date for shift accessing.
+     *
+     * @return the selected date, or null if the user chose to go back
+     */
+    private static LocalDate chooseDate() {
+        LocalDate date;
+        while (true) {
+            System.out.println("Enter date (format: dd/MM/yyyy) or 0 to go back:");
+            try {
+                String input = scanner.nextLine();
+
+                if (input.equals("0")) return null;
+
+                date = Parser.stringToDate(input);
+
+                if (date == null) {
+                    System.out.println("Invalid date format.");
+                    continue;
+                }
+
+                break;
+
+            } catch (Exception e) {
+                System.out.println("Invalid date. Try again.");
+            }
+        }
+        return date;
+    }
+
+    /**
      * Updates the constraints submission deadline.
      */
     private static void updateDeadline() {
@@ -550,7 +606,7 @@ public class ManageShiftsMenu {
      */
     private static void printMainMenu() {
         System.out.println("1. Manage Shifts Week");
-        System.out.println("3. Manual shift changes (USE ONLY WHEN NECESSARY)");
+        System.out.println("2. Manual shift changes (USE ONLY WHEN NECESSARY)");
         System.out.println("3. Get Shifts History");
         System.out.println("4. Update Constraints Deadline");
         System.out.println("0. Back");
@@ -579,6 +635,7 @@ public class ManageShiftsMenu {
     private static void printManualChangesMenu() {
         System.out.println("1. Manual assignment");
         System.out.println("2. Manual removal");
+        System.out.println("3. Update requirements");
         System.out.println("0. Back");
     }
 }

@@ -93,6 +93,9 @@ public class DataInitializer {
             constraintService.update(223, DayOfWeek.SATURDAY, ShiftType.rest);
             constraintService.update(111, DayOfWeek.SATURDAY, ShiftType.rest);
            // constraintService.update(111, DayOfWeek.SUNDAY, ShiftType.morning);
+
+            Shift pastShift1 = shiftService.getShift(LocalDate.of(2025, 5, 20), ShiftType.morning);
+            shiftService.forceAssign(pastShift1, Role.Cashier, 111);
             // =========================
             // LAST WEEK SHIFTS 12/04/2026
             // =========================
