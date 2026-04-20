@@ -39,17 +39,6 @@ public class RoleManager  {    // maps employee ID to list of roles
     }
 
     /**
-     * Adds a full list of roles to an employee (replaces existing roles)
-     *
-     * @param id    employee ID
-     * @param items list of roles
-     */
-    /*@Override
-    public void addFullList(int id, List<Role> items) {
-        employeeRoles.put(id, items);
-    }*/
-
-    /**
      * Adds a single role to an employee
      *
      * @param id   employee ID

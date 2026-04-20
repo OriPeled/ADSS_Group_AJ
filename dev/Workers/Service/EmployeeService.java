@@ -47,6 +47,12 @@ public class EmployeeService {
      */
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         // 1. Business logic validations
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Cannot add employee: Name cannot be empty.");
+        }
+        if (terms == null) {
+            throw new IllegalArgumentException("Cannot add employee: Employment terms cannot be null.");
+        }
         if (id <= 0) {
             throw new IllegalArgumentException("Cannot add employee: ID must be a positive number.");
         }

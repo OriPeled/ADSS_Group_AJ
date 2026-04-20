@@ -24,28 +24,33 @@ public class UserMode {
 
         while (true) {
             System.out.println("Please enter ID or 0 to cancel:");
-            int enteredID =readIntSafe();
+            int enteredID = readIntSafe();
             if (enteredID == 0) return;
-            System.out.println("Please enter password or 0 to cancel:");
-            String enteredPassword = scanner.nextLine();
-            if (enteredPassword.equals("0")) return;
 
-            UserResponse loginResponse = null;
             try {
-                loginResponse = accessService.login(enteredID, enteredPassword);
+                if (!employeeService.exists(enteredID)) {
+                    System.out.println("Employee not found.");
+                    continue;
+                }
+
+                if (!accessService.isRegistered(enteredID)) {
+                    handleRegistration(enteredID);
+                    continue;
+                }
+
+                System.out.println("Please enter password or 0 to cancel:");
+                String enteredPassword = scanner.nextLine();
+                if (enteredPassword.equals("0")) return;
+
+                UserResponse loginResponse = accessService.login(enteredID, enteredPassword);
                 if (loginResponse == success) {
                     employeeId = enteredID;
                     start();
                     return;
                 }
-                else if (loginResponse == notRegistered) {
-                    handleRegistration(enteredID);
-                }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                continue;
             }
-
         }
     }
 

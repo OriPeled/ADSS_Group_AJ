@@ -7,9 +7,7 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        while (true) {
-            displayMenu();
-        }
+        displayMenu();
     }
 
     public static void displayMenu() {
@@ -43,9 +41,8 @@ public class Main {
                     break;
                 case 0:
                     System.out.println("Have a good day.");
-
-                    //break;
-                    System.exit(0);
+                    scanner.close();
+                    System.exit(0); // exit directly to break out of the enclosing loop cleanly
                 default:
                     System.out.println("Invalid input.");
             }

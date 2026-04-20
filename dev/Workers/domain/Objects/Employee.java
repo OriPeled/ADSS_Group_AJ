@@ -37,21 +37,6 @@ public class Employee {
         this.endDate = null;
     }
 
-    /**
-     * Copy constructor - creates a deep copy of another Employee
-     *
-     * @param other the employee to copy
-
-    public Employee(Employee other) {
-        this.name = other.name;
-        this.id = other.id;
-        this.bankAccount = other.bankAccount;
-        this.salary = other.salary;
-        this.terms = other.terms;
-        this.startDate = other.startDate;
-        this.endDate = other.endDate;
-    } ***no needed***
-     */
 
 
     /**

@@ -486,6 +486,43 @@ public void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
      * Expected result:
      * - assignEmployee throws IllegalArgumentException
      */
+    /**
+     * Verifies that publishing a week where at least one shift has no assigned
+     * shift manager throws IllegalStateException.
+     *
+     * Scenario:
+     * - A date in a future isolated week is chosen
+     * - publishWeekSchedule is called; it auto-creates all shifts for the week
+     * - None of the shifts have a shift manager assigned
+     *
+     * Expected result:
+     * - publishWeekSchedule throws IllegalStateException
+     */
+    @Test
+    void publishWeekSchedule_shouldFail_WhenShiftHasNoManager() {
+        ShiftManager shiftManager = ShiftManager.getInstance();
+        LocalDate isolatedDate = LocalDate.of(2027, 6, 1);
+        assertThrows(IllegalStateException.class, () ->
+                shiftManager.publishWeekSchedule(isolatedDate)
+        );
+    }
+
+    /**
+     * Verifies that setting the shift manager requirement to 0 throws
+     * IllegalArgumentException, since every shift must have at least one.
+     *
+     * Expected result:
+     * - setRequirement throws IllegalArgumentException
+     */
+    @Test
+    void setRequirement_shouldFail_WhenShiftManagerCountIsZero() {
+        ShiftManager shiftManager = ShiftManager.getInstance();
+        Shift shift = createShift(20);
+        assertThrows(IllegalArgumentException.class, () ->
+                shiftManager.setRequirement(shift, Role.shiftManager, 0)
+        );
+    }
+
     @Test
     void assignEmployee_shouldFailWhenEmployeeAlreadyAssignedToSameShift() {
         ShiftManager shiftManager = ShiftManager.getInstance();

@@ -68,7 +68,7 @@ public class ShiftManager {
             requirements.init(newShift);
             assignments.init(newShift);
         }
-        System.out.println("added" + newShift);
+        System.out.println("added " + newShift);
     }
 
     /**
@@ -260,6 +260,10 @@ public class ShiftManager {
     }
 
     public void setRequirement(Shift shift, Role role, int count) {
+        if (role == Role.shiftManager && count < 1) {
+            throw new IllegalArgumentException(
+                    "Cannot set shift manager requirement below 1: every shift must have at least one shift manager.");
+        }
         requirements.set(shift, role, count);
 
         Set<Integer> employees = assignments.getEmployees(shift, role);
@@ -349,7 +353,18 @@ public class ShiftManager {
     }
 
     public void publishWeekSchedule(LocalDate dateInWeek) {
-        WeekStatus status = getWeekStatus(dateInWeek);
+        List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
+        List<String> missingManager = new ArrayList<>();
+        for (Shift shift : weekShifts) {
+            if (assignments.countAssigned(shift, Role.shiftManager) < 1) {
+                missingManager.add(shift.toString());
+            }
+        }
+        if (!missingManager.isEmpty()) {
+            throw new IllegalStateException(
+                    "Cannot publish schedule: the following shifts have no assigned shift manager: " +
+                    String.join(", ", missingManager));
+        }
 
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
@@ -382,6 +397,14 @@ public class ShiftManager {
     }
 
     public String getUnassignedValid(Shift shift) {
+        boolean anyRoleNeeded = false;
+        for (Role role : Role.values()) {
+            if (isNeeded(shift, role)) { anyRoleNeeded = true; break; }
+        }
+        if (!anyRoleNeeded) {
+            return "Shift is fully assigned — no additional assignments needed.";
+        }
+
         EmployeeManager employeeManager = EmployeeManager.getInstance();
         StringBuilder result = new StringBuilder("=== Shift Assignment Assistant ===\n");
         boolean foundAnyOverall = false;

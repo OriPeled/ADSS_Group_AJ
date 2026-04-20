@@ -78,13 +78,9 @@ public class AccessManager {
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
     public void remove(int id) {
-        if (isRegisteredUser(id)) {
-            accessMap.remove(id);
-
-        } else {
-            throw new IllegalArgumentException("No such employee.");
+        // silently no-op if not registered — employees may be removed before ever registering
+        accessMap.remove(id);
     }
-   }
     public boolean wrongPassword(int id, String password) {
         return !getAccess(id).getPassword().equals(password);
     }

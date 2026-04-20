@@ -65,6 +65,10 @@ public class AccessService {
         accessManager.remove(id);
     }
 
+    public boolean isRegistered(int id) {
+        return accessManager.isRegisteredUser(id);
+    }
+
     /**
      * Updates the password for an existing registered user.
      * * @param id          The unique identifier of the employee.
