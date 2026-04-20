@@ -269,26 +269,30 @@ public class ManagersTest {
 
     /**
      * Verifies that updating constraints after the deadline is not allowed.
-     *
-     * Scenario:
-     * - Constraint storage is initialized for an employee
-     * - The deadline is set to a day before today
-     * - An update attempt is made after the deadline
-     *
-     * Expected result:
-     * - RuntimeException is thrown
+     * * Scenario:
+     * - Constraint storage is initialized for an employee.
+     * - The deadline is fixed to a specific day (e.g., Wednesday).
+     * - A "fake" current date that falls strictly after the deadline (e.g., Thursday) is injected.
+     * - An update attempt is made.
+     * * Expected result:
+     * - RuntimeException is thrown.
+     * - The test is deterministic (flake-free) and does not depend on the actual day it is executed.
      */
     @Test
     void constraintManager_update_shouldFailAfterDeadline() {
         ConstraintManager cm = ConstraintManager.getInstance();
         cm.initConstraintForEmployee(32);
 
-        DayOfWeek today = LocalDate.now().getDayOfWeek();
-        DayOfWeek deadline = today.minus(1);
-        cm.setDeadline(deadline);
+        // 1. Set a fixed deadline (Wednesday)
+        cm.setDeadline(DayOfWeek.WEDNESDAY);
 
+        // 2. Define a fixed "current date" for the test that is strictly after the deadline.
+        // April 23, 2026 is a Thursday. In the Israeli week format, Thursday (5) > Wednesday (4).
+        LocalDate fakeCurrentDate = LocalDate.of(2026, 4, 23);
+
+        // 3. Assert that the exception is thrown when passing the fake date
         assertThrows(RuntimeException.class, () ->
-                cm.update(32, DayOfWeek.MONDAY, ShiftType.morning)
+                cm.update(32, DayOfWeek.MONDAY, ShiftType.morning, fakeCurrentDate)
         );
     }
 

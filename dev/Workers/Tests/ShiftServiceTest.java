@@ -109,51 +109,93 @@ public class ShiftServiceTest {
     }
 
     /**
-     * Verifies that publishWeekSchedule publishes the current week.
-     *
-     * Scenario:
-     * - The service publishes the current week
-     *
-     * Expected result:
-     * - A WeekSchedule object is created for the current week
-     * - The week is marked as published
+     * Verifies that publishWeekSchedule successfully publishes the current week.
+     * * Scenario:
+     * - The service targets the current week.
+     * - A Shift Manager is registered and assigned to all shifts (morning and evening)
+     * for every day of that week to satisfy the business rule.
+     * - The service publishes the current week.
+     * * Expected result:
+     * - A WeekSchedule object is created for the current week.
+     * - The week is successfully marked as published.
      */
     @Test
     void publishWeekSchedule_shouldPublishCurrentWeek() throws Exception {
         ShiftService shiftService = ShiftService.getInstance();
+        ConstraintManager constraintManager = ConstraintManager.getInstance();
 
         LocalDate thisSunday = LocalDate.now()
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
+        // Register a Shift Manager to fulfill the publishing validation requirement
+        registerEmployee(999, "Admin", Role.shiftManager);
+
+        // Iterate through all 7 days of the target week
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = thisSunday.plusDays(i);
+
+            // Make the manager available for the specific day
+            constraintManager.update(999, date.getDayOfWeek(), ShiftType.any, LocalDate.now());
+
+            // Retrieve shifts and assign the manager to both morning and evening shifts
+            Shift morningShift = shiftService.getShift(date, ShiftType.morning);
+            shiftService.assignEmployee(morningShift, Role.shiftManager, 999);
+
+            Shift eveningShift = shiftService.getShift(date, ShiftType.evening);
+            shiftService.assignEmployee(eveningShift, Role.shiftManager, 999);
+        }
+
+        // Action: Publish the schedule
         shiftService.publishWeekSchedule();
 
+        // Validation
         WeekSchedule week = getWeekSchedule(thisSunday);
-
         assertNotNull(week);
         assertTrue(week.isPublished());
     }
 
     /**
-     * Verifies that publishNextWeekSchedule publishes the next week.
-     *
-     * Scenario:
-     * - The service publishes the next week
-     *
-     * Expected result:
-     * - A WeekSchedule object is created for the next week
-     * - The week is marked as published
+     * Verifies that publishNextWeekSchedule successfully publishes the next week.
+     * * Scenario:
+     * - The service targets the upcoming week.
+     * - A Shift Manager is registered and assigned to all shifts (morning and evening)
+     * for every day of that week to satisfy the business rule (every shift must have a manager).
+     * - The service publishes the next week.
+     * * Expected result:
+     * - A WeekSchedule object is created for the next week.
+     * - The week is successfully marked as published without throwing an IllegalStateException.
      */
     @Test
     void publishNextWeekSchedule_shouldPublishNextWeek() throws Exception {
         ShiftService shiftService = ShiftService.getInstance();
+        ConstraintManager constraintManager = ConstraintManager.getInstance();
 
         LocalDate nextSunday = LocalDate.now()
                 .with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
+        // Register a Shift Manager to fulfill the publishing validation requirement
+        registerEmployee(999, "Admin", Role.shiftManager);
+
+        // Iterate through all 7 days of the target week
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = nextSunday.plusDays(i);
+
+            // Make the manager available for the specific day, using the injected current date to avoid deadline issues
+            constraintManager.update(999, date.getDayOfWeek(), ShiftType.any, LocalDate.now());
+
+            // Retrieve shifts and assign the manager to both morning and evening shifts
+            Shift morningShift = shiftService.getShift(date, ShiftType.morning);
+            shiftService.assignEmployee(morningShift, Role.shiftManager, 999);
+
+            Shift eveningShift = shiftService.getShift(date, ShiftType.evening);
+            shiftService.assignEmployee(eveningShift, Role.shiftManager, 999);
+        }
+
+        // Action: Publish the schedule
         shiftService.publishNextWeekSchedule();
 
+        // Validation
         WeekSchedule week = getWeekSchedule(nextSunday);
-
         assertNotNull(week);
         assertTrue(week.isPublished());
     }

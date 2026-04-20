@@ -72,16 +72,36 @@ public class ConstraintManager {
     }
 
     /**
-     * Updates constraint for a specific employee and day 
+     * Updates the constraint for a specific employee and day.
+     * This method acts as a wrapper that uses the current system date,
+     * ensuring existing code that calls it remains unbroken.
      *
-     * @param id employee ID
-     * @param day day of week
-     * @param shiftType desired shift type
+     * @param id        the employee ID
+     * @param day       the day of the week to update
+     * @param shiftType the desired shift type
+     * @throws RuntimeException if the submission deadline has passed
      */
-    public void  update(int id, DayOfWeek day, ShiftType shiftType) {
+    public void update(int id, DayOfWeek day, ShiftType shiftType) {
+        // Delegate to the overloaded method using the actual current date
+        update(id, day, shiftType, LocalDate.now());
+    }
+
+    /**
+     * Updates the constraint for a specific employee and day, given a specific current date.
+     * This overloaded method allows for Dependency Injection of the date,
+     * which is crucial for deterministic and reliable unit testing.
+     *
+     * @param id          the employee ID
+     * @param day         the day of the week to update
+     * @param shiftType   the desired shift type
+     * @param currentDate the date to be considered as "today" for deadline evaluation
+     * @throws RuntimeException if the submission deadline has passed
+     */
+    public void update(int id, DayOfWeek day, ShiftType shiftType, LocalDate currentDate) {
         DayOfWeek deadline = getDeadline();
 
-        if (deadline != null && !isOnTime(LocalDate.now())) {
+        // Check if the provided currentDate is past the deadline
+        if (deadline != null && !isOnTime(currentDate)) {
             throw new RuntimeException(
                     "Submission failed: The deadline for submitting constraints (" + deadline + ") has passed."
             );
@@ -89,7 +109,6 @@ public class ConstraintManager {
 
         Constraint employeeConstraints = getConstraints(id);
         employeeConstraints.getWeekConstraints().put(day, shiftType);
-
     }
 
     /**
@@ -107,23 +126,36 @@ public class ConstraintManager {
     }
 
     /**
-     * Checks if current date is before deadline
+     * Helper method to convert a standard Java DayOfWeek into the Israeli week format.
+     * In the default ISO-8601 standard (used by Java), Monday is 1 and Sunday is 7.
+     * This method adjusts the values so that the Israeli work week starts on Sunday.
      *
-     * @param date date to check
-     * @return true if still before deadline, false otherwise
+     * @param day the standard DayOfWeek enum value to convert.
+     * @return an integer representing the day in the Israeli week (Sunday = 1, Monday = 2, ..., Saturday = 7).
      */
+    private int getIsraeliDayValue(DayOfWeek day) {
+        if (day == DayOfWeek.SUNDAY) {
+            return 1;
+        }
+        // Since DayOfWeek.MONDAY has a value of 1, adding 1 shifts it correctly for the rest of the week.
+        return day.getValue() + 1;
+    }
 
+    /**
+     * Checks if a given date is strictly before the configured submission deadline.
+     * The comparison relies on the Israeli week structure to ensure accurate logic
+     * across the week's boundary (e.g., comparing Sunday to Tuesday).
+     *
+     * @param date the date to check against the deadline.
+     * @return true if the date's day of the week is before the deadline day, false otherwise.
+     */
     public boolean isOnTime(LocalDate date) {
         DayOfWeek currentDay = date.getDayOfWeek();
 
-        if (currentDay == DayOfWeek.SUNDAY) {
-            return true;
-        }
-
-        // Rule: If it's before the deadline day, it's open.
-        // Since Mon=1, Tue=2, Wed=3, and Thu=4:
-        // Any value less than 4 (Thursday) is allowed.
-        return currentDay.getValue() < deadline.getValue();
+        // Check if the numerical value of the current day is less than the deadline's day.
+        // Note: If you want submissions to be allowed ON the deadline day itself,
+        // simply change the '<' operator to '<='.
+        return getIsraeliDayValue(currentDay) < getIsraeliDayValue(deadline);
     }
 
     /**
