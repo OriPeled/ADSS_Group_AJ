@@ -203,7 +203,6 @@ public class EmployeeService {
     }
 
     public UserResponse promoteDemote(int empId) {
-
         return employeeManager.promoteDemote(empId);
     }
 }
