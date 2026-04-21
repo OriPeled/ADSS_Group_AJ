@@ -8,7 +8,7 @@ import dev.Workers.domain.Objects.Shift;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-/**
+ /**
  * DataInitializer is responsible for loading mock data into the system.
  *
  * It creates:
@@ -18,8 +18,9 @@ import java.time.LocalDate;
  * - Smart assigned shifts for next week (Sunday–Saturday)
  *
  * The assignment is done automatically using the system logic,
- * so no crashes will occur due to constraints or invalid assignments.
- */
+ * so no crashes will occur due to constraints or invalid assignments.*/
+
+
 public class DataInitializer {
     public static void initSystem() {
 
@@ -35,16 +36,20 @@ public class DataInitializer {
             // =========================
 // Shift Managers
             createEmployee(employeeService, roleService, constraintService,
-                    "Shira Steinbuch", 111, Role.shiftManager);
+                    "Shira Steinbuch", 111, Role.Cashier);
+            employeeService.getById(111).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Daniel Cohen", 112, Role.shiftManager);
+                    "Daniel Cohen", 112, Role.Cashier);
+            employeeService.getById(112).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Noa Levi", 113, Role.shiftManager);
+                    "Noa Levi", 113, Role.Cashier);
+            employeeService.getById(113).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Ronaldo", 7, Role.shiftManager);
+                    "Ronaldo", 7, Role.Cashier);
+            employeeService.getById(7).setManager(true);
 
 // Cashiers
             createEmployee(employeeService, roleService, constraintService,
@@ -74,7 +79,7 @@ public class DataInitializer {
 
 // Fired employee
             createEmployee(employeeService, roleService, constraintService,
-                    "Johnny Bravo", 77, Role.shiftManager);
+                    "Johnny Bravo", 77, Role.Storekeeper);
             accessService.Register(77, "7777");
             employeeService.fire(77);
 
@@ -89,8 +94,8 @@ public class DataInitializer {
                 LocalDate date11 = date1.plusDays(i);
                 Shift pastShift1 = shiftService.getShift(date11, ShiftType.morning);
 
-                shiftService.forceAssign(pastShift1, Role.shiftManager, 111);
-                shiftService.forceAssign(pastShift1, Role.Cashier, 222);
+                shiftService.forceAssign(pastShift1, Role.Cashier, 111);
+                //shiftService.forceAssign(pastShift1, Role.Cashier, 222);
                 shiftService.forceAssign(pastShift1, Role.Cashier, 223);
                 shiftService.forceAssign(pastShift1, Role.Cashier, 224);
                 shiftService.forceAssign(pastShift1, Role.Storekeeper, 333);
@@ -100,8 +105,8 @@ public class DataInitializer {
                 //shiftService.addShift(date1, ShiftType.evening);
                 Shift pastShift2 = shiftService.getShift(date11, ShiftType.evening);
 
-                shiftService.forceAssign(pastShift2, Role.shiftManager, 113);
-                shiftService.forceAssign(pastShift2, Role.Cashier, 222);
+                shiftService.forceAssign(pastShift2, Role.Cashier, 113);
+                //shiftService.forceAssign(pastShift2, Role.Cashier, 222);
                 shiftService.forceAssign(pastShift2, Role.Cashier, 223);
                 shiftService.forceAssign(pastShift2, Role.Cashier, 224);
                 shiftService.forceAssign(pastShift2, Role.Storekeeper, 333);
@@ -113,16 +118,16 @@ public class DataInitializer {
             // =========================
             // CONSTRAINTS
             // =========================
-            constraintService.update(222, DayOfWeek.WEDNESDAY, ShiftType.rest);
-            constraintService.update(222, DayOfWeek.FRIDAY, ShiftType.rest);
-            constraintService.update(111, DayOfWeek.SATURDAY, ShiftType.rest);
-            constraintService.update(444, DayOfWeek.SATURDAY, ShiftType.rest);
+            //constraintService.update(222, DayOfWeek.WEDNESDAY, ShiftType.rest);
+            //constraintService.update(222, DayOfWeek.FRIDAY, ShiftType.rest);
+            //constraintService.update(111, DayOfWeek.SATURDAY, ShiftType.rest);
+            //constraintService.update(444, DayOfWeek.SATURDAY, ShiftType.rest);
 
             // ===========================
             // NEXT WEEK (26.4-2.5) SHIFTS
             // ===========================
 
-            constraintService.update(111, DayOfWeek.SATURDAY, ShiftType.rest);
+            //constraintService.update(111, DayOfWeek.SATURDAY, ShiftType.rest);
 
             LocalDate date2 = LocalDate.of(2026,4,26);
 
@@ -131,7 +136,7 @@ public class DataInitializer {
                 LocalDate date22 = date2.plusDays(i);
                 Shift futureShift1 = shiftService.getShift(date22, ShiftType.morning);
 
-                shiftService.assignEmployee(futureShift1, Role.shiftManager, 113);
+                //shiftService.assignEmployee(futureShift1, Role.Cashier, 113);
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 7);
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 223);
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 224);
@@ -142,7 +147,7 @@ public class DataInitializer {
                 //shiftService.addShift(date1, ShiftType.evening);
                 Shift futureShift2 = shiftService.getShift(date22, ShiftType.evening);
 
-                shiftService.assignEmployee(futureShift2, Role.shiftManager, 113);
+                //shiftService.assignEmployee(futureShift2, Role.Storekeeper, 113);
                 shiftService.assignEmployee(futureShift2, Role.Cashier, 7);
                 shiftService.assignEmployee(futureShift2, Role.Cashier, 223);
                 shiftService.assignEmployee(futureShift2, Role.Cashier, 224);
@@ -156,20 +161,25 @@ public class DataInitializer {
                 LocalDate date22 = date2.plusDays(i);
 
                 Shift futureShift1 = shiftService.getShift(date22, ShiftType.morning);
-                shiftService.assignEmployee(futureShift1, Role.shiftManager, 113);
-                shiftService.assignEmployee(futureShift1, Role.Cashier, 7);
+                //shiftService.assignEmployee(futureShift1, Role.Storekeeper, 113);
+                //shiftService.assignEmployee(futureShift1, Role.Cashier, 7);
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 222);
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 223);
-                shiftService.assignEmployee(futureShift1, Role.Storekeeper, 112);
+                shiftService.assignEmployee(futureShift1, Role.Cashier, 224);
+                //shiftService.assignEmployee(futureShift1, Role.Storekeeper, 112);
                 shiftService.assignEmployee(futureShift1, Role.Storekeeper, 333);
+                shiftService.assignEmployee(futureShift1, Role.Storekeeper, 444);
                 shiftService.assignEmployee(futureShift1, Role.Storekeeper, 445);
 
                 Shift futureShift2 = shiftService.getShift(date22, ShiftType.evening);
-                shiftService.assignEmployee(futureShift2, Role.shiftManager, 113);
-                shiftService.assignEmployee(futureShift2, Role.Cashier, 7);
+                //shiftService.assignEmployee(futureShift2, Role.Cashier, 113);
+                shiftService.assignEmployee(futureShift2, Role.Cashier, 222);
+                //shiftService.assignEmployee(futureShift2, Role.Cashier, 7);
                 shiftService.assignEmployee(futureShift2, Role.Cashier, 223);
-                shiftService.assignEmployee(futureShift2, Role.Storekeeper, 112);
+                shiftService.assignEmployee(futureShift2, Role.Cashier, 224);
+                //shiftService.assignEmployee(futureShift2, Role.Storekeeper, 112);
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 333);
+                shiftService.assignEmployee(futureShift2, Role.Storekeeper, 444);
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 445);
             }
 
@@ -182,9 +192,6 @@ public class DataInitializer {
         }
     }
 
-    /**
-     * Helper method to create an employee with full setup.
-     */
     private static void createEmployee(
             EmployeeService employeeService,
             RoleService roleService,

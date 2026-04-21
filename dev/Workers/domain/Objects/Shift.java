@@ -9,10 +9,22 @@ import java.util.Objects;
 public class Shift {
     private LocalDate shiftDate;
     private ShiftType type;
+    private boolean hasManager;
+
+    public boolean hasManager() {
+        return hasManager;
+    }
+
+    public void setHasManager(boolean hasManager) {
+        this.hasManager = hasManager;
+    }
+
+
 
     public Shift(LocalDate shiftDate, ShiftType type) {
         this.type = type;
         this.shiftDate = shiftDate;
+        this.hasManager = false;
     }
 
     public ShiftType getType() {

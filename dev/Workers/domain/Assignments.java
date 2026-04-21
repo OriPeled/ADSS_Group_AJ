@@ -2,11 +2,8 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.Objects.WeekSchedule;
 
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Manages employee assignments for shifts.
@@ -71,8 +68,21 @@ public class Assignments {
         if (getEmployeeRole(shift, employeeID) == null)
             throw new IllegalArgumentException("Employee not assigned to shift.");
 
-        Set<Integer> employees = getEmployees(shift, role);
+        Set<Integer> employees = getEmployeesByRole(shift, role);
         employees.remove(employeeID);
+    }
+
+    public Set<Integer> getAllEmployees(Shift shift) {
+        Set<Integer> employeeIds = new HashSet<>();
+        Map<Role, Set<Integer>> roleMap = assignments.get(shift);
+
+        if (roleMap != null) {
+            for (Set<Integer> roleEmployees : roleMap.values()) {
+                employeeIds.addAll(roleEmployees);
+            }
+        }
+
+        return employeeIds;
     }
 
     /**
@@ -82,7 +92,7 @@ public class Assignments {
      * @param role  the role
      * @return set of employee IDs, or empty set if none exist
      */
-    public Set<Integer> getEmployees(Shift shift, Role role) {
+    public Set<Integer> getEmployeesByRole(Shift shift, Role role) {
         return assignments
                 .getOrDefault(shift, Collections.emptyMap())
                 .getOrDefault(role, Collections.emptySet());
@@ -108,7 +118,7 @@ public class Assignments {
      * @return number of assigned employees
      */
     public int countAssigned(Shift shift, Role role) {
-        return getEmployees(shift, role).size();
+        return getEmployeesByRole(shift, role).size();
     }
 
     public boolean isRoleEmpty(Shift shift, Role role) {
@@ -128,7 +138,7 @@ public class Assignments {
      * @return true if already assigned, false otherwise
      */
     public boolean isAssignedToRole(Shift shift, Role role, int employeeID) {
-        return getEmployees(shift, role).contains(employeeID);
+        return getEmployeesByRole(shift, role).contains(employeeID);
     }
 
     public boolean isAssignedToShift(Shift shift, int employeeID) {
@@ -146,15 +156,6 @@ public class Assignments {
                 return role;
         }
         return null;
-    }
-
-    /**
-     * Returns all assignments in the system.
-     *
-     * @return full assignment map
-     */
-    public Map<Shift, Map<Role, Set<Integer>>> getAllAssignments() {
-        return assignments;
     }
 
     /**

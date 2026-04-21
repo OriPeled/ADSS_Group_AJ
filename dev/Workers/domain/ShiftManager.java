@@ -155,7 +155,24 @@ public class ShiftManager {
         if (!isAvailable(employeeId, shift)) {
             throw new IllegalArgumentException("Employee " + employeeId + " is not available for this shift.");
         }
-        assignments.add(shift, role, employeeId);
+
+        if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
+            assignments.add(shift, role, employeeId);
+            shift.setHasManager(true);
+        }
+        else {
+            assignments.add(shift, role, employeeId);
+        }
+    }
+
+    public boolean hasManager(Shift shift) {
+        Set<Integer> shiftEmployees = assignments.getAllEmployees(shift);
+        for (Integer id : shiftEmployees) {
+            if (employeeManager.getById(id).isManager())
+                return true;
+
+        }
+        return false;
     }
 
     public void forceAssign(Shift shift, Role role, int employeeId) {
@@ -165,12 +182,21 @@ public class ShiftManager {
         if (!isQualified(employeeId, role)) {
             throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
         }
+
+        if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
+            assignments.add(shift, role, employeeId);
+            shift.setHasManager(true);
+        }
+
         assignments.add(shift, role, employeeId);
     }
 
     public void removeEmployee(Shift shift, int employeeId) {
         employeeManager.validateEmployeeBasic(employeeId);
         assignments.remove(shift, employeeId);
+        if (!hasManager(shift)) {
+            shift.setHasManager(false);
+        }
     }
 
     public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
@@ -260,13 +286,13 @@ public class ShiftManager {
     }
 
     public void setRequirement(Shift shift, Role role, int count) {
-        if (role == Role.shiftManager && count < 1) {
+        /*if (role == Role.shiftManager && count < 1) {
             throw new IllegalArgumentException(
                     "Cannot set shift manager requirement below 1: every shift must have at least one shift manager.");
-        }
+        }*/
         requirements.set(shift, role, count);
 
-        Set<Integer> employees = assignments.getEmployees(shift, role);
+        Set<Integer> employees = assignments.getEmployeesByRole(shift, role);
         int assigned = employees.size();
         int required = requirements.countRequired(shift, role);
 
@@ -342,6 +368,9 @@ public class ShiftManager {
             for (Role role : Role.values()) {
                 if (isNeeded(shift, role)) return false;
             }
+            //if (!hasManager(shift)) {
+            //    return false;
+            //}
         }
         return true;
     }
@@ -356,7 +385,7 @@ public class ShiftManager {
         List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
         List<String> missingManager = new ArrayList<>();
         for (Shift shift : weekShifts) {
-            if (assignments.countAssigned(shift, Role.shiftManager) < 1) {
+            if (!shift.hasManager()) {
                 missingManager.add(shift.toString());
             }
         }
@@ -388,9 +417,11 @@ public class ShiftManager {
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = startDay.plusDays(i);
-            for (ShiftType type : ShiftType.values()) {
+            for (ShiftType type : ShiftType.values()) {;
                 Shift shift = getShift(date, type);
-                if (shift != null) result.add(shift);
+                if (shift != null) {
+                    result.add(shift);
+                }
             }
         }
         return result;
@@ -464,7 +495,7 @@ public class ShiftManager {
         String result = "Shift: " + shift + "\n";
         for (Role role : Role.values()) {
             int required = requirements.countRequired(shift, role);
-            Set<Integer> employees = assignments.getEmployees(shift, role);
+            Set<Integer> employees = assignments.getEmployeesByRole(shift, role);
             int assigned = employees.size();
             if (required > 0) {
                 result += role +
@@ -591,13 +622,13 @@ public class ShiftManager {
 
         for (Shift shift : publishedShifts) {
             long assignedCount = Arrays.stream(Role.values())
-                    .mapToLong(role -> assignments.getEmployees(shift, role).size())
+                    .mapToLong(role -> assignments.getEmployeesByRole(shift, role).size())
                     .sum();
 
             result.append(String.format("\nShift: %s - %s\n", shift.getShiftDate(), shift.getType()));
 
             for (Role role : Role.values()) {
-                var employees = assignments.getEmployees(shift, role);
+                var employees = assignments.getEmployeesByRole(shift, role);
                 if (!employees.isEmpty()) {
                     result.append(String.format("  - %-12s | assigned: %d | employees: %s\n",
                             role, employees.size(), employees));

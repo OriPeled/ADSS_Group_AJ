@@ -17,6 +17,16 @@ public class Employee {
     private LocalDate startDate;
     private LocalDate endDate;          // updated if fired
 
+    private boolean isManager;
+    public boolean isManager() {
+        return isManager;
+    }
+
+    public void setManager(boolean manager) {
+        isManager = manager;
+    }
+
+
     /**
      * Constructor for creating a new employee.
      *
@@ -35,6 +45,7 @@ public class Employee {
         this.terms = terms;
         this.startDate = startDate;
         this.endDate = null;
+        this.isManager = false;
     }
 
     /**
@@ -117,7 +128,8 @@ public class Employee {
                 "\n2. Bank account: " + bankAccount +
                 "\n3. Salary: " + salary +
                 "\n4. Terms: " + terms +
-                "\nStart date: " + startDate;
+                "\nStart date: " + startDate +
+                "\nIs manager: " + isManager;
 
         if (endDate != null) {
             result += "\nEnd date: " + endDate;

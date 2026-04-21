@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.Role.shiftManager;
+//import static dev.Workers.domain.Enums.Role.shiftManager;
 
 /**
  * Manages roles assigned to employees.
@@ -54,12 +54,12 @@ public class RoleManager  {    // maps employee ID to list of roles
         } else {
             throw new IllegalArgumentException("Employee already qualified for this role.");
         }
-        if (newRole == shiftManager){
+        /*if (newRole == shiftManager){
             for (Role role : Role.values()) {
                 if (!hasRole(id, role))
                     addRoleToEmployee(id, role);
             }
-        }
+        }*/
     }
 
     /**
@@ -67,7 +67,7 @@ public class RoleManager  {    // maps employee ID to list of roles
      *
      * @return list of employee IDs who are managers
      */
-    public List<Integer> getAllManagers() {
+    /*public List<Integer> getAllManagers() {
         List<Integer> managers = new ArrayList<>();
 
         for (Integer id : employeeRoles.keySet()) {
@@ -79,7 +79,7 @@ public class RoleManager  {    // maps employee ID to list of roles
             }
         }
         return managers;
-    }
+    }*/
 
     /**
      * Removes all roles from an employee

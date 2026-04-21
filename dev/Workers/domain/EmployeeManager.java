@@ -85,4 +85,9 @@ public class EmployeeManager   {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
         if (!getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
     }
+
+    public void promoteDemote(int id) {
+        Employee employee = getById(id);
+        employee.setManager(!employee.isManager());
+    }
 }

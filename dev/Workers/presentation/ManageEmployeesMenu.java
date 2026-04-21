@@ -61,16 +61,21 @@ public class ManageEmployeesMenu  {
             switch (choice) {
                 case 1 -> details(empId);
                 case 2 -> roles(empId);
-                case 3 -> {
+                case 3 -> promoteDemote(empId);
+                case 4 -> {
                     fire(empId);
                     return;}
-                case 4 -> {
+                case 5 -> {
                     rehire(empId);
                     return;}
                 case 0 -> { return; }
                 default -> System.out.println("Invalid choice.");
             }
         }
+    }
+
+    private static void promoteDemote(int empId) {
+        employeeService.promoteDemote(empId);
     }
 
     /**
@@ -547,8 +552,9 @@ public class ManageEmployeesMenu  {
     public static void printManageEmployeeMenu() {
         System.out.println("1. Employee Details");
         System.out.println("2. Employee Roles");
-        System.out.println("3. Fire Employee");
-        System.out.println("4. Rehire Employee");
+        System.out.println("3. Promote/Demote");
+        System.out.println("4. Fire Employee");
+        System.out.println("5. Rehire Employee");
         System.out.println("0. Back");
     }
 

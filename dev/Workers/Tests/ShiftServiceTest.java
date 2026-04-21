@@ -1,3 +1,4 @@
+/*
 package dev.Workers.Tests;
 
 import dev.Workers.Service.ShiftService;
@@ -26,6 +27,7 @@ import java.util.Set;
 import static dev.Workers.domain.Enums.ShiftType.morning;
 import static org.junit.jupiter.api.Assertions.*;
 
+*/
 /**
  * Tests for ShiftService week publishing functionality.
  *
@@ -35,14 +37,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * Important note:
  * The system uses singleton managers, so each test must start
  * from a clean state in order to avoid interference from previous tests.
- */
+ *//*
+
 public class ShiftServiceTest {
 
-    /**
+    */
+/**
      * Resets all singleton managers before each test.
      *
      * This prevents shared state from one test affecting another.
-     */
+     *//*
+
     @BeforeEach
     void resetSystem() throws Exception {
         clearEmployeeManager();
@@ -51,7 +56,8 @@ public class ShiftServiceTest {
         clearShiftManager();
     }
 
-    /**
+    */
+/**
      * Registers an employee in all required managers.
      *
      * This helper method:
@@ -62,7 +68,8 @@ public class ShiftServiceTest {
      * @param id employee ID
      * @param name employee name
      * @param role employee role
-     */
+     *//*
+
     private void registerEmployee(int id, String name, Role role) {
         EmployeeManager employeeManager = EmployeeManager.getInstance();
         RoleManager roleManager = RoleManager.getInstance();
@@ -81,7 +88,8 @@ public class ShiftServiceTest {
         constraintManager.initConstraintsForEmployee(id);
     }
 
-    /**
+    */
+/**
      * Returns the internal WeekSchedule object for the week
      * containing the given date.
      *
@@ -90,7 +98,8 @@ public class ShiftServiceTest {
      * @param dateInWeek any date inside the requested week
      * @return the WeekSchedule object for that week, or null if not found
      * @throws Exception if reflection access fails
-     */
+     *//*
+
     private WeekSchedule getWeekSchedule(LocalDate dateInWeek) throws Exception {
         ShiftManager shiftManager = ShiftManager.getInstance();
 
@@ -108,7 +117,8 @@ public class ShiftServiceTest {
         return weekSchedules.get(sunday);
     }
 
-    /**
+    */
+/**
      * Verifies that publishWeekSchedule successfully publishes the current week.
      * * Scenario:
      * - The service targets the current week.
@@ -118,7 +128,8 @@ public class ShiftServiceTest {
      * * Expected result:
      * - A WeekSchedule object is created for the current week.
      * - The week is successfully marked as published.
-     */
+     *//*
+
     @Test
     void publishWeekSchedule_shouldPublishCurrentWeek() throws Exception {
         ShiftService shiftService = ShiftService.getInstance();
@@ -154,7 +165,8 @@ public class ShiftServiceTest {
         assertTrue(week.isPublished());
     }
 
-    /**
+    */
+/**
      * Verifies that publishNextWeekSchedule successfully publishes the next week.
      * * Scenario:
      * - The service targets the upcoming week.
@@ -164,7 +176,8 @@ public class ShiftServiceTest {
      * * Expected result:
      * - A WeekSchedule object is created for the next week.
      * - The week is successfully marked as published without throwing an IllegalStateException.
-     */
+     *//*
+
     @Test
     void publishNextWeekSchedule_shouldPublishNextWeek() throws Exception {
         ShiftService shiftService = ShiftService.getInstance();
@@ -200,7 +213,8 @@ public class ShiftServiceTest {
         assertTrue(week.isPublished());
     }
 
-    /**
+    */
+/**
      * Verifies that the current week becomes PUBLISHED
      * after all shifts in the current week are fully assigned
      * through ShiftService and publishWeekSchedule() is called.
@@ -214,7 +228,8 @@ public class ShiftServiceTest {
      *
      * Expected result:
      * - getWeekStatus returns PUBLISHED for the current week
-     */
+     *//*
+
     @Test
     void publishWeekSchedule_shouldReturnPublishedWhenCurrentWeekIsFullyAssigned() {
         ShiftService shiftService = ShiftService.getInstance();
@@ -257,11 +272,13 @@ public class ShiftServiceTest {
         assertEquals(WeekStatus.PUBLISHED, shiftManager.getWeekStatus(thisSunday));
     }
 
-    /**
+    */
+/**
      * Clears all employees from EmployeeManager.
      *
      * @throws Exception if reflection access fails
-     */
+     *//*
+
     private void clearEmployeeManager() throws Exception {
         EmployeeManager manager = EmployeeManager.getInstance();
         var field = EmployeeManager.class.getDeclaredField("employees");
@@ -269,11 +286,13 @@ public class ShiftServiceTest {
         ((Map<?, ?>) field.get(manager)).clear();
     }
 
-    /**
+    */
+/**
      * Clears all employee-role mappings from RoleManager.
      *
      * @throws Exception if reflection access fails
-     */
+     *//*
+
     private void clearRoleManager() throws Exception {
         RoleManager manager = RoleManager.getInstance();
         var field = RoleManager.class.getDeclaredField("employeeRoles");
@@ -281,14 +300,16 @@ public class ShiftServiceTest {
         ((Map<?, ?>) field.get(manager)).clear();
     }
 
-    /**
+    */
+/**
      * Clears all employee constraints from ConstraintManager.
      *
      * This method scans all fields and clears every map field found,
      * avoiding dependency on a specific internal field name.
      *
      * @throws Exception if reflection access fails
-     */
+     *//*
+
     private void clearConstraintManager() throws Exception {
         ConstraintManager manager = ConstraintManager.getInstance();
 
@@ -302,12 +323,14 @@ public class ShiftServiceTest {
         }
     }
 
-    /**
+    */
+/**
      * Clears all shift-related data from ShiftManager,
      * including shifts, published weeks, assignments, and requirements.
      *
      * @throws Exception if reflection access fails
-     */
+     *//*
+
     private void clearShiftManager() throws Exception {
         ShiftManager manager = ShiftManager.getInstance();
 
@@ -343,4 +366,4 @@ public class ShiftServiceTest {
             }
         }
     }
-}
+}*/

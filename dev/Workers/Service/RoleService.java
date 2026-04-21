@@ -48,9 +48,9 @@ public class RoleService {
      *
      * @return list of employee IDs who are managers
      */
-    public List<Integer> getAllManagers() {
+    /*public List<Integer> getAllManagers() {
         return roleManager.getAllManagers();
-    }
+    }*/
 
     /**
      * Removes all roles from an employee
