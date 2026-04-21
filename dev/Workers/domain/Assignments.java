@@ -57,7 +57,7 @@ public class Assignments {
      * If the employee or role does not exist, nothing happens.
      *
      * @param shift      the shift
-     * @param role       the role
+
      * @param employeeID the employee ID to remove
      */
     public void remove(Shift shift, int employeeID) {
