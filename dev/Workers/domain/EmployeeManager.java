@@ -102,13 +102,9 @@ public class EmployeeManager   {
 
     public UserResponse promoteDemote(int id) {
         Employee employee = getById(id);
-        if (!employee.isManager()) {
-            employee.setManager(employee.isManager());
-            return promoted;
-        }
-        else {
-            employee.setManager(!employee.isManager());
-            return demoted;
-        }
+
+        employee.setManager(!employee.isManager());
+
+        return employee.isManager() ? promoted : demoted;
     }
 }

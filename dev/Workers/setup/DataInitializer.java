@@ -95,18 +95,15 @@ public class DataInitializer {
                 Shift pastShift1 = shiftService.getShift(date11, ShiftType.morning);
 
                 shiftService.forceAssign(pastShift1, Role.Cashier, 111);
-                //shiftService.forceAssign(pastShift1, Role.Cashier, 222);
                 shiftService.forceAssign(pastShift1, Role.Cashier, 223);
                 shiftService.forceAssign(pastShift1, Role.Cashier, 224);
                 shiftService.forceAssign(pastShift1, Role.Storekeeper, 333);
                 shiftService.forceAssign(pastShift1, Role.Storekeeper, 444);
                 shiftService.forceAssign(pastShift1, Role.Storekeeper, 445);
 
-                //shiftService.addShift(date1, ShiftType.evening);
                 Shift pastShift2 = shiftService.getShift(date11, ShiftType.evening);
 
                 shiftService.forceAssign(pastShift2, Role.Cashier, 113);
-                //shiftService.forceAssign(pastShift2, Role.Cashier, 222);
                 shiftService.forceAssign(pastShift2, Role.Cashier, 223);
                 shiftService.forceAssign(pastShift2, Role.Cashier, 224);
                 shiftService.forceAssign(pastShift2, Role.Storekeeper, 333);

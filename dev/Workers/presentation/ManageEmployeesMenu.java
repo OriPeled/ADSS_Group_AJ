@@ -81,7 +81,7 @@ public class ManageEmployeesMenu  {
         UserResponse response = employeeService.promoteDemote(empId);
         if (response == promoted)
             System.out.println("Employee promoted.");
-        if (response == demoted)
+        else if (response == demoted)
             System.out.println("Employee demoted.");
     }
 
