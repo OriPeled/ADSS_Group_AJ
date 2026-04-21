@@ -342,7 +342,7 @@ public class ShiftManager {
             if (shift != null) {
                 String status = "complete";
                 for (Role role : Role.values()) {
-                    if (isNeeded(shift, role)) {
+                    if (isNeeded(shift, role) || !hasManager(shift)) {
                         status = "incomplete";
                         break;
                     }
@@ -368,9 +368,9 @@ public class ShiftManager {
             for (Role role : Role.values()) {
                 if (isNeeded(shift, role)) return false;
             }
-            //if (!hasManager(shift)) {
-            //    return false;
-            //}
+            if (!hasManager(shift)) {
+                return false;
+            }
         }
         return true;
     }
@@ -428,62 +428,72 @@ public class ShiftManager {
     }
 
     public String getUnassignedValid(Shift shift) {
-        boolean anyRoleNeeded = false;
+        EmployeeManager employeeManager = EmployeeManager.getInstance();
+
+        // 1. Check numerical role requirements
+        boolean rolesSatisfied = true;
         for (Role role : Role.values()) {
-            if (isNeeded(shift, role)) { anyRoleNeeded = true; break; }
-        }
-        if (!anyRoleNeeded) {
-            return "Shift is fully assigned — no additional assignments needed.";
+            if (isNeeded(shift, role)) {
+                rolesSatisfied = false;
+                break;
+            }
         }
 
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
+        // 2. Check if at least one assigned employee is a manager
+        // (Using the 'getAllEmployeesInShift' helper we created earlier)
+        boolean managerPresent = assignments.getAllEmployees(shift).stream()
+                .anyMatch(id -> employeeManager.getById(id).isManager());
+
+        // 3. Logic: Fully assigned ONLY IF (Roles are full AND a manager is present)
+        if (rolesSatisfied && managerPresent) {
+            return "Shift is fully assigned and managed — no additional actions needed.";
+        }
+
         StringBuilder result = new StringBuilder("=== Shift Assignment Assistant ===\n");
+
+        // Alert the HR Manager if they are here only because a manager is missing
+        if (rolesSatisfied && !managerPresent) {
+            result.append("! WARNING: All role counts are filled, but NO MANAGER is assigned.\n");
+            result.append("! Showing qualified employees for potential replacement or special approval:\n");
+        }
+
         boolean foundAnyOverall = false;
 
         for (Role role : Role.values()) {
-            if (!isNeeded(shift, role)) continue; // Skip roles that are already full
+            // MODIFIED: If roles are full but we still need a manager,
+            // we show the roles anyway so the user can find a manager to swap in.
+            if (rolesSatisfied && managerPresent && !isNeeded(shift, role)) continue;
+
+            // If roles are satisfied but manager is missing, we show ALL qualified employees
+            // otherwise, we only show roles that are actually 'isNeeded'
+            if (!rolesSatisfied && !isNeeded(shift, role)) continue;
 
             result.append("\n--- ").append(role).append(" ---\n");
             List<Integer> qualifiedIds = roleManager.getListByRole(role);
-
-            // Check if we are in "Desperation Mode" (Needed but nobody available)
             boolean desperationMode = nobodyToAssign(shift, role);
 
-            if (desperationMode) {
-                result.append("!!! NO AVAILABLE EMPLOYEES !!!\n");
-                result.append("Qualified employees with constraint conflicts:\n");
-            }
-
-            boolean foundForRole = false;
             for (int id : qualifiedIds) {
+                Employee emp = employeeManager.getById(id);
+                if (!emp.isActive()) continue;
+
                 boolean available = isAvailable(id, shift);
                 boolean assigned = assignments.isAssignedToShift(shift, id);
-                Employee emp = employeeManager.getById(id);
+                String managerTag = emp.isManager() ? " (Manager)" : "";
 
                 if (desperationMode) {
-                    // Logic: Qualified, NOT available, and NOT already in this shift
                     if (!available && !assigned) {
-                        result.append(String.format("  [REJECTED] %s (ID: %d)\n",
-                                emp.getName(), id));
-                        foundForRole = true;
+                        result.append(String.format("  [REJECTED] %s (ID: %d)%s\n", emp.getName(), id, managerTag));
                     }
                 } else {
-                    // Logic: Qualified and Available
                     if (available && !assigned) {
-                        result.append(String.format("  [READY] %s (ID: %d)\n", emp.getName(), id));
-                        foundForRole = true;
+                        result.append(String.format("  [READY] %s (ID: %d)%s\n", emp.getName(), id, managerTag));
                         foundAnyOverall = true;
                     }
                 }
             }
-
-            if (!foundForRole) {
-                result.append(desperationMode ? "  (No qualified employees found even with conflicts)\n"
-                        : "  (No available qualified employees)\n");
-            }
         }
 
-        return foundAnyOverall || result.length() > 30 ? result.toString() : "No assignment actions possible.";
+        return (foundAnyOverall || result.length() > 50) ? result.toString() : "No active employees found to satisfy requirements.";
     }
 
     /**
@@ -492,19 +502,20 @@ public class ShiftManager {
      * @return String of shift detils
      */
     public String getShiftDetails(Shift shift) {
-        String result = "Shift: " + shift + "\n";
+        StringBuilder result = new StringBuilder("=== " + shift + " ===\n");
+
         for (Role role : Role.values()) {
             int required = requirements.countRequired(shift, role);
             Set<Integer> employees = assignments.getEmployeesByRole(shift, role);
             int assigned = employees.size();
-            if (required > 0) {
-                result += role +
-                        ": " + employees +
-                        " (" + assigned + " assigned, " +
-                        (required - assigned) + " left)\n";
+
+            if (required > 0 || assigned > 0) {
+                result.append(String.format("  %-12s: %d/%d assigned | Employees: %s\n",
+                        role, assigned, required, employees));
             }
         }
-        return result;
+
+        return result.toString();
     }
 
     public String getEmployeeWeekDisplay(int id, LocalDate referenceDate) {

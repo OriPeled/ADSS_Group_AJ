@@ -7,10 +7,13 @@ import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.SalaryType;
 
+import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
 
+import static dev.Workers.domain.Enums.UserResponse.demoted;
+import static dev.Workers.domain.Enums.UserResponse.promoted;
 import static dev.Workers.presentation.Main.scanner;
 import static dev.Workers.presentation.Parser.*;
 
@@ -75,7 +78,11 @@ public class ManageEmployeesMenu  {
     }
 
     private static void promoteDemote(int empId) {
-        employeeService.promoteDemote(empId);
+        UserResponse response = employeeService.promoteDemote(empId);
+        if (response == promoted)
+            System.out.println("Employee promoted.");
+        if (response == demoted)
+            System.out.println("Employee demoted.");
     }
 
     /**

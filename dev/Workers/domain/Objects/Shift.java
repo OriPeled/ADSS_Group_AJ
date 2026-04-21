@@ -56,9 +56,15 @@ public class Shift {
         return Objects.hash(shiftDate, type);
     }
 
-    @Override
+    /*@Override
     public String toString() {
         return shiftDate + " - " + type;
+    }
+*/
+    @Override
+    public String toString() {
+        String managerIndicator = hasManager ? "[Managed]" : "[Unmanaged]";
+        return String.format("%s (%s) %s", shiftDate, type, managerIndicator);
     }
 
     public String toStringByWeekDay() { return shiftDate.getDayOfWeek().name() + " (" + type + ")"; }

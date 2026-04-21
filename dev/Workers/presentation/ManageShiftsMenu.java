@@ -298,6 +298,7 @@ public class ManageShiftsMenu {
                 return;
             }
 
+            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
             System.out.println("Enter the ID of the replacement employee (0 to cancel):");
             int newEmployeeId = readIntSafe();
             if (newEmployeeId == 0) {

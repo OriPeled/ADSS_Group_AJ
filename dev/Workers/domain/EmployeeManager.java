@@ -1,11 +1,17 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.EmployeeTerms;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static dev.Workers.domain.Enums.UserResponse.demoted;
+import static dev.Workers.domain.Enums.UserResponse.promoted;
 
 /**
  * Manages all employees in the system.
@@ -13,6 +19,10 @@ import java.util.Map;
  * Provides functionality to add, remove, and retrieve employees.
  */
 public class EmployeeManager   {
+    public Map<Integer, Employee> getEmployees() {
+        return employees;
+    }
+
     private Map<Integer, Employee> employees;   // Employee ID to Employee
     private static EmployeeManager instance;
 
@@ -21,6 +31,10 @@ public class EmployeeManager   {
      */
     private EmployeeManager() {
         this.employees = new HashMap<>();
+    }
+
+    public List<Employee> getEmployeesList() {
+        return new ArrayList<>(employees.values());
     }
 
     /**
@@ -86,8 +100,15 @@ public class EmployeeManager   {
         if (!getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
     }
 
-    public void promoteDemote(int id) {
+    public UserResponse promoteDemote(int id) {
         Employee employee = getById(id);
-        employee.setManager(!employee.isManager());
+        if (!employee.isManager()) {
+            employee.setManager(employee.isManager());
+            return promoted;
+        }
+        else {
+            employee.setManager(!employee.isManager());
+            return demoted;
+        }
     }
 }
