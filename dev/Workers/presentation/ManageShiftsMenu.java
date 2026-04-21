@@ -220,7 +220,12 @@ public class ManageShiftsMenu {
      */
     private static void addAssignment(Shift shift) {
         int employeeId;
-        System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+        if (shiftService.getAvailableEmployeesForShift(shift).equals("Shift is fully assigned — no additional assignments needed.")){
+            System.out.println("Shift is fully assigned — no additional assignments needed.");
+            return;
+        }
+        else
+            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
 
         System.out.println("Enter employee ID (0 to cancel):");
         employeeId = readIntSafe();

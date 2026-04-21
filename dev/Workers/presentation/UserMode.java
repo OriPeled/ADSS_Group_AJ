@@ -15,6 +15,7 @@ public class UserMode {
     static ConstraintService constraintService = ConstraintService.getInstance();
     static AccessService accessService = AccessService.getInstance();
     static ShiftService shiftService = ShiftService.getInstance();
+    static EmployeeService employeeService = EmployeeService.getInstance();
 
     static int employeeId;
 
@@ -26,6 +27,10 @@ public class UserMode {
             int enteredID = readIntSafe();
             if (enteredID == 0) return;
 
+            if (!employeeService.exists(enteredID)) {
+                System.out.println("Employee does not exist in the system");
+                continue;
+            }
             System.out.println("Please enter password or 0 to cancel:");
             String enteredPassword = scanner.nextLine();
             if (enteredPassword.equals("0")) return;
