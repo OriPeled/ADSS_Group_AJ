@@ -54,7 +54,6 @@ public class EmployeeManager   {
      * @param terms       employment terms
      * @param startDate   employment start date
      */
-
     public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         if (isEmployee(id)) {
             throw new IllegalArgumentException("Employee ID " + id + " already exists.");
@@ -63,8 +62,8 @@ public class EmployeeManager   {
         employees.put(newEmp.getId(), newEmp);
     }
 
-
-    public void remove(int id) {
+    // fires an employee, leaves him in the system
+    public void fire(int id) {
         Employee emp = employees.get(id);
         if (emp == null || !emp.isActive()) {
             throw new IllegalArgumentException("Employee " + id + " not found or already inactive.");
@@ -72,6 +71,11 @@ public class EmployeeManager   {
         emp.terminateEmployee(LocalDate.now());
     }
 
+    public void rehire(int id) {
+        if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
+        if (getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " already active.");
+        employees.get(id).activateEmployee();
+    }
 
     public Employee getById(int id) {
         return employees.get(id);

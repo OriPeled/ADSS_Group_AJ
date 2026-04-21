@@ -37,10 +37,10 @@ public class WeekSchedule {
         LocalDate today = LocalDate.now();
         LocalDate thisSunday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
-        if (this.startOfWeek.isBefore(thisSunday) || this.startOfWeek.equals(thisSunday)) {
+        if (startOfWeek.isBefore(thisSunday) || startOfWeek.equals(thisSunday)) {
             return true;
         }
-        return this.published;
+        return published;
     }
 
     @Override

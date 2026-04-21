@@ -14,7 +14,6 @@ import static dev.Workers.domain.Enums.UserResponse.*;
  * to the credentials database.
  */
 public class AccessManager {
-
     /**
      * Map storing the relationship between Employee ID and their Access credentials.
      * Key: Integer (Employee ID)
@@ -58,6 +57,7 @@ public class AccessManager {
 
     }
 
+    // notRegistered to inform the user and make the call for the registration process
     public UserResponse login(int id, String password) {
         if (!employeeManager.isEmployee(id))
             throw new IllegalArgumentException("No such Employee.");

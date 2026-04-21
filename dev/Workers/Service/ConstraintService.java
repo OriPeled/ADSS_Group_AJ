@@ -7,8 +7,6 @@ import dev.Workers.domain.Objects.Constraint;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-import java.util.*;
-
 /**
  * Manages all employees' constraints in the system.
  *
@@ -83,6 +81,6 @@ public class ConstraintService {
      }
 
     public void initConstraintForEmployee(int id) {
-        constraintManager.initConstraintForEmployee(id);
+        constraintManager.initConstraintsForEmployee(id);
     }
 }

@@ -62,7 +62,10 @@ public class ManageEmployeesMenu  {
                 case 1 -> details(empId);
                 case 2 -> roles(empId);
                 case 3 -> {
-                    remove(empId);
+                    fire(empId);
+                    return;}
+                case 4 -> {
+                    rehire(empId);
                     return;}
                 case 0 -> { return; }
                 default -> System.out.println("Invalid choice.");
@@ -330,8 +333,8 @@ public class ManageEmployeesMenu  {
         }
     }
 
-    private static void remove(int empId) {
-        System.out.println("Are you sure you want to remove " +
+    private static void fire(int empId) {
+        System.out.println("Are you sure you want to fire " +
                 employeeService.getEmployeeName(empId) +
                 " (" + empId + ")? Enter 1 to confirm, 0 to cancel:");
 
@@ -340,14 +343,28 @@ public class ManageEmployeesMenu  {
         switch (choice) {
             case 1 -> {
                 try {
-                    employeeService.remove(empId);
-                    System.out.println("Employee removed.");
+                    employeeService.fire(empId);
+                    System.out.println("Employee fired.");
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
                 }
             }
             case 0 -> {}
             default -> System.out.println("Invalid input.");
+        }
+    }
+
+    private static void rehire(int empId) {
+        System.out.println("Enter employee ID or 0 to cancel.");
+        int id = readIntSafe();
+
+        if (id == 0) return;
+
+        try {
+            employeeService.rehire(empId);
+            System.out.println("Employee rehired.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());;
         }
     }
 
@@ -530,7 +547,8 @@ public class ManageEmployeesMenu  {
     public static void printManageEmployeeMenu() {
         System.out.println("1. Employee Details");
         System.out.println("2. Employee Roles");
-        System.out.println("3. Remove Employee");
+        System.out.println("3. Fire Employee");
+        System.out.println("4. Rehire Employee");
         System.out.println("0. Back");
     }
 

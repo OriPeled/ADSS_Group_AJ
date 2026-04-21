@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * are assigned to which role inside each shift.
  */
 public class Assignments {
-    private final Map<Shift, Map<Role, Set<Integer>>> assignments;
+    private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned employee ID)
 
     /**
      * Constructor initializes empty assignment storage.

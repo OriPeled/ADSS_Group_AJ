@@ -63,7 +63,7 @@ public class ShiftManagerTest {
         terms=new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2);
         employeeManager.add(name,id, 100000,5000,terms, LocalDate.of(2026, 4, 1));
         roleManager.addRoleToEmployee(id, role);
-        constraintManager.initConstraintForEmployee(id);
+        constraintManager.initConstraintsForEmployee(id);
     }
 
     /**
@@ -329,7 +329,7 @@ public class ShiftManagerTest {
         registerEmployee(60, "Liam", Role.Cashier);
 
         // Terminate the employee
-        employeeManager.remove(60);
+        employeeManager.fire(60);
 
         // Create a test shift
         Shift shift = createShift(6);
@@ -413,7 +413,7 @@ public void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
         shiftManager.setRequirement(shift, Role.Cashier, 1);
         shiftManager.assignEmployee(shift, Role.Cashier, 80);
 
-        employeeManager.remove(81);
+        employeeManager.fire(81);
 
         assertThrows(IllegalArgumentException.class, () ->
                 shiftManager.replaceEmployee(shift, 80, 81)
@@ -437,7 +437,7 @@ public void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
 
         registerEmployee(90, "Sophia", Role.Cashier);
 
-        employeeManager.remove(90);
+        employeeManager.fire(90);
 
         assertThrows(IllegalArgumentException.class, () ->
                 roleManager.addRoleToEmployee(90, Role.Storekeeper)

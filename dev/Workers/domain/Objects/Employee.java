@@ -37,8 +37,6 @@ public class Employee {
         this.endDate = null;
     }
 
-
-
     /**
      * getter for name
      * @return employee name
@@ -132,14 +130,17 @@ public class Employee {
      * @return employment end date ,null if still active
      */
     public LocalDate getEndLocalDate() {return endDate;}
+
     /**
-     * Terminates employee by setting end date
+     * Terminates employee by setting end date a week in advance.
      * @param terminationDate date of termination
      */
-
     public void terminateEmployee(LocalDate terminationDate) {
-        this.endDate = terminationDate;
+        this.endDate = terminationDate.plusDays(7);
+    }
 
+    public void activateEmployee() {
+        endDate = null;
     }
 
     /**

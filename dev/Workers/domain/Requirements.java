@@ -12,12 +12,13 @@ import java.util.*;
  * Shift -> Role -> Required count
  */
 public class Requirements {
-    private final Map<Shift, Map<Role, Integer>> data;
+    private final Map<Shift, Map<Role, Integer>> data; // shift to (role to required amount)
 
     public Requirements() {
         this.data = new HashMap<>();
     }
 
+    // default: shift manager - 1, other roles - 3
     public void init(Shift shift) {
         Map<Role, Integer> innerMap = new HashMap<>();
         innerMap.put(Role.shiftManager, 1);

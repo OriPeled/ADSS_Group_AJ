@@ -108,7 +108,7 @@ public class ManagersTest {
         EmployeeManager manager = EmployeeManager.getInstance();
 
         addEmployee(manager, 2);
-        manager.remove(2);
+        manager.fire(2);
 
         assertFalse(manager.getById(2).isActive());
     }
@@ -236,7 +236,7 @@ public class ManagersTest {
     void constraintManager_update_shouldChangeConstraint() {
         ConstraintManager cm = ConstraintManager.getInstance();
 
-        cm.initConstraintForEmployee(30);
+        cm.initConstraintsForEmployee(30);
         cm.update(30, DayOfWeek.MONDAY, ShiftType.morning);
 
         assertEquals(
@@ -260,7 +260,7 @@ public class ManagersTest {
     void constraintManager_isEmployeeAvailable_shouldRespectConstraint() {
         ConstraintManager cm = ConstraintManager.getInstance();
 
-        cm.initConstraintForEmployee(31);
+        cm.initConstraintsForEmployee(31);
         cm.update(31, DayOfWeek.MONDAY, ShiftType.morning);
 
         assertTrue(cm.isEmployeeAvailable(31, DayOfWeek.MONDAY, ShiftType.morning));
@@ -281,7 +281,7 @@ public class ManagersTest {
     @Test
     void constraintManager_update_shouldFailAfterDeadline() {
         ConstraintManager cm = ConstraintManager.getInstance();
-        cm.initConstraintForEmployee(32);
+        cm.initConstraintsForEmployee(32);
 
         // 1. Set a fixed deadline (Wednesday)
         cm.setDeadline(DayOfWeek.WEDNESDAY);

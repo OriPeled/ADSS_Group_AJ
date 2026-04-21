@@ -1,12 +1,10 @@
 package dev.Workers.domain;
 
-import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Constraint;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,10 +18,8 @@ import static dev.Workers.domain.Enums.ShiftType.any;
  * and managing deadlines for constraint submissions.
  */
 public class ConstraintManager {
-    // deadline for submitting/updating constraints
-    private DayOfWeek deadline = DayOfWeek.THURSDAY;
-    // maps employee ID to their constraints
-    private Map<Integer, Constraint> constraintsByID;
+    private DayOfWeek deadline = DayOfWeek.THURSDAY;    // deadline for submitting/updating constraints
+    private Map<Integer, Constraint> constraintsByID;   // employee ID to employee week constraints
 
     private static ConstraintManager instance;
 
@@ -32,18 +28,7 @@ public class ConstraintManager {
      */
     private ConstraintManager() {
         this.constraintsByID = new HashMap<>();
-        //setNextWeekDeadline();
     }
-
-    /*public void setNextWeekDeadline() {
-        this.deadline = DayOfWeek.from(LocalDate.now()
-                .with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
-    }
-
-    public void setThisWeekDeadline() {
-        this.deadline = DayOfWeek.from(LocalDate.now()
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.THURSDAY)));
-    }*/
 
     /**
      * @return the single instance of Constraint Manager
@@ -100,7 +85,6 @@ public class ConstraintManager {
     public void update(int id, DayOfWeek day, ShiftType shiftType, LocalDate currentDate) {
         DayOfWeek deadline = getDeadline();
 
-        // Check if the provided currentDate is past the deadline
         if (deadline != null && !isOnTime(currentDate)) {
             throw new RuntimeException(
                     "Submission failed: The deadline for submitting constraints (" + deadline + ") has passed."
@@ -152,9 +136,6 @@ public class ConstraintManager {
     public boolean isOnTime(LocalDate date) {
         DayOfWeek currentDay = date.getDayOfWeek();
 
-        // Check if the numerical value of the current day is less than the deadline's day.
-        // Note: If you want submissions to be allowed ON the deadline day itself,
-        // simply change the '<' operator to '<='.
         return getIsraeliDayValue(currentDay) < getIsraeliDayValue(deadline);
     }
 
@@ -164,12 +145,12 @@ public class ConstraintManager {
     public DayOfWeek getDeadline() {
         return deadline;
     }
+
     /**
      * Sets deadline for updating constraints
      *
      * @param deadline new deadline
      */
-
     public void setDeadline(DayOfWeek deadline) {
         this.deadline = deadline;
     }
@@ -178,18 +159,18 @@ public class ConstraintManager {
      * Resets all employees' constraints.
      *
      * For every employee:
-     * - All days in the week will be set to wholeDay
+     * - All days in the week will be set to 'any',
+     * this happens right after the HR admin publishes the week schedule.
      */
     public void resetAllConstraints() {
         for (Constraint constraint : constraintsByID.values()) {
-            // Reset each day in the week to default (wholeDay)
             for (DayOfWeek day : DayOfWeek.values()) {
                 constraint.setShiftType(day, any);
             }
         }
     }
 
-    public void initConstraintForEmployee(int id) {
+    public void initConstraintsForEmployee(int id) {
         constraintsByID.put(id, new Constraint());
     }
 

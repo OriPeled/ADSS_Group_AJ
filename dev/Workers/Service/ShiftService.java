@@ -92,9 +92,8 @@ public class ShiftService {
         shiftManager.publishWeekSchedule(lastSunday);
     }
 
-    public void publishWeekByDate(LocalDate date) {
-        LocalDate thisSunday = date
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+    // test function for adding past shifts (mainly for history purposes)
+    public void publishWeekByDate(LocalDate date) {;
         shiftManager.publishWeekSchedule(date);
     }
 

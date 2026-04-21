@@ -21,7 +21,6 @@ import java.time.LocalDate;
  * so no crashes will occur due to constraints or invalid assignments.
  */
 public class DataInitializer {
-
     public static void initSystem() {
 
         EmployeeService employeeService = EmployeeService.getInstance();
@@ -77,7 +76,7 @@ public class DataInitializer {
             createEmployee(employeeService, roleService, constraintService,
                     "Johnny Bravo", 77, Role.shiftManager);
             accessService.Register(77, "7777");
-            employeeService.remove(77);
+            employeeService.fire(77);
 
             // ============================
             // WEEK OF 19-25/04/2026 SHIFTS

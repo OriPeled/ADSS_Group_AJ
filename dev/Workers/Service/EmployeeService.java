@@ -86,8 +86,8 @@ public class EmployeeService {
      * @throws IllegalArgumentException if the employee is not found or is already inactive
      */
 
-    public void remove(int id) {
-        employeeManager.remove(id);   // terminate
+    public void fire(int id) {
+        employeeManager.fire(id);   // terminate
         accessService.removeUser(id); // clean up access
     }
 
@@ -191,5 +191,9 @@ public class EmployeeService {
      */
     public boolean exists(int id) {
         return employeeManager.isEmployee(id);
+    }
+
+    public void rehire(int empId) {
+        employeeManager.rehire(empId);
     }
 }

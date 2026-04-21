@@ -78,7 +78,7 @@ public class ShiftServiceTest {
         );
 
         roleManager.addRoleToEmployee(id, role);
-        constraintManager.initConstraintForEmployee(id);
+        constraintManager.initConstraintsForEmployee(id);
     }
 
     /**
