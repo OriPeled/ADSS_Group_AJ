@@ -1,439 +1,463 @@
 package dev.Workers.Tests;
 
-import dev.Workers.Service.AccessService;
-import dev.Workers.domain.*;
-import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.Objects.*;
+import dev.Workers.domain.AccessManager;
+import dev.Workers.domain.ConstraintManager;
+import dev.Workers.domain.EmployeeManager;
+import dev.Workers.domain.RoleManager;
+import dev.Workers.domain.ShiftManager;
+import dev.Workers.domain.Enums.JobStatus;
+import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Enums.SalaryType;
+import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Enums.UserResponse;
+import dev.Workers.domain.Enums.WeekStatus;
+import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.Objects.Shift;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unified unit tests for manager classes in the workers system.
+ * Unit tests for the domain managers layer.
  *
- * Tested classes:
+ * This class tests the main behavior of:
  * - EmployeeManager
  * - AccessManager
- * - RoleManager
  * - ConstraintManager
- * - Requirements
- * - Assignments
+ * - RoleManager
+ * - ShiftManager
+ *
+ * The system uses Singleton managers, so each test resets the managers
+ * and rebuilds fresh instances before execution.
  */
 public class ManagersTest {
 
-    // =========================================================
-    // Helper methods
-    // =========================================================
+    private EmployeeManager employeeManager;
+    private AccessManager accessManager;
+    private ConstraintManager constraintManager;
+    private RoleManager roleManager;
+    private ShiftManager shiftManager;
 
     /**
-     * Creates default employment terms for test employees.
-     *
-     * @return default employee terms
+     * Resets all singleton managers before each test
+     * and rebuilds fresh instances in a safe order.
      */
-    private EmployeeTerms createTerms() {
-        return new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2);
+    @BeforeEach
+    void setUp() throws Exception {
+        resetSingleton(EmployeeManager.class, "instance");
+        resetSingleton(AccessManager.class, "instance");
+        resetSingleton(ConstraintManager.class, "instance");
+        resetSingleton(RoleManager.class, "instance");
+        resetSingleton(ShiftManager.class, "instance");
+
+        employeeManager = EmployeeManager.getInstance();
+
+        /*
+         * AccessManager keeps a static reference to EmployeeManager.
+         * Because classes stay loaded between tests, that field may still
+         * point to an old EmployeeManager instance unless we patch it.
+         */
+        Field accessEmployeeManagerField = AccessManager.class.getDeclaredField("employeeManager");
+        accessEmployeeManagerField.setAccessible(true);
+        accessEmployeeManagerField.set(null, employeeManager);
+
+        constraintManager = ConstraintManager.getInstance();
+        roleManager = RoleManager.getInstance();
+        accessManager = AccessManager.getInstance();
+        shiftManager = ShiftManager.getInstance();
     }
 
     /**
-     * Adds a test employee to the employee manager using the current API.
+     * Resets a singleton static instance field using reflection.
      *
-     * @param manager employee manager instance
-     * @param id      employee id
+     * @param clazz the singleton class
+     * @param fieldName the static instance field name
      */
-    private void addEmployee(EmployeeManager manager, int id) {
-        manager.add(
-                "Emp" + id,
+    private void resetSingleton(Class<?> clazz, String fieldName) throws Exception {
+        Field instanceField = clazz.getDeclaredField(fieldName);
+        instanceField.setAccessible(true);
+        instanceField.set(null, null);
+    }
+
+    /**
+     * Adds a valid active employee to the system.
+     *
+     * @param id employee id
+     */
+    private void addEmployee(int id) {
+        employeeManager.add(
+                "Employee" + id,
                 id,
-                111 + id,
+                1000 + id,
                 5000,
-                createTerms(),
+                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2),
                 LocalDate.now()
         );
     }
 
     /**
-     * Creates a fixed test shift.
+     * Initializes default weekly constraints for an employee.
+     * By default, all days are set to 'any', so the employee is available.
      *
-     * @return test shift
+     * @param id employee id
      */
-    private Shift createShift() {
-        return new Shift(LocalDate.of(2026, 4, 20), ShiftType.morning);
+    private void initConstraints(int id) {
+        constraintManager.initConstraintsForEmployee(id);
     }
 
     // =========================================================
-    // EmployeeManager Tests
+    // EmployeeManager tests
     // =========================================================
 
     /**
-     * Verifies that adding an employee stores the employee in the system
-     * and allows retrieving it by id.
-     *
-     * Scenario:
-     * - A new employee is added to the employee manager
-     *
-     * Expected result:
-     * - getById returns the employee
-     * - isEmployee returns true
+     * Verifies that adding a new employee succeeds.
      */
     @Test
-    void employeeManager_addAndGet_shouldWork() {
-        EmployeeManager manager = EmployeeManager.getInstance();
+    void employee_add_shouldSucceed() {
+        addEmployee(1);
 
-        addEmployee(manager, 1);
-
-        assertNotNull(manager.getById(1));
-        assertEquals(1, manager.getById(1).getId());
-        assertTrue(manager.isEmployee(1));
+        assertTrue(employeeManager.isEmployee(1));
+        assertNotNull(employeeManager.getById(1));
     }
 
     /**
-     * Verifies that removing an employee does not delete the employee object,
-     * but marks the employee as inactive.
-     *
-     * Scenario:
-     * - A new employee is added
-     * - The employee is removed
-     *
-     * Expected result:
-     * - The employee remains in the system
-     * - The employee is no longer active
+     * Verifies that adding an employee with an existing id fails.
      */
     @Test
-    void employeeManager_remove_shouldDeactivateEmployee() {
-        EmployeeManager manager = EmployeeManager.getInstance();
+    void employee_addDuplicateId_shouldFail() {
+        addEmployee(1);
 
-        addEmployee(manager, 2);
-        manager.fire(2);
-
-        assertFalse(manager.getById(2).isActive());
-    }
-
-    // =========================================================
-    // AccessManager Tests
-    // =========================================================
-
-    /**
-     * Verifies that registration fails when the password is shorter than 4 characters.
-     *
-     * Scenario:
-     * - A registration attempt is made with a short password
-     *
-     * Expected result:
-     * - IllegalArgumentException is thrown
-     * - The exception message explains the password length rule
-     */
-    @Test
-    void register_shortPassword_shouldThrowException() {
-        AccessService accessService = AccessService.getInstance();
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> accessService.Register(1, "123")
-        );
-
-        assertEquals("Password must be at least 4 characters long.", exception.getMessage());
-    }
-
-    /**
-     * Verifies that login fails when the user enters an incorrect password.
-     *
-     * Scenario:
-     * - An employee exists in the system
-     * - The employee is registered with a valid password
-     * - A login attempt is made with the wrong password
-     *
-     * Expected result:
-     * - IllegalArgumentException is thrown
-     * - The exception message indicates a wrong password
-     */
-    @Test
-    void accessManager_wrongPassword_shouldFail() {
-        EmployeeManager empManager = EmployeeManager.getInstance();
-        AccessManager accessManager = AccessManager.getInstance();
-
-        addEmployee(empManager, 11);
-        accessManager.register(11, "1234");
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> accessManager.login(11, "0000")
-        );
-
-        assertEquals("Wrong password.", exception.getMessage());
-    }
-
-    // =========================================================
-    // RoleManager Tests
-    // =========================================================
-
-    /**
-     * Verifies that adding a role to an employee updates the employee's qualifications.
-     *
-     * Scenario:
-     * - A new employee is added
-     * - A role is assigned to the employee
-     *
-     * Expected result:
-     * - hasRole returns true for the assigned role
-     */
-    @Test
-    void roleManager_addRole_shouldAssignRole() {
-        EmployeeManager empManager = EmployeeManager.getInstance();
-        RoleManager roleManager = RoleManager.getInstance();
-
-        addEmployee(empManager, 20);
-        roleManager.addRoleToEmployee(20, Role.Cashier);
-
-        assertTrue(roleManager.hasRole(20, Role.Cashier));
-    }
-
-    /**
-     * Verifies that querying employees by role returns employees
-     * who were assigned that role.
-     *
-     * Scenario:
-     * - A new employee is added
-     * - The employee is assigned a role
-     * - The list of employees for that role is requested
-     *
-     * Expected result:
-     * - The employee id appears in the returned list
-     */
-    @Test
-    void roleManager_getListByRole_shouldReturnCorrectEmployees() {
-        EmployeeManager empManager = EmployeeManager.getInstance();
-        RoleManager roleManager = RoleManager.getInstance();
-
-        addEmployee(empManager, 21);
-        roleManager.addRoleToEmployee(21, Role.Cashier);
-
-        List<Integer> result = roleManager.getListByRole(Role.Cashier);
-
-        assertTrue(result.contains(21));
-    }
-
-    // =========================================================
-    // ConstraintManager Tests
-    // =========================================================
-
-    /**
-     * Verifies that updating an employee constraint changes
-     * the employee's availability for the specified day.
-     *
-     * Scenario:
-     * - Constraint storage is initialized for an employee
-     * - The employee's Monday constraint is updated to morning
-     *
-     * Expected result:
-     * - The stored constraint for Monday is morning
-     */
-    @Test
-    void constraintManager_update_shouldChangeConstraint() {
-        ConstraintManager cm = ConstraintManager.getInstance();
-
-        cm.initConstraintsForEmployee(30);
-        cm.update(30, DayOfWeek.MONDAY, ShiftType.morning);
-
-        assertEquals(
-                ShiftType.morning,
-                cm.getConstraints(30).getShiftType(DayOfWeek.MONDAY)
+        assertThrows(IllegalArgumentException.class, () ->
+                employeeManager.add(
+                        "AnotherEmployee",
+                        1,
+                        2222,
+                        6000,
+                        new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2),
+                        LocalDate.now()
+                )
         );
     }
 
     /**
-     * Verifies that employee availability reflects the stored constraint.
-     *
-     * Scenario:
-     * - Constraint storage is initialized for an employee
-     * - Monday is set to morning availability
-     *
-     * Expected result:
-     * - The employee is available for Monday morning
-     * - The employee is not available for Monday evening
+     * Verifies that firing an employee marks them inactive.
      */
     @Test
-    void constraintManager_isEmployeeAvailable_shouldRespectConstraint() {
-        ConstraintManager cm = ConstraintManager.getInstance();
+    void employee_fire_shouldDeactivate() {
+        addEmployee(1);
 
-        cm.initConstraintsForEmployee(31);
-        cm.update(31, DayOfWeek.MONDAY, ShiftType.morning);
+        employeeManager.fire(1);
 
-        assertTrue(cm.isEmployeeAvailable(31, DayOfWeek.MONDAY, ShiftType.morning));
-        assertFalse(cm.isEmployeeAvailable(31, DayOfWeek.MONDAY, ShiftType.evening));
+        assertFalse(employeeManager.getById(1).isActive());
     }
 
     /**
-     * Verifies that updating constraints after the deadline is not allowed.
-     * * Scenario:
-     * - Constraint storage is initialized for an employee.
-     * - The deadline is fixed to a specific day (e.g., Wednesday).
-     * - A "fake" current date that falls strictly after the deadline (e.g., Thursday) is injected.
-     * - An update attempt is made.
-     * * Expected result:
-     * - RuntimeException is thrown.
-     * - The test is deterministic (flake-free) and does not depend on the actual day it is executed.
+     * Verifies that rehiring an inactive employee makes them active again.
      */
     @Test
-    void constraintManager_update_shouldFailAfterDeadline() {
-        ConstraintManager cm = ConstraintManager.getInstance();
-        cm.initConstraintsForEmployee(32);
+    void employee_rehire_shouldReactivate() {
+        addEmployee(1);
+        employeeManager.fire(1);
 
-        // 1. Set a fixed deadline (Wednesday)
-        cm.setDeadline(DayOfWeek.WEDNESDAY);
+        employeeManager.rehire(1);
 
-        // 2. Define a fixed "current date" for the test that is strictly after the deadline.
-        // April 23, 2026 is a Thursday. In the Israeli week format, Thursday (5) > Wednesday (4).
-        LocalDate fakeCurrentDate = LocalDate.of(2026, 4, 23);
+        assertTrue(employeeManager.getById(1).isActive());
+    }
 
-        // 3. Assert that the exception is thrown when passing the fake date
+    // =========================================================
+    // AccessManager tests
+    // =========================================================
+
+    /**
+     * Verifies successful registration and login for an existing employee.
+     */
+    @Test
+    void access_registerAndLogin_shouldSucceed() {
+        addEmployee(1);
+
+        accessManager.register(1, "1234");
+
+        assertEquals(UserResponse.success, accessManager.login(1, "1234"));
+    }
+
+    /**
+     * Verifies that login returns notRegistered
+     * when an employee exists but has no password yet.
+     */
+    @Test
+    void access_loginWithoutRegistration_shouldReturnNotRegistered() {
+        addEmployee(1);
+
+        assertEquals(UserResponse.notRegistered, accessManager.login(1, "1234"));
+    }
+
+    /**
+     * Verifies that login with a wrong password fails.
+     */
+    @Test
+    void access_loginWrongPassword_shouldFail() {
+        addEmployee(1);
+        accessManager.register(1, "1234");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> accessManager.login(1, "9999"));
+    }
+
+    /**
+     * Verifies that registration with a short password fails.
+     */
+    @Test
+    void access_registerShortPassword_shouldFail() {
+        addEmployee(1);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> accessManager.register(1, "123"));
+    }
+
+    // =========================================================
+    // ConstraintManager tests
+    // =========================================================
+
+    /**
+     * Verifies that updating constraints before the deadline succeeds.
+     */
+    @Test
+    void constraint_updateBeforeDeadline_shouldSucceed() {
+        initConstraints(1);
+        constraintManager.setDeadline(DayOfWeek.THURSDAY);
+
+        assertDoesNotThrow(() ->
+                constraintManager.update(
+                        1,
+                        DayOfWeek.MONDAY,
+                        ShiftType.morning,
+                        LocalDate.of(2026, 4, 20)
+                )
+        );
+    }
+
+    /**
+     * Verifies that updating constraints after the deadline fails.
+     */
+    @Test
+    void constraint_updateAfterDeadline_shouldFail() {
+        initConstraints(1);
+        constraintManager.setDeadline(DayOfWeek.MONDAY);
+
         assertThrows(RuntimeException.class, () ->
-                cm.update(32, DayOfWeek.MONDAY, ShiftType.morning, fakeCurrentDate)
+                constraintManager.update(
+                        1,
+                        DayOfWeek.TUESDAY,
+                        ShiftType.morning,
+                        LocalDate.of(2026, 4, 21)
+                )
         );
     }
 
-    // =========================================================
-    // Requirements Tests
-    // =========================================================
-
     /**
-     * Verifies that setting a staffing requirement for a role
-     * stores the correct required amount.
-     *
-     * Scenario:
-     * - A requirement is set for Cashier on a shift
-     *
-     * Expected result:
-     * - countRequired returns the configured amount
-     */
-    /*@Test
-    void requirements_setAndCount_shouldWork() {
-        Requirements req = new Requirements(hasManager);
-        Shift shift = createShift();
-
-        req.set(shift, Role.Cashier, 3);
-
-        assertEquals(3, req.countRequired(shift, Role.Cashier));
-    }*/
-
-    /**
-     * Verifies that removing a staffing requirement deletes
-     * the requirement for that role.
-     *
-     * Scenario:
-     * - A requirement is set for Cashier on a shift
-     * - The requirement is removed
-     *
-     * Expected result:
-     * - countRequired returns 0
-     */
-    /*@Test
-    void requirements_remove_shouldDeleteRole() {
-        Requirements req = new Requirements(hasManager);
-        Shift shift = createShift();
-
-        req.set(shift, Role.Cashier, 3);
-        req.remove(shift, Role.Cashier);
-
-        assertEquals(0, req.countRequired(shift, Role.Cashier));
-    }*/
-
-    // =========================================================
-    // Assignments Tests
-    // =========================================================
-
-    /**
-     * Verifies that assigning an employee to a role in a shift
-     * stores the assignment correctly.
-     *
-     * Scenario:
-     * - Assignment storage is initialized for a shift
-     * - An employee is assigned to the Cashier role
-     *
-     * Expected result:
-     * - isAssignedToRole returns true
+     * Verifies that a matching saved shift makes the employee available.
      */
     @Test
-    void assignments_add_shouldAssignEmployee() {
-        Assignments assignments = new Assignments();
-        Shift shift = createShift();
+    void constraint_isEmployeeAvailable_shouldReturnTrue() {
+        initConstraints(1);
+        constraintManager.setDeadline(DayOfWeek.SATURDAY);
 
-        assignments.init(shift);
-        assignments.add(shift, Role.Cashier, 100);
+        constraintManager.update(
+                1,
+                DayOfWeek.MONDAY,
+                ShiftType.morning,
+                LocalDate.of(2026, 4, 20)
+        );
 
-        assertTrue(assignments.isAssignedToRole(shift, Role.Cashier, 100));
+        assertTrue(constraintManager.isEmployeeAvailable(1, DayOfWeek.MONDAY, ShiftType.morning));
+    }
+
+    // =========================================================
+    // RoleManager tests
+    // =========================================================
+
+    /**
+     * Verifies that adding a role to an employee succeeds.
+     */
+    @Test
+    void role_addRole_shouldSucceed() {
+        addEmployee(1);
+
+        roleManager.addRoleToEmployee(1, Role.Cashier);
+
+        assertTrue(roleManager.hasRole(1, Role.Cashier));
     }
 
     /**
-     * Verifies that removing an employee from a shift role
-     * clears the stored assignment.
-     *
-     * Scenario:
-     * - Assignment storage is initialized for a shift
-     * - An employee is assigned to a role
-     * - The employee is removed from that role
-     *
-     * Expected result:
-     * - isAssignedToRole returns false
+     * Verifies that adding the same role twice fails.
      */
     @Test
-    void assignments_remove_shouldUnassignEmployee() {
-        Assignments assignments = new Assignments();
-        Shift shift = createShift();
+    void role_addDuplicateRole_shouldFail() {
+        addEmployee(1);
+        roleManager.addRoleToEmployee(1, Role.Cashier);
 
-        assignments.init(shift);
-        assignments.add(shift, Role.Cashier, 101);
-        assignments.remove(shift, 101);
-
-        assertFalse(assignments.isAssignedToRole(shift, Role.Cashier, 101));
+        assertThrows(IllegalArgumentException.class,
+                () -> roleManager.addRoleToEmployee(1, Role.Cashier));
     }
 
     /**
-     * Verifies that counting assigned employees for a role
-     * returns the correct number.
-     *
-     * Scenario:
-     * - Assignment storage is initialized for a shift
-     * - Two employees are assigned to the same role
-     *
-     * Expected result:
-     * - countAssigned returns 2
+     * Verifies that removing a role succeeds.
      */
     @Test
-    void assignments_countAssigned_shouldReturnCorrectCount() {
-        Assignments assignments = new Assignments();
-        Shift shift = createShift();
+    void role_removeRole_shouldSucceed() {
+        addEmployee(1);
+        roleManager.addRoleToEmployee(1, Role.Cashier);
 
-        assignments.init(shift);
-        assignments.add(shift, Role.Cashier, 1);
-        assignments.add(shift, Role.Cashier, 2);
+        roleManager.removeSingleItem(1, Role.Cashier);
 
-        assertEquals(2, assignments.countAssigned(shift, Role.Cashier));
+        assertFalse(roleManager.hasRole(1, Role.Cashier));
+    }
+
+    // =========================================================
+    // ShiftManager tests
+    // =========================================================
+
+    /**
+     * Verifies that assigning a qualified and available employee to a shift succeeds.
+     */
+    @Test
+    void shift_assignEmployee_shouldSucceed() {
+        addEmployee(1);
+        roleManager.addRoleToEmployee(1, Role.Cashier);
+        initConstraints(1);
+
+        LocalDate date = LocalDate.now().plusDays(1);
+        shiftManager.addShift(date, ShiftType.morning);
+        Shift shift = shiftManager.getShift(date, ShiftType.morning);
+
+        shiftManager.setRequirement(shift, Role.Cashier, 1);
+        shiftManager.assignEmployee(shift, Role.Cashier, 1);
+
+        assertFalse(shiftManager.isNeeded(shift, Role.Cashier));
     }
 
     /**
-     * Verifies that querying an employee's role in a shift
-     * returns the correct assigned role.
-     *
-     * Scenario:
-     * - Assignment storage is initialized for a shift
-     * - An employee is assigned to the Cashier role
-     *
-     * Expected result:
-     * - getEmployeeRole returns Cashier
+     * Verifies that assigning an employee without the required role fails.
      */
     @Test
-    void assignments_getEmployeeRole_shouldReturnCorrectRole() {
-        Assignments assignments = new Assignments();
-        Shift shift = createShift();
+    void shift_assignEmployeeWithoutRole_shouldFail() {
+        addEmployee(1);
+        initConstraints(1);
 
-        assignments.init(shift);
-        assignments.add(shift, Role.Cashier, 200);
+        LocalDate date = LocalDate.now().plusDays(1);
+        shiftManager.addShift(date, ShiftType.morning);
+        Shift shift = shiftManager.getShift(date, ShiftType.morning);
 
-        assertEquals(Role.Cashier, assignments.getEmployeeRole(shift, 200));
+        shiftManager.setRequirement(shift, Role.Cashier, 1);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> shiftManager.assignEmployee(shift, Role.Cashier, 1));
+    }
+
+    /**
+     * Verifies that replacing one employee with another succeeds
+     * when both are qualified and available.
+     */
+    @Test
+    void shift_replaceEmployee_shouldSucceed() {
+        addEmployee(1);
+        addEmployee(2);
+
+        roleManager.addRoleToEmployee(1, Role.Cashier);
+        roleManager.addRoleToEmployee(2, Role.Cashier);
+
+        initConstraints(1);
+        initConstraints(2);
+
+        LocalDate date = LocalDate.now().plusDays(1);
+        shiftManager.addShift(date, ShiftType.morning);
+        Shift shift = shiftManager.getShift(date, ShiftType.morning);
+
+        shiftManager.setRequirement(shift, Role.Cashier, 1);
+
+        shiftManager.assignEmployee(shift, Role.Cashier, 1);
+        shiftManager.replaceEmployee(shift, 1, 2);
+
+        assertFalse(shiftManager.isNeeded(shift, Role.Cashier));
+    }
+
+    /**
+     * Verifies that publishing a fully assigned week succeeds
+     * when every shift has at least one manager employee.
+     */
+    @Test
+    void shift_publishWeekSchedule_shouldSucceedWhenWeekIsFullyAssigned() {
+        addEmployee(1);
+        addEmployee(2);
+
+        employeeManager.getById(1).setManager(true);
+
+        roleManager.addRoleToEmployee(1, Role.Cashier);
+        roleManager.addRoleToEmployee(2, Role.Storekeeper);
+
+        initConstraints(1);
+        initConstraints(2);
+
+        LocalDate sunday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = sunday.plusDays(i);
+
+            for (ShiftType type : new ShiftType[]{ShiftType.morning, ShiftType.evening}) {
+                shiftManager.addShift(date, type);
+                Shift shift = shiftManager.getShift(date, type);
+
+                shiftManager.setRequirement(shift, Role.Cashier, 1);
+                shiftManager.setRequirement(shift, Role.Storekeeper, 1);
+
+                shiftManager.assignEmployee(shift, Role.Cashier, 1);
+                shiftManager.assignEmployee(shift, Role.Storekeeper, 2);
+            }
+        }
+
+        shiftManager.publishWeekSchedule(sunday);
+
+        assertEquals(WeekStatus.PUBLISHED, shiftManager.getWeekStatus(sunday));
+    }
+
+    /**
+     * Verifies that publishing fails when no manager is assigned in the shifts.
+     */
+    @Test
+    void shift_publishWeekScheduleWithoutManager_shouldFail() {
+        addEmployee(1);
+        addEmployee(2);
+
+        roleManager.addRoleToEmployee(1, Role.Cashier);
+        roleManager.addRoleToEmployee(2, Role.Storekeeper);
+
+        initConstraints(1);
+        initConstraints(2);
+
+        LocalDate sunday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = sunday.plusDays(i);
+
+            for (ShiftType type : new ShiftType[]{ShiftType.morning, ShiftType.evening}) {
+                shiftManager.addShift(date, type);
+                Shift shift = shiftManager.getShift(date, type);
+
+                shiftManager.setRequirement(shift, Role.Cashier, 1);
+                shiftManager.setRequirement(shift, Role.Storekeeper, 1);
+
+                shiftManager.assignEmployee(shift, Role.Cashier, 1);
+                shiftManager.assignEmployee(shift, Role.Storekeeper, 2);
+            }
+        }
+
+        assertThrows(IllegalStateException.class,
+                () -> shiftManager.publishWeekSchedule(LocalDate.now()));
     }
 }

@@ -1,6 +1,7 @@
 package dev.Workers.Service;
 
 
+import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Objects.EmployeeTerms;
@@ -195,5 +196,14 @@ public class EmployeeService {
 
     public void rehire(int empId) {
         employeeManager.rehire(empId);
+    }
+
+    public Employee getById(int i) {
+        return employeeManager.getById(i);
+    }
+
+    public UserResponse promoteDemote(int empId) {
+
+        return employeeManager.promoteDemote(empId);
     }
 }
