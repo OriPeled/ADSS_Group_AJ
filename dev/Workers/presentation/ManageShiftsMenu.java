@@ -121,9 +121,14 @@ public class ManageShiftsMenu {
             int choice = readIntSafe();
             switch (choice) {
                 case 1 -> {
-                    shiftService.publishWeekSchedule();
-                    System.out.println("Week schedule published.");
-                    return true;
+                    try {
+                        shiftService.publishNextWeekSchedule();
+                        System.out.println("Week schedule published.");
+                        return true;
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        return false;
+                    }
                 }
                 case 0 -> {
                     return false;
@@ -220,12 +225,7 @@ public class ManageShiftsMenu {
      */
     private static void addAssignment(Shift shift) {
         int employeeId;
-        if (shiftService.getAvailableEmployeesForShift(shift).equals("Shift is fully assigned — no additional assignments needed.")){
-            System.out.println("Shift is fully assigned — no additional assignments needed.");
-            return;
-        }
-        else
-            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+        System.out.println(shiftService.getAvailableEmployeesForShift(shift));
 
         System.out.println("Enter employee ID (0 to cancel):");
         employeeId = readIntSafe();
