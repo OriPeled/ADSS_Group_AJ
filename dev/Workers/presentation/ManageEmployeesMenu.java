@@ -259,8 +259,8 @@ public class ManageEmployeesMenu  {
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getEmployeeRoles(empId));
-
+            System.out.println(roleService.getEmployeeRolesList(empId));
+            System.out.println("======================================");
             System.out.println("1. Add Role");
             System.out.println("2. Remove Role");
             System.out.println("0. Back");
@@ -286,11 +286,11 @@ public class ManageEmployeesMenu  {
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getEmployeeRoles(empId));
-
+            System.out.println(roleService.getEmployeeRolesList(empId));
             System.out.println("======================================");
             System.out.println("Available roles to assign:");
             System.out.println(roleService.getFormattedAvailableRoles(empId));
+            System.out.println("======================================");
             System.out.println("Please choose a role to add (0 to cancel):");
 
             int choice = readIntSafe();
@@ -299,7 +299,13 @@ public class ManageEmployeesMenu  {
                 return;
             }
 
-            Role selectedRole = getRoleFromNumber(choice+1);
+            Role selectedRole = null;
+            try {
+                selectedRole = getRoleFromNumber(choice);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return;
+            }
 
             try {
                 roleService.addRoleToEmployee(empId, selectedRole);
@@ -320,8 +326,8 @@ public class ManageEmployeesMenu  {
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getEmployeeRoles(empId));
-
+            System.out.println(roleService.getEmployeeRolesList(empId));
+            System.out.println("======================================");
             System.out.println("Choose a role to remove (0 to cancel):");
 
             int choice = readIntSafe();
@@ -330,7 +336,13 @@ public class ManageEmployeesMenu  {
                 return;
             }
 
-            Role selectedRole = getRoleFromNumber(choice);
+            Role selectedRole = null;
+            try {
+                selectedRole = getRoleFromNumber(choice);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return;
+            }
 
             try {
                 roleService.removeSpecificRole(empId, selectedRole);

@@ -160,7 +160,7 @@ public class Employee {
      * @return true if active, false otherwise
      */
     public boolean isActive() {
-        return endDate == null;
+        LocalDate today = LocalDate.now();
+        return (startDate.isBefore(today) || startDate.isEqual(today)) && endDate == null;
     }
-
 }

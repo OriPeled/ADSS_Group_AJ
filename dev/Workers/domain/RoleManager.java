@@ -99,12 +99,20 @@ public class RoleManager  {    // maps employee ID to list of roles
      */
 
     public void removeSingleItem(int id, Role role) {
+        if (getFormattedListById(id).isEmpty())
+            throw new IllegalArgumentException("Employee isn't qualified for any role.");
+        if (!hasRole(id, role))
+            throw new IllegalArgumentException("Employee isn't qualified for this role.");
         if (employeeRoles.containsKey(id)) {
             employeeRoles.get(id).remove(role);
             if (employeeRoles.get(id).isEmpty()) {
                 employeeRoles.remove(id);
             }
         }
+    }
+
+    public List<Role> getListById(int id) {
+        return employeeRoles.getOrDefault(id, new ArrayList<>());
     }
 
     /**
@@ -114,8 +122,29 @@ public class RoleManager  {    // maps employee ID to list of roles
      * @return list of roles (empty list if none exist)
      */
 
-    public List<Role> getListById(int id) {
-        return employeeRoles.getOrDefault(id, new ArrayList<>());
+    public String getFormattedListById(int id) {
+        // 1. Retrieve the list using your existing logic
+        List<Role> roles = employeeRoles.getOrDefault(id, new ArrayList<>());
+
+        // 2. Handle the empty case
+        if (roles.isEmpty()) {
+            return "No roles found for this ID.";
+        }
+
+        // 3. Build the numbered string
+        StringBuilder sb = new StringBuilder();
+        Role[] allRoles = Role.values();
+        for (int i = 0; i < allRoles.length; i++) {
+            Role role = allRoles[i];
+            if (hasRole(id, role)) {
+                sb.append(i + 1).append(". ").append(role).append("\n");
+            }
+        }
+        /*for (int i = 0; i < roles.size(); i++) {
+            sb.append(i + 1).append(". ").append(roles.get(i)).append("\n");
+        }*/
+
+        return sb.toString().trim();
     }
 
     public List<Role> availableToAddRoles(int id) {
@@ -136,8 +165,15 @@ public class RoleManager  {    // maps employee ID to list of roles
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < roles.size(); i++) {
+        /*for (int i = 0; i < roles.size(); i++) {
             sb.append(i + 1).append(". ").append(roles.get(i)).append("\n");
+        }*/
+        Role[] allRoles = Role.values();
+        for (int i = 0; i < allRoles.length; i++) {
+            Role role = allRoles[i];
+            if (!hasRole(id, role)) {
+                sb.append(i + 1).append(". ").append(role).append("\n");
+            }
         }
 
         return sb.toString().trim();
