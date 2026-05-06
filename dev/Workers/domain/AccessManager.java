@@ -60,7 +60,7 @@ public class AccessManager {
 
     // notRegistered to inform the user and make the call for the registration process
     public UserResponse login(int id, String password) {
-        employeeManager.validateEmployeeBasic(id);
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         if (!isRegisteredUser(id)){
             return notRegistered;
         }

@@ -420,7 +420,7 @@ public class ManageShiftsMenu {
         }
 
         try {
-            shiftService.forceAssign(shift, role, employeeId);
+            shiftService.manualAssign(shift, role, employeeId);
             System.out.println("Employee manually assigned.");
         } catch (Exception e) {
             System.out.println(e.getMessage());

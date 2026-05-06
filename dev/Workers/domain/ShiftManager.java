@@ -145,7 +145,7 @@ public class ShiftManager {
      *
      */
     public void assignEmployee(Shift shift, Role role, int employeeId) {
-        employeeManager.validateEmployeeBasic(employeeId);
+        employeeManager.validateEmployeeBasic(employeeId, shift.getShiftDate());
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
         if (assignments.isAssignedToShift(shift, employeeId))
@@ -176,7 +176,7 @@ public class ShiftManager {
     }
 
     public void forceAssign(Shift shift, Role role, int employeeId) {
-        employeeManager.validateEmployeeBasic(employeeId);
+        employeeManager.validateEmployeeBasic(employeeId, shift.getShiftDate());
         if (!isNeeded(shift, role))
             throw new RuntimeException("Role already assigned.");
         if (!isQualified(employeeId, role)) {
@@ -191,8 +191,19 @@ public class ShiftManager {
         assignments.add(shift, role, employeeId);
     }
 
+    public void manualAssign(Shift shift, Role role, int employeeId) {
+        if (!employeeManager.isEmployee(employeeId))
+            throw new IllegalArgumentException("No such employee.");
+
+        if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
+            assignments.add(shift, role, employeeId);
+            shift.setHasManager(true);
+        }
+
+        assignments.add(shift, role, employeeId);
+    }
+
     public void removeEmployee(Shift shift, int employeeId) {
-        employeeManager.validateEmployeeBasic(employeeId);
         assignments.remove(shift, employeeId);
         if (!hasManager(shift)) {
             shift.setHasManager(false);
@@ -204,8 +215,8 @@ public class ShiftManager {
             throw new IllegalArgumentException("Shift is empty.");
         if (currentEmployeeId == newEmployeeId)
             throw new IllegalArgumentException("You entered the same ID twice.");
-        employeeManager.validateEmployeeBasic(currentEmployeeId);
-        employeeManager.validateEmployeeBasic(newEmployeeId);
+        employeeManager.validateEmployeeBasic(currentEmployeeId, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(newEmployeeId, shift.getShiftDate());
         if (!assignments.isAssignedToShift(shift, currentEmployeeId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
 

@@ -95,9 +95,9 @@ public class EmployeeManager   {
         return employees.get(id);
     }
 
-    public void validateEmployeeBasic(int id) {
+    public void validateEmployeeBasic(int id, LocalDate date) {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
-        if (!getById(id).isActive(LocalDate.now())) throw new IllegalArgumentException("Employee " + id + " is inactive.");
+        if (!getById(id).isActive(date)) throw new IllegalArgumentException("Employee " + id + " is inactive at " + date);
     }
 
     public UserResponse promoteDemote(int id) {

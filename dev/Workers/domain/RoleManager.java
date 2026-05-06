@@ -2,6 +2,7 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.Role;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,7 @@ public class RoleManager  {    // maps employee ID to list of roles
      * @param newRole role to add
      */
     public void addRoleToEmployee(int id, Role newRole) {
-        employeeManager.validateEmployeeBasic(id);
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }

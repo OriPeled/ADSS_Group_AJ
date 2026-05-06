@@ -63,11 +63,17 @@ public class ShiftService {
     }
 
     public boolean needToForceAssign(Shift shift, Role role, int employeeId) {
-        return shiftManager.nobodyToAssign(shift, role) && roleManager.isQualified(employeeId, role);
+        return shiftManager.nobodyToAssign(shift, role)
+                && roleManager.isQualified(employeeId, role);
     }
 
     public void forceAssign(Shift shift, Role role, int employeeId) {
         shiftManager.forceAssign(shift, role, employeeId);
+    }
+
+    // assign any existing employee for special cases
+    public void manualAssign(Shift shift, Role role, int employeeId) {
+        shiftManager.manualAssign(shift, role, employeeId);
     }
 
     public void replaceEmployee(Shift shift, int currentId, int newId) {
