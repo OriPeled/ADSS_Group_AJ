@@ -19,10 +19,6 @@ import static dev.Workers.domain.Enums.UserResponse.promoted;
  * Provides functionality to add, remove, and retrieve employees.
  */
 public class EmployeeManager   {
-    public Map<Integer, Employee> getEmployees() {
-        return employees;
-    }
-
     private Map<Integer, Employee> employees;   // Employee ID to Employee
     private static EmployeeManager instance;
 
@@ -33,10 +29,6 @@ public class EmployeeManager   {
         this.employees = new HashMap<>();
     }
 
-    public List<Employee> getEmployeesList() {
-        return new ArrayList<>(employees.values());
-    }
-
     /**
      * @return the single instance of EmployeeManager
      */
@@ -45,6 +37,14 @@ public class EmployeeManager   {
             instance = new EmployeeManager();
         }
         return instance;
+    }
+
+    public Map<Integer, Employee> getEmployees() {
+        return employees;
+    }
+
+    public List<Employee> getEmployeesList() {
+        return new ArrayList<>(employees.values());
     }
 
     /**
@@ -78,8 +78,8 @@ public class EmployeeManager   {
 
     // fires an employee, leaves him in the system
     public void fire(int id) {
-        Employee emp = employees.get(id);
-        if (emp == null || !emp.isActive(LocalDate.now())) {
+        Employee emp = getById(id);
+        if (!emp.isActive(LocalDate.now())) {
             throw new IllegalArgumentException("Employee " + id + " not found or already inactive.");
         }
         emp.terminateEmployee(LocalDate.now());

@@ -65,12 +65,8 @@ public class ManageEmployeesMenu  {
                 case 1 -> details(empId);
                 case 2 -> roles(empId);
                 case 3 -> promoteDemote(empId);
-                case 4 -> {
-                    fire(empId);
-                    return;}
-                case 5 -> {
-                    rehire(empId);
-                    return;}
+                case 4 -> fire(empId);
+                case 5 -> rehire(empId);
                 case 0 -> { return; }
                 default -> System.out.println("Invalid choice.");
             }
@@ -368,7 +364,7 @@ public class ManageEmployeesMenu  {
             case 1 -> {
                 try {
                     employeeService.fire(empId);
-                    System.out.println("Employee fired.");
+                    System.out.println("Employee fired (a week from today).");
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
                 }

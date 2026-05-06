@@ -164,6 +164,7 @@ public class Employee {
      * @return true if active, false otherwise
      */
     public boolean isActive(LocalDate date) {
-        return (startDate.isBefore(date) || startDate.isEqual(date)) && endDate == null;
+        return (startDate.isBefore(date) || startDate.isEqual(date))
+                && (endDate == null || date.isBefore(endDate) || date.isEqual(endDate));
     }
 }
