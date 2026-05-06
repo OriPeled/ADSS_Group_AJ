@@ -463,6 +463,7 @@ public class ManageShiftsMenu {
                 weekDay = getDateOfNextWeekFromDayNumber(dayNumber);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
+                continue;
             }
 
             return weekDay;

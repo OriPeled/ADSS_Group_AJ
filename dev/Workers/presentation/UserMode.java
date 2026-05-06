@@ -27,13 +27,10 @@ public class UserMode {
             int enteredID = readIntSafe();
             if (enteredID == 0) return;
 
-            if (!employeeService.exists(enteredID)) {
-                System.out.println("Employee does not exist in the system");
-                continue;
-            }
             System.out.println("Please enter password or 0 to cancel:");
             String enteredPassword = scanner.nextLine();
             if (enteredPassword.equals("0")) return;
+
             try {
                 UserResponse loginResponse = accessService.login(enteredID, enteredPassword);
                 if (loginResponse == success) {
@@ -43,6 +40,7 @@ public class UserMode {
                 }
                 else if (loginResponse == notRegistered) {
                     handleRegistration(enteredID);
+                    return;
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -59,6 +57,8 @@ public class UserMode {
             if (newPass.equals("0")) return;
             try {
                 accessService.Register(id, newPass);
+                System.out.println("User with ID: " + id + " is now registered and logged in.");
+                start();
                 return;
             }
              catch (Exception e) {

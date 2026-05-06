@@ -173,5 +173,4 @@ public class ConstraintManager {
     public void initConstraintsForEmployee(int id) {
         constraintsByID.put(id, new Constraint());
     }
-
 }

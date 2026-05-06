@@ -60,11 +60,8 @@ public class AccessManager {
 
     // notRegistered to inform the user and make the call for the registration process
     public UserResponse login(int id, String password) {
-        if (!employeeManager.isEmployee(id))
-            throw new IllegalArgumentException("No such Employee.");
-        else if (!employeeManager.getById(id).isActive(LocalDate.now())) {
-           throw new IllegalArgumentException("Employee is not active.");
-        } else if (!isRegisteredUser(id)){
+        employeeManager.validateEmployeeBasic(id);
+        if (!isRegisteredUser(id)){
             return notRegistered;
         }
         if (wrongPassword(id, password)){
@@ -79,9 +76,9 @@ public class AccessManager {
      * @throws IllegalArgumentException if the user ID is not found in the system.
      */
     public void remove(int id) {
-        // silently no-op if not registered — employees may be removed before ever registering
         accessMap.remove(id);
     }
+
     public boolean wrongPassword(int id, String password) {
         return !getAccess(id).getPassword().equals(password);
     }
@@ -116,6 +113,4 @@ public class AccessManager {
             throw new NullPointerException("No such employee.");
         return accessMap.get(id);
     }
-
-
 }
