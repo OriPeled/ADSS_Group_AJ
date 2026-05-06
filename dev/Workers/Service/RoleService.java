@@ -3,6 +3,8 @@ package dev.Workers.Service;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.RoleManager;
 
+import java.util.List;
+
 /**
  * Manages roles assigned to employees.
  * This class is implemented as a Singleton.
@@ -84,10 +86,7 @@ public class RoleService {
         return roleManager.getFormattedAvailableRoles(id);
     }
 
-
-
-
-
-
-
+    public boolean isQualified(int id, Role role) {
+        return roleManager.isQualified(id, role);
+    }
 }

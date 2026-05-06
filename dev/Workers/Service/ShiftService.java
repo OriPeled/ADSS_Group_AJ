@@ -1,10 +1,12 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.Assignments;
+import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.RoleManager;
 import dev.Workers.domain.ShiftManager;
 
 import java.time.DayOfWeek;
@@ -18,6 +20,7 @@ import java.time.temporal.TemporalAdjusters;
 public class ShiftService {
     private final ShiftManager shiftManager;
     private static ShiftService instance;
+    private static final RoleManager roleManager = RoleManager.getInstance();
 
     private static Assignments assignments;
 
@@ -59,12 +62,12 @@ public class ShiftService {
         shiftManager.assignEmployee(shift, role, employeeId);
     }
 
-    public void forceAssign(Shift shift, Role role, int employeeId) {
-        shiftManager.forceAssign(shift, role, employeeId);
+    public boolean needToForceAssign(Shift shift, Role role, int employeeId) {
+        return shiftManager.nobodyToAssign(shift, role) && roleManager.isQualified(employeeId, role);
     }
 
-    public boolean nobodyToAssign(Shift shift, Role role) {
-        return shiftManager.nobodyToAssign(shift, role);
+    public void forceAssign(Shift shift, Role role, int employeeId) {
+        shiftManager.forceAssign(shift, role, employeeId);
     }
 
     public void replaceEmployee(Shift shift, int currentId, int newId) {

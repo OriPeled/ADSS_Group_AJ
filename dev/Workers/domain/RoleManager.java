@@ -49,7 +49,7 @@ public class RoleManager  {    // maps employee ID to list of roles
         if (!employeeRoles.containsKey(id)) {
             employeeRoles.put(id, new ArrayList<>());
         }
-        if (!hasRole(id, newRole)) {
+        if (!isQualified(id, newRole)) {
             employeeRoles.get(id).add(newRole);
         } else {
             throw new IllegalArgumentException("Employee already qualified for this role.");
@@ -101,7 +101,7 @@ public class RoleManager  {    // maps employee ID to list of roles
     public void removeSingleItem(int id, Role role) {
         if (getFormattedListById(id).isEmpty())
             throw new IllegalArgumentException("Employee isn't qualified for any role.");
-        if (!hasRole(id, role))
+        if (!isQualified(id, role))
             throw new IllegalArgumentException("Employee isn't qualified for this role.");
         if (employeeRoles.containsKey(id)) {
             employeeRoles.get(id).remove(role);
@@ -123,26 +123,20 @@ public class RoleManager  {    // maps employee ID to list of roles
      */
 
     public String getFormattedListById(int id) {
-        // 1. Retrieve the list using your existing logic
-        List<Role> roles = employeeRoles.getOrDefault(id, new ArrayList<>());
+        List<Role> roles = getListById(id);
 
-        // 2. Handle the empty case
         if (roles.isEmpty()) {
             return "No roles found for this ID.";
         }
 
-        // 3. Build the numbered string
         StringBuilder sb = new StringBuilder();
         Role[] allRoles = Role.values();
         for (int i = 0; i < allRoles.length; i++) {
             Role role = allRoles[i];
-            if (hasRole(id, role)) {
+            if (isQualified(id, role)) {
                 sb.append(i + 1).append(". ").append(role).append("\n");
             }
         }
-        /*for (int i = 0; i < roles.size(); i++) {
-            sb.append(i + 1).append(". ").append(roles.get(i)).append("\n");
-        }*/
 
         return sb.toString().trim();
     }
@@ -150,7 +144,7 @@ public class RoleManager  {    // maps employee ID to list of roles
     public List<Role> availableToAddRoles(int id) {
         List<Role> rolesList = new ArrayList<>();
         for (Role role : Role.values()) {
-            if (!hasRole(id, role)) {
+            if (!isQualified(id, role)) {
                 rolesList.add(role);
             }
         }
@@ -165,13 +159,10 @@ public class RoleManager  {    // maps employee ID to list of roles
         }
 
         StringBuilder sb = new StringBuilder();
-        /*for (int i = 0; i < roles.size(); i++) {
-            sb.append(i + 1).append(". ").append(roles.get(i)).append("\n");
-        }*/
         Role[] allRoles = Role.values();
         for (int i = 0; i < allRoles.length; i++) {
             Role role = allRoles[i];
-            if (!hasRole(id, role)) {
+            if (!isQualified(id, role)) {
                 sb.append(i + 1).append(". ").append(role).append("\n");
             }
         }
@@ -202,7 +193,7 @@ public class RoleManager  {    // maps employee ID to list of roles
      * @param role
      * @return true if role beloge to id , otherwise false
      */
-    public boolean hasRole(int id, Role role) {
+    public boolean isQualified(int id, Role role) {
         List<Role> roles = getListById(id);
         return roles != null && roles.contains(role);
     }

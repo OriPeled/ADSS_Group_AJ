@@ -122,20 +122,24 @@ public class Employee {
      */
     @Override
     public String toString() {
-        String result = "Employee Details" +
-                "\nID: " + id +
-                "\n1. Name: " + name +
-                "\n2. Bank account: " + bankAccount +
-                "\n3. Salary: " + salary +
-                "\n4. Terms: " + terms +
-                "\nStart date: " + startDate +
-                "\nIs manager: " + isManager;
+        StringBuilder sb = new StringBuilder("Employee Details\n");
+        sb.append("======================================");
+        sb.append("ID: ").append(id).append("\n");
+        sb.append("Name: ").append(name).append("\n");
+        sb.append("Bank account: ").append(bankAccount).append("\n");
+        sb.append("Salary: ").append(salary).append("\n");
+        sb.append("Terms:\n   ")
+                .append(terms.toString().replace("\n", "\n   "))
+                .append("\n");
+
+        sb.append("Start date: ").append(startDate).append("\n");
+        sb.append("Is manager: ").append(isManager);
 
         if (endDate != null) {
-            result += "\nEnd date: " + endDate;
+            sb.append("\nEnd date: ").append(endDate);
         }
 
-        return result;
+        return sb.toString();
     }
 
     /**
@@ -159,8 +163,7 @@ public class Employee {
      * Checks if employee is still active
      * @return true if active, false otherwise
      */
-    public boolean isActive() {
-        LocalDate today = LocalDate.now();
-        return (startDate.isBefore(today) || startDate.isEqual(today)) && endDate == null;
+    public boolean isActive(LocalDate date) {
+        return (startDate.isBefore(date) || startDate.isEqual(date)) && endDate == null;
     }
 }

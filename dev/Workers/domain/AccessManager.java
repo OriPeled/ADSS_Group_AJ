@@ -3,6 +3,7 @@ package dev.Workers.domain;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.Access;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +62,7 @@ public class AccessManager {
     public UserResponse login(int id, String password) {
         if (!employeeManager.isEmployee(id))
             throw new IllegalArgumentException("No such Employee.");
-        else if (!employeeManager.getById(id).isActive()) {
+        else if (!employeeManager.getById(id).isActive(LocalDate.now())) {
            throw new IllegalArgumentException("Employee is not active.");
         } else if (!isRegisteredUser(id)){
             return notRegistered;

@@ -99,9 +99,8 @@ public class EmployeeTerms {
      */
     @Override
     public String toString() {
-        return "Employee Terms" +
-                "\n1. Job Status: " + jobStatus +
-                "\n2. Salary Type: " + salaryType +
-                "\n3. Rest Days: " + restDays;
+        return "Job Status: " + jobStatus +
+                "\nSalary Type: " + salaryType +
+                "\nRest Days: " + restDays;
     }
 }

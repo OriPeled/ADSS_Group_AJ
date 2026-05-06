@@ -154,7 +154,7 @@ public class ManagersTest {
 
         employeeManager.fire(1);
 
-        assertFalse(employeeManager.getById(1).isActive());
+        assertFalse(employeeManager.getById(1).isActive(LocalDate.now()));
     }
 
     /**
@@ -167,7 +167,7 @@ public class ManagersTest {
 
         employeeManager.rehire(1);
 
-        assertTrue(employeeManager.getById(1).isActive());
+        assertTrue(employeeManager.getById(1).isActive(LocalDate.now()));
     }
 
     // =========================================================
@@ -291,7 +291,7 @@ public class ManagersTest {
 
         roleManager.addRoleToEmployee(1, Role.Cashier);
 
-        assertTrue(roleManager.hasRole(1, Role.Cashier));
+        assertTrue(roleManager.isQualified(1, Role.Cashier));
     }
 
     /**
@@ -316,7 +316,7 @@ public class ManagersTest {
 
         roleManager.removeSingleItem(1, Role.Cashier);
 
-        assertFalse(roleManager.hasRole(1, Role.Cashier));
+        assertFalse(roleManager.isQualified(1, Role.Cashier));
     }
 
     // =========================================================

@@ -146,12 +146,12 @@ public class ShiftManager {
      */
     public void assignEmployee(Shift shift, Role role, int employeeId) {
         employeeManager.validateEmployeeBasic(employeeId);
+        if (!isNeeded(shift, role))
+            throw new IllegalStateException("Role already assigned");
         if (assignments.isAssignedToShift(shift, employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getShiftDate());
         if (!isQualified(employeeId, role))
             throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role.");
-        if (!isNeeded(shift, role))
-            throw new IllegalStateException("Role already assigned");
         if (!isAvailable(employeeId, shift)) {
             throw new IllegalArgumentException("Employee " + employeeId + " is not available for this shift.");
         }
@@ -474,7 +474,7 @@ public class ShiftManager {
 
             for (int id : qualifiedIds) {
                 Employee emp = employeeManager.getById(id);
-                if (!emp.isActive()) continue;
+                if (!emp.isActive(shift.getShiftDate())) continue;
 
                 boolean available = isAvailable(id, shift);
                 boolean assigned = assignments.isAssignedToShift(shift, id);

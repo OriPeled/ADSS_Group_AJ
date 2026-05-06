@@ -379,16 +379,23 @@ public class ManageEmployeesMenu  {
     }
 
     private static void rehire(int empId) {
-        System.out.println("Enter employee ID or 0 to cancel.");
-        int id = readIntSafe();
+        System.out.println("Are you sure you want to rehire " +
+                employeeService.getEmployeeName(empId) +
+                " (" + empId + ")? Enter 1 to confirm, 0 to cancel:");
 
-        if (id == 0) return;
+        int choice = readIntSafe();
 
-        try {
-            employeeService.rehire(empId);
-            System.out.println("Employee rehired.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());;
+        switch (choice) {
+            case 1 -> {
+                try {
+                    employeeService.rehire(empId);
+                    System.out.println("Employee rehired.");
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            case 0 -> {}
+            default -> System.out.println("Invalid input.");
         }
     }
 

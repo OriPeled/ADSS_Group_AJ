@@ -246,7 +246,7 @@ public class ManageShiftsMenu {
 
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
-            if (employeeId != -1 && shiftService.nobodyToAssign(shift, role)) {
+            if (employeeId != -1 && shiftService.needToForceAssign(shift, role, employeeId)) {
                 forceAssign(shift, role, employeeId);
             }
         }

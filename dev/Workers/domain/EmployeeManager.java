@@ -79,7 +79,7 @@ public class EmployeeManager   {
     // fires an employee, leaves him in the system
     public void fire(int id) {
         Employee emp = employees.get(id);
-        if (emp == null || !emp.isActive()) {
+        if (emp == null || !emp.isActive(LocalDate.now())) {
             throw new IllegalArgumentException("Employee " + id + " not found or already inactive.");
         }
         emp.terminateEmployee(LocalDate.now());
@@ -87,7 +87,7 @@ public class EmployeeManager   {
 
     public void rehire(int id) {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
-        if (getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " already active.");
+        if (getById(id).isActive(LocalDate.now())) throw new IllegalArgumentException("Employee " + id + " already active.");
         employees.get(id).activateEmployee();
     }
 
@@ -97,7 +97,7 @@ public class EmployeeManager   {
 
     public void validateEmployeeBasic(int id) {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
-        if (!getById(id).isActive()) throw new IllegalArgumentException("Employee " + id + " is inactive.");
+        if (!getById(id).isActive(LocalDate.now())) throw new IllegalArgumentException("Employee " + id + " is inactive.");
     }
 
     public UserResponse promoteDemote(int id) {
