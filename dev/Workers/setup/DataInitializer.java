@@ -147,7 +147,7 @@ public class DataInitializer {
             }
 
             // SATURDAY
-            for (int i = 6; i < 7; i++) {
+            /*for (int i = 6; i < 7; i++) {
                 LocalDate date22 = date2.plusDays(i);
 
                 Shift futureShift1 = shiftService.getShift(date22, ShiftType.morning);
@@ -165,7 +165,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 333);
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 444);
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 445);
-            }
+            }*/
 
             // 1 assignment (Saturday evening) left
 
@@ -187,10 +187,13 @@ public class DataInitializer {
         EmployeeTerms terms = new EmployeeTerms(
                 JobStatus.fullTime,
                 SalaryType.global,
-                5
+                5,
+                DayOfWeek.SATURDAY
         );
         employeeService.add(name, id, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
         roleService.addRoleToEmployee(id, role);
         constraintService.initConstraintForEmployee(id);
+
+        constraintService.setDeadline(DayOfWeek.FRIDAY);
     }
 }

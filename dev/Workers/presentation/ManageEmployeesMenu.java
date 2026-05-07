@@ -10,6 +10,7 @@ import dev.Workers.domain.Enums.SalaryType;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.EmployeeTerms;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 import static dev.Workers.domain.Enums.UserResponse.demoted;
@@ -177,6 +178,7 @@ public class ManageEmployeesMenu  {
                 case 1 -> changeJobStatus(empId);
                 case 2 -> changeSalaryType(empId);
                 case 3 -> changeRestDays(empId);
+                case 4 -> changeDayOff(empId);
                 case 0 -> {return;}
                 default -> System.out.println("Invalid choice. Please select 0-3.");
             }
@@ -246,6 +248,20 @@ public class ManageEmployeesMenu  {
         try {
             employeeService.updateRestDays(empId, days);
             System.out.println("Rest days updated successfully.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void changeDayOff(int empId) {
+        System.out.println("Enter number of preferred day off (1-7, 0 to cancel):");
+        int dayNumber = readIntSafe();
+
+        if (dayNumber == 0) return;
+
+        try {
+            DayOfWeek dayOff = Parser.getDayFromNumber(dayNumber);
+            employeeService.updateDayOff(empId, dayOff);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
@@ -561,7 +577,21 @@ public class ManageEmployeesMenu  {
                 System.out.println("Rest days must be between 1 and 7.");
             }
         }
-        return new EmployeeTerms(jobStatus, salaryType, restDays);
+
+        DayOfWeek dayOff;
+        while (true) {
+            System.out.println("Enter preferred day off (1-7):");
+            int dayNumber = readIntSafe();
+
+            try {
+                dayOff = Parser.getDayFromNumber(dayNumber);
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Day must be between 1 and 7.");
+            }
+        }
+
+        return new EmployeeTerms(jobStatus, salaryType, restDays, dayOff);
     }
 
     public static void printMainMenu() {
@@ -593,6 +623,7 @@ public class ManageEmployeesMenu  {
         System.out.println("1. Change job status");
         System.out.println("2. Change salary type");
         System.out.println("3. Change number of rest days");
+        System.out.println("4. Change weekly day off");
         System.out.println("0. Back");
     }
 }

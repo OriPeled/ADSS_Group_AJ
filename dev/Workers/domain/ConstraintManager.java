@@ -20,6 +20,7 @@ import static dev.Workers.domain.Enums.ShiftType.any;
 public class ConstraintManager {
     private DayOfWeek deadline = DayOfWeek.THURSDAY;    // deadline for submitting/updating constraints
     private Map<Integer, Constraint> constraintsByID;   // employee ID to employee week constraints
+    private EmployeeManager employeeManager=EmployeeManager.getInstance();
 
     private static ConstraintManager instance;
 
@@ -163,14 +164,15 @@ public class ConstraintManager {
      * this happens right after the HR admin publishes the week schedule.
      */
     public void resetAllConstraints() {
-        for (Constraint constraint : constraintsByID.values()) {
-            for (DayOfWeek day : DayOfWeek.values()) {
-                constraint.setShiftType(day, any);
-            }
+        for (Integer id : constraintsByID.keySet()) {
+            initConstraintsForEmployee(id);
         }
     }
 
     public void initConstraintsForEmployee(int id) {
         constraintsByID.put(id, new Constraint());
+
+        DayOfWeek dayOff = employeeManager.getById(id).getTerms().getDayOff();
+        constraintsByID.get(id).setShiftType(dayOff, rest);
     }
 }

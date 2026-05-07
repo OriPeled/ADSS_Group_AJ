@@ -37,28 +37,14 @@ public class Constraint {
         this.shiftType = shiftType.valueOf(shiftTypeString);
     }
 
-    /**
-     *
-     * @param day
-     * @return type of shift
-     */
     public ShiftType getShiftType(DayOfWeek day) {
         return weekConstraints.get(day);
     }
 
-    /**
-     *
-     * @param day
-     * @param shiftType
-     * Sets the shift type constraint for a specific day.
-     */
     public void setShiftType(DayOfWeek day, ShiftType shiftType) {
         weekConstraints.put(day, shiftType);
     }
 
-    /**
-    * @return the full weekly constraints map
-    */
     public Map<DayOfWeek, ShiftType> getWeekConstraints() {
         return weekConstraints;
     }
@@ -81,13 +67,12 @@ public class Constraint {
      public String toString() {
          StringBuilder sb = new StringBuilder("=== My Week Constraints ===\n");
 
-         // Define the custom order starting with Sunday
          DayOfWeek[] orderedDays = {
                  DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
                  DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY
          };
 
-         int columnWidth = 30; // Increased width for plenty of space
+         int columnWidth = 30;
 
          // Loop 4 times (for the 4 rows needed to cover all 7 days)
          for (int i = 0; i < 4; i++) {

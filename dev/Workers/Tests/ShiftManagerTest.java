@@ -45,7 +45,7 @@ public class ShiftManagerTest {
      * @return a default EmployeeTerms instance
      */
     private EmployeeTerms createTerms() {
-        return new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2);
+        return new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
     }
     private Shift createShift(int dayOffset) {
         ShiftManager shiftManager = ShiftManager.getInstance();
@@ -60,7 +60,7 @@ public class ShiftManagerTest {
 
         EmployeeTerms terms;
 
-        terms=new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2);
+        terms=new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
         employeeManager.add(name,id, 100000,5000,terms, LocalDate.of(2026, 4, 1));
         roleManager.addRoleToEmployee(id, role);
         constraintManager.initConstraintsForEmployee(id);

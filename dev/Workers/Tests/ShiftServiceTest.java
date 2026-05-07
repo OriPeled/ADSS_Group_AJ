@@ -102,7 +102,7 @@ public class ShiftServiceTest {
                 id,
                 1000 + id,
                 5000,
-                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2),
+                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
                 LocalDate.now()
         );
     }

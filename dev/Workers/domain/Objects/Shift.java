@@ -15,11 +15,9 @@ public class Shift {
         return hasManager;
     }
 
-    public void setHasManager(boolean hasManager) {
+    public void setManaged(boolean hasManager) {
         this.hasManager = hasManager;
     }
-
-
 
     public Shift(LocalDate shiftDate, ShiftType type) {
         this.type = type;
@@ -30,6 +28,7 @@ public class Shift {
     public ShiftType getType() {
         return type;
     }
+
     public LocalDate getShiftDate() {
         return shiftDate;
     }
@@ -41,7 +40,6 @@ public class Shift {
      * @param o
      * @return true if date and shift tye equal ,otherwise false
      */
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,11 +54,6 @@ public class Shift {
         return Objects.hash(shiftDate, type);
     }
 
-    /*@Override
-    public String toString() {
-        return shiftDate + " - " + type;
-    }
-*/
     @Override
     public String toString() {
         String managerIndicator = hasManager ? "[Managed]" : "[Unmanaged]";

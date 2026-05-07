@@ -26,17 +26,6 @@ public class Employee {
         isManager = manager;
     }
 
-
-    /**
-     * Constructor for creating a new employee.
-     *
-     * @param name employee name
-     * @param id employee ID
-     * @param bankAccount bank account number
-     * @param salary employee salary
-     * @param terms employment terms
-     * @param startDate employment start date
-     */
     public Employee(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
         this.name = name;
         this.id = id;
@@ -48,78 +37,46 @@ public class Employee {
         this.isManager = false;
     }
 
-    /**
-     * getter for name
-     * @return employee name
-     */
-
     public String getName() {
         return name;
     }
-    /**
-     * Updates employee name
-     * @param name new name
-     */
+
     public void setName(String name) {
         this.name = name;
     }
-    /**
-     * getter for Bank Account
-     * @return the number of bank Account
-     */
+
     public int getBankAccount() {
         return bankAccount;
     }
-    /**
-     * Updates bank account number
-     * @param bankAccount new bank account
-     */
+
     public void setBankAccount(int bankAccount) {
         this.bankAccount = bankAccount;
     }
-    /**
-     * @return employee ID
-     */
+
     public int getId() {
         return id;
     }
 
-    /**
-    * @return employee salary
-    */
     public double getSalary() {
         return salary;
     }
-    /**
-     * Updates employee salary
-     * @param salary new salary
-     */
+
     public void setSalary(double salary) {
         this.salary = salary;
     }
-    /**
-     * @return employment terms
-     */
+
     public EmployeeTerms getTerms() {
         return terms;
     }
-    /**
-     * Updates employment terms
-     * @param terms new terms
-     */
+
     public void setTerms(EmployeeTerms terms) {
         this.terms = terms;
     }
-    /**
-     * @return employee start date
-     */
+
     public LocalDate getStartLocalDate() {
         return startDate;
     }
 
-    /**
-     * @return string representation of employee details
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Employee Details\n");

@@ -96,7 +96,7 @@ public class ManagersTest {
                 id,
                 1000 + id,
                 5000,
-                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2),
+                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
                 LocalDate.now()
         );
     }
@@ -139,7 +139,7 @@ public class ManagersTest {
                         1,
                         2222,
                         6000,
-                        new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2),
+                        new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
                         LocalDate.now()
                 )
         );

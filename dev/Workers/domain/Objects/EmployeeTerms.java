@@ -3,6 +3,8 @@ package dev.Workers.domain.Objects;
 import dev.Workers.domain.Enums.JobStatus;
 import dev.Workers.domain.Enums.SalaryType;
 
+import java.time.DayOfWeek;
+
 import static dev.Workers.domain.Enums.JobStatus.fullTime;
 import static dev.Workers.domain.Enums.JobStatus.halfTime;
 import static dev.Workers.domain.Enums.SalaryType.global;
@@ -13,40 +15,26 @@ import static dev.Workers.domain.Enums.SalaryType.hourly;
      * Includes:
      * - Job status (full-time / half-time)
      * - Salary type (hourly / global)
-     * - Number of rest days per period
+     * - Number of annual rest days
+     * - Weekly day off chosen
      */
 public class EmployeeTerms {
-    // employee job status (full job ,half job)
     private JobStatus jobStatus;
-    // employee salary Type (per houer ,global)
     private SalaryType salaryType;
-    // Number of rest days assigned to the employee
     private int restDays;
+    private DayOfWeek dayOff;
 
-
-    /**
-     * Constructor for EmployeeTerms with full validation logic.
-     *  @param jobStatus   The status of the job (Full time / Half time)
-     * @param salaryType  The way the employee is paid (Global / Hourly)
-     * @param restDays    Number of weekly rest days (Must be between 1 and 6)
-     * @throws IllegalArgumentException if any parameter is invalid.
-     */
-    public EmployeeTerms(JobStatus jobStatus, SalaryType salaryType, int restDays){
-
+    public EmployeeTerms(JobStatus jobStatus, SalaryType salaryType, int restDays, DayOfWeek dayOff){
         this.jobStatus = jobStatus;
         this.salaryType = salaryType;
         this.restDays = restDays;
+        this.dayOff = dayOff;
     }
-    /**
-    * @return job status (full-time / half-time)
-    */
+
     public JobStatus getJobStatus() {
         return jobStatus;
     }
-     /**
-      * Updates job status
-      * @param jobStatus new job status
-      */
+
     public void setJobStatus(JobStatus jobStatus) {
         this.jobStatus = jobStatus;
     }
@@ -57,50 +45,43 @@ public class EmployeeTerms {
         else
             jobStatus = fullTime;
     }
-    /**
-     * @return salary type (hourly / global)
-     */
+
     public SalaryType getSalaryType() {
         return salaryType;
     }
 
-    /**
-     * Updates salary type
-     * @param salaryType new salary type
-     */
     public void setSalaryType(SalaryType salaryType) {
         this.salaryType = salaryType;
     }
 
-    /**
-     * @return number of rest days
-     */
     public void changeSalaryType() {
         if (this.salaryType == hourly)
             salaryType = global;
         else
             salaryType = hourly;
     }
-    /**
-     * @return number of rest days
-     */
+
     public int getRestDays() {
         return restDays;
     }
-    /**
-     * Updates number of rest days
-     * @param restDays new number of rest days
-     */
+
     public void setRestDays(int restDays) {
         this.restDays = restDays;
     }
-    /**
-     * @return string representation of employee terms
-     */
+
+    public DayOfWeek getDayOff() {
+        return dayOff;
+    }
+
+    public void setDayOff(DayOfWeek dayOff) {
+        this.dayOff = dayOff;
+    }
+
     @Override
     public String toString() {
         return "Job Status: " + jobStatus +
                 "\nSalary Type: " + salaryType +
-                "\nRest Days: " + restDays;
+                "\nRest Days: " + restDays +
+                "\nDay off: " + dayOff;
     }
 }

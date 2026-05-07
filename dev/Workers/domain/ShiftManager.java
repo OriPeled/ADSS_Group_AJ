@@ -158,7 +158,7 @@ public class ShiftManager {
 
         if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
             assignments.add(shift, role, employeeId);
-            shift.setHasManager(true);
+            shift.setManaged(true);
         }
         else {
             assignments.add(shift, role, employeeId);
@@ -185,7 +185,7 @@ public class ShiftManager {
 
         if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
             assignments.add(shift, role, employeeId);
-            shift.setHasManager(true);
+            shift.setManaged(true);
         }
 
         assignments.add(shift, role, employeeId);
@@ -197,7 +197,7 @@ public class ShiftManager {
 
         if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
             assignments.add(shift, role, employeeId);
-            shift.setHasManager(true);
+            shift.setManaged(true);
         }
 
         assignments.add(shift, role, employeeId);
@@ -206,7 +206,7 @@ public class ShiftManager {
     public void removeEmployee(Shift shift, int employeeId) {
         assignments.remove(shift, employeeId);
         if (!hasManager(shift)) {
-            shift.setHasManager(false);
+            shift.setManaged(false);
         }
     }
 

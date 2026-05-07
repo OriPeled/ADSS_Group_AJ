@@ -6,6 +6,7 @@ import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Objects.EmployeeTerms;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 /**
@@ -96,10 +97,8 @@ public class EmployeeService {
         if (newName == null || newName.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new IllegalArgumentException("Employee " + id + " not found.");
-        }
         emp.setName(newName);
     }
 
@@ -107,10 +106,8 @@ public class EmployeeService {
         if (newBankAccount < 0) {
             throw new IllegalArgumentException("Invalid bank account.");
         }
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new IllegalArgumentException("Employee " + id + " not found.");
-        }
         emp.setBankAccount(newBankAccount);
     }
 
@@ -118,26 +115,20 @@ public class EmployeeService {
         if (newSalary <= 0) {
             throw new IllegalArgumentException("Salary must be positive.");
         }
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new IllegalArgumentException("Employee " + id + " not found.");
-        }
         emp.setSalary(newSalary);
     }
 
     public void updateJobStatus(int id) {
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new IllegalArgumentException("Employee " + id + " not found.");
-        }
         emp.getTerms().changeJobStatus();
     }
 
     public void updateSalaryType(int id) {
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new IllegalArgumentException("Employee " + id + " not found.");
-        }
         emp.getTerms().changeSalaryType();
     }
 
@@ -145,11 +136,15 @@ public class EmployeeService {
         if (days < 1 || days > 7) {
             throw new IllegalArgumentException("The number of days off must be positive..");
         }
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
         Employee emp = employeeManager.getById(id);
-        if (emp == null) {
-            throw new IllegalArgumentException("Employee " + id + " not found.");
-        }
         emp.getTerms().setRestDays(days);
+    }
+
+    public void updateDayOff(int id, DayOfWeek day) {
+        employeeManager.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeManager.getById(id);
+        emp.getTerms().setDayOff(day);
     }
 
     /**
