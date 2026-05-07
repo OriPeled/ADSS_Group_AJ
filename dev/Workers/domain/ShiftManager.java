@@ -189,6 +189,10 @@ public class ShiftManager {
         }
 
         assignments.add(shift, role, employeeId);
+
+        DayOfWeek shiftDay = shift.getShiftDay();
+        ShiftType shiftType = shift.getType();
+        constraintManager.extendConstraints(employeeId, shiftDay, shiftType); // for potential replacement
     }
 
     public void manualAssign(Shift shift, Role role, int employeeId) {
@@ -210,26 +214,26 @@ public class ShiftManager {
         }
     }
 
-    public void replaceEmployee(Shift shift, int currentEmployeeId, int newEmployeeId) {
+    public void replaceEmployee(Shift shift, int curId, int newId) {
         if (assignments.isShiftEmpty(shift))
             throw new IllegalArgumentException("Shift is empty.");
-        if (currentEmployeeId == newEmployeeId)
+        if (curId == newId)
             throw new IllegalArgumentException("You entered the same ID twice.");
-        employeeManager.validateEmployeeBasic(currentEmployeeId, shift.getShiftDate());
-        employeeManager.validateEmployeeBasic(newEmployeeId, shift.getShiftDate());
-        if (!assignments.isAssignedToShift(shift, currentEmployeeId))
+        employeeManager.validateEmployeeBasic(curId, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(newId, shift.getShiftDate());
+        if (!assignments.isAssignedToShift(shift, curId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
 
-        Role roleCur = assignments.getEmployeeRole(shift, currentEmployeeId);
-        Role roleNew = assignments.getEmployeeRole(shift, newEmployeeId);
+        Role roleCur = assignments.getEmployeeRole(shift, curId);
+        Role roleNew = assignments.getEmployeeRole(shift, newId);
 
-        if (!isQualified(newEmployeeId, roleCur))
-            throw new IllegalArgumentException("Employee " + newEmployeeId + " not qualified for this role.");
+        if (!isQualified(newId, roleCur))
+            throw new IllegalArgumentException("Employee " + newId + " not qualified for this role.");
 
         if (roleNew != null) { // if newEmployee is already in this shift
-            handleSwap(shift, currentEmployeeId, roleCur, newEmployeeId, roleNew);
+            handleSwap(shift, curId, roleCur, newId, roleNew);
         } else { // if newEmployee is not in this shift
-            handleSimpleReplacement(shift, currentEmployeeId, roleCur, newEmployeeId);
+            handleSimpleReplacement(shift, curId, roleCur, newId);
         }
     }
 
@@ -252,6 +256,22 @@ public class ShiftManager {
 
         removeEmployee(shift, currentEmployeeId);
         assignEmployee(shift, roleCur, newEmployeeId);
+    }
+
+    public boolean needToForceReplace(Shift shift, int curId, int newId) {
+        Role role = assignments.getEmployeeRole(shift, curId);
+        if (role == null)
+            return false;
+        return countUnassignedValid(shift, role) == 0
+                && roleManager.isQualified(newId, role);
+    }
+
+    // called when curId role is assigned and no available employees to replace
+    public void forceReplace(Shift shift, int curId, int newId) {
+        Role roleCur = assignments.getEmployeeRole(shift, curId);
+
+        removeEmployee(shift, curId);
+        forceAssign(shift, roleCur, newId);
     }
 
     /**
@@ -370,7 +390,7 @@ public class ShiftManager {
         return weekStatuses;
     }
 
-    private boolean isShiftAssigned(Shift shift) {
+    public boolean isShiftAssigned(Shift shift) {
         for (Role role : Role.values()) {
             if (isNeeded(shift, role))
                 return false;
@@ -492,41 +512,47 @@ public class ShiftManager {
 
     public String getUnassignedValid(Shift shift) {
         boolean rolesFull = Arrays.stream(Role.values()).noneMatch(r -> isNeeded(shift, r));
-        boolean hasManager = hasManager(shift); // Using the helper already in your class
-
-        if (rolesFull && hasManager)
-            return "Shift is fully assigned and managed — no additional actions needed.";
+        boolean hasManager = hasManager(shift);
 
         StringBuilder sb = new StringBuilder("=== Shift Assignment Assistant ===\n");
-        if (rolesFull && !hasManager)
-            sb.append("! WARNING: NO MANAGER assigned. Showing qualified replacements:\n");
+
+        // 1. Informative Header (Doesn't block the list anymore)
+        if (rolesFull && hasManager) {
+            sb.append("✔ Shift is fully assigned and managed.\n");
+        } else if (rolesFull && !hasManager) {
+            sb.append("! WARNING: Role counts met, but NO MANAGER assigned.\n");
+        } else {
+            sb.append("! Requirements not yet satisfied.\n");
+        }
+
+        sb.append("Listing all active, unassigned employees:\n");
 
         for (Role role : Role.values()) {
-            // Skip roles that are full UNLESS we are specifically looking for a manager
-            if (rolesFull && hasManager || (!isNeeded(shift, role) && hasManager)) continue;
-
             StringBuilder section = new StringBuilder("\n--- " + role + " ---\n");
-            boolean desperation = nobodyToAssign(shift, role);
             boolean foundInRole = false;
 
+            // Get everyone qualified for this role
             for (int id : roleManager.getListByRole(role)) {
                 Employee emp = employeeManager.getById(id);
-                boolean available = isAvailable(id, shift);
 
-                // Logic: Show if Active AND Not Assigned AND (Available match Desperation status)
-                if (emp.isActive(shift.getShiftDate()) && !assignments.isAssignedToShift(shift, id)
-                        && (available != desperation)) {
+                // Criteria: Must be active today AND not already working this shift
+                if (emp.isActive(shift.getShiftDate()) && !assignments.isAssignedToShift(shift, id)) {
 
+                    boolean available = isAvailable(id, shift);
                     String status = available ? "[READY]" : "[REJECTED]";
                     String managerTag = emp.isManager() ? " (Manager)" : "";
-                    section.append(String.format("  %s %s (ID: %d)%s\n", status, emp.getName(), id, managerTag));
+
+                    section.append(String.format("  %s %-15s (ID: %d)%s\n",
+                            status, emp.getName(), id, managerTag));
                     foundInRole = true;
                 }
             }
+
+            // Only add the role section if there are actually people to show
             if (foundInRole) sb.append(section);
         }
 
-        return sb.length() > 40 ? sb.toString() : "No active employees found to satisfy requirements.";
+        return sb.length() > 60 ? sb.toString() : "No active employees found in the system.";
     }
 
     public String getShiftDetails(Shift shift) {

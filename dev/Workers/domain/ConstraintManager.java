@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.ShiftType.rest;
-import static dev.Workers.domain.Enums.ShiftType.any;
+import static dev.Workers.domain.Enums.ShiftType.*;
+
 /**
  * Manages all employees' constraints in the system.
  *
@@ -20,6 +20,7 @@ import static dev.Workers.domain.Enums.ShiftType.any;
 public class ConstraintManager {
     private DayOfWeek deadline = DayOfWeek.THURSDAY;    // deadline for submitting/updating constraints
     private Map<Integer, Constraint> constraintsByID;   // employee ID to employee week constraints
+
     private EmployeeManager employeeManager=EmployeeManager.getInstance();
 
     private static ConstraintManager instance;
@@ -45,6 +46,15 @@ public class ConstraintManager {
      */
     public Map<Integer, Constraint> getConstraintsByID() {
         return constraintsByID;
+    }
+
+    // received type is always morning/evening
+    public void extendConstraints(int empId, DayOfWeek day, ShiftType type) {
+        ShiftType empDayConstraint = getConstraints(empId).getShiftType(day);
+        if (empDayConstraint == rest)
+            getConstraints(empId).setShiftType(day, type);
+        else if (empDayConstraint == morning || empDayConstraint == evening)
+            getConstraints(empId).setShiftType(day, any);
     }
 
     /**

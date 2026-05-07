@@ -228,6 +228,11 @@ public class ManageShiftsMenu {
      * @param shift the selected shift
      */
     private static void addAssignment(Shift shift) {
+        if (shiftService.isShiftAssigned(shift)) {
+            System.out.println("Shift is fully assigned and managed — no additional assignments needed.");
+            return;
+        }
+
         System.out.println(shiftService.getAvailableEmployeesForShift(shift));
         
         System.out.println("Enter employee ID (0 to cancel):");
@@ -295,25 +300,59 @@ public class ManageShiftsMenu {
      */
     private static void replaceEmployee(Shift shift) {
         while (true) {
+            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
             System.out.println("Enter the ID of the employee currently assigned to the shift (0 to cancel):");
-            int currentempID = readIntSafe();
-            if (currentempID == 0) {
+            int curId = readIntSafe();
+            if (curId == 0) {
                 return;
             }
 
             System.out.println(shiftService.getAvailableEmployeesForShift(shift));
             System.out.println("Enter the ID of the replacement employee (0 to cancel):");
-            int newempID = readIntSafe();
-            if (newempID == 0) {
+            int newId = readIntSafe();
+            if (newId == 0) {
                 return;
             }
 
             try {
-                shiftService.replaceEmployee(shift, currentempID, newempID);
+                shiftService.replaceEmployee(shift, curId, newId);
                 System.out.println("Replacement successful.");
                 return;
             } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
+                try {
+                    if (shiftService.needToForceReplace(shift, curId, newId)) {
+                        forceReplace(shift, curId, newId);
+                    }
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        }
+    }
+
+    private static void forceReplace(Shift shift, int curId, int newId) {
+        while (true) {
+            System.out.println("Do you want to force replace this employee?");
+            System.out.println("1. Yes");
+            System.out.println("0. No");
+
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1 -> {
+                    try {
+                        shiftService.forceReplace(shift, curId, newId);
+                        System.out.println("Employee replaced via special approval.");
+                    } catch (RuntimeException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    return;
+                }
+                case 0 -> {
+                    System.out.println("Operation cancelled.");
+                    return;
+                }
+                default -> System.out.println("Invalid input.");
             }
         }
     }

@@ -118,11 +118,14 @@ public class DataInitializer {
             constraintService.update(222, DayOfWeek.WEDNESDAY, ShiftType.rest);
             constraintService.update(222, DayOfWeek.FRIDAY, ShiftType.rest);
 
+            constraintService.update(101, DayOfWeek.SUNDAY, ShiftType.rest);
+            constraintService.update(77, DayOfWeek.SUNDAY, ShiftType.rest);
+
             // ===========================
             // NEXT WEEK (26.4-2.5) SHIFTS
             // ===========================
 
-            LocalDate date2 = LocalDate.of(2026,4,26);
+            LocalDate date2 = LocalDate.of(2026,5,10);
 
             for (int i = 0; i < 6; i++) {
 

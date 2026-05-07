@@ -81,6 +81,17 @@ public class ShiftService {
         shiftManager.replaceEmployee(shift, currentId, newId);
     }
 
+    public boolean needToForceReplace(Shift shift, int curId, int newId) {
+        employeeManager.validateEmployeeBasic(curId, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(newId, shift.getShiftDate());
+
+        return shiftManager.needToForceReplace(shift, curId, newId);
+    }
+
+    public void forceReplace(Shift shift, int curId, int newId) {
+        shiftManager.forceReplace(shift, curId, newId);
+    }
+
     public void removeEmployee(Shift shift, int employeeId) {
         shiftManager.removeEmployee(shift, employeeId);
     }
@@ -105,6 +116,10 @@ public class ShiftService {
     // test function for adding past shifts (mainly for history purposes)
     public void publishWeekByDate(LocalDate date) {;
         shiftManager.publishWeekSchedule(date);
+    }
+
+    public boolean isShiftAssigned(Shift shift) {
+        return shiftManager.isShiftAssigned(shift);
     }
 
     public String getAvailableEmployeesForShift(Shift shift) {
