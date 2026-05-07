@@ -1,6 +1,7 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.Assignments;
+import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
@@ -19,6 +20,7 @@ import java.time.temporal.TemporalAdjusters;
 public class ShiftService {
     private final ShiftManager shiftManager;
     private static ShiftService instance;
+    private static final EmployeeManager employeeManager = EmployeeManager.getInstance();
     private static final RoleManager roleManager = RoleManager.getInstance();
 
     private static Assignments assignments;
@@ -110,11 +112,16 @@ public class ShiftService {
     }
 
     public String displayWeekAssignments() {
-        return shiftManager.displayNextWeek();
+        return shiftManager.displayWeekAssignments();
     }
 
     public String displayCurrentWeek() {
-        return shiftManager.displayCurrentWeek();
+        return shiftManager.displayPublishedWeek(LocalDate.now());
+    }
+
+    public String displayNextWeek() {
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        return shiftManager.displayPublishedWeek(nextSunday);
     }
 
     public String getShiftHistory() {
@@ -136,5 +143,12 @@ public class ShiftService {
 
     public WeekStatus getWeekStatus() {
         return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());
+    }
+
+    public void updateExtraHours(Shift shift, int empID, int hours) {
+        if (hours < 0 || hours > 4) {
+            throw new IllegalArgumentException("The number of hours off must be between 0 and 4.");
+        }
+        shiftManager.updateExtraHours(shift, empID, hours);
     }
 }

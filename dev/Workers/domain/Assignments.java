@@ -5,27 +5,40 @@ import dev.Workers.domain.Objects.Shift;
 
 import java.util.*;
 
+import static dev.Workers.domain.Enums.ShiftType.morning;
+
 /**
  * Manages employee assignments for shifts.
  * This class is responsible for storing and managing which employees
  * are assigned to which role inside each shift.
  */
 public class Assignments {
-    private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned employee ID)
+    private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned empID)
+    // only for mornings
+    private final Map<Shift, Map<Integer, Integer>> extraHours;     // shift to (assigned empID to hours)
 
     /**
      * Constructor initializes empty assignment storage.
      */
     public Assignments() {
         this.assignments = new HashMap<>();
+        this.extraHours = new HashMap<>();
     }
 
     public void init(Shift shift) {
-        Map<Role, Set<Integer>> innerMap = new HashMap<>();
+        Map<Role, Set<Integer>> roleMap = new HashMap<>();
         for (Role role : Role.values()) {
-            innerMap.put(role, new HashSet<>()); // ← new set for each role
+            roleMap.put(role, new HashSet<>());
         }
-        assignments.put(shift, innerMap);
+        assignments.put(shift, roleMap);
+
+        if (shift.getType() == morning) {
+            Map<Integer, Integer> extraHoursMap = new HashMap<>();
+            /*for (Integer ID : extraHoursMap.values()) {
+                extraHoursMap.put(ID, 0);
+            }*/
+            extraHours.put(shift, extraHoursMap);
+        }
     }
 
     /**
@@ -70,6 +83,20 @@ public class Assignments {
 
         Set<Integer> employees = getEmployeesByRole(shift, role);
         employees.remove(employeeID);
+    }
+
+    public void updateExtraHours(Shift shift, int empID, int hours) {
+        if (shift.getType() != morning)
+            throw new IllegalArgumentException("Shift must be morning.");
+        if (!isAssignedToShift(shift, empID))
+            throw new IllegalArgumentException("Employee not assigned to this shift.");
+
+        Map<Integer, Integer> extraHoursMap = extraHours.get(shift);
+        extraHoursMap.put(empID, hours);
+    }
+
+    public Map<Integer, Integer> getExtraHours(Shift shift) {
+        return extraHours.get(shift);
     }
 
     public Set<Integer> getAllEmployees(Shift shift) {
@@ -164,23 +191,40 @@ public class Assignments {
     @Override
     public String toString() {
         if (assignments.isEmpty()) {
-            return "No assignments.";
+            return "No assignments recorded.";
         }
-        String result = "Shift Assignments:\n";
-        for (Map.Entry<Shift, Map<Role, Set<Integer>>> shiftEntry : assignments.entrySet()) {
-            Shift shift = shiftEntry.getKey();
-            Map<Role, Set<Integer>> roles = shiftEntry.getValue();
-            result += "Shift: " + shift + " | ";
-            boolean first = true;
-            for (Map.Entry<Role, Set<Integer>> roleEntry : roles.entrySet()) {
-                if (!first) {
-                    result += ", ";
+
+        StringBuilder sb = new StringBuilder();
+
+        for (Shift shift : assignments.keySet()) {
+            sb.append("=== ").append(shift).append(" ===\n");
+
+            // 1. Roles & Assigned Employees
+            for (Role role : Role.values()) {
+                Set<Integer> employees = getEmployeesByRole(shift, role);
+                if (!employees.isEmpty()) {
+                    sb.append(String.format("  %-12s: %d assigned | Employees: %s\n",
+                            role, employees.size(), employees));
                 }
-                result += roleEntry.getKey() + ": " + roleEntry.getValue().size();
-                first = false;
             }
-            result += "\n";
+
+            // 2. Extra Hours
+            Map<Integer, Integer> shiftExtra = extraHours.get(shift);
+            if (shiftExtra != null && !shiftExtra.isEmpty()) {
+                StringJoiner extraJoiner = new StringJoiner(", ");
+                shiftExtra.forEach((id, hours) -> {
+                    if (hours > 0) {
+                        extraJoiner.add("ID " + id + " (+" + hours + "h)");
+                    }
+                });
+
+                if (extraJoiner.length() > 0) {
+                    sb.append("  Extra Hours : ").append(extraJoiner).append("\n");
+                }
+            }
+            sb.append("\n"); // Breathability between shifts
         }
-        return result;
+
+        return sb.toString().trim();
     }
 }

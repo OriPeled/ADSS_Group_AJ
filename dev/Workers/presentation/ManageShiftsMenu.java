@@ -88,7 +88,11 @@ public class ManageShiftsMenu {
                 }
             }
 
-            System.out.println(shiftService.displayWeekAssignments());
+            try {
+                System.out.println(shiftService.displayWeekAssignments());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
             System.out.println("Manage Shifts Week");
 
             LocalDate date = chooseDay();
@@ -206,7 +210,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> addAssignment(shift);
                 case 2 -> replaceEmployee(shift);
-                case 3 -> manualChanges(shift);
+                case 3 -> extraHours(shift);
                 case 0 -> {
                     return;
                 }
@@ -224,12 +228,11 @@ public class ManageShiftsMenu {
      * @param shift the selected shift
      */
     private static void addAssignment(Shift shift) {
-        int employeeId;
         System.out.println(shiftService.getAvailableEmployeesForShift(shift));
-
+        
         System.out.println("Enter employee ID (0 to cancel):");
-        employeeId = readIntSafe();
-        if (employeeId == 0) {
+        int empID = readIntSafe();
+        if (empID == 0) {
             return;
         }
 
@@ -239,15 +242,15 @@ public class ManageShiftsMenu {
         }
 
         try {
-            shiftService.assignEmployee(shift, role, employeeId);
+            shiftService.assignEmployee(shift, role, empID);
             System.out.println("Employee assigned successfully.");
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
 
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
-            if (employeeId != -1 && shiftService.needToForceAssign(shift, role, employeeId)) {
-                forceAssign(shift, role, employeeId);
+            if (empID != -1 && shiftService.needToForceAssign(shift, role, empID)) {
+                forceAssign(shift, role, empID);
             }
         }
     }
@@ -257,9 +260,9 @@ public class ManageShiftsMenu {
      *
      * @param shift the selected shift
      * @param role the role to assign
-     * @param employeeId the employee to assign
+     * @param empID the employee to assign
      */
-    private static void forceAssign(Shift shift, Role role, int employeeId) {
+    private static void forceAssign(Shift shift, Role role, int empID) {
         while (true) {
             System.out.println("Do you want to force assign this employee?");
             System.out.println("1. Yes");
@@ -269,7 +272,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> {
                     try {
-                        shiftService.forceAssign(shift, role, employeeId);
+                        shiftService.forceAssign(shift, role, empID);
                         System.out.println("Employee assigned via special approval.");
                     } catch (RuntimeException e) {
                         System.out.println(e.getMessage());
@@ -293,23 +296,45 @@ public class ManageShiftsMenu {
     private static void replaceEmployee(Shift shift) {
         while (true) {
             System.out.println("Enter the ID of the employee currently assigned to the shift (0 to cancel):");
-            int currentEmployeeId = readIntSafe();
-            if (currentEmployeeId == 0) {
+            int currentempID = readIntSafe();
+            if (currentempID == 0) {
                 return;
             }
 
             System.out.println(shiftService.getAvailableEmployeesForShift(shift));
             System.out.println("Enter the ID of the replacement employee (0 to cancel):");
-            int newEmployeeId = readIntSafe();
-            if (newEmployeeId == 0) {
+            int newempID = readIntSafe();
+            if (newempID == 0) {
                 return;
             }
 
             try {
-                shiftService.replaceEmployee(shift, currentEmployeeId, newEmployeeId);
+                shiftService.replaceEmployee(shift, currentempID, newempID);
                 System.out.println("Replacement successful.");
                 return;
             } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void extraHours(Shift shift) {
+        while (true) {
+            System.out.println("===Manage extra hours===");
+            System.out.println("Enter employee ID (0 to cancel):");
+            int empID = readIntSafe();
+            if (empID == 0) {
+                return;
+            }
+
+            System.out.println("Enter amount of extra hours (0-4)");
+            int extraHours = readIntSafe();
+
+            try {
+                shiftService.updateExtraHours(shift, empID, extraHours);
+                System.out.println("Extra hours updated.");
+                return;
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -396,7 +421,8 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> manualAssignment(shift);
                 case 2 -> manualRemoval(shift);
-                case 3 -> updateRequirements(shift);
+                case 3 -> extraHours(shift);
+                case 4 -> updateRequirements(shift);
                 case 0 -> {
                     return;
                 }
@@ -406,11 +432,11 @@ public class ManageShiftsMenu {
     }
 
     private static void manualAssignment(Shift shift) {
-        int employeeId;
+        int empID;
 
         System.out.println("Enter employee ID (0 to cancel):");
-        employeeId = readIntSafe();
-        if (employeeId == 0) {
+        empID = readIntSafe();
+        if (empID == 0) {
             return;
         }
 
@@ -420,7 +446,7 @@ public class ManageShiftsMenu {
         }
 
         try {
-            shiftService.manualAssign(shift, role, employeeId);
+            shiftService.manualAssign(shift, role, empID);
             System.out.println("Employee manually assigned.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -428,16 +454,16 @@ public class ManageShiftsMenu {
     }
 
     private static void manualRemoval(Shift shift) {
-        int employeeId;
+        int empID;
 
         System.out.println("Enter employee ID (0 to cancel):");
-        employeeId = readIntSafe();
-        if (employeeId == 0) {
+        empID = readIntSafe();
+        if (empID == 0) {
             return;
         }
 
         try {
-            shiftService.removeEmployee(shift, employeeId);
+            shiftService.removeEmployee(shift, empID);
             System.out.println("Employee manually removed.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -620,7 +646,7 @@ public class ManageShiftsMenu {
         System.out.println();
         System.out.println("Managing shift: " + shift);
         System.out.println("1. Update Shift");
-        System.out.println("2. Reset Shift");
+        System.out.println("2. Reset Shift (USE ONLY WHEN NECESSARY)");
         System.out.println("0. Back");
     }
 
@@ -633,13 +659,15 @@ public class ManageShiftsMenu {
     private static void printAssignmentsMenu() {
         System.out.println("1. Add assignment");
         System.out.println("2. Replace employee");
+        System.out.println("3. Add extra hours");
         System.out.println("0. Back");
     }
 
     private static void printManualChangesMenu() {
         System.out.println("1. Manual assignment");
         System.out.println("2. Manual removal");
-        System.out.println("3. Update requirements");
+        System.out.println("3. Update extra hours");
+        System.out.println("4. Update requirements");
         System.out.println("0. Back");
     }
 }

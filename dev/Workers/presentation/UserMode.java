@@ -146,7 +146,7 @@ public class UserMode {
     }
 
     private static void watchNextWeekSchedule() {
-        System.out.println(shiftService.displayWeekAssignments());
+        System.out.println(shiftService.displayNextWeek());
     }
 
     public static void updateConstraints() {
