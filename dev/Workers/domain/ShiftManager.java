@@ -323,9 +323,9 @@ public class ShiftManager {
      * Returns all shifts for the next week (7 days from today).
      */
     private List<Shift> getNextWeekShifts() {
-       /* if (!getNextWeek().isViewableByUser()) {
+        if (!getNextWeek().isViewableByUser()) {
             throw new IllegalStateException("The schedule for the next week is not yet published.");
-        }*/
+        }
 
         List<Shift> result = new ArrayList<>();
 
@@ -529,7 +529,7 @@ public class ShiftManager {
         return result.toString();
     }
 
-    public String getEmployeeWeekDisplay(int id, LocalDate referenceDate) {
+    public String employeeWeekDisplay(int id, LocalDate referenceDate) {
         // 1. Get the domain object for this week
         WeekSchedule week = getOrCreateWeek(referenceDate);
         LocalDate startOfWeek = week.getStartOfWeek();
@@ -562,7 +562,7 @@ public class ShiftManager {
                 id, startOfWeek, endOfWeek, shiftList);
     }
 
-    public String displayWeekAssignments() {
+    public String displayNextWeek() {
         Map<Shift, String> assignments = weekAssignment();
 
         // 1. Filter and Sort: Sun -> Sat, Morning -> Evening
@@ -603,6 +603,50 @@ public class ShiftManager {
         }
 
         return sb.toString();
+    }
+
+    public String displayCurrentWeek() {
+        if (shifts.isEmpty()) {
+            return "No shifts scheduled.";
+        }
+
+        // 1. Calculate the bounds of the current week (Sunday to Saturday)
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        // 2. Filter shifts that fall within this specific week
+        List<Shift> currentWeekShifts = shifts.stream()
+                .filter(shift -> {
+                    LocalDate date = shift.getShiftDate();
+                    // Check if the date is between Sunday and Saturday (inclusive)
+                    return !date.isBefore(startOfWeek) && !date.isAfter(endOfWeek);
+                })
+                .sorted(Comparator.comparing(Shift::getShiftDate)
+                        .thenComparing(Shift::getType))
+                .collect(Collectors.toList());
+
+        if (currentWeekShifts.isEmpty()) {
+            return "No shifts scheduled for the current week (" + startOfWeek + " to " + endOfWeek + ").";
+        }
+        
+        StringBuilder result = new StringBuilder("=== CURRENT WEEK SCHEDULE ===\n");
+        result.append("Range: ").append(startOfWeek).append(" to ").append(endOfWeek).append("\n");
+
+        for (Shift shift : currentWeekShifts) {
+            result.append(String.format("\nShift: %s - %s\n", shift.getShiftDate(), shift.getType()));
+
+            for (Role role : Role.values()) {
+                var employees = assignments.getEmployeesByRole(shift, role);
+                if (!employees.isEmpty()) {
+                    // Formatting matches your ShiftHistory style
+                    result.append(String.format("  - %-12s | assigned: %d | employees: %s\n",
+                            role, employees.size(), employees));
+                }
+            }
+        }
+
+        return result.toString().trim();
     }
 
     /**

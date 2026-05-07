@@ -1,7 +1,6 @@
 package dev.Workers.Service;
 
 import dev.Workers.domain.Assignments;
-import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
@@ -111,7 +110,11 @@ public class ShiftService {
     }
 
     public String displayWeekAssignments() {
-        return shiftManager.displayWeekAssignments();
+        return shiftManager.displayNextWeek();
+    }
+
+    public String displayCurrentWeek() {
+        return shiftManager.displayCurrentWeek();
     }
 
     public String getShiftHistory() {
@@ -123,12 +126,12 @@ public class ShiftService {
     }
 
     public String getEmployeeShifts(int id) {
-        return shiftManager.getEmployeeWeekDisplay(id, LocalDate.now());
+        return shiftManager.employeeWeekDisplay(id, LocalDate.now());
     }
 
     public String getNextWeekEmployeeShifts(int id) {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        return shiftManager.getEmployeeWeekDisplay(id, nextSunday);
+        return shiftManager.employeeWeekDisplay(id, nextSunday);
     }
 
     public WeekStatus getWeekStatus() {

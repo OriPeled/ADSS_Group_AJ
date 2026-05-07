@@ -77,10 +77,10 @@ public class UserMode {
                     updateConstraints();
                     break;
                 case 2:
-                    watchShifts();
+                    currentWeekShifts();
                     break;
                 case 3:
-                    watchNextWeeksShifts();
+                    nextWeekShifts();
                     break;
                 case 0:
                     return;
@@ -90,15 +90,63 @@ public class UserMode {
         }
     }
 
-    private static void watchShifts() {
-        String shifts = shiftService.getEmployeeShifts(employeeId);
-        System.out.println(shifts);
+    private static void currentWeekShifts() {
+        while (true) {
+            printCurrentWeekMenu();
+
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1:
+                    watchMyCurrentWeek();
+                    break;
+                case 2:
+                    watchCurrentFullSchedule();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
+            }
+        }
+    }
+
+    private static void watchMyCurrentWeek() {
+        String empShifts = shiftService.getEmployeeShifts(employeeId);
+        System.out.println(empShifts);
+    }
+
+    private static void watchCurrentFullSchedule() {
+        System.out.println(shiftService.displayCurrentWeek());
+    }
+
+    private static void nextWeekShifts() {
+        while (true) {
+            printnextWeekMenu();
+
+            int choice = readIntSafe();
+            switch (choice) {
+                case 1:
+                    watchMyNextWeek();
+                    break;
+                case 2:
+                    watchNextWeekSchedule();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Invalid input.");
+            }
+        }
     }
 
     // can be seen only after admin publishes schedule
-    private static void watchNextWeeksShifts() {
-        String shifts = shiftService.getNextWeekEmployeeShifts(employeeId);
-        System.out.println(shifts);
+    private static void watchMyNextWeek() {
+        String empShifts = shiftService.getNextWeekEmployeeShifts(employeeId);
+        System.out.println(empShifts);
+    }
+
+    private static void watchNextWeekSchedule() {
+        System.out.println(shiftService.displayWeekAssignments());
     }
 
     public static void updateConstraints() {
@@ -163,5 +211,19 @@ public class UserMode {
         System.out.println("2. Watch Current Week's Shifts");
         System.out.println("3. Watch Next Week's Shifts");
         System.out.println("0. Logout");
+    }
+
+    public static void printCurrentWeekMenu() {
+        System.out.println("===Current Week Shifts===");
+        System.out.println("1. Watch My Shifts");
+        System.out.println("2. Watch Full Schedule");
+        System.out.println("0. Back");
+    }
+
+    public static void printnextWeekMenu() {
+        System.out.println("===Next Week Shifts===");
+        System.out.println("1. Watch My Shifts");
+        System.out.println("2. Watch Full Schedule");
+        System.out.println("0. Back");
     }
 }
