@@ -1,5 +1,6 @@
 package dev.Workers.Service;
 
+import dev.Workers.domain.Actions.RequestAction;
 import dev.Workers.domain.Assignments;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Enums.Role;
@@ -12,18 +13,19 @@ import dev.Workers.domain.ShiftManager;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 
 /**
  * ShiftService acts as the entry point for UI/Web controllers.
  * It delegates all state management and business rules to the ShiftManager.
  */
 public class ShiftService {
-    private final ShiftManager shiftManager;
-    private static ShiftService instance;
-    private static final EmployeeManager employeeManager = EmployeeManager.getInstance();
-    private static final RoleManager roleManager = RoleManager.getInstance();
-
+    private static ShiftManager shiftManager;
     private static Assignments assignments;
+    private static EmployeeManager employeeManager;
+    private static RoleManager roleManager;
+
+    private static ShiftService instance;
 
     /**
      * Singleton access
@@ -36,7 +38,10 @@ public class ShiftService {
     }
 
     private ShiftService() {
-        this.shiftManager = ShiftManager.getInstance();
+        shiftManager = ShiftManager.getInstance();
+        assignments = shiftManager.getAssignments();
+        employeeManager = EmployeeManager.getInstance();
+        roleManager = RoleManager.getInstance();
     }
 
     public void addShift(LocalDate date, ShiftType type) {
@@ -64,8 +69,7 @@ public class ShiftService {
     }
 
     public boolean needToForceAssign(Shift shift, Role role, int employeeId) {
-        return shiftManager.nobodyToAssign(shift, role)
-                && roleManager.isQualified(employeeId, role);
+        return shiftManager.needToForceAssign(shift, role, employeeId);
     }
 
     public void forceAssign(Shift shift, Role role, int employeeId) {
@@ -96,6 +100,10 @@ public class ShiftService {
         shiftManager.removeEmployee(shift, employeeId);
     }
 
+    public boolean hasRequests() {
+        return assignments.hasRequests();
+    }
+
     public void publishWeekSchedule() {
         LocalDate thisSunday = LocalDate.now()
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
@@ -105,6 +113,11 @@ public class ShiftService {
     public void publishNextWeekSchedule() {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         shiftManager.publishWeekSchedule(nextSunday);
+    }
+
+    public void forcePublishNextWeekSchedule() {
+        LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        shiftManager.forcePublishWeekSchedule(nextSunday);
     }
 
     public void publishLastWeekSchedule() {
@@ -165,5 +178,35 @@ public class ShiftService {
             throw new IllegalArgumentException("The number of hours off must be between 0 and 4.");
         }
         shiftManager.updateExtraHours(shift, empID, hours);
+    }
+
+    // For Assignments
+    public void sendRequest(Shift shift, Role role, int empId) {
+        shiftManager.sendRequest(shift, role, empId);
+    }
+
+    // For Replacements
+    public void sendRequest(Shift shift, int curId, int newId) {
+        shiftManager.sendRequest(shift, curId, newId);
+    }
+
+    public void approveNextAssignment(int employeeId) {
+        shiftManager.approveNextAssignment(employeeId);
+    }
+
+    public boolean assignmentNeedsApproval(int employeeId) {
+        return shiftManager.assignmentNeedsApproval(employeeId);
+    }
+
+    public String displayNextPendingAssignment(int employeeId) {
+        return shiftManager.displayNextPendingAssignment(employeeId);
+    }
+
+    public void processRequest(int employeeId, boolean b) {
+        shiftManager.processRequest(employeeId, b);
+    }
+
+    public List<String> popRequestAnswers() {
+        return assignments.popRequestAnswers();
     }
 }

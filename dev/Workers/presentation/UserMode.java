@@ -1,8 +1,10 @@
 package dev.Workers.presentation;
 
 import dev.Workers.Service.*;
+import dev.Workers.domain.Assignments;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
 
@@ -69,6 +71,10 @@ public class UserMode {
 
     public static void start() {
         while (true) {
+            if (shiftService.assignmentNeedsApproval(employeeId)) {
+                approveAssignment();
+            }
+
             printMainMenu();
 
             int choice = readIntSafe();
@@ -87,6 +93,28 @@ public class UserMode {
                 default:
                     System.out.println("Invalid input.");
             }
+        }
+    }
+
+    private static void approveAssignment() {
+        //int num = shiftService.numOfApprovalsNeeded(employeeId);
+        //System.out.println("You have " + num + " pending replacements to approve");
+
+        //Assignments assignment = shiftService.getNextPendingReplacement(employeeId);
+        //System.out.println("You have pending replacement request for " + assignment.);
+        System.out.println(shiftService.displayNextPendingAssignment(employeeId));
+        System.out.println("Please enter 1 to approve or 0 to reject.");
+        int choice = readIntSafe();
+
+        if (choice == 1) {
+            shiftService.processRequest(employeeId, true);
+            System.out.println("Assignment request approved.");
+        } if (choice == 0) {
+            shiftService.processRequest(employeeId, false);
+            System.out.println("Assignment request rejected.");
+        } else {
+
+            System.out.println("Invalid choice. Try again.");
         }
     }
 

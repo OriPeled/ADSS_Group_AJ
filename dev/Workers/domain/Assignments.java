@@ -1,8 +1,11 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Actions.RequestAction;
 import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Objects.Shift;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static dev.Workers.domain.Enums.ShiftType.morning;
@@ -13,9 +16,13 @@ import static dev.Workers.domain.Enums.ShiftType.morning;
  * are assigned to which role inside each shift.
  */
 public class Assignments {
-    private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned empID)
+    private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned empIDs)
     // only for mornings
     private final Map<Shift, Map<Integer, Integer>> extraHours;     // shift to (assigned empID to hours)
+    // for the employees
+    private final Map<Integer, Queue<RequestAction>> pendingRequests;             // empID to requests
+    // for the HR manager
+    private final Queue<String> requestAnswers;
 
     /**
      * Constructor initializes empty assignment storage.
@@ -23,6 +30,8 @@ public class Assignments {
     public Assignments() {
         this.assignments = new HashMap<>();
         this.extraHours = new HashMap<>();
+        this.pendingRequests = new HashMap<>();
+        this.requestAnswers = new LinkedList<>();
     }
 
     public void init(Shift shift) {
@@ -34,9 +43,6 @@ public class Assignments {
 
         if (shift.getType() == morning) {
             Map<Integer, Integer> extraHoursMap = new HashMap<>();
-            /*for (Integer ID : extraHoursMap.values()) {
-                extraHoursMap.put(ID, 0);
-            }*/
             extraHours.put(shift, extraHoursMap);
         }
     }
@@ -185,6 +191,10 @@ public class Assignments {
         return null;
     }
 
+    public Map<Integer, Queue<RequestAction>> getAllPendingRequests() {
+        return pendingRequests;
+    }
+
     /**
      * Pretty print: one line per shift.
      */
@@ -226,5 +236,60 @@ public class Assignments {
         }
 
         return sb.toString().trim();
+    }
+
+    /**
+     * Overload for Assignment requests
+     */
+    public void addRequest(Shift shift, Role role, int empId) {
+        pendingRequests.computeIfAbsent(empId, k -> new LinkedList<>())
+                .add(new RequestAction.AssignAction(shift, role, empId));
+    }
+
+    /**
+     * Overload for Replacement requests
+     */
+    public void addRequest(Shift shift, int curId, int newId) {
+        pendingRequests.computeIfAbsent(newId, k -> new LinkedList<>())
+                .add(new RequestAction.ReplaceAction(shift, curId, newId));
+    }
+
+    public Queue<RequestAction> getRequests(int empID) {
+        return pendingRequests.get(empID);
+    }
+
+    public void resetRequests() {
+        pendingRequests.clear();
+    }
+
+    public boolean hasRequests(int empID) {
+        Queue<RequestAction> queue = getRequests(empID);
+        return queue != null && !queue.isEmpty();
+    }
+
+    public boolean hasRequests() {
+        return !pendingRequests.isEmpty();
+    }
+
+    public boolean isRequestedToShift(Shift shift, int employeeId) {
+        Queue<RequestAction> queue = pendingRequests.get(employeeId);
+        if (queue == null || queue.isEmpty()) {
+            return false;
+        }
+
+        return queue.stream()
+                .anyMatch(action -> action.shift().equals(shift));
+    }
+
+    public void addRequestAnswer(String message) {
+        requestAnswers.add("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] " + message);
+    }
+
+    public List<String> popRequestAnswers() {
+        List<String> current = new ArrayList<>();
+        while (!requestAnswers.isEmpty()) {
+            current.add(requestAnswers.poll());
+        }
+        return current;
     }
 }

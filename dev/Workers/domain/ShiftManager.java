@@ -1,5 +1,6 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Actions.RequestAction;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.Shift;
@@ -25,18 +26,19 @@ public class ShiftManager {
 
     private final Set<Shift> shifts;
     private final Requirements requirements;
+
+    public Assignments getAssignments() {
+        return assignments;
+    }
+
     private final Assignments assignments;
 
     private final ConstraintManager constraintManager;
     private final EmployeeManager employeeManager;
     private final RoleManager roleManager;
 
-    private static ShiftManager instance;   // this one stays static — singleton pattern requires it
+    private static ShiftManager instance;
 
-    /**
-     * singeltone
-     * @return
-     */
     public static ShiftManager getInstance() {
         if (instance == null) {
             instance = new ShiftManager();
@@ -44,9 +46,6 @@ public class ShiftManager {
         return instance;
     }
 
-    /**
-     * constractor for service
-     */
     private ShiftManager() {
         this.shifts = new HashSet<>();
         this.requirements = new Requirements();
@@ -97,12 +96,6 @@ public class ShiftManager {
         return null; // never occurs
     }
 
-    /**
-     *
-     * @param date
-     * @param type
-     * @return getter for an existing shift, null if doesn't exist
-     */
     public Shift getExistingShift(LocalDate date, ShiftType type) {
         Shift shift = null;
         for (Shift s : shifts) {
@@ -118,38 +111,26 @@ public class ShiftManager {
         return shift;
     }
 
+    // for rare cases
     public void resetShift(Shift shift) {
         shifts.remove(shift);
         requirements.init(shift);
         assignments.init(shift);
     }
 
-    /**
-     *
-     * @param shift
-     * @param role
-     * @return how much left to assiging
-     */
     public int leftToAssign(Shift shift, Role role) {
         return requirements.countRequired(shift, role)
                 - assignments.countAssigned(shift, role);
     }
 
-    /**
-     *
-     * @param shift
-     * @param role
-     * @param employeeId
-     *  Assign employee to shift if valid.
-     *  Prints error message if assignment fails.
-     *
-     */
     public void assignEmployee(Shift shift, Role role, int employeeId) {
         employeeManager.validateEmployeeBasic(employeeId, shift.getShiftDate());
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
         if (assignments.isAssignedToShift(shift, employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getShiftDate());
+        if (assignments.isRequestedToShift(shift, employeeId))
+            throw new IllegalArgumentException("Employee " + employeeId + " was already requested to assign to this shift" + shift.getShiftDate());
         if (!isQualified(employeeId, role))
             throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role.");
         if (!isAvailable(employeeId, shift)) {
@@ -175,13 +156,20 @@ public class ShiftManager {
         return false;
     }
 
+    public boolean needToForceAssign(Shift shift, Role role, int employeeId) {
+        return nobodyToAssign(shift, role)
+                && roleManager.isQualified(employeeId, role)
+                && !assignments.isRequestedToShift(shift, employeeId);
+    }
+
     public void forceAssign(Shift shift, Role role, int employeeId) {
+        /* FOR TESTS
         employeeManager.validateEmployeeBasic(employeeId, shift.getShiftDate());
         if (!isNeeded(shift, role))
             throw new RuntimeException("Role already assigned.");
         if (!isQualified(employeeId, role)) {
             throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
-        }
+        }*/
 
         if (employeeManager.getById(employeeId).isManager() && !hasManager(shift)) {
             assignments.add(shift, role, employeeId);
@@ -223,6 +211,8 @@ public class ShiftManager {
         employeeManager.validateEmployeeBasic(newId, shift.getShiftDate());
         if (!assignments.isAssignedToShift(shift, curId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
+        if (assignments.isRequestedToShift(shift, newId))
+            throw new IllegalArgumentException("Employee " + newId + " was already requested to assign to this shift" + shift.getShiftDate());
 
         Role roleCur = assignments.getEmployeeRole(shift, curId);
         Role roleNew = assignments.getEmployeeRole(shift, newId);
@@ -327,6 +317,7 @@ public class ShiftManager {
         int assigned = employees.size();
         int required = requirements.countRequired(shift, role);
 
+        // randomly removing redundant employees
         if (assigned > required) {
             int toRemove = assigned - required;
 
@@ -334,7 +325,6 @@ public class ShiftManager {
 
             for (Integer id : idsToRemove) {
                 removeEmployee(shift, id);
-
             }
         }
     }
@@ -372,43 +362,45 @@ public class ShiftManager {
     }
 
     public Map<Shift, String> weekAssignment() {
-        Map<Shift, String> weekStatuses = new HashMap<>();
-        List<Shift> weekShifts = getNextWeekShifts();
-        for (Shift shift : weekShifts) {
-            if (shift != null) {
-                String status = "complete";
-                for (Role role : Role.values()) {
-                    if (isNeeded(shift, role) || !hasManager(shift)) {
-                        status = "incomplete";
-                        break;
-                    }
-                }
-                weekStatuses.put(shift, status);
-            }
-            else weekStatuses.put(shift, "incomplete");
+        return getNextWeekShifts().stream()
+                .collect(Collectors.toMap(s -> s, this::getShiftStatus));
+    }
+
+    public String getShiftStatus(Shift shift) {
+        boolean rolesFullApproved = Arrays.stream(Role.values())
+                .allMatch(r -> assignments.getEmployeesByRole(shift, r).size() >= requirements.countRequired(shift, r));
+
+        boolean managerApproved = hasManager(shift);
+
+        if (rolesFullApproved && managerApproved) return "COMPLETE";
+
+        // Check "Tentative" counts (Approved + Pending)
+        boolean rolesFullTentative = Arrays.stream(Role.values())
+                .allMatch(r -> {
+                    int combined = assignments.getEmployeesByRole(shift, r).size() + getPendingIds(shift, r).size();
+                    return combined >= requirements.countRequired(shift, r);
+                });
+
+        // Check if a manager is pending
+        boolean managerPending = assignments.getAllPendingRequests().values().stream()
+                .flatMap(Collection::stream)
+                .anyMatch(action -> action.shift().equals(shift) &&
+                        employeeManager.getById(((RequestAction.AssignAction)action).empId()).isManager());
+
+        if (rolesFullTentative && (managerApproved || managerPending)) {
+            return "COMPLETE*";
         }
-        return weekStatuses;
+
+        return "INCOMPLETE";
     }
 
     public boolean isShiftAssigned(Shift shift) {
-        for (Role role : Role.values()) {
-            if (isNeeded(shift, role))
-                return false;
-        }
-        return true;
+        return getShiftStatus(shift).startsWith("COMPLETE");
     }
 
     private boolean isWeekAssigned(LocalDate dateInWeek) {
-        List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
-        for (Shift shift : weekShifts) {
-            for (Role role : Role.values()) {
-                if (isNeeded(shift, role)) return false;
-            }
-            if (!hasManager(shift)) {
-                return false;
-            }
-        }
-        return true;
+        return getShiftsForWeek(dateInWeek).stream()
+                .allMatch(s -> getShiftStatus(s).equals("COMPLETE"));
     }
 
     public WeekStatus getWeekStatus(LocalDate dateInWeek) {
@@ -419,20 +411,58 @@ public class ShiftManager {
 
     public void publishWeekSchedule(LocalDate dateInWeek) {
         List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
-        List<String> missingManager = new ArrayList<>();
-        for (Shift shift : weekShifts) {
-            if (!shift.hasManager()) {
-                missingManager.add(shift.toString());
-            }
-        }
-        if (!missingManager.isEmpty()) {
+
+        // Find any shifts that are blocking the publication
+        List<String> problematicShifts = weekShifts.stream()
+                .filter(s -> !getShiftStatus(s).equals("COMPLETE"))
+                .map(s -> String.format("%s (%s)", s.toStringByWeekDay(), getShiftStatus(s)))
+                .collect(Collectors.toList());
+
+        if (!problematicShifts.isEmpty()) {
             throw new IllegalStateException(
-                    "Cannot publish schedule: the following shifts have no assigned shift manager: " +
-                    String.join(", ", missingManager));
+                    "Cannot publish: The following shifts are not fully finalized:\n" +
+                            String.join(", ", problematicShifts) +
+                            "\n\nNote: All pending requests (*) must be approved before publishing."
+            );
         }
 
+        // Success Path
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
+
+        assignments.resetRequests();
+        constraintManager.resetAllConstraints();
+    }
+
+    public void forcePublishWeekSchedule(LocalDate dateInWeek) {
+        List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
+
+        // 1. Check for hard-stoppers (INCOMPLETE)
+        List<String> incompleteShifts = weekShifts.stream()
+                .filter(s -> getShiftStatus(s).equals("INCOMPLETE"))
+                .map(s -> s.toStringByWeekDay())
+                .collect(Collectors.toList());
+
+        if (!incompleteShifts.isEmpty()) {
+            throw new IllegalStateException(
+                    "Cannot Force-Publish: These shifts are still INCOMPLETE:\n" +
+                            String.join(", ", incompleteShifts)
+            );
+        }
+
+        // 2. Convert all COMPLETE* to COMPLETE (Force-approve pending requests)
+        for (Shift shift : weekShifts) {
+            if (getShiftStatus(shift).equals("COMPLETE*")) {
+                finalizeShiftRequests(shift);
+            }
+        }
+
+        // 3. Finalize Publication
+        WeekSchedule week = getOrCreateWeek(dateInWeek);
+        week.setPublished(true);
+
+        // Cleanup
+        assignments.resetRequests();
         constraintManager.resetAllConstraints();
     }
 
@@ -482,10 +512,18 @@ public class ShiftManager {
         StringBuilder sb = new StringBuilder();
         for (Role role : Role.values()) {
             int req = requirements.countRequired(shift, role);
-            Set<Integer> emps = assignments.getEmployeesByRole(shift, role);
-            if (req > 0 || !emps.isEmpty()) {
-                sb.append(String.format("  %-12s: %d/%d assigned | Employees: %s\n",
-                        role, emps.size(), req, emps));
+            Set<Integer> approved = assignments.getEmployeesByRole(shift, role);
+            Set<Integer> pending = getPendingIds(shift, role); // Get the * people
+
+            if (req > 0 || !approved.isEmpty() || !pending.isEmpty()) {
+                // Build employee list: "101, 102*, 105"
+                StringJoiner sj = new StringJoiner(", ");
+                approved.forEach(id -> sj.add(String.valueOf(id)));
+                pending.forEach(id -> sj.add(id + "*"));
+
+                int totalAssigned = approved.size() + pending.size();
+                sb.append(String.format("  %-12s: %d/%d assigned | Employees: [%s]\n",
+                        role, totalAssigned, req, sj));
             }
         }
         return sb.toString();
@@ -493,11 +531,12 @@ public class ShiftManager {
 
     // Helper 3: The UI for a Detailed Shift Block (Vertical view)
     private String formatShiftBlock(Shift s) {
-        return String.format("\nShift: %s - %s\n%s%s",
-                s.getShiftDate(), s.getType(), getRoleAssignmentsStr(s), getExtraHoursStr(s, null, false));
+        String footnote = "\n* needs to approve\n";
+        return String.format("\nShift: %s - %s\n%s%s%s",
+                s.getShiftDate(), s.getType(), getRoleAssignmentsStr(s), getExtraHoursStr(s, null, false), footnote);
     }
 
-    // Helper 4: The UI for the Dashboard Grid (3-column layout)
+    // Helper 4: The UI for the Week Schedule Dashboard Grid (3-column layout)
     private String buildGrid(List<String> lines) {
         StringBuilder sb = new StringBuilder();
         int padding = lines.stream().mapToInt(String::length).max().orElse(25) + 4;
@@ -507,7 +546,18 @@ public class ShiftManager {
             if (row + 10 < lines.size()) sb.append(lines.get(row + 10));
             sb.append("\n");
         }
+        sb.append("\n* awaiting employee approvals\"\n");
         return sb.toString();
+    }
+
+    private Set<Integer> getPendingIds(Shift shift, Role role) {
+        // Collect all employee IDs who have a pending "AssignAction" for this specific shift and role
+        return assignments.getAllPendingRequests().entrySet().stream()
+                .filter(entry -> entry.getValue().stream()
+                        .anyMatch(action -> action instanceof RequestAction.AssignAction a
+                                && a.shift().equals(shift) && a.role().equals(role)))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     public String getUnassignedValid(Shift shift) {
@@ -602,5 +652,86 @@ public class ShiftManager {
                 .collect(Collectors.joining());
 
         return content.isEmpty() ? "No history available." : "=== SHIFT HISTORY ===\n" + content;
+    }
+
+    // For Assignments
+    public void sendRequest(Shift shift, Role role, int empId) {
+        assignments.addRequest(shift, role, empId);
+    }
+
+    // For Replacements
+    public void sendRequest(Shift shift, int curId, int newId) {
+        assignments.addRequest(shift, curId, newId);
+    }
+
+    public String processRequest(int employeeId, boolean isApproved) {
+        Queue<RequestAction> queue = assignments.getRequests(employeeId);
+        if (queue == null || queue.isEmpty()) return "No requests.";
+
+        RequestAction action = queue.poll();
+        String employeeName = employeeManager.getById(employeeId).getName();
+        String status = isApproved ? "APPROVED" : "REJECTED";
+
+        if (isApproved) {
+            try {
+                action.execute(this);
+            } catch (Exception e) {
+                return "Execution failed: " + e.getMessage();
+            }
+        }
+
+        // BROADCAST TO HR:
+        String message = String.format("Employee %s (%d) %s: %s",
+                employeeName, employeeId, status, action.getDescription());
+        assignments.addRequestAnswer(message);
+
+        return "Response recorded: " + status;
+    }
+
+    public void approveNextAssignment(int empID) {
+        Queue<RequestAction> queue = assignments.getRequests(empID);
+        RequestAction action = queue.poll();
+        action.execute(this);
+    }
+
+    public boolean assignmentNeedsApproval(int empID) {
+        return assignments.hasRequests(empID);
+    }
+
+    public String displayNextPendingAssignment(int employeeId) {
+        Queue<RequestAction> queue = assignments.getRequests(employeeId);
+
+        if (queue == null || queue.isEmpty()) {
+            return "No pending requests for Employee ID: " + employeeId;
+        }
+
+        // Look at the head of the FIFO queue without removing it
+        RequestAction nextAction = queue.peek();
+
+        StringBuilder sb = new StringBuilder("=== NEXT PENDING REQUEST ===\n");
+        sb.append("Employee ID: ").append(employeeId).append("\n");
+        sb.append("Details    : ").append(nextAction.getDescription()).append("\n");
+        sb.append("----------------------------\n");
+        sb.append("Enter 1 to Approve, 0 to Skip/Stay in queue.");
+
+        return sb.toString();
+    }
+
+    private void finalizeShiftRequests(Shift shift) {
+        // Iterate through every employee's pending queue
+        assignments.getAllPendingRequests().forEach((empId, queue) -> {
+            // Find actions in this queue belonging to this shift
+            // We use an iterator so we can safely remove items while looping
+            var iterator = queue.iterator();
+            while (iterator.hasNext()) {
+                RequestAction action = iterator.next();
+                if (action.shift().equals(shift)) {
+                    // Execute the action (force-assign/replace)
+                    action.execute(this);
+                    // Remove it from their queue since it's now handled
+                    iterator.remove();
+                }
+            }
+        });
     }
 }
