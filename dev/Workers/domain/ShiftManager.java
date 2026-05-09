@@ -306,6 +306,87 @@ public class ShiftManager {
         return count;
     }
 
+    // For Assignments
+    public void sendRequest(Shift shift, Role role, int empId) {
+        assignments.addRequest(shift, role, empId);
+    }
+
+    // For Replacements
+    public void sendRequest(Shift shift, int curId, int newId) {
+        assignments.addRequest(shift, curId, newId);
+    }
+
+    public String processRequest(int employeeId, boolean isApproved) {
+        Queue<RequestAction> queue = assignments.getRequests(employeeId);
+        if (queue == null || queue.isEmpty()) return "No requests.";
+
+        RequestAction action = queue.poll();
+        String employeeName = employeeManager.getById(employeeId).getName();
+        String status = isApproved ? "APPROVED" : "REJECTED";
+
+        if (isApproved) {
+            try {
+                action.execute(this);
+            } catch (Exception e) {
+                return "Execution failed: " + e.getMessage();
+            }
+        }
+
+        // BROADCAST TO HR:
+        String message = String.format("Employee %s (%d) %s: %s",
+                employeeName, employeeId, status, action.getDescription());
+        assignments.addRequestAnswer(message);
+
+        return "Response recorded: " + status;
+    }
+
+    public void approveNextAssignment(int empID) {
+        Queue<RequestAction> queue = assignments.getRequests(empID);
+        RequestAction action = queue.poll();
+        action.execute(this);
+    }
+
+    public boolean assignmentNeedsApproval(int empID) {
+        return assignments.hasRequests(empID);
+    }
+
+    public String displayNextPendingAssignment(int employeeId) {
+        Queue<RequestAction> queue = assignments.getRequests(employeeId);
+
+        if (queue == null || queue.isEmpty()) {
+            return "No pending requests for Employee ID: " + employeeId;
+        }
+
+        // Look at the head of the FIFO queue without removing it
+        RequestAction nextAction = queue.peek();
+
+        StringBuilder sb = new StringBuilder("=== NEXT PENDING REQUEST ===\n");
+        sb.append("Employee ID: ").append(employeeId).append("\n");
+        sb.append("Details    : ").append(nextAction.getDescription()).append("\n");
+        sb.append("----------------------------\n");
+        sb.append("Enter 1 to Approve, 0 to Skip/Stay in queue.");
+
+        return sb.toString();
+    }
+
+    private void finalizeShiftRequests(Shift shift) {
+        // Iterate through every employee's pending queue
+        assignments.getAllPendingRequests().forEach((empId, queue) -> {
+            // Find actions in this queue belonging to this shift
+            // We use an iterator so we can safely remove items while looping
+            var iterator = queue.iterator();
+            while (iterator.hasNext()) {
+                RequestAction action = iterator.next();
+                if (action.shift().equals(shift)) {
+                    // Execute the action (force-assign/replace)
+                    action.execute(this);
+                    // Remove it from their queue since it's now handled
+                    iterator.remove();
+                }
+            }
+        });
+    }
+
     public void setRequirement(Shift shift, Role role, int count) {
         /*if (role == Role.shiftManager && count < 1) {
             throw new IllegalArgumentException(
@@ -627,7 +708,7 @@ public class ShiftManager {
         Map<Shift, String> statusMap = weekAssignment();
         List<String> lines = statusMap.keySet().stream()
                 .sorted(Comparator.comparing(Shift::getShiftDate).thenComparing(Shift::getType))
-                .map(s -> String.format("%s: %s%s", s.toStringByWeekDay(), statusMap.get(s), getExtraHoursStr(s, null, true)))
+                .map(s -> String.format("%s: %s", s.toStringByWeekDay(), statusMap.get(s)))
                 .collect(Collectors.toList());
 
         return lines.isEmpty() ? "No shifts to display." : buildGrid(lines);
@@ -652,86 +733,5 @@ public class ShiftManager {
                 .collect(Collectors.joining());
 
         return content.isEmpty() ? "No history available." : "=== SHIFT HISTORY ===\n" + content;
-    }
-
-    // For Assignments
-    public void sendRequest(Shift shift, Role role, int empId) {
-        assignments.addRequest(shift, role, empId);
-    }
-
-    // For Replacements
-    public void sendRequest(Shift shift, int curId, int newId) {
-        assignments.addRequest(shift, curId, newId);
-    }
-
-    public String processRequest(int employeeId, boolean isApproved) {
-        Queue<RequestAction> queue = assignments.getRequests(employeeId);
-        if (queue == null || queue.isEmpty()) return "No requests.";
-
-        RequestAction action = queue.poll();
-        String employeeName = employeeManager.getById(employeeId).getName();
-        String status = isApproved ? "APPROVED" : "REJECTED";
-
-        if (isApproved) {
-            try {
-                action.execute(this);
-            } catch (Exception e) {
-                return "Execution failed: " + e.getMessage();
-            }
-        }
-
-        // BROADCAST TO HR:
-        String message = String.format("Employee %s (%d) %s: %s",
-                employeeName, employeeId, status, action.getDescription());
-        assignments.addRequestAnswer(message);
-
-        return "Response recorded: " + status;
-    }
-
-    public void approveNextAssignment(int empID) {
-        Queue<RequestAction> queue = assignments.getRequests(empID);
-        RequestAction action = queue.poll();
-        action.execute(this);
-    }
-
-    public boolean assignmentNeedsApproval(int empID) {
-        return assignments.hasRequests(empID);
-    }
-
-    public String displayNextPendingAssignment(int employeeId) {
-        Queue<RequestAction> queue = assignments.getRequests(employeeId);
-
-        if (queue == null || queue.isEmpty()) {
-            return "No pending requests for Employee ID: " + employeeId;
-        }
-
-        // Look at the head of the FIFO queue without removing it
-        RequestAction nextAction = queue.peek();
-
-        StringBuilder sb = new StringBuilder("=== NEXT PENDING REQUEST ===\n");
-        sb.append("Employee ID: ").append(employeeId).append("\n");
-        sb.append("Details    : ").append(nextAction.getDescription()).append("\n");
-        sb.append("----------------------------\n");
-        sb.append("Enter 1 to Approve, 0 to Skip/Stay in queue.");
-
-        return sb.toString();
-    }
-
-    private void finalizeShiftRequests(Shift shift) {
-        // Iterate through every employee's pending queue
-        assignments.getAllPendingRequests().forEach((empId, queue) -> {
-            // Find actions in this queue belonging to this shift
-            // We use an iterator so we can safely remove items while looping
-            var iterator = queue.iterator();
-            while (iterator.hasNext()) {
-                RequestAction action = iterator.next();
-                if (action.shift().equals(shift)) {
-                    // Execute the action (force-assign/replace)
-                    action.execute(this);
-                    // Remove it from their queue since it's now handled
-                    iterator.remove();
-                }
-            }
-        });
     }
 }
