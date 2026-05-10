@@ -17,7 +17,7 @@ public interface RequestAction {
         }
         @Override
         public String getDescription() {
-            return "Shift: " + shift.getShiftDate() + " (" + shift.toStringByWeekDay() + ") " + shift.getType() + "\n" +
+            return "Shift: " + shift.getShiftDate() + " - " + shift.toStringByWeekDay() + "\n" +
                     "Assignment: " + role + " on " + shift.getShiftDate();
         }
     }
@@ -30,7 +30,7 @@ public interface RequestAction {
         }
         @Override
         public String getDescription() {
-            return "Shift: " + shift.getShiftDate() + " (" + shift.toStringByWeekDay() + ") " + shift.getType() + "\n" +
+            return "Shift: " + shift.getShiftDate() + " - " + shift.toStringByWeekDay() + "\n" +
                     "Replacement: ID " + curId + " -> ID " + newId;
         }
     }

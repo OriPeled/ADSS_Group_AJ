@@ -352,6 +352,7 @@ public class ManageShiftsMenu {
                 try {
                     if (shiftService.needToForceReplace(shift, curId, newId)) {
                         forceReplace(shift, curId, newId);
+                        return;
                     }
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());

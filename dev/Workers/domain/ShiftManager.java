@@ -463,10 +463,29 @@ public class ShiftManager {
                 });
 
         // Check if a manager is pending
+        // Check if a manager is pending (Fixed Version)
         boolean managerPending = assignments.getAllPendingRequests().values().stream()
                 .flatMap(Collection::stream)
-                .anyMatch(action -> action.shift().equals(shift) &&
-                        employeeManager.getById(((RequestAction.AssignAction)action).empId()).isManager());
+                .anyMatch(action -> {
+                    // 1. Check if it's the right shift
+                    if (!action.shift().equals(shift)) {
+                        return false;
+                    }
+
+                    // 2. Check if it is an Assignment Action
+                    if (action instanceof RequestAction.AssignAction assignAction) {
+                        // If it is, check if the person being assigned is a manager
+                        return employeeManager.getById(assignAction.empId()).isManager();
+                    }
+
+                    // 3. Check if it is a Replace Action
+                    if (action instanceof RequestAction.ReplaceAction replaceAction) {
+                        // For replacements, check if the NEW person coming in is a manager
+                        return employeeManager.getById(replaceAction.newId()).isManager();
+                    }
+
+                    return false;
+                });
 
         if (rolesFullTentative && (managerApproved || managerPending)) {
             return "COMPLETE*";

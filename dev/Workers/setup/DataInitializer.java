@@ -120,7 +120,7 @@ public class DataInitializer {
 
             constraintService.update(101, DayOfWeek.SUNDAY, ShiftType.rest);
             constraintService.update(77, DayOfWeek.SUNDAY, ShiftType.rest);
-            constraintService.update(444, DayOfWeek.SUNDAY, ShiftType.rest);
+            //constraintService.update(444, DayOfWeek.SUNDAY, ShiftType.rest);
 
             // ===========================
             // NEXT WEEK (26.4-2.5) SHIFTS
@@ -137,7 +137,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 223);
                 shiftService.assignEmployee(futureShift1, Role.Cashier, 224);
                 shiftService.assignEmployee(futureShift1, Role.Storekeeper, 333);
-                //shiftService.assignEmployee(futureShift1, Role.Storekeeper, 444);
+                shiftService.assignEmployee(futureShift1, Role.Storekeeper, 444);
                 shiftService.assignEmployee(futureShift1, Role.Storekeeper, 445);
 
                 Shift futureShift2 = shiftService.getShift(date22, ShiftType.evening);
@@ -146,7 +146,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(futureShift2, Role.Cashier, 223);
                 shiftService.assignEmployee(futureShift2, Role.Cashier, 224);
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 333);
-                //shiftService.assignEmployee(futureShift2, Role.Storekeeper, 444);
+                shiftService.assignEmployee(futureShift2, Role.Storekeeper, 444);
                 shiftService.assignEmployee(futureShift2, Role.Storekeeper, 445);
             }
 
