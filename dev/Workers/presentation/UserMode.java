@@ -60,6 +60,7 @@ public class UserMode {
             try {
                 accessService.Register(id, newPass);
                 System.out.println("User with ID: " + id + " is now registered and logged in.");
+                employeeId = id;
                 start();
                 return;
             }
@@ -109,11 +110,10 @@ public class UserMode {
         if (choice == 1) {
             shiftService.processRequest(employeeId, true);
             System.out.println("Assignment request approved.");
-        } if (choice == 0) {
+        } else if (choice == 0) {
             shiftService.processRequest(employeeId, false);
             System.out.println("Assignment request rejected.");
         } else {
-
             System.out.println("Invalid choice. Try again.");
         }
     }

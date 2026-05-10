@@ -15,13 +15,15 @@ import java.time.LocalDate;
  * and managing deadlines for constraint submissions.
  */
 public class ConstraintService {
-    private static final ConstraintManager constraintManager = ConstraintManager.getInstance();
+    private static ConstraintManager constraintManager;
+
     private static ConstraintService instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
     private ConstraintService() {
+        constraintManager = ConstraintManager.getInstance();
     }
 
     public static ConstraintService getInstance() {
