@@ -1,0 +1,64 @@
+package dev.Workers.domain.Objects;
+
+import dev.Workers.domain.Enums.ShiftType;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Objects;
+
+public class Shift {
+    private LocalDate shiftDate;
+    private ShiftType type;
+    private boolean hasManager;
+
+    public boolean hasManager() {
+        return hasManager;
+    }
+
+    public void setManaged(boolean hasManager) {
+        this.hasManager = hasManager;
+    }
+
+    public Shift(LocalDate shiftDate, ShiftType type) {
+        this.type = type;
+        this.shiftDate = shiftDate;
+        this.hasManager = false;
+    }
+
+    public ShiftType getType() {
+        return type;
+    }
+
+    public LocalDate getShiftDate() {
+        return shiftDate;
+    }
+
+    public DayOfWeek getShiftDay() { return shiftDate.getDayOfWeek(); }
+
+    /**
+     *
+     * @param o
+     * @return true if date and shift tye equal ,otherwise false
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Shift shift = (Shift) o;
+        return Objects.equals(shiftDate, shift.shiftDate) && type == shift.type;
+    }
+
+    @Override
+    public int hashCode() {
+        // Generate a hash based on the data fields
+        return Objects.hash(shiftDate, type);
+    }
+
+    @Override
+    public String toString() {
+        String managerIndicator = hasManager ? "[Managed]" : "[Unmanaged]";
+        return String.format("%s (%s) %s", shiftDate, type, managerIndicator);
+    }
+
+    public String toStringByWeekDay() { return shiftDate.getDayOfWeek().name() + " (" + type + ")"; }
+}

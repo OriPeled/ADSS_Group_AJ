@@ -1,0 +1,37 @@
+package dev.Workers.domain.Actions;
+
+import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.ShiftManager;
+
+public interface RequestAction {
+    void execute(ShiftManager manager);
+    String getDescription();
+    Shift shift();
+
+    // Nested Record 1
+    record AssignAction(Shift shift, Role role, int empId) implements RequestAction {
+        @Override
+        public void execute(ShiftManager manager) {
+            manager.forceAssign(shift, role, empId);
+        }
+        @Override
+        public String getDescription() {
+            return "Shift: " + shift.getShiftDate() + " - " + shift.toStringByWeekDay() + "\n" +
+                    "Assignment: " + role + " on " + shift.getShiftDate();
+        }
+    }
+
+    // Nested Record 2
+    record ReplaceAction(Shift shift, int curId, int newId) implements RequestAction {
+        @Override
+        public void execute(ShiftManager manager) {
+            manager.forceReplace(shift, curId, newId);
+        }
+        @Override
+        public String getDescription() {
+            return "Shift: " + shift.getShiftDate() + " - " + shift.toStringByWeekDay() + "\n" +
+                    "Replacement: ID " + curId + " -> ID " + newId;
+        }
+    }
+}
