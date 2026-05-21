@@ -1,9 +1,9 @@
 package dev.Transportation;
 
 import static dev.Main.scanner;
+import static dev.Workers.presentation.Parser.readIntSafe;
 
 public class ManageDriversMenu {
-
     public static void start() {
         while (true) {
             printMainMenu();
@@ -12,7 +12,7 @@ public class ManageDriversMenu {
 
                 switch (choice) {
                     case 1 -> accessDriver();
-                    case 2 -> addDriver();
+                    //case 2 -> addDriver();
                     case 0 -> { return; }
                     default -> System.out.println("Invalid choice.");
                 }
@@ -23,15 +23,31 @@ public class ManageDriversMenu {
         }
     }
 
-    private static void addDriver() {
+    private static void accessDriver() {
+        System.out.println("Enter employee ID (0 to go back):");
+
+        int empId = readIntSafe();
+
+        if (empId == 0) return;
+
+        if (!employeeService.exists(empId)) {
+            System.out.println("Employee not found.");
+            return;
+        }
+        manageDriver(empId);
     }
 
-    private static void accessDriver() {
+    private static void manageDriver(int empId) {
+
+    }
+
+    private static void addDriver() {
+
     }
 
     public static void printMainMenu() {
-        System.out.println("Driver Management Menu :");
-        System.out.println("1. Manage existing requiments for the drivers");
+        System.out.println("Driver Management Menu:");
+        System.out.println("1. Manage existing driver");
         System.out.println("2. Add Driver for transportation");
         System.out.println("0. Back");
     }
