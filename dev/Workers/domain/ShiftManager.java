@@ -753,4 +753,5 @@ public class ShiftManager {
 
         return content.isEmpty() ? "No history available." : "=== SHIFT HISTORY ===\n" + content;
     }
+
 }
