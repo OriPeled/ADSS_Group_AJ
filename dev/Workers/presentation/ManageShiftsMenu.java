@@ -14,7 +14,7 @@ import static dev.Workers.domain.Enums.ShiftType.evening;
 import static dev.Workers.domain.Enums.ShiftType.morning;
 import static dev.Workers.domain.Enums.WeekStatus.PUBLISHED;
 import static dev.Workers.domain.Enums.WeekStatus.READY_TO_PUBLISH;
-import static dev.Workers.presentation.Main.scanner;
+import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.*;
 
 /**

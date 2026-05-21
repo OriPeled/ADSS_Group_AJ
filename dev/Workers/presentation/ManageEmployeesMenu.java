@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 import static dev.Workers.domain.Enums.UserResponse.demoted;
 import static dev.Workers.domain.Enums.UserResponse.promoted;
-import static dev.Workers.presentation.Main.scanner;
+import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.*;
 
 public class ManageEmployeesMenu  {

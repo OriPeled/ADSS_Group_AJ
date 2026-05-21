@@ -1,16 +1,14 @@
 package dev.Workers.presentation;
 
 import dev.Workers.Service.*;
-import dev.Workers.domain.Assignments;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
-import dev.Workers.domain.Objects.Shift;
 
 import java.time.DayOfWeek;
 
 import static dev.Workers.domain.Enums.UserResponse.*;
 import static dev.Workers.domain.Enums.ShiftType.*;
-import static dev.Workers.presentation.Main.scanner;
+import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.readIntSafe;
 
 public class UserMode {

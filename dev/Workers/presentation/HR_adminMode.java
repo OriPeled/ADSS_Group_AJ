@@ -2,7 +2,7 @@ package dev.Workers.presentation;
 
 //import dev.Workers.domain.Objects.HR_Admin;
 
-import static dev.Workers.presentation.Main.scanner;
+import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.readIntSafe;
 
 /**
@@ -13,7 +13,7 @@ import static dev.Workers.presentation.Parser.readIntSafe;
  * - Authentication loop
  * - Navigation to employee/shift management menus
  */
-public class AdminMode {
+public class HR_adminMode {
     private static final String HR_PASSWORD = "8888";
     /**
      * Handles admin login process.

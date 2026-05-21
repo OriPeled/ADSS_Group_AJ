@@ -1,14 +1,13 @@
 package dev.Workers.presentation;
 
 import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Objects.WeekSchedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 
-import static dev.Workers.presentation.Main.scanner;
+import static dev.Main.scanner;
 
 public class Parser {
     public static LocalDate stringToDate(String dateString) {
@@ -82,7 +81,7 @@ public class Parser {
         }
     }
 
-    static int readIntSafe() {
+    public static int readIntSafe() {
         while (true) {
             try {
                 return Integer.parseInt(scanner.nextLine());
