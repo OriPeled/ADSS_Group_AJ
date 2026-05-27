@@ -1,16 +1,19 @@
 package dev.Workers.domain;
 
+import dev.Workers.setup.TransportModule;
 import dev.Workers.domain.Actions.RequestAction;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.Objects.Employee;
-import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.Objects.WeekSchedule;
+import dev.Workers.domain.Objects.*;
+import dev.Workers.domain.Objects.Role;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static dev.Workers.domain.Enums.ShiftType.EVENING;
+import static dev.Workers.domain.Enums.ShiftType.MORNING;
 
 /**
  * ShiftService is the core business logic of the system.
@@ -23,19 +26,13 @@ import java.util.stream.Collectors;
  */
 public class ShiftManager {
     private static final Map<LocalDate, WeekSchedule> weekSchedules = new HashMap<>();
-
     private final Set<Shift> shifts;
-    private final Requirements requirements;
-
-    public Assignments getAssignments() {
-        return assignments;
-    }
+    private final RequirementsHandler requirementsHandler;
 
     private final Assignments assignments;
-
     private final ConstraintManager constraintManager;
     private final EmployeeManager employeeManager;
-    private final RoleManager roleManager;
+    private final RoleRegistry roleRegistry;
 
     private static ShiftManager instance;
 
@@ -48,11 +45,11 @@ public class ShiftManager {
 
     private ShiftManager() {
         this.shifts = new HashSet<>();
-        this.requirements = new Requirements();
+        this.requirementsHandler = new RequirementsHandler();
         this.constraintManager = ConstraintManager.getInstance();
         this.assignments = new Assignments();
         this.employeeManager = EmployeeManager.getInstance();
-        this.roleManager = RoleManager.getInstance();
+        this.roleRegistry = RoleRegistry.getInstance();
     }
 
     /**
@@ -64,7 +61,7 @@ public class ShiftManager {
     public void addShift(LocalDate date, ShiftType type) {
         Shift newShift = new Shift(date, type);
         if (shifts.add(newShift)) {
-            requirements.init(newShift);
+            requirementsHandler.init(newShift);
             assignments.init(newShift);
         }
     }
@@ -78,16 +75,16 @@ public class ShiftManager {
      */
     public Shift getShift(LocalDate date, ShiftType type) {
         for (Shift s : shifts) {
-            if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
+            if (s.getDate().equals(date) && s.getType().equals(type)) {
                 return s;
             }
         }
 
-        if (type == ShiftType.morning || type == ShiftType.evening) {
+        if (type == MORNING || type == ShiftType.EVENING) {
             addShift(date, type);
 
             for (Shift s : shifts) {
-                if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
+                if (s.getDate().equals(date) && s.getType().equals(type)) {
                     return s;
                 }
             }
@@ -99,7 +96,7 @@ public class ShiftManager {
     public Shift getExistingShift(LocalDate date, ShiftType type) {
         Shift shift = null;
         for (Shift s : shifts) {
-            if (s.getShiftDate().equals(date) && s.getType().equals(type)) {
+            if (s.getDate().equals(date) && s.getType().equals(type)) {
                 shift = s;
                 break;
             }
@@ -111,27 +108,44 @@ public class ShiftManager {
         return shift;
     }
 
+    public Assignments getAssignments() {
+        return assignments;
+    }
+
     // for rare cases
     public void resetShift(Shift shift) {
         shifts.remove(shift);
-        requirements.init(shift);
+        requirementsHandler.init(shift);
         assignments.init(shift);
     }
 
+    public boolean isShiftsWeekEmpty() {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        for (Shift shift : shifts) {
+            LocalDate shiftDate = shift.getDate();
+            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public int leftToAssign(Shift shift, Role role) {
-        return requirements.countRequired(shift, role)
+        return requirementsHandler.countRequired(shift, role)
                 - assignments.countAssigned(shift, role);
     }
 
     public void assignEmployee(Shift shift, Role role, int employeeId) {
-        employeeManager.validateEmployeeBasic(employeeId, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(employeeId, shift.getDate());
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
         if (assignments.isAssignedToShift(shift, employeeId))
-            throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getShiftDate());
+            throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getDate());
         if (assignments.isRequestedToShift(shift, employeeId))
-            throw new IllegalArgumentException("Employee " + employeeId + " was already requested to assign to this shift" + shift.getShiftDate());
-        if (!isQualified(employeeId, role))
+            throw new IllegalArgumentException("Employee " + employeeId + " was already requested to assign to this shift" + shift.getDate());
+        if (!role.isQualified(employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role.");
         if (!isAvailable(employeeId, shift)) {
             throw new IllegalArgumentException("Employee " + employeeId + " is not available for this shift.");
@@ -157,8 +171,9 @@ public class ShiftManager {
     }
 
     public boolean needToForceAssign(Shift shift, Role role, int employeeId) {
+        Employee emp = employeeManager.getById(employeeId);
         return nobodyToAssign(shift, role)
-                && roleManager.isQualified(employeeId, role)
+                && role.isQualified(employeeId)
                 && !assignments.isRequestedToShift(shift, employeeId);
     }
 
@@ -207,17 +222,17 @@ public class ShiftManager {
             throw new IllegalArgumentException("Shift is empty.");
         if (curId == newId)
             throw new IllegalArgumentException("You entered the same ID twice.");
-        employeeManager.validateEmployeeBasic(curId, shift.getShiftDate());
-        employeeManager.validateEmployeeBasic(newId, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(curId, shift.getDate());
+        employeeManager.validateEmployeeBasic(newId, shift.getDate());
         if (!assignments.isAssignedToShift(shift, curId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
         if (assignments.isRequestedToShift(shift, newId))
-            throw new IllegalArgumentException("Employee " + newId + " was already requested to assign to this shift" + shift.getShiftDate());
+            throw new IllegalArgumentException("Employee " + newId + " was already requested to assign to this shift" + shift.getDate());
 
         Role roleCur = assignments.getEmployeeRole(shift, curId);
         Role roleNew = assignments.getEmployeeRole(shift, newId);
 
-        if (!isQualified(newId, roleCur))
+        if (!roleCur.isQualified(newId))
             throw new IllegalArgumentException("Employee " + newId + " not qualified for this role.");
 
         if (roleNew != null) { // if newEmployee is already in this shift
@@ -231,7 +246,7 @@ public class ShiftManager {
         if (roleCur == roleNew)
             throw new IllegalArgumentException("Employee " + newEmployeeId + " already assigned to this role.");
 
-        if (!isQualified(currentEmployeeId, roleNew))
+        if (!roleNew.isQualified(currentEmployeeId))
             throw new IllegalArgumentException("Employee " + currentEmployeeId + "  not qualified for this role.");
 
         removeEmployee(shift, currentEmployeeId);
@@ -253,7 +268,7 @@ public class ShiftManager {
         if (role == null)
             return false;
         return countUnassignedValid(shift, role) == 0
-                && roleManager.isQualified(newId, role);
+                && role.isQualified(newId);
     }
 
     // called when curId role is assigned and no available employees to replace
@@ -270,16 +285,9 @@ public class ShiftManager {
     private boolean isAvailable(int id, Shift shift) {
         return constraintManager.isEmployeeAvailable(
                 id,
-                shift.getShiftDate().getDayOfWeek(),
+                shift.getDate().getDayOfWeek(),
                 shift.getType()
         );
-    }
-
-    /**
-     * Checks if employee has the required role.
-     */
-    private boolean isQualified(int id, Role role) {
-        return roleManager.getListById(id).contains(role);
     }
 
     /**
@@ -287,7 +295,7 @@ public class ShiftManager {
      */
     public boolean isNeeded(Shift shift, Role role) {
         return assignments.countAssigned(shift, role)
-                < requirements.countRequired(shift, role);
+                < requirementsHandler.countRequired(shift, role);
     }
 
     public boolean nobodyToAssign(Shift shift, Role role) {
@@ -297,7 +305,10 @@ public class ShiftManager {
     // unassigned qualified, not available
     public int countUnassignedValid(Shift shift, Role role) {
         int count = 0;
-        List<Integer> qualifiedIds = roleManager.getListByRole(role);
+
+        // We use the passed-in service here
+        List<Integer> qualifiedIds = employeeManager.getListByRole(role);
+
         for (int id : qualifiedIds) {
             if (isAvailable(id, shift) && !assignments.isAssignedToShift(shift, id)) {
                 count++;
@@ -392,11 +403,11 @@ public class ShiftManager {
             throw new IllegalArgumentException(
                     "Cannot set shift manager requirement below 1: every shift must have at least one shift manager.");
         }*/
-        requirements.set(shift, role, count);
+        requirementsHandler.set(shift, role, count);
 
         Set<Integer> employees = assignments.getEmployeesByRole(shift, role);
         int assigned = employees.size();
-        int required = requirements.countRequired(shift, role);
+        int required = requirementsHandler.countRequired(shift, role);
 
         // randomly removing redundant employees
         if (assigned > required) {
@@ -411,7 +422,7 @@ public class ShiftManager {
     }
 
     public void updateExtraHours(Shift shift, int empID, int hours) {
-        employeeManager.validateEmployeeBasic(empID, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(empID, shift.getDate());
         assignments.updateExtraHours(shift, empID, hours);
     }
 
@@ -431,7 +442,7 @@ public class ShiftManager {
         for (int i = 0; i < 7; i++) {
             LocalDate date = startDay.plusDays(i);
 
-            for (ShiftType type : new ShiftType[]{ShiftType.morning, ShiftType.evening}) {
+            for (ShiftType type : new ShiftType[]{MORNING, ShiftType.EVENING}) {
                 Shift shift = getShift(date, type);
                 if (shift != null) {
                     result.add(shift);
@@ -448,18 +459,18 @@ public class ShiftManager {
     }
 
     public String getShiftStatus(Shift shift) {
-        boolean rolesFullApproved = Arrays.stream(Role.values())
-                .allMatch(r -> assignments.getEmployeesByRole(shift, r).size() >= requirements.countRequired(shift, r));
+        boolean rolesFullApproved = roleRegistry.getAllRoles().stream()
+                .allMatch(r -> assignments.getEmployeesByRole(shift, r).size() >= requirementsHandler.countRequired(shift, r));
 
         boolean managerApproved = hasManager(shift);
 
         if (rolesFullApproved && managerApproved) return "COMPLETE";
 
         // Check "Tentative" counts (Approved + Pending)
-        boolean rolesFullTentative = Arrays.stream(Role.values())
+        boolean rolesFullTentative = roleRegistry.getAllRoles().stream()
                 .allMatch(r -> {
                     int combined = assignments.getEmployeesByRole(shift, r).size() + getPendingIds(shift, r).size();
-                    return combined >= requirements.countRequired(shift, r);
+                    return combined >= requirementsHandler.countRequired(shift, r);
                 });
 
         // Check if a manager is pending
@@ -610,8 +621,8 @@ public class ShiftManager {
     // Helper 2: The UI for Role Staffing (e.g., Driver: 1/2 assigned)
     private String getRoleAssignmentsStr(Shift shift) {
         StringBuilder sb = new StringBuilder();
-        for (Role role : Role.values()) {
-            int req = requirements.countRequired(shift, role);
+        for (Role role : roleRegistry.getAllRoles()) {
+            int req = requirementsHandler.countRequired(shift, role);
             Set<Integer> approved = assignments.getEmployeesByRole(shift, role);
             Set<Integer> pending = getPendingIds(shift, role); // Get the * people
 
@@ -633,7 +644,7 @@ public class ShiftManager {
     private String formatShiftBlock(Shift s) {
         String footnote = "\n* needs to approve\n";
         return String.format("\nShift: %s - %s\n%s%s%s",
-                s.getShiftDate(), s.getType(), getRoleAssignmentsStr(s), getExtraHoursStr(s, null, false), footnote);
+                s.getDate(), s.getType(), getRoleAssignmentsStr(s), getExtraHoursStr(s, null, false), footnote);
     }
 
     // Helper 4: The UI for the Week Schedule Dashboard Grid (3-column layout)
@@ -661,7 +672,7 @@ public class ShiftManager {
     }
 
     public String getUnassignedValid(Shift shift) {
-        boolean rolesFull = Arrays.stream(Role.values()).noneMatch(r -> isNeeded(shift, r));
+        boolean rolesFull = roleRegistry.getAllRoles().stream().noneMatch(r -> isNeeded(shift, r));
         boolean hasManager = hasManager(shift);
 
         StringBuilder sb = new StringBuilder("=== Shift Assignment Assistant ===\n");
@@ -677,16 +688,16 @@ public class ShiftManager {
 
         sb.append("Listing all active, unassigned employees:\n");
 
-        for (Role role : Role.values()) {
+        for (Role role : roleRegistry.getAllRoles()) {
             StringBuilder section = new StringBuilder("\n--- " + role + " ---\n");
             boolean foundInRole = false;
 
             // Get everyone qualified for this role
-            for (int id : roleManager.getListByRole(role)) {
+            for (int id : employeeManager.getListByRole(role)) {
                 Employee emp = employeeManager.getById(id);
 
                 // Criteria: Must be active today AND not already working this shift
-                if (emp.isActive(shift.getShiftDate()) && !assignments.isAssignedToShift(shift, id)) {
+                if (emp.isActive(shift.getDate()) && !assignments.isAssignedToShift(shift, id)) {
 
                     boolean available = isAvailable(id, shift);
                     String status = available ? "[READY]" : "[REJECTED]";
@@ -716,7 +727,7 @@ public class ShiftManager {
         String content = getShiftsForWeek(refDate).stream()
                 .filter(s -> assignments.isAssignedToShift(s, id))
                 .map(s -> String.format("- %s (%s) | Role: %s%s",
-                        s.getShiftDate(), s.getType(), assignments.getEmployeeRole(s, id), getExtraHoursStr(s, id, true)))
+                        s.getDate(), s.getType(), assignments.getEmployeeRole(s, id), getExtraHoursStr(s, id, true)))
                 .collect(Collectors.joining("\n"));
 
         return content.isEmpty() ? "No shifts found for ID " + id : "Shifts for ID " + id + ":\n" + content;
@@ -726,7 +737,7 @@ public class ShiftManager {
     public String displayWeekAssignments() {
         Map<Shift, String> statusMap = weekAssignment();
         List<String> lines = statusMap.keySet().stream()
-                .sorted(Comparator.comparing(Shift::getShiftDate).thenComparing(Shift::getType))
+                .sorted(Comparator.comparing(Shift::getDate).thenComparing(Shift::getType))
                 .map(s -> String.format("%s: %s", s.toStringByWeekDay(), statusMap.get(s)))
                 .collect(Collectors.toList());
 
@@ -746,12 +757,90 @@ public class ShiftManager {
 
     public String ShiftHistory() {
         String content = shifts.stream()
-                .filter(s -> s.getShiftDate().isBefore(LocalDate.now()))
-                .sorted(Comparator.comparing(Shift::getShiftDate).thenComparing(Shift::getType))
+                .filter(s -> s.getDate().isBefore(LocalDate.now()))
+                .sorted(Comparator.comparing(Shift::getDate).thenComparing(Shift::getType))
                 .map(this::formatShiftBlock)
                 .collect(Collectors.joining());
 
         return content.isEmpty() ? "No history available." : "=== SHIFT HISTORY ===\n" + content;
     }
 
+    public void getDriverReqs() {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        for (Shift shift : shifts) {
+            LocalDate shiftDate = shift.getDate();
+            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+
+                // Assuming TransportModule now returns a Map<LicenseType, Integer>
+                Map<LicenseType, Integer> licensesNeeded = TransportModule.getDriverRequirements(shift.getDate(), shift.getType());
+
+                if (licensesNeeded != null) {
+                    for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
+                        // Fetch the specific DriverRole for this license from the registry
+                        // (Ensure the string matches how you named it in RoleRegistry!)
+                        Role driverRole = roleRegistry.getRoleByName("Driver (" + entry.getKey() + ")");
+                        requirementsHandler.set(shift, driverRole, entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    public void getStoreKeeperReqs() {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
+
+        for (Shift shift : shifts) {
+            LocalDate shiftDate = shift.getDate();
+            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+
+                // Assuming TransportModule now just returns the raw integer amount
+                int amount = TransportModule.getStorekeeperRequirements(shift.getDate(), shift.getType());
+                requirementsHandler.set(shift, storekeeperRole, amount);
+            }
+        }
+    }
+
+    public void setCashierWeekReqs(int amount) {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        Role cashierRole = roleRegistry.getRoleByName("Cashier");
+
+        for (Shift shift : shifts) {
+            LocalDate shiftDate = shift.getDate();
+            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                requirementsHandler.set(shift, cashierRole, amount);
+            }
+        }
+    }
+
+    public void setStoreKeeperWeekReqs(int amount) {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
+
+        for (Shift shift : shifts) {
+            LocalDate shiftDate = shift.getDate();
+            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                requirementsHandler.set(shift, storekeeperRole, amount);
+            }
+        }
+    }
+
+    public void initShiftsWeek() {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        LocalDate curDay = startOfWeek;
+
+        while (!curDay.isAfter(endOfWeek)) {
+            addShift(curDay, MORNING);
+            addShift(curDay, EVENING);
+            curDay = curDay.plusDays(1);
+        }
+    }
 }

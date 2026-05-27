@@ -3,14 +3,12 @@ package dev.Workers.Tests;
 import dev.Workers.Service.ShiftService;
 import dev.Workers.domain.ConstraintManager;
 import dev.Workers.domain.EmployeeManager;
-import dev.Workers.domain.RoleManager;
+import dev.Workers.Service.RoleService;
+import dev.Workers.domain.Enums.*;
+import dev.Workers.domain.RoleRegistry;
 import dev.Workers.domain.ShiftManager;
-import dev.Workers.domain.Enums.JobStatus;
-import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.SalaryType;
-import dev.Workers.domain.Enums.ShiftType;
-import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.Objects.WeekSchedule;
 
@@ -22,7 +20,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,9 +42,13 @@ public class ShiftServiceTest {
 
     private ShiftService shiftService;
     private EmployeeManager employeeManager;
-    private RoleManager roleManager;
+    private RoleService roleService;
     private ConstraintManager constraintManager;
     private ShiftManager shiftManager;
+    private RoleRegistry roleRegistry;
+
+    private Role cashierRole;
+    private Role storekeeperRole;
 
     /**
      * Resets all related singletons and shared data before each test.
@@ -56,15 +57,20 @@ public class ShiftServiceTest {
     void setUp() throws Exception {
         resetSingleton(ShiftService.class, "instance");
         resetSingleton(EmployeeManager.class, "instance");
-        resetSingleton(RoleManager.class, "instance");
+        resetSingleton(RoleService.class, "instance");
         resetSingleton(ConstraintManager.class, "instance");
         resetSingleton(ShiftManager.class, "instance");
+        resetSingleton(RoleRegistry.class, "instance");
 
         employeeManager = EmployeeManager.getInstance();
-        roleManager = RoleManager.getInstance();
+        roleService = RoleService.getInstance();
         constraintManager = ConstraintManager.getInstance();
         shiftManager = ShiftManager.getInstance();
         shiftService = ShiftService.getInstance();
+
+        roleRegistry = RoleRegistry.getInstance();
+        cashierRole = roleRegistry.getRoleByName("Cashier");
+        storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
 
         clearStaticWeekSchedules();
     }
@@ -100,6 +106,7 @@ public class ShiftServiceTest {
         employeeManager.add(
                 "Employee" + id,
                 id,
+                LicenseType.A,
                 1000 + id,
                 5000,
                 new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
@@ -128,8 +135,8 @@ public class ShiftServiceTest {
 
         employeeManager.getById(1).setManager(true);
 
-        roleManager.addRoleToEmployee(1, Role.Cashier);
-        roleManager.addRoleToEmployee(2, Role.Storekeeper);
+        roleService.addRoleToEmployee(1, cashierRole);
+        roleService.addRoleToEmployee(2, storekeeperRole);
 
         initConstraints(1);
         initConstraints(2);
@@ -145,15 +152,15 @@ public class ShiftServiceTest {
         for (int i = 0; i < 7; i++) {
             LocalDate date = sunday.plusDays(i);
 
-            for (ShiftType type : new ShiftType[]{ShiftType.morning, ShiftType.evening}) {
+            for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
                 shiftService.addShift(date, type);
                 Shift shift = shiftService.getShift(date, type);
 
-                shiftService.setRequirement(shift, Role.Cashier, 1);
-                shiftService.setRequirement(shift, Role.Storekeeper, 1);
+                shiftService.setRequirement(shift, cashierRole, 1);
+                shiftService.setRequirement(shift, storekeeperRole, 1);
 
-                shiftService.assignEmployee(shift, Role.Cashier, 1);
-                shiftService.assignEmployee(shift, Role.Storekeeper, 2);
+                shiftService.assignEmployee(shift, cashierRole, 1);
+                shiftService.assignEmployee(shift, storekeeperRole, 2);
             }
         }
     }
@@ -262,8 +269,8 @@ public class ShiftServiceTest {
         addEmployee(1);
         addEmployee(2);
 
-        roleManager.addRoleToEmployee(1, Role.Cashier);
-        roleManager.addRoleToEmployee(2, Role.Storekeeper);
+        roleService.addRoleToEmployee(1, cashierRole);
+        roleService.addRoleToEmployee(2, storekeeperRole);
 
         initConstraints(1);
         initConstraints(2);

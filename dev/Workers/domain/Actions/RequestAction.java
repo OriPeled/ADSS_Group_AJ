@@ -1,6 +1,6 @@
 package dev.Workers.domain.Actions;
 
-import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
 
@@ -17,8 +17,8 @@ public interface RequestAction {
         }
         @Override
         public String getDescription() {
-            return "Shift: " + shift.getShiftDate() + " - " + shift.toStringByWeekDay() + "\n" +
-                    "Assignment: " + role + " on " + shift.getShiftDate();
+            return "Shift: " + shift.getDate() + " - " + shift.toStringByWeekDay() + "\n" +
+                    "Assignment: " + role + " on " + shift.getDate();
         }
     }
 
@@ -30,7 +30,7 @@ public interface RequestAction {
         }
         @Override
         public String getDescription() {
-            return "Shift: " + shift.getShiftDate() + " - " + shift.toStringByWeekDay() + "\n" +
+            return "Shift: " + shift.getDate() + " - " + shift.toStringByWeekDay() + "\n" +
                     "Replacement: ID " + curId + " -> ID " + newId;
         }
     }

@@ -13,7 +13,7 @@ import static dev.Workers.presentation.Parser.readIntSafe;
  * - Authentication loop
  * - Navigation to employee/shift management menus
  */
-public class HR_adminMode {
+public class adminMode {
     private static final String HR_PASSWORD = "8888";
     /**
      * Handles admin login process.

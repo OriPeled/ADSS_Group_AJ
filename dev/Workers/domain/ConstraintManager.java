@@ -51,10 +51,10 @@ public class ConstraintManager {
     // received type is always morning/evening
     public void extendConstraints(int empId, DayOfWeek day, ShiftType type) {
         ShiftType empDayConstraint = getConstraints(empId).getShiftType(day);
-        if (empDayConstraint == rest)
+        if (empDayConstraint == REST)
             getConstraints(empId).setShiftType(day, type);
-        else if (empDayConstraint == morning || empDayConstraint == evening)
-            getConstraints(empId).setShiftType(day, any);
+        else if (empDayConstraint == MORNING || empDayConstraint == EVENING)
+            getConstraints(empId).setShiftType(day, ANY);
     }
 
     /**
@@ -116,8 +116,8 @@ public class ConstraintManager {
      */
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return (constraintsByID.get(id).getShiftType(day) == shiftType
-                || constraintsByID.get(id).getShiftType(day) == any)
-                && shiftType != rest;
+                || constraintsByID.get(id).getShiftType(day) == ANY)
+                && shiftType != REST;
     }
 
     /**
@@ -183,6 +183,6 @@ public class ConstraintManager {
         constraintsByID.put(id, new Constraint());
 
         DayOfWeek dayOff = employeeManager.getById(id).getTerms().getDayOff();
-        constraintsByID.get(id).setShiftType(dayOff, rest);
+        constraintsByID.get(id).setShiftType(dayOff, REST);
     }
 }

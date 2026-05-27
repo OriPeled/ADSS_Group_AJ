@@ -1,6 +1,10 @@
 package dev.Workers.domain.Objects;
 
+import dev.Workers.domain.Enums.LicenseType;
+
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents an employee in the system.
@@ -11,13 +15,15 @@ import java.time.LocalDate;
 public class Employee {
     private String name;
     private int id;
+    private boolean isManager;
+    private LicenseType licenseType;    // A/B/C/D
     private int bankAccount;
     private double salary;
     private EmployeeTerms terms;        // jobStatus, salary type, rest days
     private LocalDate startDate;
     private LocalDate endDate;          // updated if fired
 
-    private boolean isManager;
+    private final Set<Role> assignedRoles;
     public boolean isManager() {
         return isManager;
     }
@@ -26,15 +32,18 @@ public class Employee {
         isManager = manager;
     }
 
-    public Employee(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
+    public Employee(String name, int id, LicenseType licenseType, int bankAccount, double salary, EmployeeTerms terms,
+                        LocalDate startDate) {
         this.name = name;
         this.id = id;
+        this.isManager = false;
+        this.licenseType = licenseType;
         this.bankAccount = bankAccount;
         this.salary = salary;
         this.terms = terms;
         this.startDate = startDate;
         this.endDate = null;
-        this.isManager = false;
+        this.assignedRoles = new HashSet<>();
     }
 
     public String getName() {
@@ -43,6 +52,14 @@ public class Employee {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public LicenseType getLicenseType() {
+        return licenseType;
+    }
+
+    public void setLicenseType(LicenseType licenseType) {
+        this.licenseType = licenseType;
     }
 
     public int getBankAccount() {
@@ -77,11 +94,34 @@ public class Employee {
         return startDate;
     }
 
+    public Set<Role> getRoles() {
+        return assignedRoles;
+    }
+
+    public boolean hasRole(Role role) {
+        return assignedRoles.contains(role);
+    }
+
+    public void addRole(Role role) {
+        assignedRoles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        if (!hasRole(role))
+            throw new IllegalArgumentException("Employee doesn't have this role.");
+        assignedRoles.remove(role);     // this works? equals for Role?
+    }
+
+    public void removeAllRoles() {
+        assignedRoles.clear();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Employee Details\n");
         sb.append("======================================");
         sb.append("ID: ").append(id).append("\n");
+        sb.append("License Type: ").append(licenseType).append("\n");
         sb.append("Name: ").append(name).append("\n");
         sb.append("Bank account: ").append(bankAccount).append("\n");
         sb.append("Salary: ").append(salary).append("\n");

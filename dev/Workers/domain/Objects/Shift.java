@@ -7,8 +7,9 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class Shift {
-    private LocalDate shiftDate;
+    private LocalDate date;
     private ShiftType type;
+    // private Time hours
     private boolean hasManager;
 
     public boolean hasManager() {
@@ -19,9 +20,10 @@ public class Shift {
         this.hasManager = hasManager;
     }
 
-    public Shift(LocalDate shiftDate, ShiftType type) {
+    public Shift(LocalDate date, ShiftType type) {
         this.type = type;
-        this.shiftDate = shiftDate;
+        // if morning => hours = 6:00-14:00, else => hours = 14:00-22:00
+        this.date = date;
         this.hasManager = false;
     }
 
@@ -29,11 +31,11 @@ public class Shift {
         return type;
     }
 
-    public LocalDate getShiftDate() {
-        return shiftDate;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public DayOfWeek getShiftDay() { return shiftDate.getDayOfWeek(); }
+    public DayOfWeek getShiftDay() { return date.getDayOfWeek(); }
 
     /**
      *
@@ -45,20 +47,20 @@ public class Shift {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Shift shift = (Shift) o;
-        return Objects.equals(shiftDate, shift.shiftDate) && type == shift.type;
+        return Objects.equals(date, shift.date) && type == shift.type;
     }
 
     @Override
     public int hashCode() {
         // Generate a hash based on the data fields
-        return Objects.hash(shiftDate, type);
+        return Objects.hash(date, type);
     }
 
     @Override
     public String toString() {
         String managerIndicator = hasManager ? "[Managed]" : "[Unmanaged]";
-        return String.format("%s (%s) %s", shiftDate, type, managerIndicator);
+        return String.format("%s (%s) %s", date, type, managerIndicator);
     }
 
-    public String toStringByWeekDay() { return shiftDate.getDayOfWeek().name() + " (" + type + ")"; }
+    public String toStringByWeekDay() { return date.getDayOfWeek().name() + " (" + type + ")"; }
 }

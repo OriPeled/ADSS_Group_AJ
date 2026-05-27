@@ -2,13 +2,12 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.Service.EmployeeService;
-import dev.Workers.Service.RoleService;
-import dev.Workers.domain.Enums.JobStatus;
-import dev.Workers.domain.Enums.Role;
-import dev.Workers.domain.Enums.SalaryType;
+import dev.Workers.domain.Enums.*;
 
-import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.Objects.Role;
+import dev.Workers.domain.RoleRegistry;
+import dev.Workers.Service.RoleService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -22,6 +21,7 @@ public class ManageEmployeesMenu  {
     static EmployeeService employeeService = EmployeeService.getInstance();
     static ConstraintService constraintService = ConstraintService.getInstance();
     static RoleService roleService = RoleService.getInstance();
+    static RoleRegistry roleRegistry = RoleRegistry.getInstance();
 
     public static void start() {
         while (true) {
@@ -99,9 +99,10 @@ public class ManageEmployeesMenu  {
             int choice = readIntSafe();
             switch (choice) {
                 case 1 -> updateName(empId);
-                case 2 -> updateBankAccount(empId);
-                case 3 -> updateSalary(empId);
-                case 4 -> updateTerms(empId);
+                case 2 -> updateLicenseType(empId);
+                case 3 -> updateBankAccount(empId);
+                case 4 -> updateSalary(empId);
+                case 5 -> updateTerms(empId);
                 case 0 -> {return;}
                 default -> System.out.println("Invalid choice. Please select a valid option (0-4).");
             }
@@ -118,6 +119,24 @@ public class ManageEmployeesMenu  {
             try {
                 employeeService.updateName(empId, name);
                 System.out.println("Employee name updated successfully.");
+                return;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void updateLicenseType(int empId) {
+        while (true) {
+            System.out.println("Please enter a new license type (1-4 for A-D) or 0 to cancel:");
+            int licenseTypeNumber = readIntSafe();
+
+            if (licenseTypeNumber == 0) return;
+
+            try {
+                LicenseType licenseType = getLicenseTypeFromNumber(licenseTypeNumber);
+                employeeService.updateLicenseType(empId, licenseType);
+                System.out.println("License type updated successfully.");
                 return;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -271,7 +290,7 @@ public class ManageEmployeesMenu  {
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getEmployeeRolesList(empId));
+            System.out.println(roleService.getFormattedListById(empId));
             System.out.println("======================================");
             System.out.println("1. Add Role");
             System.out.println("2. Remove Role");
@@ -294,11 +313,10 @@ public class ManageEmployeesMenu  {
      * @param empId employee ID
      */
     private static void addRole(int empId) {
-        Role[] roles = Role.values();
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getEmployeeRolesList(empId));
+            System.out.println(roleService.getFormattedListById(empId));
             System.out.println("======================================");
             System.out.println("Available roles to assign:");
             System.out.println(roleService.getFormattedAvailableRoles(empId));
@@ -334,11 +352,10 @@ public class ManageEmployeesMenu  {
     }
 
     private static void removeRole(int empId) {
-        Role[] roles = Role.values();
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getEmployeeRolesList(empId));
+            System.out.println(roleService.getFormattedListById(empId));
             System.out.println("======================================");
             System.out.println("Choose a role to remove (0 to cancel):");
 
@@ -357,7 +374,7 @@ public class ManageEmployeesMenu  {
             }
 
             try {
-                roleService.removeSpecificRole(empId, selectedRole);
+                roleService.removeSingleItem(empId, selectedRole);
                 System.out.println("Role '" + selectedRole +
                         "' successfully removed");
                 return;
@@ -451,6 +468,20 @@ public class ManageEmployeesMenu  {
             break;
         }
 
+        LicenseType licenseType = null;
+        while (true) {
+            System.out.println("Please enter the employee license type (1-4 for A-D) or 0 for no license");
+
+            try {
+                int licenseTypeNumber = readIntSafe();
+                licenseType = getLicenseTypeFromNumber(licenseTypeNumber);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            break;
+        }
+
         int bankAccount;
         while (true) {
             System.out.println("Please enter the bank account number:");
@@ -502,7 +533,7 @@ public class ManageEmployeesMenu  {
             }
         }
 
-        addEmployee(name, id, bankAccount, salary, terms, date);
+        addEmployee(name, id, licenseType, bankAccount, salary, terms, date);
     }
 
     /**
@@ -514,10 +545,10 @@ public class ManageEmployeesMenu  {
      * @param startDate
      * helper to add all emp details
      */
-    private static void addEmployee(String name, int ID, int bankAccount, double salary,
-                                    EmployeeTerms terms, LocalDate startDate) {
+    private static void addEmployee(String name, int ID, LicenseType licenseType, int bankAccount, double salary,
+                                        EmployeeTerms terms, LocalDate startDate) {
         try {
-            employeeService.add(name, ID, bankAccount, salary, terms, startDate);
+            employeeService.add(name, ID, licenseType, bankAccount, salary, terms, startDate);
             constraintService.initConstraintForEmployee(ID);
             System.out.println("Success: Employee added successfully.");
             manageEmployee(ID);
@@ -613,9 +644,10 @@ public class ManageEmployeesMenu  {
     public static void printDetailsMenu() {
         System.out.println("Please choose an action:");
         System.out.println("1. Update employee name");
-        System.out.println("2. Update bank account number");
-        System.out.println("3. Update salary");
-        System.out.println("4. Update employment terms");
+        System.out.println("2. Update license type");
+        System.out.println("3. Update bank account number");
+        System.out.println("4. Update salary");
+        System.out.println("5. Update employment terms");
         System.out.println("0. Back");
     }
 

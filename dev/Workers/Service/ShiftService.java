@@ -1,13 +1,11 @@
 package dev.Workers.Service;
 
-import dev.Workers.domain.Actions.RequestAction;
 import dev.Workers.domain.Assignments;
 import dev.Workers.domain.EmployeeManager;
-import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
+import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.RoleManager;
 import dev.Workers.domain.ShiftManager;
 
 import java.time.DayOfWeek;
@@ -23,7 +21,7 @@ public class ShiftService {
     private static ShiftManager shiftManager;
     private static Assignments assignments;
     private static EmployeeManager employeeManager;
-    private static RoleManager roleManager;
+    private static RoleService roleService;
 
     private static ShiftService instance;
 
@@ -41,7 +39,7 @@ public class ShiftService {
         shiftManager = ShiftManager.getInstance();
         assignments = shiftManager.getAssignments();
         employeeManager = EmployeeManager.getInstance();
-        roleManager = RoleManager.getInstance();
+        roleService = RoleService.getInstance();
     }
 
     public void addShift(LocalDate date, ShiftType type) {
@@ -58,6 +56,10 @@ public class ShiftService {
 
     public void resetShift(Shift shift) {
         shiftManager.resetShift(shift);
+    }
+
+    public boolean isShiftsWeekEmpty() {
+        return shiftManager.isShiftsWeekEmpty();
     }
 
     public void setRequirement(Shift shift, Role role, int count) {
@@ -86,8 +88,8 @@ public class ShiftService {
     }
 
     public boolean needToForceReplace(Shift shift, int curId, int newId) {
-        employeeManager.validateEmployeeBasic(curId, shift.getShiftDate());
-        employeeManager.validateEmployeeBasic(newId, shift.getShiftDate());
+        employeeManager.validateEmployeeBasic(curId, shift.getDate());
+        employeeManager.validateEmployeeBasic(newId, shift.getDate());
 
         return shiftManager.needToForceReplace(shift, curId, newId);
     }
@@ -208,5 +210,25 @@ public class ShiftService {
 
     public List<String> popRequestAnswers() {
         return assignments.popRequestAnswers();
+    }
+
+    public void getDriversReqs() {
+        shiftManager.getDriverReqs();
+    }
+
+    public void getStoreKeeperReqs() {
+        shiftManager.getStoreKeeperReqs();
+    }
+
+    public void setCashierWeekReqs(int amount) {
+        shiftManager.setCashierWeekReqs(amount);
+    }
+
+    public void setStoreKeeperWeekReqs(int amount) {
+        shiftManager.setStoreKeeperWeekReqs(amount);
+    }
+
+    public void initShiftsWeek() {
+        shiftManager.initShiftsWeek();
     }
 }

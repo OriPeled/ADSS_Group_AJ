@@ -1,14 +1,17 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.Objects.Role;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static dev.Workers.domain.Enums.UserResponse.demoted;
 import static dev.Workers.domain.Enums.UserResponse.promoted;
@@ -68,11 +71,12 @@ public class EmployeeManager   {
      * @param terms       employment terms
      * @param startDate   employment start date
      */
-    public void add(String name, int id, int bankAccount, double salary, EmployeeTerms terms, LocalDate startDate) {
+    public void add(String name, int id, LicenseType licenseType, int bankAccount, double salary, EmployeeTerms terms,
+                        LocalDate startDate) {
         if (isEmployee(id)) {
             throw new IllegalArgumentException("Employee ID " + id + " already exists.");
         }
-        Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
+        Employee newEmp = new Employee(name, id, licenseType, bankAccount, salary, terms, startDate);
         employees.put(newEmp.getId(), newEmp);
     }
 
@@ -106,5 +110,13 @@ public class EmployeeManager   {
         employee.setManager(!employee.isManager());
 
         return employee.isManager() ? promoted : demoted;
+    }
+
+    public List<Integer> getListByRole(Role role) {
+        // Assuming EmployeeManager has a method like getAllEmployees() that returns a Collection of Employee objects
+        return getEmployeesList().stream()
+                .filter(emp -> role.isQualified(emp.getId()))
+                .map(Employee::getId)
+                .collect(Collectors.toList());
     }
 }

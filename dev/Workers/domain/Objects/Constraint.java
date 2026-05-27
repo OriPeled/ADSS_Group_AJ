@@ -6,7 +6,7 @@ import java.time.DayOfWeek;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static dev.Workers.domain.Enums.ShiftType.any;
+import static dev.Workers.domain.Enums.ShiftType.ANY;
      /**
       *  Represents employee constraints for working shifts.
      *
@@ -28,7 +28,7 @@ public class Constraint {
     public Constraint() {
         this.weekConstraints = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek d : DayOfWeek.values()) {
-            weekConstraints.put(d, any);
+            weekConstraints.put(d, ANY);
         }
     }
 

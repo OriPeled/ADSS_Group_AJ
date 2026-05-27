@@ -202,16 +202,16 @@ public class UserMode {
             ShiftType shiftType;
             switch (shiftChoice) {
                 case 1:
-                    shiftType = morning;
+                    shiftType = MORNING;
                     break;
                 case 2:
-                    shiftType = evening;
+                    shiftType = EVENING;
                     break;
                 case 3:
-                    shiftType = any;
+                    shiftType = ANY;
                     break;
                 case 4:
-                    shiftType = rest;
+                    shiftType = REST;
                     break;
                 case 0:
                     return;

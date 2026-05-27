@@ -13,7 +13,6 @@ import static dev.Workers.domain.Enums.UserResponse.*;
  * * This class is implemented as a Singleton.
  */
 public class AccessService {
-
     /** Reference to the domain-level access manager */
     private final AccessManager accessManager;
 

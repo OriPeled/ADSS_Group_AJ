@@ -1,6 +1,10 @@
 package dev.Workers.presentation;
 
-import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Enums.LicenseType;
+import dev.Workers.domain.Objects.DriverRole;
+import dev.Workers.domain.Objects.Role;
+import dev.Workers.domain.Objects.StandardRole;
+import dev.Workers.domain.RoleRegistry;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -74,10 +78,22 @@ public class Parser {
 
     public static Role getRoleFromNumber(int roleNumber) {
         while (true) {
-            if (roleNumber < 1 || roleNumber > Role.values().length) {
+            if (roleNumber < 1 || roleNumber > RoleRegistry.getInstance().getRolesAmount()) {
                 throw new IllegalArgumentException("Invalid role choice.");
             }
-            return Role.values()[roleNumber - 1];
+
+            if (roleNumber == 1) return new StandardRole("Cashier");
+            else if (roleNumber == 2) return new StandardRole("Storekeeper");
+            else if (roleNumber == 3) return new DriverRole();
+        }
+    }
+
+    public static LicenseType getLicenseTypeFromNumber(int licenseTypeNumber) {
+        while (true) {
+            if (licenseTypeNumber < 0 || licenseTypeNumber >= LicenseType.values().length) {
+                throw new IllegalArgumentException("Invalid license type choice.");
+            }
+            return LicenseType.values()[licenseTypeNumber];
         }
     }
 

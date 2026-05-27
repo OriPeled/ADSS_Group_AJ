@@ -1,14 +1,14 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Actions.RequestAction;
-import dev.Workers.domain.Enums.Role;
+import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static dev.Workers.domain.Enums.ShiftType.morning;
+import static dev.Workers.domain.Enums.ShiftType.MORNING;
 
 /**
  * Manages employee assignments for shifts.
@@ -24,6 +24,8 @@ public class Assignments {
     // for the HR manager
     private final Queue<String> requestAnswers;
 
+    private final RoleRegistry roleRegistry;
+
     /**
      * Constructor initializes empty assignment storage.
      */
@@ -32,18 +34,14 @@ public class Assignments {
         this.extraHours = new HashMap<>();
         this.pendingRequests = new HashMap<>();
         this.requestAnswers = new LinkedList<>();
+        this.roleRegistry = RoleRegistry.getInstance();
     }
 
     public void init(Shift shift) {
-        Map<Role, Set<Integer>> roleMap = new HashMap<>();
-        for (Role role : Role.values()) {
-            roleMap.put(role, new HashSet<>());
-        }
-        assignments.put(shift, roleMap);
+        assignments.put(shift, new HashMap<>());
 
-        if (shift.getType() == morning) {
-            Map<Integer, Integer> extraHoursMap = new HashMap<>();
-            extraHours.put(shift, extraHoursMap);
+        if (shift.getType() == MORNING) {
+            extraHours.put(shift, new HashMap<>());
         }
     }
 
@@ -84,7 +82,7 @@ public class Assignments {
             throw new IllegalArgumentException("Shift is empty.");
 
         Role role = getEmployeeRole(shift, employeeID);
-        if (getEmployeeRole(shift, employeeID) == null)
+        if (role == null)
             throw new IllegalArgumentException("Employee not assigned to shift.");
 
         Set<Integer> employees = getEmployeesByRole(shift, role);
@@ -92,7 +90,7 @@ public class Assignments {
     }
 
     public void updateExtraHours(Shift shift, int empID, int hours) {
-        if (shift.getType() != morning)
+        if (shift.getType() != MORNING)
             throw new IllegalArgumentException("Shift must be morning.");
         if (!isAssignedToShift(shift, empID))
             throw new IllegalArgumentException("Employee not assigned to this shift.");
@@ -133,7 +131,10 @@ public class Assignments {
 
     public boolean isShiftEmpty(Shift shift) {
         Map<Role, Set<Integer>> shiftAssignments = assignments.get(shift);
-        if (shiftAssignments.isEmpty()) return false;
+
+        if (shiftAssignments == null || shiftAssignments.isEmpty()) {
+            return true;
+        }
 
         for (Set<Integer> roleAssignments: shiftAssignments.values()) {
             if (!roleAssignments.isEmpty())
@@ -184,7 +185,7 @@ public class Assignments {
      * @return role of the employee in the shift, else null
      */
     public Role getEmployeeRole(Shift shift, int id) {
-        for (Role role : Role.values()) {
+        for (Role role : roleRegistry.getAllRoles()) {
             if (isAssignedToRole(shift, role, id))
                 return role;
         }
@@ -210,7 +211,7 @@ public class Assignments {
             sb.append("=== ").append(shift).append(" ===\n");
 
             // 1. Roles & Assigned Employees
-            for (Role role : Role.values()) {
+            for (Role role : roleRegistry.getAllRoles()) {
                 Set<Integer> employees = getEmployeesByRole(shift, role);
                 if (!employees.isEmpty()) {
                     sb.append(String.format("  %-12s: %d assigned | Employees: %s\n",

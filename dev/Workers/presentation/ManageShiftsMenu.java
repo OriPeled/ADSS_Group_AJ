@@ -2,16 +2,17 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.Service.ShiftService;
-import dev.Workers.domain.Enums.Role;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.RoleRegistry;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
-import static dev.Workers.domain.Enums.ShiftType.evening;
-import static dev.Workers.domain.Enums.ShiftType.morning;
+import static dev.Workers.domain.Enums.ShiftType.EVENING;
+import static dev.Workers.domain.Enums.ShiftType.MORNING;
 import static dev.Workers.domain.Enums.WeekStatus.PUBLISHED;
 import static dev.Workers.domain.Enums.WeekStatus.READY_TO_PUBLISH;
 import static dev.Main.scanner;
@@ -40,6 +41,7 @@ public class ManageShiftsMenu {
     private static final ShiftService shiftService = ShiftService.getInstance();
     /** Service responsible for employee constraints and deadline management. */
     private static final ConstraintService constraintService = ConstraintService.getInstance();
+    private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
 
     /**
      * Starts the main shifts menu loop.
@@ -83,6 +85,7 @@ public class ManageShiftsMenu {
      */
     private static void manageShiftsWeek() {
         while (true) {
+            checkRequirementsSettings();
             checkRequestAnswers();
             if (shiftService.getWeekStatus() == READY_TO_PUBLISH) {
                 if (handlePublishMenu()) {
@@ -106,6 +109,44 @@ public class ManageShiftsMenu {
                 }
                 default -> System.out.println("Invalid choice.");
             }
+        }
+    }
+
+    private static void checkRequirementsSettings() {
+        if (shiftService.isShiftsWeekEmpty()) {
+            shiftService.initShiftsWeek();
+            shiftService.getDriversReqs();
+            shiftService.getStoreKeeperReqs();
+
+            int cashiersAmount;
+            while (true) {
+                System.out.println("Please enter this week's required shift amount for cashiers:");
+                cashiersAmount = readIntSafe();
+
+                try {
+                    shiftService.setCashierWeekReqs(cashiersAmount);
+                    System.out.println("Shifts week's cashiers requirements set.");
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+            int storekeepersAmount;
+            while (true) {
+                System.out.println("Please enter this week's required shift amount for cashiers:");
+                storekeepersAmount = readIntSafe();
+
+                try {
+                    shiftService.setStoreKeeperWeekReqs(storekeepersAmount);
+                    System.out.println("Shifts week's storekeepers requirements set.");
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+            System.out.println("Shifts week's requirements set.");
         }
     }
 
@@ -612,10 +653,10 @@ public class ManageShiftsMenu {
             int choice = readIntSafe();
             switch (choice) {
                 case 1 -> {
-                    return morning;
+                    return MORNING;
                 }
                 case 2 -> {
-                    return evening;
+                    return EVENING;
                 }
                 case 0 -> {
                     return null;
@@ -631,12 +672,12 @@ public class ManageShiftsMenu {
      * @return the selected role, or null if the user chose to go back
      */
     private static Role chooseRole() {
-        Role[] roles = Role.values();
+        List<Role> roles = roleRegistry.getAllRoles();
 
         while (true) {
             System.out.println("Choose role:");
-            for (int i = 0; i < roles.length; i++) {
-                System.out.println((i + 1) + ". " + roles[i]);
+            for (int i = 0; i < roles.size(); i++) {
+                System.out.println((i + 1) + ". " + roles.get(i));
             }
             System.out.println("0. Back");
 

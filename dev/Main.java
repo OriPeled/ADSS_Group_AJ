@@ -1,8 +1,7 @@
 package dev;
 //import dev.Workers.setup.DataInitializer;
 
-import dev.Workers.presentation.HR_adminMode;
-import dev.Transportation.TP_adminMode;
+import dev.Workers.presentation.adminMode;
 import dev.Workers.presentation.UserMode;
 import dev.Workers.setup.DataInitializer;
 
@@ -20,8 +19,7 @@ public class Main {
             System.out.println("Choose Mode:");
             System.out.println("1. User Mode");
             System.out.println("2. HR Manager Mode");
-            System.out.println("3. Transportation Manager Mode");
-            System.out.println("4. Load external data");
+            System.out.println("3. Load external data");
             System.out.println("0. Exit");
 
             String input = scanner.nextLine();
@@ -39,12 +37,9 @@ public class Main {
                     UserMode.login();
                     break;
                 case 2:
-                    HR_adminMode.login();
+                    adminMode.login();
                     break;
                 case 3:
-                    TP_adminMode.login();
-                    break;
-                case 4:
                     DataInitializer.initSystem();
                     System.out.println("External data loaded.");
                     break;

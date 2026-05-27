@@ -16,7 +16,6 @@ import java.time.LocalDate;
  */
 public class ConstraintService {
     private static ConstraintManager constraintManager;
-
     private static ConstraintService instance;
 
     /**
