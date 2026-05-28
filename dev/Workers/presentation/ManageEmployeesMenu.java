@@ -11,6 +11,7 @@ import dev.Workers.Service.RoleService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
 
 import static dev.Workers.domain.Enums.UserResponse.demoted;
 import static dev.Workers.domain.Enums.UserResponse.promoted;
@@ -128,7 +129,7 @@ public class ManageEmployeesMenu  {
 
     private static void updateLicenseType(int empId) {
         while (true) {
-            System.out.println("Please enter a new license type (1-4 for A-D) or 0 to cancel:");
+            System.out.println("Please enter the employee license type (1-4 for A-D) or 0 for no license");
             int licenseTypeNumber = readIntSafe();
 
             if (licenseTypeNumber == 0) return;
@@ -323,23 +324,32 @@ public class ManageEmployeesMenu  {
             System.out.println("======================================");
             System.out.println("Please choose a role to add (0 to cancel):");
 
+            List<Role> availableRoles = roleService.availableToAddRoles(empId);
+
+            if (availableRoles.isEmpty()) {
+                System.out.println("This employee already holds all available roles.");
+                return;
+            }
+
+            System.out.println("Please choose a role to add (0 to cancel):");
             int choice = readIntSafe();
 
             if (choice == 0) {
                 return;
             }
 
-            Role selectedRole = null;
-            try {
-                selectedRole = getRoleFromNumber(choice);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                return;
+            if (choice < 1 || choice > availableRoles.size()) {
+                System.out.println("Invalid role choice. Please try again.");
+                continue;
             }
+
+            // 3. Subtract 1 to convert the UI number (1-based) to an array index (0-based)
+            Role selectedRole = availableRoles.get(choice - 1);
 
             try {
                 roleService.addRoleToEmployee(empId, selectedRole);
-                System.out.println("Role '" + selectedRole +
+
+                System.out.println("Role '" + selectedRole.getName() +
                         "' successfully added to employee " +
                         employeeService.getEmployeeName(empId));
                 return;
@@ -353,6 +363,13 @@ public class ManageEmployeesMenu  {
 
     private static void removeRole(int empId) {
         while (true) {
+            List<Role> currentRoles = roleService.getListById(empId);
+
+            if (currentRoles.isEmpty()) {
+                System.out.println("This employee currently has no roles to remove.");
+                return;
+            }
+
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
             System.out.println(roleService.getFormattedListById(empId));
@@ -365,18 +382,20 @@ public class ManageEmployeesMenu  {
                 return;
             }
 
-            Role selectedRole = null;
-            try {
-                selectedRole = getRoleFromNumber(choice);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                return;
+            if (choice < 1 || choice > currentRoles.size()) {
+                System.out.println("Invalid role choice. Please try again.");
+                continue;
             }
+
+            // 3. Subtract 1 to convert the UI number (1-based) to an array index (0-based)
+            Role selectedRole = currentRoles.get(choice - 1);
 
             try {
                 roleService.removeSingleItem(empId, selectedRole);
-                System.out.println("Role '" + selectedRole +
-                        "' successfully removed");
+
+                System.out.println("Role '" + selectedRole.getName() +
+                        "' successfully removed from employee " +
+                        employeeService.getEmployeeName(empId));
                 return;
 
             } catch (Exception e) {

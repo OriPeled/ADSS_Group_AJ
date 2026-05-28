@@ -18,6 +18,6 @@ public class TransportModule {
     }
 
     public static int getStorekeeperRequirements(LocalDate date, ShiftType type) {
-        return 2;
+        return 1;
     }
 }

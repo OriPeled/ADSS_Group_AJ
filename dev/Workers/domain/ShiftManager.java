@@ -146,7 +146,7 @@ public class ShiftManager {
         if (assignments.isRequestedToShift(shift, employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " was already requested to assign to this shift" + shift.getDate());
         if (!role.isQualified(employeeId))
-            throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role.");
+            throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role (" + role + ").");
         if (!isAvailable(employeeId, shift)) {
             throw new IllegalArgumentException("Employee " + employeeId + " is not available for this shift.");
         }

@@ -134,7 +134,7 @@ public class ManageShiftsMenu {
 
             int storekeepersAmount;
             while (true) {
-                System.out.println("Please enter this week's required shift amount for cashiers:");
+                System.out.println("Please enter this week's required shift amount for storekeepers:");
                 storekeepersAmount = readIntSafe();
 
                 try {
@@ -677,7 +677,7 @@ public class ManageShiftsMenu {
         while (true) {
             System.out.println("Choose role:");
             for (int i = 0; i < roles.size(); i++) {
-                System.out.println((i + 1) + ". " + roles.get(i));
+                System.out.println((i + 1) + ". " + roles.get(i).getName());
             }
             System.out.println("0. Back");
 
@@ -687,11 +687,12 @@ public class ManageShiftsMenu {
                 return null;
             }
 
-            try {
-                return getRoleFromNumber(choice);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());;
+            if (choice < 1 || choice > roles.size()) {
+                System.out.println("Invalid role choice. Please try again.");
+                continue;
             }
+
+            return roles.get(choice - 1);
         }
     }
 

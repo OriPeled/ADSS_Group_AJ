@@ -6,4 +6,6 @@ public interface Role {
     Requirement createDefaultRequirement();
 
     boolean isQualified(int id);
+
+    public String toString();
 }

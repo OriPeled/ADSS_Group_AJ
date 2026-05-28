@@ -14,7 +14,7 @@ public class StandardRole implements Role {
 
     @Override
     public Requirement createDefaultRequirement() {
-        return new Requirement(this, 3); // Or pass default amount in constructor
+        return new Requirement(this, 0); // Or pass default amount in constructor
     }
 
     @Override
@@ -36,4 +36,7 @@ public class StandardRole implements Role {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() { return name; }
 }

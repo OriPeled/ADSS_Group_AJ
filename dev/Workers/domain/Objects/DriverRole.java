@@ -46,4 +46,8 @@ public class DriverRole implements Role {
     public int hashCode() {
         return Objects.hash(requiredLicense);
     }
+
+    public String toString() {
+        { return "Driver (" + requiredLicense + ")"; }
+    }
 }

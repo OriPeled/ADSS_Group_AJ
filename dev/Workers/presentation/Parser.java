@@ -78,7 +78,7 @@ public class Parser {
 
     public static Role getRoleFromNumber(int roleNumber) {
         while (true) {
-            if (roleNumber < 1 || roleNumber > RoleRegistry.getInstance().getRolesAmount()) {
+            if (roleNumber < 1 || roleNumber > 7) {
                 throw new IllegalArgumentException("Invalid role choice.");
             }
 
