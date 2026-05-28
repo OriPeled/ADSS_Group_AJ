@@ -106,7 +106,7 @@ public class ShiftServiceTest {
         employeeManager.add(
                 "Employee" + id,
                 id,
-                LicenseType.A,
+
                 1000 + id,
                 5000,
                 new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),

@@ -10,7 +10,6 @@ import dev.Workers.domain.RoleRegistry;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +39,10 @@ public class RoleService {
             throw new IllegalArgumentException("Employee already qualified for this role.");
         }
 
-        if (newRole instanceof DriverRole) {
+      /*  if (newRole instanceof DriverRole) {
             LicenseType empLicenseType = emp.getLicenseType();
             newRole = new DriverRole(empLicenseType);
-        }
+        }*/
 
         emp.addRole(newRole);
     }
@@ -69,6 +68,42 @@ public class RoleService {
         return new ArrayList<>(emp.getRoles());
     }
 
+    public String getFormattedListById(int id) {
+        // 1. Get the actual roles straight from the employee!
+        List<Role> employeeRoles = getListById(id);
+
+        if (employeeRoles.isEmpty()) {
+            return "No roles found for this ID.";
+        }
+
+        List<String> displayLines = new ArrayList<>();
+        List<String> driverLicenses = new ArrayList<>();
+
+        // 2. Sort the roles: Standard roles go to the UI, Driver licenses get grouped
+        for (Role role : employeeRoles) {
+            if (role instanceof DriverRole driverRole) {
+                // Collect just the license letters (A, B, C)
+                driverLicenses.add(driverRole.getRequiredLicense().name());
+            } else {
+                // Add standard roles (Cashier, Storekeeper) as normal
+                displayLines.add(role.getName());
+            }
+        }
+
+        // 3. If they have driver licenses, merge them into one beautiful line
+        if (!driverLicenses.isEmpty()) {
+            displayLines.add("Driver (" + String.join(", ", driverLicenses) + ")");
+        }
+
+        // 4. Print with sequential numbering (1. Cashier \n 2. Driver (A, B))
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < displayLines.size(); i++) {
+            sb.append(i + 1).append(". ").append(displayLines.get(i)).append("\n");
+        }
+
+        return sb.toString().trim();
+    }
+
     public List<Role> availableToAddRoles(int id) {
         Employee emp = employeeManager.getById(id);
         return roleRegistry.getAllRoles().stream()
@@ -76,60 +111,19 @@ public class RoleService {
                 .collect(Collectors.toList());
     }
 
-    private String getBaseRoleName(Role role) {
-        if (role instanceof DriverRole) {
-            return "Driver";
-        }
-        return role.getName();
-    }
-
-    public String getFormattedListById(int id) {
-        // 1. Get the roles the employee actually has
-        List<Role> employeeRoles = getListById(id);
-
-        // 2. Map them to base names (e.g., "Driver (A)" -> "Driver") and remove duplicates
-        List<String> displayRoles = employeeRoles.stream()
-                .map(this::getBaseRoleName)
-                .distinct()
-                .collect(Collectors.toList());
-
-        if (displayRoles.isEmpty()) {
-            return "No roles found for this ID.";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        // 3. Print sequentially (1, 2, 3...)
-        for (int i = 0; i < displayRoles.size(); i++) {
-            sb.append(i + 1).append(". ").append(displayRoles.get(i)).append("\n");
-        }
-
-        return sb.toString().trim();
-    }
-
     public String getFormattedAvailableRoles(int id) {
-        // 1. Figure out which base roles the employee already has
-        List<Role> employeeRoles = getListById(id);
-        Set<String> currentBaseRoles = employeeRoles.stream()
-                .map(this::getBaseRoleName)
-                .collect(Collectors.toSet());
-
-        // 2. Filter the registry: Only keep base roles they don't already have!
-        List<String> availableBaseRoles = roleRegistry.getAllRoles().stream()
-                .map(this::getBaseRoleName)
-                .distinct() // Prevents "Driver" from showing up 4 times
-                .filter(baseName -> !currentBaseRoles.contains(baseName))
-                .collect(Collectors.toList());
-
-        if (availableBaseRoles.isEmpty()) {
-            return "No available roles to add.";
-        }
-
+        List<Role> allRoles = roleRegistry.getAllRoles();
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < availableBaseRoles.size(); i++) {
-            sb.append(i + 1).append(". ").append(availableBaseRoles.get(i)).append("\n");
+        int displayIndex = 1; // Create a separate counter
+
+        for (Role role : allRoles) {
+            if (!role.isQualified(id)) {
+                sb.append(displayIndex).append(". ").append(role.getName()).append("\n");
+                displayIndex++; // Only increment when we find an available role
+            }
         }
 
-        return sb.toString().trim();
+        return sb.length() > 0 ? sb.toString().trim() : "No available roles to add.";
     }
 
     /**

@@ -91,7 +91,7 @@ public class ShiftManagerTest {
         ConstraintManager constraintManager = ConstraintManager.getInstance();
 
         EmployeeTerms terms = new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
-        employeeManager.add(name, id, LicenseType.A, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
+        employeeManager.add(name, id, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
         roleService.addRoleToEmployee(id, role);
         constraintManager.initConstraintsForEmployee(id);
     }

@@ -201,7 +201,7 @@ public class DataInitializer {
                 5,
                 DayOfWeek.SATURDAY
         );
-        employeeService.add(name, id, LicenseType.A,id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
+        employeeService.add(name, id, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
         roleService.addRoleToEmployee(id, role);
         constraintService.initConstraintForEmployee(id);
 

@@ -6,6 +6,8 @@ import dev.Workers.domain.Enums.LicenseType;
 import java.util.Objects;
 
 public class DriverRole implements Role {
+
+
     private final LicenseType requiredLicense;
 
     public DriverRole(LicenseType requiredLicense) {
@@ -16,6 +18,9 @@ public class DriverRole implements Role {
         this.requiredLicense = LicenseType.NONE;
     }
 
+    public LicenseType getRequiredLicense() {
+        return requiredLicense;
+    }
     @Override
     public String getName() { return "Driver (" + requiredLicense + ")"; }
 
@@ -25,12 +30,9 @@ public class DriverRole implements Role {
     }
 
     @Override
-    public boolean isQualified(int empId) {
-        Employee emp = EmployeeManager.getInstance().getById(empId);
-        LicenseType empLicenseType = emp.getLicenseType(); // ?
-        if (empLicenseType == LicenseType.NONE) return false;
-
-        return emp.hasRole(this) && empLicenseType.compareTo(this.requiredLicense) >= 0;
+    public boolean isQualified(int id) {
+        Employee emp = EmployeeManager.getInstance().getById(id);
+        return emp.hasRole(this);
     }
 
     @Override
@@ -38,8 +40,7 @@ public class DriverRole implements Role {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DriverRole that = (DriverRole) o;
-        // Two roles are equal if their names are the same
-        return Objects.equals(requiredLicense, that.requiredLicense);
+        return this.requiredLicense == that.requiredLicense;
     }
 
     @Override

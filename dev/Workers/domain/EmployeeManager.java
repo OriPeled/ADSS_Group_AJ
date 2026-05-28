@@ -71,12 +71,12 @@ public class EmployeeManager   {
      * @param terms       employment terms
      * @param startDate   employment start date
      */
-    public void add(String name, int id, LicenseType licenseType, int bankAccount, double salary, EmployeeTerms terms,
+    public void add(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
                         LocalDate startDate) {
         if (isEmployee(id)) {
             throw new IllegalArgumentException("Employee ID " + id + " already exists.");
         }
-        Employee newEmp = new Employee(name, id, licenseType, bankAccount, salary, terms, startDate);
+        Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
         employees.put(newEmp.getId(), newEmp);
     }
 
@@ -92,6 +92,7 @@ public class EmployeeManager   {
     public void rehire(int id) {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
         if (getById(id).isActive(LocalDate.now())) throw new IllegalArgumentException("Employee " + id + " already active.");
+        if(getById(id).toBeActive()) {throw new IllegalArgumentException("Employee " + id + " cannot be reactivated yet. Termination date: " + getById(id).getEndLocalDate());}
         employees.get(id).activateEmployee();
     }
 

@@ -16,7 +16,6 @@ public class Employee {
     private String name;
     private int id;
     private boolean isManager;
-    private LicenseType licenseType;    // A/B/C/D
     private int bankAccount;
     private double salary;
     private EmployeeTerms terms;        // jobStatus, salary type, rest days
@@ -32,12 +31,11 @@ public class Employee {
         isManager = manager;
     }
 
-    public Employee(String name, int id, LicenseType licenseType, int bankAccount, double salary, EmployeeTerms terms,
+    public Employee(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
                         LocalDate startDate) {
         this.name = name;
         this.id = id;
         this.isManager = false;
-        this.licenseType = licenseType;
         this.bankAccount = bankAccount;
         this.salary = salary;
         this.terms = terms;
@@ -54,13 +52,7 @@ public class Employee {
         this.name = name;
     }
 
-    public LicenseType getLicenseType() {
-        return licenseType;
-    }
 
-    public void setLicenseType(LicenseType licenseType) {
-        this.licenseType = licenseType;
-    }
 
     public int getBankAccount() {
         return bankAccount;
@@ -121,7 +113,7 @@ public class Employee {
         StringBuilder sb = new StringBuilder("Employee Details\n");
         sb.append("======================================");
         sb.append("ID: ").append(id).append("\n");
-        sb.append("License Type: ").append(licenseType).append("\n");
+      //  sb.append("License Type: ").append(licenseType).append("\n");
         sb.append("Name: ").append(name).append("\n");
         sb.append("Bank account: ").append(bankAccount).append("\n");
         sb.append("Salary: ").append(salary).append("\n");
@@ -163,5 +155,8 @@ public class Employee {
     public boolean isActive(LocalDate date) {
         return (startDate.isBefore(date) || startDate.isEqual(date))
                 && (endDate == null || date.isBefore(endDate) || date.isEqual(endDate));
+    }
+    public boolean toBeActive() {
+       return startDate.isAfter(LocalDate.now());
     }
 }

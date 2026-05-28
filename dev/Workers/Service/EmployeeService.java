@@ -48,7 +48,7 @@ public class EmployeeService {
      * @param startDate   the start date of employment
      * @throws IllegalArgumentException if the ID already exists, or if salary or bank account are invalid
      */
-    public void add(String name, int id, LicenseType licenseType, int bankAccount, double salary, EmployeeTerms terms,
+    public void add(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
                         LocalDate startDate) {
         // 1. Business logic validations
         if (name == null || name.trim().isEmpty()) {
@@ -57,9 +57,7 @@ public class EmployeeService {
         if (id <= 0) {
             throw new IllegalArgumentException("Cannot add employee: ID must be a positive number.");
         }
-        if (licenseType == null) {
-            throw new IllegalArgumentException("Cannot add employee: invalid license type.");
-        }
+
         if (terms == null) {
             throw new IllegalArgumentException("Cannot add employee: Employment terms cannot be null.");
         }
@@ -83,7 +81,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Cannot add employee: Rest days must be between 1 and 7.");
         }
 
-        employeeManager.add(name, id, licenseType, bankAccount, salary, terms, startDate);
+        employeeManager.add(name, id, bankAccount, salary, terms, startDate);
     }
 
     /**
@@ -110,7 +108,7 @@ public class EmployeeService {
     public void updateLicenseType(int empId, LicenseType licenseType) {
         employeeManager.validateEmployeeBasic(empId, LocalDate.now());
         Employee emp = employeeManager.getById(empId);
-        emp.setLicenseType(licenseType);
+        //emp.setLicenseType(licenseType);
     }
 
     public void updateBankAccount(int id, int newBankAccount) {
