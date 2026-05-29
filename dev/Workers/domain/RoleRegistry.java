@@ -15,16 +15,13 @@ import java.util.List;
 public class RoleRegistry {
     private static RoleRegistry instance;
     private final List<Role> allRoles;
-    private final int AMOUNT = 3;
 
     private RoleRegistry() {
         this.allRoles = new ArrayList<>();
 
-        // Initialize your company's standard roles here
         allRoles.add(new StandardRole("Cashier"));
         allRoles.add(new StandardRole("Storekeeper"));
 
-        // You can register specific driver licenses as distinct roles
         allRoles.add(new DriverRole(LicenseType.A));
         allRoles.add(new DriverRole(LicenseType.B));
         allRoles.add(new DriverRole(LicenseType.C));
@@ -43,7 +40,7 @@ public class RoleRegistry {
     }
 
     public int getRolesAmount() {
-        return AMOUNT;
+        return allRoles.size();
     }
 
     public Role getRoleByName(String name) {

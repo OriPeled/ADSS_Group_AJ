@@ -6,8 +6,6 @@ import dev.Workers.domain.Enums.LicenseType;
 import java.util.Objects;
 
 public class DriverRole implements Role {
-
-
     private final LicenseType requiredLicense;
 
     public DriverRole(LicenseType requiredLicense) {

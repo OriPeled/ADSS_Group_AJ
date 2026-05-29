@@ -15,6 +15,7 @@ import java.util.Set;
 public class Employee {
     private String name;
     private int id;
+    // private Branch branch;
     private boolean isManager;
     private int bankAccount;
     private double salary;
@@ -32,9 +33,10 @@ public class Employee {
     }
 
     public Employee(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
-                        LocalDate startDate) {
+                        LocalDate startDate) {      // , Branch branch
         this.name = name;
         this.id = id;
+        //this.branch = branch;
         this.isManager = false;
         this.bankAccount = bankAccount;
         this.salary = salary;

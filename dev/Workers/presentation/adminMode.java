@@ -41,7 +41,7 @@ public class adminMode {
      */
     public static void start() {
         while (true) {
-            System.out.println("Choose to Manage:");
+            System.out.println("Choose to manage:");
             System.out.println("1. Employees");
             System.out.println("2. Shifts");
             System.out.println("0. Logout");
@@ -52,6 +52,7 @@ public class adminMode {
                     ManageEmployeesMenu.start();
                     break;
                 case 2:
+                    // ManageShiftsMenu.chooseBranch();
                     ManageShiftsMenu.start();
                     break;
                 case 0:

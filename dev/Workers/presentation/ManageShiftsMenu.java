@@ -54,6 +54,13 @@ public class ManageShiftsMenu {
      *     Return to the previous menu
      *
      */
+    public static void chooseBranch() {
+        // System.out.println("Choose branch:");
+        // displayBranches();
+        // int choice = readIntSafe();
+        // start(branchChoosen)
+    }
+
     public static void start() {
         while (true) {
             printMainMenu();
@@ -507,7 +514,9 @@ public class ManageShiftsMenu {
                 System.out.println("Week Schedule already published.");
                 return;
             }
-            System.out.println("There are still some pending requests.");
+            if (shiftService.pendingRequestsLeft()) {
+                System.out.println("There are still some pending requests.");
+            }
             System.out.println("Are you sure you want to force publish the week schedule?");
             System.out.println("1. Yes");
             System.out.println("0. No");

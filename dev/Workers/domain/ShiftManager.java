@@ -8,6 +8,7 @@ import dev.Workers.domain.Objects.Role;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -97,6 +98,21 @@ public class ShiftManager {
         Shift shift = null;
         for (Shift s : shifts) {
             if (s.getDate().equals(date) && s.getType().equals(type)) {
+                shift = s;
+                break;
+            }
+        }
+
+        if (shift == null)
+            throw new IllegalArgumentException("Shift doesn't exist.");
+
+        return shift;
+    }
+
+    public Shift getExistingShift(LocalDate date, LocalTime startTime, LocalTime endTime) {
+        Shift shift = null;
+        for (Shift s : shifts) {
+            if (s.getDate().equals(date) && s.getStartTime().equals(startTime) && s.getEndTime().equals(endTime)) {
                 shift = s;
                 break;
             }
@@ -198,6 +214,8 @@ public class ShiftManager {
         constraintManager.extendConstraints(employeeId, shiftDay, shiftType); // for potential replacement
     }
 
+    // no required qualification/constraint/activity
+    // can be at multiple roles
     public void manualAssign(Shift shift, Role role, int employeeId) {
         if (!employeeManager.isEmployee(employeeId))
             throw new IllegalArgumentException("No such employee.");
@@ -765,6 +783,7 @@ public class ShiftManager {
         return content.isEmpty() ? "No history available." : "=== SHIFT HISTORY ===\n" + content;
     }
 
+    // TP holds LicenseType enum
     public void getDriverReqs() {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
@@ -772,9 +791,8 @@ public class ShiftManager {
         for (Shift shift : shifts) {
             LocalDate shiftDate = shift.getDate();
             if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
-
-                // Assuming TransportModule now returns a Map<LicenseType, Integer>
-                Map<LicenseType, Integer> licensesNeeded = TransportModule.getDriverRequirements(shift.getDate(), shift.getType());
+                Map<LicenseType, Integer> licensesNeeded = TransportModule.
+                        getDriverRequirements(shift.getDate(), shift.getStartTime(), shift.getEndTime());
 
                 if (licensesNeeded != null) {
                     for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
@@ -796,9 +814,8 @@ public class ShiftManager {
         for (Shift shift : shifts) {
             LocalDate shiftDate = shift.getDate();
             if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
-
-                // Assuming TransportModule now just returns the raw integer amount
-                int amount = TransportModule.getStorekeeperRequirements(shift.getDate(), shift.getType());
+                int amount = TransportModule.
+                        getStorekeeperRequirements(shift.getDate(), shift.getStartTime(), shift.getEndTime());
                 requirementsHandler.set(shift, storekeeperRole, amount);
             }
         }
@@ -830,6 +847,12 @@ public class ShiftManager {
                 requirementsHandler.set(shift, storekeeperRole, amount);
             }
         }
+    }
+
+    // used by TP module
+    public Set<Integer> getShiftDrivers(LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+        Shift shift = getExistingShift(shiftDate, startTime, endTime);
+        return assignments.getAllDrivers(shift);
     }
 
     public void initShiftsWeek() {

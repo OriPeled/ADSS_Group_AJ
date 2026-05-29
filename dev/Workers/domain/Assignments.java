@@ -1,12 +1,15 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Actions.RequestAction;
+import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static dev.Workers.domain.Enums.ShiftType.MORNING;
 
@@ -129,6 +132,14 @@ public class Assignments {
                 .getOrDefault(role, Collections.emptySet());
     }
 
+    public Set<Integer> getAllDrivers(Shift shift) {
+        return assignments.getOrDefault(shift, Collections.emptyMap())
+                .entrySet().stream()
+                .filter(entry -> entry.getKey() instanceof DriverRole)
+                .flatMap(entry -> entry.getValue().stream())
+                .collect(Collectors.toSet());
+    }
+
     public boolean isShiftEmpty(Shift shift) {
         Map<Role, Set<Integer>> shiftAssignments = assignments.get(shift);
 
@@ -136,7 +147,7 @@ public class Assignments {
             return true;
         }
 
-        for (Set<Integer> roleAssignments: shiftAssignments.values()) {
+        for (Set<Integer> roleAssignments : shiftAssignments.values()) {
             if (!roleAssignments.isEmpty())
                 return false;
         }
@@ -194,6 +205,10 @@ public class Assignments {
 
     public Map<Integer, Queue<RequestAction>> getAllPendingRequests() {
         return pendingRequests;
+    }
+
+    public boolean pendingRequestsLeft() {
+        return !pendingRequests.isEmpty();
     }
 
     /**

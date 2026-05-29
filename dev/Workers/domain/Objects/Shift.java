@@ -4,13 +4,20 @@ import dev.Workers.domain.Enums.ShiftType;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Objects;
 
+import static dev.Workers.domain.Enums.ShiftType.EVENING;
+import static dev.Workers.domain.Enums.ShiftType.MORNING;
+
 public class Shift {
+    // private Branch branch;
     private LocalDate date;
     private ShiftType type;
     // private Time hours
     private boolean hasManager;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     public boolean hasManager() {
         return hasManager;
@@ -20,12 +27,35 @@ public class Shift {
         this.hasManager = hasManager;
     }
 
-    public Shift(LocalDate date, ShiftType type) {
+    public Shift(LocalDate date, ShiftType type) {      // Branch branch,
+        //this.branch = branch;
         this.type = type;
-        // if morning => hours = 6:00-14:00, else => hours = 14:00-22:00
+        if (type == MORNING) {
+            startTime = LocalTime.of(6, 0);
+            endTime = LocalTime.of(14, 0);
+        }
+        else if (type == EVENING) {
+            startTime = LocalTime.of(14, 0);
+            endTime = LocalTime.of(22, 0);
+        }
+
         this.date = date;
         this.hasManager = false;
     }
+
+    /*public Shift(LocalDate date, LocalTime startTime, LocalTime endTime) {      // Branch branch,
+        //this.branch = branch;
+        if (startTime == LocalTime.of(6, 0) && endTime == LocalTime.of(14, 0))
+            type = MORNING;
+        else if (startTime == LocalTime.of(14, 0) && endTime == LocalTime.of(22, 0))
+            type = EVENING;
+        else {
+            throw new IllegalArgumentException("Invalid shift hours.");
+        }
+
+        this.date = date;
+        this.hasManager = false;
+    }*/
 
     public ShiftType getType() {
         return type;
@@ -36,6 +66,19 @@ public class Shift {
     }
 
     public DayOfWeek getShiftDay() { return date.getDayOfWeek(); }
+
+    public String getShiftHours() {
+        return startTime + " - " + endTime;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    // Return the end time as a proper time object
+    public LocalTime getEndTime() {
+        return endTime;
+    }
 
     /**
      *

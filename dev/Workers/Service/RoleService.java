@@ -39,11 +39,6 @@ public class RoleService {
             throw new IllegalArgumentException("Employee already qualified for this role.");
         }
 
-      /*  if (newRole instanceof DriverRole) {
-            LicenseType empLicenseType = emp.getLicenseType();
-            newRole = new DriverRole(empLicenseType);
-        }*/
-
         emp.addRole(newRole);
     }
 

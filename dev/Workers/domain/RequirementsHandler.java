@@ -1,8 +1,10 @@
 package dev.Workers.domain;
 
+import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Requirement;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
+import dev.Workers.setup.TransportModule;
 
 import java.util.*;
 
@@ -22,7 +24,7 @@ public class RequirementsHandler {
 
     public void init(Shift shift) {
         List<Requirement> innerList = new ArrayList<>();
-        // This cleanly delegates requirement creation to each specific role
+
         for (Role role : roleRegistry.getAllRoles()) {
             innerList.add(role.createDefaultRequirement());
         }
@@ -47,9 +49,13 @@ public class RequirementsHandler {
             throw new IllegalArgumentException("No such role initialized for this shift.");
         }
 
-        // Transport Manager Business Rule
+        if (req.getRole() instanceof DriverRole) {
+            throw new IllegalArgumentException("Driver requirements can be set ONLY by transport manager.");
+        }
+
         if (req.getRole().getName().equalsIgnoreCase("Storekeeper")) {
-            if (count < req.getAmount()) {
+            if (count < TransportModule.getStorekeeperRequirements(shift.getDate(),
+                    shift.getStartTime(), shift.getEndTime())) {
                 throw new IllegalArgumentException("Can't be set less than required by transport manager.");
             }
         }
@@ -93,7 +99,6 @@ public class RequirementsHandler {
 
             List<String> roleStrings = new ArrayList<>();
             for (Requirement req : reqs) {
-                // Works universally for Cashiers, Drivers, Storekeepers, etc.
                 roleStrings.add(req.getRole().getName() + ": " + req.getAmount());
             }
 

@@ -231,4 +231,8 @@ public class ShiftService {
     public void initShiftsWeek() {
         shiftManager.initShiftsWeek();
     }
+
+    public boolean pendingRequestsLeft() {
+        return assignments.pendingRequestsLeft();
+    }
 }
