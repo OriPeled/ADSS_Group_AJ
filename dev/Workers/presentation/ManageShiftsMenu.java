@@ -2,7 +2,9 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.Service.ShiftService;
+import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.RoleRegistry;
@@ -42,6 +44,7 @@ public class ManageShiftsMenu {
     /** Service responsible for employee constraints and deadline management. */
     private static final ConstraintService constraintService = ConstraintService.getInstance();
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
+    private static final BranchRegistry branchRegistry = BranchRegistry.getInstance();
 
     /**
      * Starts the main shifts menu loop.
@@ -54,22 +57,40 @@ public class ManageShiftsMenu {
      *     Return to the previous menu
      *
      */
-    public static void chooseBranch() {
-        // System.out.println("Choose branch:");
-        // displayBranches();
-        // int choice = readIntSafe();
-        // start(branchChoosen)
+    static void chooseBranch() {
+        List<Branch> branches = branchRegistry.getAllBranches();
+
+        while (true) {
+            System.out.println("Choose branch:");
+            for (int i = 0; i < branches.size(); i++) {
+                System.out.println((i + 1) + ". " + branches.get(i).getName());
+            }
+            System.out.println("0. Back");
+
+            int choice = readIntSafe();
+
+            if (choice == 0) {
+                return;
+            }
+
+            if (choice < 1 || choice > branches.size()) {
+                System.out.println("Invalid branch choice. Please try again.");
+                continue;
+            }
+
+            start(branches.get(choice - 1));
+        }
     }
 
-    public static void start() {
+    public static void start(Branch branch) {
         while (true) {
-            printMainMenu();
+            printMainMenu(branch);
 
             int choice = readIntSafe();
             switch (choice) {
-                case 1 -> manageShiftsWeek();
-                case 2 -> manualShiftChanges();
-                case 3 -> showShiftsHistory();
+                case 1 -> manageShiftsWeek(branch);
+                case 2 -> manualShiftChanges(branch);
+                case 3 -> showShiftsHistory(branch);
                 case 4 -> updateDeadline();
                 case 0 -> {
                     return;
@@ -90,18 +111,18 @@ public class ManageShiftsMenu {
      *     Transfers control to the selected shift menu
      *
      */
-    private static void manageShiftsWeek() {
+    private static void manageShiftsWeek(Branch branch) {
         while (true) {
-            checkRequirementsSettings();
-            checkRequestAnswers();
-            if (shiftService.getWeekStatus() == READY_TO_PUBLISH) {
-                if (handlePublishMenu()) {
+            checkRequirementsSettings(branch);
+            checkRequestAnswers(branch);
+            if (shiftService.getWeekStatus(branch) == READY_TO_PUBLISH) {
+                if (handlePublishMenu(branch)) {
                     return;
                 }
             }
 
             try {
-                System.out.println(shiftService.displayWeekAssignments());
+                System.out.println(shiftService.displayWeekAssignments(branch));
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -109,8 +130,8 @@ public class ManageShiftsMenu {
 
             int choice = readIntSafe();
             switch (choice) {
-                case 1 -> accessShift();
-                case 2 -> forcePublishWeek();
+                case 1 -> accessShift(branch);
+                case 2 -> forcePublishWeek(branch);
                 case 0 -> {
                     return;
                 }
@@ -119,11 +140,11 @@ public class ManageShiftsMenu {
         }
     }
 
-    private static void checkRequirementsSettings() {
-        if (shiftService.isShiftsWeekEmpty()) {
-            shiftService.initShiftsWeek();
-            shiftService.getDriversReqs();
-            shiftService.getStoreKeeperReqs();
+    private static void checkRequirementsSettings(Branch branch) {
+        if (shiftService.isShiftsWeekEmpty(branch)) {
+            shiftService.initShiftsWeek(branch);
+            shiftService.getDriversReqs(branch);
+            shiftService.getStoreKeeperReqs(branch);
 
             int cashiersAmount;
             while (true) {
@@ -131,7 +152,7 @@ public class ManageShiftsMenu {
                 cashiersAmount = readIntSafe();
 
                 try {
-                    shiftService.setCashierWeekReqs(cashiersAmount);
+                    shiftService.setCashierWeekReqs(branch, cashiersAmount);
                     System.out.println("Shifts week's cashiers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -145,7 +166,7 @@ public class ManageShiftsMenu {
                 storekeepersAmount = readIntSafe();
 
                 try {
-                    shiftService.setStoreKeeperWeekReqs(storekeepersAmount);
+                    shiftService.setStoreKeeperWeekReqs(branch, storekeepersAmount);
                     System.out.println("Shifts week's storekeepers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -157,8 +178,8 @@ public class ManageShiftsMenu {
         }
     }
 
-    public static void checkRequestAnswers() {
-        List<String> notifications = shiftService.popRequestAnswers();
+    public static void checkRequestAnswers(Branch branch) {
+        List<String> notifications = shiftService.popRequestAnswers(branch);
 
         if (notifications.isEmpty()) {return;}
 
@@ -174,7 +195,7 @@ public class ManageShiftsMenu {
      *
      * @return true if the schedule was published, otherwise false
      */
-    private static boolean handlePublishMenu() {
+    private static boolean handlePublishMenu(Branch branch) {
         System.out.println("All shifts are assigned. Do you want to publish the week schedule?");
 
         while (true) {
@@ -185,7 +206,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> {
                     try {
-                        shiftService.publishNextWeekSchedule();
+                        shiftService.publishNextWeekSchedule(branch);
                         System.out.println("Week schedule published.");
                         return true;
                     } catch (Exception e) {
@@ -201,7 +222,7 @@ public class ManageShiftsMenu {
         }
     }
 
-    private static void accessShift() {
+    private static void accessShift(Branch branch) {
         while (true) {
             LocalDate date = chooseDay();
             if (date == null) {
@@ -213,7 +234,7 @@ public class ManageShiftsMenu {
                 continue;
             }
 
-            Shift selectedShift = shiftService.getShift(date, shiftType);
+            Shift selectedShift = shiftService.getShift(branch, date, shiftType);
             manageShift(selectedShift);
         }
     }
@@ -508,9 +529,9 @@ public class ManageShiftsMenu {
         }
     }
 
-    private static void forcePublishWeek() {
+    private static void forcePublishWeek(Branch branch) {
         while (true) {
-            if (shiftService.getWeekStatus() == PUBLISHED) {
+            if (shiftService.getWeekStatus(branch) == PUBLISHED) {
                 System.out.println("Week Schedule already published.");
                 return;
             }
@@ -525,7 +546,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> {
                     try {
-                        shiftService.forcePublishNextWeekSchedule();
+                        shiftService.forcePublishNextWeekSchedule(branch);
                         System.out.println("Week Schedule published.");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -540,9 +561,9 @@ public class ManageShiftsMenu {
         }
     }
 
-    private static void manualShiftChanges() {
+    private static void manualShiftChanges(Branch branch) {
         while (true) {
-            System.out.println(shiftService.displayWeekAssignments());
+            System.out.println(shiftService.displayWeekAssignments(branch));
 
             LocalDate date = chooseDate();
             if (date == null) {
@@ -555,7 +576,7 @@ public class ManageShiftsMenu {
             }
 
             try {
-                Shift selectedShift = shiftService.getExistingShift(date, shiftType);
+                Shift selectedShift = shiftService.getExistingShift(branch, date, shiftType);
                 manualChanges(selectedShift);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -764,8 +785,8 @@ public class ManageShiftsMenu {
     /**
      * Displays the full shifts history.
      */
-    private static void showShiftsHistory() {
-        System.out.println(shiftService.getShiftHistory());
+    private static void showShiftsHistory(Branch branch) {
+        System.out.println(shiftService.getShiftHistory(branch));
     }
 
     /**
@@ -783,7 +804,8 @@ public class ManageShiftsMenu {
         }
     }
 
-    private static void printMainMenu() {
+    private static void printMainMenu(Branch branch) {
+        System.out.println("=====" + branch + " branch=====");
         System.out.println("1. Manage Shifts Week");
         System.out.println("2. Manual shift changes (USE ONLY WHEN NECESSARY)");
         System.out.println("3. Get Shifts History");
