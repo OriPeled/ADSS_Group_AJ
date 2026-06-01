@@ -52,8 +52,8 @@ public class adminMode {
                     ManageEmployeesMenu.start();
                     break;
                 case 2:
-                    // ManageShiftsMenu.chooseBranch();
-                    ManageShiftsMenu.start();
+                    ManageShiftsMenu.chooseBranch();
+                    //ManageShiftsMenu.start();
                     break;
                 case 0:
                     return;

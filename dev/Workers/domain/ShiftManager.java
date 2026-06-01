@@ -59,8 +59,8 @@ public class ShiftManager {
      * @param type
      * adding shift to the system if it doesn't already exist, else nothing
      */
-    public void addShift(LocalDate date, ShiftType type) {
-        Shift newShift = new Shift(date, type);
+    public void addShift(Branch branch, LocalDate date, ShiftType type) {
+        Shift newShift = new Shift(branch, date, type);
         if (shifts.add(newShift)) {
             requirementsHandler.init(newShift);
             assignments.init(newShift);
@@ -74,18 +74,18 @@ public class ShiftManager {
      * @return getter for a next week's shift,
      *         could be either already published or currently on assignment process
      */
-    public Shift getShift(LocalDate date, ShiftType type) {
+    public Shift getShift(Branch branch, LocalDate date, ShiftType type) {
         for (Shift s : shifts) {
-            if (s.getDate().equals(date) && s.getType().equals(type)) {
+            if (s.getBranch().equals(branch) && s.getDate().equals(date) && s.getType().equals(type)) {
                 return s;
             }
         }
 
         if (type == MORNING || type == ShiftType.EVENING) {
-            addShift(date, type);
+            addShift(branch, date, type);
 
             for (Shift s : shifts) {
-                if (s.getDate().equals(date) && s.getType().equals(type)) {
+                if (s.getBranch().equals(branch) && s.getDate().equals(date) && s.getType().equals(type)) {
                     return s;
                 }
             }
@@ -94,10 +94,10 @@ public class ShiftManager {
         return null; // never occurs
     }
 
-    public Shift getExistingShift(LocalDate date, ShiftType type) {
+    public Shift getExistingShift(Branch branch, LocalDate date, ShiftType type) {
         Shift shift = null;
         for (Shift s : shifts) {
-            if (s.getDate().equals(date) && s.getType().equals(type)) {
+            if (s.getBranch().equals(branch) && s.getDate().equals(date) && s.getType().equals(type)) {
                 shift = s;
                 break;
             }
@@ -109,10 +109,11 @@ public class ShiftManager {
         return shift;
     }
 
-    public Shift getExistingShift(LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public Shift getExistingShift(Branch branch, LocalDate date, LocalTime startTime, LocalTime endTime) {
         Shift shift = null;
         for (Shift s : shifts) {
-            if (s.getDate().equals(date) && s.getStartTime().equals(startTime) && s.getEndTime().equals(endTime)) {
+            if (s.getBranch().equals(branch) && s.getDate().equals(date) && s.getStartTime().equals(startTime)
+                    && s.getEndTime().equals(endTime)) {
                 shift = s;
                 break;
             }
@@ -135,13 +136,14 @@ public class ShiftManager {
         assignments.init(shift);
     }
 
-    public boolean isShiftsWeekEmpty() {
+    public boolean isShiftsWeekEmpty(Branch branch) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
         for (Shift shift : shifts) {
+            Branch shiftBranch = shift.getBranch();
             LocalDate shiftDate = shift.getDate();
-            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
                 return false;
             }
         }
@@ -364,7 +366,9 @@ public class ShiftManager {
         // BROADCAST TO HR:
         String message = String.format("Employee %s (%d) %s: %s",
                 employeeName, employeeId, status, action.getDescription());
-        assignments.addRequestAnswer(message);
+
+        Branch branch = action.shift().getBranch();
+        assignments.addRequestAnswer(branch, message);
 
         return "Response recorded: " + status;
     }
@@ -421,6 +425,9 @@ public class ShiftManager {
             throw new IllegalArgumentException(
                     "Cannot set shift manager requirement below 1: every shift must have at least one shift manager.");
         }*/
+        if (role instanceof DriverRole) {
+            throw new IllegalArgumentException("Driver requirements are set only once during init process.");
+        }
         requirementsHandler.set(shift, role, count);
 
         Set<Integer> employees = assignments.getEmployeesByRole(shift, role);
@@ -447,7 +454,7 @@ public class ShiftManager {
     /**
      * Returns all shifts for the next week (7 days from today).
      */
-    private List<Shift> getNextWeekShifts() {
+    private List<Shift> getNextWeekShifts(Branch branch) {
         /*if (!getNextWeek().isViewableByUser()) {
             throw new IllegalStateException("The schedule for the next week is not yet published.");
         }*/
@@ -461,7 +468,7 @@ public class ShiftManager {
             LocalDate date = startDay.plusDays(i);
 
             for (ShiftType type : new ShiftType[]{MORNING, ShiftType.EVENING}) {
-                Shift shift = getShift(date, type);
+                Shift shift = getShift(branch, date, type);
                 if (shift != null) {
                     result.add(shift);
                 }
@@ -471,8 +478,8 @@ public class ShiftManager {
         return result;
     }
 
-    public Map<Shift, String> weekAssignment() {
-        return getNextWeekShifts().stream()
+    public Map<Shift, String> weekAssignment(Branch branch) {
+        return getNextWeekShifts(branch).stream()
                 .collect(Collectors.toMap(s -> s, this::getShiftStatus));
     }
 
@@ -527,19 +534,19 @@ public class ShiftManager {
         return getShiftStatus(shift).startsWith("COMPLETE");
     }
 
-    private boolean isWeekAssigned(LocalDate dateInWeek) {
-        return getShiftsForWeek(dateInWeek).stream()
+    private boolean isWeekAssigned(Branch branch, LocalDate dateInWeek) {
+        return getShiftsForWeek(branch, dateInWeek).stream()
                 .allMatch(s -> getShiftStatus(s).equals("COMPLETE"));
     }
 
-    public WeekStatus getWeekStatus(LocalDate dateInWeek) {
+    public WeekStatus getWeekStatus(Branch branch, LocalDate dateInWeek) {
         WeekSchedule week = getOrCreateWeek(dateInWeek);
-        boolean assigned = isWeekAssigned(dateInWeek);
+        boolean assigned = isWeekAssigned(branch, dateInWeek);
         return week.calculateStatus(assigned);
     }
 
-    public void publishWeekSchedule(LocalDate dateInWeek) {
-        List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
+    public void publishWeekSchedule(Branch branch, LocalDate dateInWeek) {
+        List<Shift> weekShifts = getShiftsForWeek(branch, dateInWeek);
 
         // Find any shifts that are blocking the publication
         List<String> problematicShifts = weekShifts.stream()
@@ -563,8 +570,8 @@ public class ShiftManager {
         constraintManager.resetAllConstraints();
     }
 
-    public void forcePublishWeekSchedule(LocalDate dateInWeek) {
-        List<Shift> weekShifts = getShiftsForWeek(dateInWeek);
+    public void forcePublishWeekSchedule(Branch branch, LocalDate dateInWeek) {
+        List<Shift> weekShifts = getShiftsForWeek(branch, dateInWeek);
 
         // 1. Check for hard-stoppers (INCOMPLETE)
         List<String> incompleteShifts = weekShifts.stream()
@@ -605,14 +612,14 @@ public class ShiftManager {
         return getOrCreateWeek(nextSunday);
     }
 
-    private List<Shift> getShiftsForWeek(LocalDate dateInWeek) {
+    private List<Shift> getShiftsForWeek(Branch branch, LocalDate dateInWeek) {
         LocalDate startDay = dateInWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         List<Shift> result = new ArrayList<>();
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = startDay.plusDays(i);
             for (ShiftType type : ShiftType.values()) {;
-                Shift shift = getShift(date, type);
+                Shift shift = getShift(branch, date, type);
                 if (shift != null) {
                     result.add(shift);
                 }
@@ -741,8 +748,9 @@ public class ShiftManager {
     public String employeeWeekDisplay(int id, LocalDate refDate) {
         WeekSchedule week = getOrCreateWeek(refDate);
         if (!week.isViewableByUser()) return "The schedule for this week is not yet published.";
+        Branch empBranch = employeeManager.getById(id).getBranch();
 
-        String content = getShiftsForWeek(refDate).stream()
+        String content = getShiftsForWeek(empBranch, refDate).stream()
                 .filter(s -> assignments.isAssignedToShift(s, id))
                 .map(s -> String.format("- %s (%s) | Role: %s%s",
                         s.getDate(), s.getType(), assignments.getEmployeeRole(s, id), getExtraHoursStr(s, id, true)))
@@ -752,8 +760,8 @@ public class ShiftManager {
     }
 
     // for HR Manager
-    public String displayWeekAssignments() {
-        Map<Shift, String> statusMap = weekAssignment();
+    public String displayWeekAssignments(Branch branch) {
+        Map<Shift, String> statusMap = weekAssignment(branch);
         List<String> lines = statusMap.keySet().stream()
                 .sorted(Comparator.comparing(Shift::getDate).thenComparing(Shift::getType))
                 .map(s -> String.format("%s: %s", s.toStringByWeekDay(), statusMap.get(s)))
@@ -763,19 +771,20 @@ public class ShiftManager {
     }
 
     // for employees
-    public String displayPublishedWeek(LocalDate date) {
+    public String displayPublishedWeek(Branch branch, LocalDate date) {
         if (!getOrCreateWeek(date).isPublished()) return "Schedule not yet published.";
 
-        String content = getShiftsForWeek(date).stream()
+        String content = getShiftsForWeek(branch, date).stream()
                 .map(this::formatShiftBlock)
                 .collect(Collectors.joining());
 
         return "=== PUBLISHED SCHEDULE ===\n" + content;
     }
 
-    public String ShiftHistory() {
+    public String ShiftHistory(Branch branch) {
         String content = shifts.stream()
                 .filter(s -> s.getDate().isBefore(LocalDate.now()))
+                .filter(s -> s.getBranch() == branch)
                 .sorted(Comparator.comparing(Shift::getDate).thenComparing(Shift::getType))
                 .map(this::formatShiftBlock)
                 .collect(Collectors.joining());
@@ -784,15 +793,16 @@ public class ShiftManager {
     }
 
     // TP holds LicenseType enum
-    public void getDriverReqs() {
+    public void getDriverReqs(Branch branch) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
         for (Shift shift : shifts) {
+            Branch shiftBranch = shift.getBranch();
             LocalDate shiftDate = shift.getDate();
-            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
                 Map<LicenseType, Integer> licensesNeeded = TransportModule.
-                        getDriverRequirements(shift.getDate(), shift.getStartTime(), shift.getEndTime());
+                        getDriverRequirements(branch, shift.getDate(), shift.getStartTime(), shift.getEndTime());
 
                 if (licensesNeeded != null) {
                     for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
@@ -806,7 +816,7 @@ public class ShiftManager {
         }
     }
 
-    public void getStoreKeeperReqs() {
+    public void getStoreKeeperReqs(Branch branch) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
         Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
@@ -815,54 +825,56 @@ public class ShiftManager {
             LocalDate shiftDate = shift.getDate();
             if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
                 int amount = TransportModule.
-                        getStorekeeperRequirements(shift.getDate(), shift.getStartTime(), shift.getEndTime());
+                        getStorekeeperRequirements(branch, shift.getDate(), shift.getStartTime(), shift.getEndTime());
                 requirementsHandler.set(shift, storekeeperRole, amount);
             }
         }
     }
 
-    public void setCashierWeekReqs(int amount) {
+    public void setCashierWeekReqs(Branch branch, int amount) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
         Role cashierRole = roleRegistry.getRoleByName("Cashier");
 
         for (Shift shift : shifts) {
+            Branch shiftBranch = shift.getBranch();
             LocalDate shiftDate = shift.getDate();
-            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
                 requirementsHandler.set(shift, cashierRole, amount);
             }
         }
     }
 
-    public void setStoreKeeperWeekReqs(int amount) {
+    public void setStoreKeeperWeekReqs(Branch branch, int amount) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
         Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
 
         for (Shift shift : shifts) {
+            Branch shiftBranch = shift.getBranch();
             LocalDate shiftDate = shift.getDate();
-            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
                 requirementsHandler.set(shift, storekeeperRole, amount);
             }
         }
     }
 
     // used by TP module
-    public Set<Integer> getShiftDrivers(LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
-        Shift shift = getExistingShift(shiftDate, startTime, endTime);
+    public Set<Integer> getShiftDrivers(Branch branch, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+        Shift shift = getExistingShift(branch, shiftDate, startTime, endTime);
         return assignments.getAllDrivers(shift);
     }
 
-    public void initShiftsWeek() {
+    public void initShiftsWeek(Branch branch) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
         LocalDate curDay = startOfWeek;
 
         while (!curDay.isAfter(endOfWeek)) {
-            addShift(curDay, MORNING);
-            addShift(curDay, EVENING);
+            addShift(branch, curDay, MORNING);
+            addShift(branch, curDay, EVENING);
             curDay = curDay.plusDays(1);
         }
     }

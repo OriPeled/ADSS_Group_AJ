@@ -2,8 +2,10 @@ package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
 import dev.Workers.Service.EmployeeService;
+import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.*;
 
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.RoleRegistry;
@@ -23,6 +25,7 @@ public class ManageEmployeesMenu  {
     static ConstraintService constraintService = ConstraintService.getInstance();
     static RoleService roleService = RoleService.getInstance();
     static RoleRegistry roleRegistry = RoleRegistry.getInstance();
+    static BranchRegistry branchRegistry = BranchRegistry.getInstance();
 
     public static void start() {
         while (true) {
@@ -103,8 +106,38 @@ public class ManageEmployeesMenu  {
                 case 2 -> updateBankAccount(empId);
                 case 3 -> updateSalary(empId);
                 case 4 -> updateTerms(empId);
+                case 5 -> updateBranch(empId);
                 case 0 -> {return;}
                 default -> System.out.println("Invalid choice. Please select a valid option (0-4).");
+            }
+        }
+    }
+
+    private static void updateBranch(int empId) {
+        List<Branch> branches = branchRegistry.getAllBranches();
+        while (true) {
+            System.out.println("Choose branch:");
+            for (int i = 0; i < branches.size(); i++) {
+                System.out.println((i + 1) + ". " + branches.get(i).getName());
+            }
+            System.out.println("0. Back");
+
+            int choice = readIntSafe();
+
+            if (choice == 0) {return;}
+
+            if (choice < 1 || choice > branches.size()) {
+                System.out.println("Invalid branch choice. Please try again.");
+                continue;
+            }
+
+            try {
+                Branch branch = branches.get(choice - 1);
+                employeeService.updateBranch(empId, branch);
+                System.out.println("Employee branch updated successfully.");
+                return;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -472,6 +505,31 @@ public class ManageEmployeesMenu  {
             }
             break;
         }
+
+        Branch branch;
+        List<Branch> branches = branchRegistry.getAllBranches();
+        while (true) {
+            System.out.println("Choose branch:");
+            for (int i = 0; i < branches.size(); i++) {
+                System.out.println((i + 1) + ". " + branches.get(i).getName());
+            }
+            System.out.println("0. Back");
+
+            int choice = readIntSafe();
+
+            if (choice == 0) {
+                return;
+            }
+
+            if (choice < 1 || choice > branches.size()) {
+                System.out.println("Invalid branch choice. Please try again.");
+                continue;
+            }
+
+            branch = branches.get(choice - 1);
+            break;
+        }
+
         int bankAccount;
         while (true) {
             System.out.println("Please enter the bank account number:");
@@ -523,7 +581,7 @@ public class ManageEmployeesMenu  {
             }
         }
 
-        addEmployee(name, id,  bankAccount, salary, terms, date);
+        addEmployee(name, id, branch, bankAccount, salary, terms, date);
     }
 
     /**
@@ -535,10 +593,10 @@ public class ManageEmployeesMenu  {
      * @param startDate
      * helper to add all emp details
      */
-    private static void addEmployee(String name, int ID,  int bankAccount, double salary,
-                                        EmployeeTerms terms, LocalDate startDate) {
+    private static void addEmployee(String name, int ID, Branch branch, int bankAccount, double salary,
+                                    EmployeeTerms terms, LocalDate startDate) {
         try {
-            employeeService.add(name, ID,  bankAccount, salary, terms, startDate);
+            employeeService.add(name, ID, branch, bankAccount, salary, terms, startDate);
             constraintService.initConstraintForEmployee(ID);
             System.out.println("Success: Employee added successfully.");
             manageEmployee(ID);
@@ -637,6 +695,7 @@ public class ManageEmployeesMenu  {
         System.out.println("2. Update bank account number");
         System.out.println("3. Update salary");
         System.out.println("4. Update employment terms");
+        System.out.println("5. Update branch");
         System.out.println("0. Back");
     }
 

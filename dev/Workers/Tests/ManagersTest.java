@@ -1,12 +1,9 @@
 package dev.Workers.Tests;
 
-import dev.Workers.domain.AccessManager;
-import dev.Workers.domain.ConstraintManager;
-import dev.Workers.domain.EmployeeManager;
+import dev.Workers.domain.*;
 import dev.Workers.Service.RoleService;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.RoleRegistry; // NEW
-import dev.Workers.domain.ShiftManager;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role; // NEW
 import dev.Workers.domain.Objects.Shift;
@@ -31,6 +28,7 @@ public class ManagersTest {
     private RoleService roleService; // Renamed to match the type
     private ShiftManager shiftManager;
     private RoleRegistry roleRegistry; // NEW
+    private BranchRegistry branchRegistry;
 
     // Cached roles for testing
     private Role cashier;
@@ -87,7 +85,7 @@ public class ManagersTest {
         employeeManager.add(
                 "Employee" + id,
                 id,
-
+                branchRegistry.getBranchByName("Ofakim"),
                 1000 + id,
                 5000,
                 new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
@@ -122,7 +120,7 @@ public class ManagersTest {
                 employeeManager.add(
                         "AnotherEmployee",
                         1,
-
+                        branchRegistry.getBranchByName("Ofakim"),
                         2222,
                         6000,
                         new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
@@ -278,8 +276,8 @@ public class ManagersTest {
         initConstraints(1);
 
         LocalDate date = LocalDate.now().plusDays(1);
-        shiftManager.addShift(date, ShiftType.MORNING);
-        Shift shift = shiftManager.getShift(date, ShiftType.MORNING);
+        shiftManager.addShift(employeeManager.getById(1).getBranch(), date, ShiftType.MORNING);
+        Shift shift = shiftManager.getShift(employeeManager.getById(1).getBranch(),date, ShiftType.MORNING);
 
         shiftManager.setRequirement(shift, cashier, 1); // CHANGED
         shiftManager.assignEmployee(shift, cashier, 1); // CHANGED
@@ -293,8 +291,8 @@ public class ManagersTest {
         initConstraints(1);
 
         LocalDate date = LocalDate.now().plusDays(1);
-        shiftManager.addShift(date, ShiftType.MORNING);
-        Shift shift = shiftManager.getShift(date, ShiftType.MORNING);
+        shiftManager.addShift(employeeManager.getById(1).getBranch(),date, ShiftType.MORNING);
+        Shift shift = shiftManager.getShift(employeeManager.getById(1).getBranch(),date, ShiftType.MORNING);
 
         shiftManager.setRequirement(shift, cashier, 1); // CHANGED
 
@@ -314,8 +312,8 @@ public class ManagersTest {
         initConstraints(2);
 
         LocalDate date = LocalDate.now().plusDays(1);
-        shiftManager.addShift(date, ShiftType.MORNING);
-        Shift shift = shiftManager.getShift(date, ShiftType.MORNING);
+        shiftManager.addShift(employeeManager.getById(1).getBranch(), date, ShiftType.MORNING);
+        Shift shift = shiftManager.getShift(employeeManager.getById(1).getBranch(), date, ShiftType.MORNING);
 
         shiftManager.setRequirement(shift, cashier, 1); // CHANGED
 
@@ -344,8 +342,8 @@ public class ManagersTest {
             LocalDate date = sunday.plusDays(i);
 
             for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-                shiftManager.addShift(date, type);
-                Shift shift = shiftManager.getShift(date, type);
+                shiftManager.addShift(employeeManager.getById(1).getBranch(), date, type);
+                Shift shift = shiftManager.getShift(employeeManager.getById(1).getBranch(), date, type);
 
                 shiftManager.setRequirement(shift, cashier, 1); // CHANGED
                 shiftManager.setRequirement(shift, storekeeper, 1); // CHANGED
@@ -355,9 +353,9 @@ public class ManagersTest {
             }
         }
 
-        shiftManager.publishWeekSchedule(sunday);
+        shiftManager.publishWeekSchedule(employeeManager.getById(1).getBranch(), sunday);
 
-        assertEquals(WeekStatus.PUBLISHED, shiftManager.getWeekStatus(sunday));
+        assertEquals(WeekStatus.PUBLISHED, shiftManager.getWeekStatus(employeeManager.getById(1).getBranch(), sunday));
     }
 
     @Test
@@ -377,8 +375,8 @@ public class ManagersTest {
             LocalDate date = sunday.plusDays(i);
 
             for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-                shiftManager.addShift(date, type);
-                Shift shift = shiftManager.getShift(date, type);
+                shiftManager.addShift(employeeManager.getById(1).getBranch(), date, type);
+                Shift shift = shiftManager.getShift(employeeManager.getById(1).getBranch(), date, type);
 
                 shiftManager.setRequirement(shift, cashier, 1); // CHANGED
                 shiftManager.setRequirement(shift, storekeeper, 1); // CHANGED
@@ -389,6 +387,6 @@ public class ManagersTest {
         }
 
         assertThrows(IllegalStateException.class,
-                () -> shiftManager.publishWeekSchedule(LocalDate.now()));
+                () -> shiftManager.publishWeekSchedule(employeeManager.getById(1).getBranch(), LocalDate.now()));
     }
 }

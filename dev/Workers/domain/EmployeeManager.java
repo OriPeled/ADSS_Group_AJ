@@ -2,6 +2,7 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Enums.UserResponse;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role;
@@ -71,12 +72,12 @@ public class EmployeeManager   {
      * @param terms       employment terms
      * @param startDate   employment start date
      */
-    public void add(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
-                        LocalDate startDate) {
+    public void add(String name, int id, Branch branch, int bankAccount, double salary, EmployeeTerms terms,
+                    LocalDate startDate) {
         if (isEmployee(id)) {
             throw new IllegalArgumentException("Employee ID " + id + " already exists.");
         }
-        Employee newEmp = new Employee(name, id, bankAccount, salary, terms, startDate);
+        Employee newEmp = new Employee(name, id, branch, bankAccount, salary, terms, startDate);
         employees.put(newEmp.getId(), newEmp);
     }
 

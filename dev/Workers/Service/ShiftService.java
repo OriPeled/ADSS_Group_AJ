@@ -4,6 +4,7 @@ import dev.Workers.domain.Assignments;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftManager;
@@ -42,24 +43,24 @@ public class ShiftService {
         roleService = RoleService.getInstance();
     }
 
-    public void addShift(LocalDate date, ShiftType type) {
-        shiftManager.addShift(date, type);
+    public void addShift(Branch branch, LocalDate date, ShiftType type) {
+        shiftManager.addShift(branch, date, type);
     }
 
-    public Shift getShift(LocalDate date, ShiftType type) {
-        return shiftManager.getShift(date, type);
+    public Shift getShift(Branch branch, LocalDate date, ShiftType type) {
+        return shiftManager.getShift(branch, date, type);
     }
 
-    public Shift getExistingShift(LocalDate date, ShiftType type) {
-        return shiftManager.getExistingShift(date, type);
+    public Shift getExistingShift(Branch branch, LocalDate date, ShiftType type) {
+        return shiftManager.getExistingShift(branch, date, type);
     }
 
     public void resetShift(Shift shift) {
         shiftManager.resetShift(shift);
     }
 
-    public boolean isShiftsWeekEmpty() {
-        return shiftManager.isShiftsWeekEmpty();
+    public boolean isShiftsWeekEmpty(Branch branch) {
+        return shiftManager.isShiftsWeekEmpty(branch);
     }
 
     public void setRequirement(Shift shift, Role role, int count) {
@@ -106,31 +107,31 @@ public class ShiftService {
         return assignments.hasRequests();
     }
 
-    public void publishWeekSchedule() {
+    public void publishWeekSchedule(Branch branch) {
         LocalDate thisSunday = LocalDate.now()
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        shiftManager.publishWeekSchedule(thisSunday);
+        shiftManager.publishWeekSchedule(branch, thisSunday);
     }
 
-    public void publishNextWeekSchedule() {
+    public void publishNextWeekSchedule(Branch branch) {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        shiftManager.publishWeekSchedule(nextSunday);
+        shiftManager.publishWeekSchedule(branch, nextSunday);
     }
 
-    public void forcePublishNextWeekSchedule() {
+    public void forcePublishNextWeekSchedule(Branch branch) {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        shiftManager.forcePublishWeekSchedule(nextSunday);
+        shiftManager.forcePublishWeekSchedule(branch, nextSunday);
     }
 
-    public void publishLastWeekSchedule() {
+    public void publishLastWeekSchedule(Branch branch) {
         LocalDate lastSunday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
                 .minusWeeks(1);
-        shiftManager.publishWeekSchedule(lastSunday);
+        shiftManager.publishWeekSchedule(branch, lastSunday);
     }
 
     // test function for adding past shifts (mainly for history purposes)
-    public void publishWeekByDate(LocalDate date) {;
-        shiftManager.publishWeekSchedule(date);
+    public void publishWeekByDate(Branch branch, LocalDate date) {;
+        shiftManager.publishWeekSchedule(branch, date);
     }
 
     public boolean isShiftAssigned(Shift shift) {
@@ -141,21 +142,21 @@ public class ShiftService {
         return shiftManager.getUnassignedValid(shift);
     }
 
-    public String displayWeekAssignments() {
-        return shiftManager.displayWeekAssignments();
+    public String displayWeekAssignments(Branch branch) {
+        return shiftManager.displayWeekAssignments(branch);
     }
 
-    public String displayCurrentWeek() {
-        return shiftManager.displayPublishedWeek(LocalDate.now());
+    public String displayCurrentWeek(Branch branch) {
+        return shiftManager.displayPublishedWeek(branch, LocalDate.now());
     }
 
-    public String displayNextWeek() {
+    public String displayNextWeek(Branch branch) {
         LocalDate nextSunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        return shiftManager.displayPublishedWeek(nextSunday);
+        return shiftManager.displayPublishedWeek(branch, nextSunday);
     }
 
-    public String getShiftHistory() {
-        return shiftManager.ShiftHistory();
+    public String getShiftHistory(Branch branch) {
+        return shiftManager.ShiftHistory(branch);
     }
 
     public String getShiftDetails(Shift shift) {
@@ -171,8 +172,8 @@ public class ShiftService {
         return shiftManager.employeeWeekDisplay(id, nextSunday);
     }
 
-    public WeekStatus getWeekStatus() {
-        return shiftManager.getWeekStatus(shiftManager.getNextWeek().getStartOfWeek());
+    public WeekStatus getWeekStatus(Branch branch) {
+        return shiftManager.getWeekStatus(branch, shiftManager.getNextWeek().getStartOfWeek());
     }
 
     public void updateExtraHours(Shift shift, int empID, int hours) {
@@ -208,28 +209,28 @@ public class ShiftService {
         shiftManager.processRequest(employeeId, b);
     }
 
-    public List<String> popRequestAnswers() {
-        return assignments.popRequestAnswers();
+    public List<String> popRequestAnswers(Branch branch) {
+        return assignments.popRequestAnswers(branch);
     }
 
-    public void getDriversReqs() {
-        shiftManager.getDriverReqs();
+    public void getDriversReqs(Branch branch) {
+        shiftManager.getDriverReqs(branch);
     }
 
-    public void getStoreKeeperReqs() {
-        shiftManager.getStoreKeeperReqs();
+    public void getStoreKeeperReqs(Branch branch) {
+        shiftManager.getStoreKeeperReqs(branch);
     }
 
-    public void setCashierWeekReqs(int amount) {
-        shiftManager.setCashierWeekReqs(amount);
+    public void setCashierWeekReqs(Branch branch, int amount) {
+        shiftManager.setCashierWeekReqs(branch, amount);
     }
 
-    public void setStoreKeeperWeekReqs(int amount) {
-        shiftManager.setStoreKeeperWeekReqs(amount);
+    public void setStoreKeeperWeekReqs(Branch branch, int amount) {
+        shiftManager.setStoreKeeperWeekReqs(branch, amount);
     }
 
-    public void initShiftsWeek() {
-        shiftManager.initShiftsWeek();
+    public void initShiftsWeek(Branch branch) {
+        shiftManager.initShiftsWeek(branch);
     }
 
     public boolean pendingRequestsLeft() {

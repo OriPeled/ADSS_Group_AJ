@@ -3,6 +3,7 @@ package dev.Workers.presentation;
 import dev.Workers.Service.*;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
+import dev.Workers.domain.Objects.Branch;
 
 import java.time.DayOfWeek;
 
@@ -142,7 +143,8 @@ public class UserMode {
     }
 
     private static void watchCurrentFullSchedule() {
-        System.out.println(shiftService.displayCurrentWeek());
+        Branch branch = employeeService.getById(employeeId).getBranch();
+        System.out.println(shiftService.displayCurrentWeek(branch));
     }
 
     private static void nextWeekShifts() {
@@ -172,7 +174,8 @@ public class UserMode {
     }
 
     private static void watchNextWeekSchedule() {
-        System.out.println(shiftService.displayNextWeek());
+        Branch branch = employeeService.getById(employeeId).getBranch();
+        System.out.println(shiftService.displayNextWeek(branch));
     }
 
     public static void updateConstraints() {

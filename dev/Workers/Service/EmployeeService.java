@@ -3,6 +3,7 @@ package dev.Workers.Service;
 
 import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Enums.UserResponse;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.Employee;
 import dev.Workers.domain.EmployeeManager;
 import dev.Workers.domain.Objects.EmployeeTerms;
@@ -48,8 +49,8 @@ public class EmployeeService {
      * @param startDate   the start date of employment
      * @throws IllegalArgumentException if the ID already exists, or if salary or bank account are invalid
      */
-    public void add(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
-                        LocalDate startDate) {
+    public void add(String name, int id, Branch branch, int bankAccount, double salary, EmployeeTerms terms,
+                    LocalDate startDate) {
         // 1. Business logic validations
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Cannot add employee: Name cannot be empty.");
@@ -81,7 +82,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Cannot add employee: Rest days must be between 1 and 7.");
         }
 
-        employeeManager.add(name, id, bankAccount, salary, terms, startDate);
+        employeeManager.add(name, id, branch, bankAccount, salary, terms, startDate);
     }
 
     /**
@@ -208,5 +209,11 @@ public class EmployeeService {
 
     public UserResponse promoteDemote(int empId) {
         return employeeManager.promoteDemote(empId);
+    }
+
+    public void updateBranch(int empId, Branch branch) {
+        employeeManager.validateEmployeeBasic(empId, LocalDate.now());
+        Employee emp = employeeManager.getById(empId);
+        emp.setBranch(branch);
     }
 }

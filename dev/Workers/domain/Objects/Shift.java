@@ -11,10 +11,9 @@ import static dev.Workers.domain.Enums.ShiftType.EVENING;
 import static dev.Workers.domain.Enums.ShiftType.MORNING;
 
 public class Shift {
-    // private Branch branch;
+    private Branch branch;
     private LocalDate date;
     private ShiftType type;
-    // private Time hours
     private boolean hasManager;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -27,8 +26,8 @@ public class Shift {
         this.hasManager = hasManager;
     }
 
-    public Shift(LocalDate date, ShiftType type) {      // Branch branch,
-        //this.branch = branch;
+    public Shift(Branch branch, LocalDate date, ShiftType type) {
+        this.branch = branch;
         this.type = type;
         if (type == MORNING) {
             startTime = LocalTime.of(6, 0);
@@ -56,6 +55,14 @@ public class Shift {
         this.date = date;
         this.hasManager = false;
     }*/
+
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
 
     public ShiftType getType() {
         return type;
@@ -90,13 +97,14 @@ public class Shift {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Shift shift = (Shift) o;
-        return Objects.equals(date, shift.date) && type == shift.type;
+        return date.equals(shift.date) &&
+                type == shift.type &&
+                branch.equals(shift.branch);
     }
 
     @Override
     public int hashCode() {
-        // Generate a hash based on the data fields
-        return Objects.hash(date, type);
+        return Objects.hash(branch, date, type);
     }
 
     @Override

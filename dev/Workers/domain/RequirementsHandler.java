@@ -49,12 +49,8 @@ public class RequirementsHandler {
             throw new IllegalArgumentException("No such role initialized for this shift.");
         }
 
-        if (req.getRole() instanceof DriverRole) {
-            throw new IllegalArgumentException("Driver requirements can be set ONLY by transport manager.");
-        }
-
         if (req.getRole().getName().equalsIgnoreCase("Storekeeper")) {
-            if (count < TransportModule.getStorekeeperRequirements(shift.getDate(),
+            if (count < TransportModule.getStorekeeperRequirements(shift.getBranch(), shift.getDate(),
                     shift.getStartTime(), shift.getEndTime())) {
                 throw new IllegalArgumentException("Can't be set less than required by transport manager.");
             }

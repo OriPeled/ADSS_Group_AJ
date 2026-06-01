@@ -1,17 +1,12 @@
 package dev.Workers.Tests;
 
 import dev.Workers.Service.ShiftService;
-import dev.Workers.domain.ConstraintManager;
-import dev.Workers.domain.EmployeeManager;
+import dev.Workers.domain.*;
 import dev.Workers.Service.RoleService;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.RoleRegistry;
-import dev.Workers.domain.ShiftManager;
-import dev.Workers.domain.Objects.EmployeeTerms;
-import dev.Workers.domain.Objects.Role;
-import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.Objects.WeekSchedule;
+import dev.Workers.domain.Objects.*;
 
+import dev.Workers.domain.Objects.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,6 +41,9 @@ public class ShiftServiceTest {
     private ConstraintManager constraintManager;
     private ShiftManager shiftManager;
     private RoleRegistry roleRegistry;
+    private BranchRegistry branchRegistry;
+
+    Branch beerSheva = branchRegistry.getBranchByName("Beer-Sheva");
 
     private Role cashierRole;
     private Role storekeeperRole;
@@ -106,7 +104,7 @@ public class ShiftServiceTest {
         employeeManager.add(
                 "Employee" + id,
                 id,
-
+                branchRegistry.getBranchByName("Ofakim"),
                 1000 + id,
                 5000,
                 new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
@@ -153,8 +151,8 @@ public class ShiftServiceTest {
             LocalDate date = sunday.plusDays(i);
 
             for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-                shiftService.addShift(date, type);
-                Shift shift = shiftService.getShift(date, type);
+                shiftService.addShift(beerSheva, date, type);
+                Shift shift = shiftService.getShift(beerSheva, date, type);
 
                 shiftService.setRequirement(shift, cashierRole, 1);
                 shiftService.setRequirement(shift, storekeeperRole, 1);
@@ -195,7 +193,7 @@ public class ShiftServiceTest {
         prepareBasicWorkforce();
         fillFullWeek(sunday);
 
-        shiftService.publishWeekSchedule();
+        shiftService.publishWeekSchedule(beerSheva);
 
         WeekSchedule week = getSavedWeek(sunday);
         assertNotNull(week);
@@ -214,7 +212,7 @@ public class ShiftServiceTest {
         prepareBasicWorkforce();
         fillFullWeek(sunday);
 
-        shiftService.publishNextWeekSchedule();
+        shiftService.publishNextWeekSchedule(beerSheva);
 
         WeekSchedule week = getSavedWeek(sunday);
         assertNotNull(week);
@@ -231,7 +229,7 @@ public class ShiftServiceTest {
         prepareBasicWorkforce();
         fillFullWeek(sunday);
 
-        shiftService.publishWeekByDate(sunday.plusDays(3));
+        shiftService.publishWeekByDate(beerSheva, sunday.plusDays(3));
 
         WeekSchedule week = getSavedWeek(sunday);
         assertNotNull(week);
@@ -250,9 +248,9 @@ public class ShiftServiceTest {
         prepareBasicWorkforce();
         fillFullWeek(nextSunday);
 
-        shiftService.publishNextWeekSchedule();
+        shiftService.publishNextWeekSchedule(beerSheva);
 
-        assertEquals(WeekStatus.PUBLISHED, shiftService.getWeekStatus());
+        assertEquals(WeekStatus.PUBLISHED, shiftService.getWeekStatus(beerSheva));
     }
 
     /**
@@ -278,7 +276,7 @@ public class ShiftServiceTest {
         fillFullWeek(sunday);
 
         assertThrows(IllegalStateException.class, () ->
-                shiftService.publishWeekSchedule()
+                shiftService.publishWeekSchedule(beerSheva)
         );
     }
 }

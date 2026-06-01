@@ -1,13 +1,10 @@
 package dev.Workers.Tests;
 
-import dev.Workers.domain.AccessManager;
-import dev.Workers.domain.ConstraintManager;
-import dev.Workers.domain.EmployeeManager;
+import dev.Workers.domain.*;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.Service.RoleService;
-import dev.Workers.domain.RoleRegistry;
-import dev.Workers.domain.ShiftManager;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
@@ -43,6 +40,10 @@ public class ShiftManagerTest {
     private Role cashierRole;
     private Role storekeeperRole;
     private Role shiftManagerRole;
+
+    private BranchRegistry branchRegistry;
+
+    Branch dimona = branchRegistry.getBranchByName("Beer-Sheva");
 
     /**
      * Resets all singleton managers before each test
@@ -81,8 +82,8 @@ public class ShiftManagerTest {
     private Shift createShift(int dayOffset) {
         ShiftManager shiftManager = ShiftManager.getInstance();
         LocalDate date = LocalDate.of(2026, 4, 20).plusDays(dayOffset);
-        shiftManager.addShift(date, ShiftType.MORNING);
-        return shiftManager.getShift(date, ShiftType.MORNING);
+        shiftManager.addShift(dimona, date, ShiftType.MORNING);
+        return shiftManager.getShift(dimona, date, ShiftType.MORNING);
     }
 
     private void registerEmployee(int id, String name, Role role) {
@@ -91,7 +92,7 @@ public class ShiftManagerTest {
         ConstraintManager constraintManager = ConstraintManager.getInstance();
 
         EmployeeTerms terms = new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
-        employeeManager.add(name, id, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
+        employeeManager.add(name, id, dimona, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
         roleService.addRoleToEmployee(id, role);
         constraintManager.initConstraintsForEmployee(id);
     }
@@ -354,7 +355,7 @@ public class ShiftManagerTest {
         ShiftManager shiftManager = ShiftManager.getInstance();
         LocalDate isolatedDate = LocalDate.of(2027, 6, 1);
         assertThrows(IllegalStateException.class, () ->
-                shiftManager.publishWeekSchedule(isolatedDate)
+                shiftManager.publishWeekSchedule(dimona, isolatedDate)
         );
     }
 

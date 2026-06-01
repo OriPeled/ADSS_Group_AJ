@@ -1,11 +1,10 @@
 package dev.Workers.setup;
 
 import dev.Workers.Service.*;
+import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.Objects.EmployeeTerms;
+import dev.Workers.domain.Objects.*;
 import dev.Workers.domain.Objects.Role;
-import dev.Workers.domain.Objects.Shift;
-import dev.Workers.domain.Objects.StandardRole;
 import dev.Workers.domain.RoleRegistry;
 
 import java.time.DayOfWeek;
@@ -33,6 +32,9 @@ public class DataInitializer {
         ShiftService shiftService = ShiftService.getInstance();
         ConstraintService constraintService = ConstraintService.getInstance();
 
+        BranchRegistry branchRegistry = BranchRegistry.getInstance();
+        Branch beerSheva = branchRegistry.getBranchByName("Beer-Sheva");
+
         RoleRegistry roleRegistry = RoleRegistry.getInstance();
         Role cashier = roleRegistry.getRoleByName("Cashier");
         Role storekeeper = roleRegistry.getRoleByName("Storekeeper");
@@ -43,50 +45,50 @@ public class DataInitializer {
             // =========================
 // Shift Managers
             createEmployee(employeeService, roleService, constraintService,
-                    "Shira Steinbuch", 111, cashier);
+                    "Shira Steinbuch", 111, beerSheva, cashier);
             employeeService.getById(111).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Daniel Cohen", 112, cashier);
+                    "Daniel Cohen", 112, beerSheva, cashier);
             employeeService.getById(112).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Noa Levi", 113, cashier);
+                    "Noa Levi", 113, beerSheva, cashier);
             employeeService.getById(113).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Ronaldo", 7, cashier);
+                    "Ronaldo", 7, beerSheva, cashier);
             employeeService.getById(7).setManager(true);
 
 // Cashiers
             createEmployee(employeeService, roleService, constraintService,
-                    "Kokhava Shavit", 222, cashier);
+                    "Kokhava Shavit", 222, beerSheva, cashier);
             accessService.Register(222, "2222");
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Lior Mizrahi", 223, cashier);
+                    "Lior Mizrahi", 223, beerSheva, cashier);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Dana Azulay", 224, cashier);
+                    "Dana Azulay", 224, beerSheva, cashier);
 
 // Storekeepers
             createEmployee(employeeService, roleService, constraintService,
-                    "Nissim", 333, storekeeper);
+                    "Nissim", 333, beerSheva, storekeeper);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Ramzi", 444, storekeeper);
+                    "Ramzi", 444, beerSheva, storekeeper);
 
             createEmployee(employeeService, roleService, constraintService,
-                    "Eyal Peretz", 445, storekeeper);
+                    "Eyal Peretz", 445, beerSheva, storekeeper);
 
 // Mixed roles
             createEmployee(employeeService, roleService, constraintService,
-                    "Avicay", 101, cashier);
+                    "Avicay", 101, beerSheva, cashier);
             roleService.addRoleToEmployee(101, storekeeper);
 
 // Fired employee
             createEmployee(employeeService, roleService, constraintService,
-                    "Johnny Bravo", 77, storekeeper);
+                    "Johnny Bravo", 77, beerSheva, storekeeper);
             accessService.Register(77, "7777");
             employeeService.fire(77);
 
@@ -99,7 +101,7 @@ public class DataInitializer {
             for (int i = 0; i < 7; i++) {
 
                 LocalDate date11 = date1.plusDays(i);
-                Shift pastShift1 = shiftService.getShift(date11, ShiftType.MORNING);
+                Shift pastShift1 = shiftService.getShift(beerSheva, date11, ShiftType.MORNING);
 
                 shiftService.forceAssign(pastShift1, cashier, 111);
                 shiftService.forceAssign(pastShift1, cashier, 223);
@@ -108,7 +110,7 @@ public class DataInitializer {
                 shiftService.forceAssign(pastShift1, storekeeper, 444);
                 shiftService.forceAssign(pastShift1, storekeeper, 445);
 
-                Shift pastShift2 = shiftService.getShift(date11, ShiftType.EVENING);
+                Shift pastShift2 = shiftService.getShift(beerSheva, date11, ShiftType.EVENING);
 
                 shiftService.forceAssign(pastShift2, cashier, 113);
                 shiftService.forceAssign(pastShift2, cashier, 223);
@@ -117,7 +119,7 @@ public class DataInitializer {
                 shiftService.forceAssign(pastShift2, storekeeper, 444);
                 shiftService.forceAssign(pastShift2, storekeeper, 445);
             }
-            shiftService.publishWeekByDate(date1);
+            shiftService.publishWeekByDate(beerSheva, date1);
 
             // =========================
             // CONSTRAINTS
@@ -138,7 +140,7 @@ public class DataInitializer {
             for (int i = 0; i < 6; i++) {
 
                 LocalDate date22 = date2.plusDays(i);
-                Shift futureShift1 = shiftService.getShift(date22, ShiftType.MORNING);
+                Shift futureShift1 = shiftService.getShift(beerSheva, date22, ShiftType.MORNING);
 
                 shiftService.assignEmployee(futureShift1, cashier, 7);
                 shiftService.assignEmployee(futureShift1, cashier, 223);
@@ -147,7 +149,7 @@ public class DataInitializer {
                 shiftService.assignEmployee(futureShift1, storekeeper, 444);
                 shiftService.assignEmployee(futureShift1, storekeeper, 445);
 
-                Shift futureShift2 = shiftService.getShift(date22, ShiftType.EVENING);
+                Shift futureShift2 = shiftService.getShift(beerSheva, date22, ShiftType.EVENING);
 
                 shiftService.assignEmployee(futureShift2, cashier, 7);
                 shiftService.assignEmployee(futureShift2, cashier, 223);
@@ -193,6 +195,7 @@ public class DataInitializer {
             ConstraintService constraintService,
             String name,
             int id,
+            Branch branch,
             Role role
     ) {
         EmployeeTerms terms = new EmployeeTerms(
@@ -201,7 +204,7 @@ public class DataInitializer {
                 5,
                 DayOfWeek.SATURDAY
         );
-        employeeService.add(name, id, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
+        employeeService.add(name, id, branch, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
         roleService.addRoleToEmployee(id, role);
         constraintService.initConstraintForEmployee(id);
 

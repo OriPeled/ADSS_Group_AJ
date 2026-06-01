@@ -15,7 +15,7 @@ import java.util.Set;
 public class Employee {
     private String name;
     private int id;
-    // private Branch branch;
+    private Branch branch;
     private boolean isManager;
     private int bankAccount;
     private double salary;
@@ -32,11 +32,11 @@ public class Employee {
         isManager = manager;
     }
 
-    public Employee(String name, int id,  int bankAccount, double salary, EmployeeTerms terms,
-                        LocalDate startDate) {      // , Branch branch
+    public Employee(String name, int id, Branch branch, int bankAccount, double salary,
+                        EmployeeTerms terms, LocalDate startDate) {
         this.name = name;
         this.id = id;
-        //this.branch = branch;
+        this.branch = branch;
         this.isManager = false;
         this.bankAccount = bankAccount;
         this.salary = salary;
@@ -54,7 +54,17 @@ public class Employee {
         this.name = name;
     }
 
+    public Branch getBranch() {
+        return branch;
+    }
 
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public int getBankAccount() {
         return bankAccount;
@@ -62,10 +72,6 @@ public class Employee {
 
     public void setBankAccount(int bankAccount) {
         this.bankAccount = bankAccount;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public double getSalary() {
@@ -117,6 +123,7 @@ public class Employee {
         sb.append("ID: ").append(id).append("\n");
       //  sb.append("License Type: ").append(licenseType).append("\n");
         sb.append("Name: ").append(name).append("\n");
+        sb.append("Branch: ").append(branch.getName()).append("\n");
         sb.append("Bank account: ").append(bankAccount).append("\n");
         sb.append("Salary: ").append(salary).append("\n");
         sb.append("Terms:\n   ")

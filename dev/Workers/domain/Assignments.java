@@ -1,6 +1,7 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Actions.RequestAction;
+import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
@@ -25,7 +26,7 @@ public class Assignments {
     // for the employees
     private final Map<Integer, Queue<RequestAction>> pendingRequests;             // empID to requests
     // for the HR manager
-    private final Queue<String> requestAnswers;
+    private final Map<Branch, Queue<String>> requestAnswers;
 
     private final RoleRegistry roleRegistry;
 
@@ -36,7 +37,7 @@ public class Assignments {
         this.assignments = new HashMap<>();
         this.extraHours = new HashMap<>();
         this.pendingRequests = new HashMap<>();
-        this.requestAnswers = new LinkedList<>();
+        this.requestAnswers = new HashMap<>();
         this.roleRegistry = RoleRegistry.getInstance();
     }
 
@@ -297,15 +298,20 @@ public class Assignments {
                 .anyMatch(action -> action.shift().equals(shift));
     }
 
-    public void addRequestAnswer(String message) {
-        requestAnswers.add("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] " + message);
+    public void addRequestAnswer(Branch branch, String message) {
+        requestAnswers.get(branch).add("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] " + message);
     }
 
-    public List<String> popRequestAnswers() {
+    public List<String> popRequestAnswers(Branch branch) {
         List<String> current = new ArrayList<>();
-        while (!requestAnswers.isEmpty()) {
-            current.add(requestAnswers.poll());
+
+        Queue<String> branchQueue = requestAnswers.get(branch);
+        if (branchQueue == null) return current;
+
+        while (!branchQueue.isEmpty()) {
+            current.add(branchQueue.poll());
         }
+
         return current;
     }
 }
