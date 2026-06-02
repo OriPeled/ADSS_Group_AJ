@@ -2,7 +2,6 @@ package dev.Workers.Tests;
 
 import dev.Workers.Service.ShiftService;
 import dev.Workers.domain.*;
-import dev.Workers.Service.RoleService;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
 
@@ -36,10 +35,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ShiftServiceTest {
 
     private ShiftService shiftService;
-    private EmployeeManager employeeManager;
-    private RoleService roleService;
-    private ConstraintManager constraintManager;
-    private ShiftManager shiftManager;
+    private EmployeeHandler employeeHandler;
+    private ConstraintHandler constraintHandler;
+    private ShiftHandler shiftHandler;
     private RoleRegistry roleRegistry;
     private BranchRegistry branchRegistry;
 
@@ -54,18 +52,15 @@ public class ShiftServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         resetSingleton(ShiftService.class, "instance");
-        resetSingleton(EmployeeManager.class, "instance");
-        resetSingleton(RoleService.class, "instance");
-        resetSingleton(ConstraintManager.class, "instance");
-        resetSingleton(ShiftManager.class, "instance");
+        resetSingleton(EmployeeHandler.class, "instance");
+        resetSingleton(ConstraintHandler.class, "instance");
+        resetSingleton(ShiftHandler.class, "instance");
         resetSingleton(RoleRegistry.class, "instance");
 
-        employeeManager = EmployeeManager.getInstance();
-        roleService = RoleService.getInstance();
-        constraintManager = ConstraintManager.getInstance();
-        shiftManager = ShiftManager.getInstance();
+        employeeHandler = EmployeeHandler.getInstance();
+        constraintHandler = ConstraintHandler.getInstance();
+        shiftHandler = ShiftHandler.getInstance();
         shiftService = ShiftService.getInstance();
-
         roleRegistry = RoleRegistry.getInstance();
         cashierRole = roleRegistry.getRoleByName("Cashier");
         storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
@@ -90,7 +85,7 @@ public class ShiftServiceTest {
      */
     @SuppressWarnings("unchecked")
     private void clearStaticWeekSchedules() throws Exception {
-        Field field = ShiftManager.class.getDeclaredField("weekSchedules");
+        Field field = ShiftHandler.class.getDeclaredField("weekSchedules");
         field.setAccessible(true);
         ((Map<LocalDate, WeekSchedule>) field.get(null)).clear();
     }
@@ -101,7 +96,7 @@ public class ShiftServiceTest {
      * @param id employee id
      */
     private void addEmployee(int id) {
-        employeeManager.add(
+        employeeHandler.add(
                 "Employee" + id,
                 id,
                 branchRegistry.getBranchByName("Ofakim"),
@@ -119,7 +114,7 @@ public class ShiftServiceTest {
      * @param id employee id
      */
     private void initConstraints(int id) {
-        constraintManager.initConstraintsForEmployee(id);
+        constraintHandler.initConstraintsForEmployee(id);
     }
 
     /**
@@ -131,10 +126,10 @@ public class ShiftServiceTest {
         addEmployee(1);
         addEmployee(2);
 
-        employeeManager.getById(1).setManager(true);
+        employeeHandler.getEmployee(1).setManager(true);
 
-        roleService.addRoleToEmployee(1, cashierRole);
-        roleService.addRoleToEmployee(2, storekeeperRole);
+        employeeHandler.addRole(1, cashierRole);
+        employeeHandler.addRole(2, storekeeperRole);
 
         initConstraints(1);
         initConstraints(2);
@@ -171,7 +166,7 @@ public class ShiftServiceTest {
      */
     @SuppressWarnings("unchecked")
     private WeekSchedule getSavedWeek(LocalDate dateInWeek) throws Exception {
-        Field field = ShiftManager.class.getDeclaredField("weekSchedules");
+        Field field = ShiftHandler.class.getDeclaredField("weekSchedules");
         field.setAccessible(true);
 
         Map<LocalDate, WeekSchedule> map =
@@ -267,8 +262,8 @@ public class ShiftServiceTest {
         addEmployee(1);
         addEmployee(2);
 
-        roleService.addRoleToEmployee(1, cashierRole);
-        roleService.addRoleToEmployee(2, storekeeperRole);
+        employeeHandler.addRole(1, cashierRole);
+        employeeHandler.addRole(2, storekeeperRole);
 
         initConstraints(1);
         initConstraints(2);

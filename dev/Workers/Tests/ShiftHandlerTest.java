@@ -4,7 +4,6 @@ import dev.Workers.domain.*;
 import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.Service.RoleService;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 6. Reporting missing employees for a shift role
  * 7. Detecting when no valid employee is available for assignment
  */
-public class ShiftManagerTest {
+public class ShiftHandlerTest {
 
     private Role cashierRole;
     private Role storekeeperRole;
@@ -51,11 +50,10 @@ public class ShiftManagerTest {
      */
     @BeforeEach
     void setUp() throws Exception {
-        resetSingleton(EmployeeManager.class, "instance");
-        resetSingleton(AccessManager.class, "instance");
-        resetSingleton(ConstraintManager.class, "instance");
-        resetSingleton(RoleService.class, "instance");
-        resetSingleton(ShiftManager.class, "instance");
+        resetSingleton(EmployeeHandler.class, "instance");
+        resetSingleton(AccessHandler.class, "instance");
+        resetSingleton(ConstraintHandler.class, "instance");
+        resetSingleton(ShiftHandler.class, "instance");
         resetSingleton(RoleRegistry.class, "instance");
 
         RoleRegistry registry = RoleRegistry.getInstance();
@@ -80,21 +78,20 @@ public class ShiftManagerTest {
     }
 
     private Shift createShift(int dayOffset) {
-        ShiftManager shiftManager = ShiftManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
         LocalDate date = LocalDate.of(2026, 4, 20).plusDays(dayOffset);
-        shiftManager.addShift(dimona, date, ShiftType.MORNING);
-        return shiftManager.getShift(dimona, date, ShiftType.MORNING);
+        shiftHandler.addShift(dimona, date, ShiftType.MORNING);
+        return shiftHandler.getShift(dimona, date, ShiftType.MORNING);
     }
 
     private void registerEmployee(int id, String name, Role role) {
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
-        RoleService roleService = RoleService.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         EmployeeTerms terms = new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
-        employeeManager.add(name, id, dimona, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
-        roleService.addRoleToEmployee(id, role);
-        constraintManager.initConstraintsForEmployee(id);
+        employeeHandler.add(name, id, dimona, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
+        employeeHandler.addRole(id, role);
+        constraintHandler.initConstraintsForEmployee(id);
     }
 
     /**
@@ -103,19 +100,19 @@ public class ShiftManagerTest {
      */
     @Test
     void assignEmployee_shouldSucceedForValidEmployee() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(1, "Alice", cashierRole);
         Shift shift = createShift(0);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(1, day, ShiftType.MORNING);
+        constraintHandler.update(1, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
-        shiftManager.assignEmployee(shift, cashierRole, 1);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, 1);
 
-        assertEquals(0, shiftManager.leftToAssign(shift, cashierRole));
-        assertFalse(shiftManager.isNeeded(shift, cashierRole));
+        assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
+        assertFalse(shiftHandler.isNeeded(shift, cashierRole));
     }
 
     /**
@@ -124,18 +121,18 @@ public class ShiftManagerTest {
      */
     @Test
     void assignEmployee_should_Fail_When_Employee_Is_Not_Qualified() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(2, "Bob", storekeeperRole);
         Shift shift = createShift(1);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(2, day, ShiftType.MORNING);
+        constraintHandler.update(2, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.assignEmployee(shift, cashierRole, 2)
+                shiftHandler.assignEmployee(shift, cashierRole, 2)
         );
     }
 
@@ -145,18 +142,18 @@ public class ShiftManagerTest {
      */
     @Test
     void assignEmployee_shouldFailWhenEmployeeIsNotAvailable() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(3, "Charlie", cashierRole);
         Shift shift = createShift(2);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(3, day, ShiftType.EVENING);
+        constraintHandler.update(3, day, ShiftType.EVENING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.assignEmployee(shift, cashierRole, 3)
+                shiftHandler.assignEmployee(shift, cashierRole, 3)
         );
     }
 
@@ -166,23 +163,23 @@ public class ShiftManagerTest {
      */
     @Test
     void replaceEmployee_shouldReplaceAssignedEmployeeSuccessfully() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(10, "David", cashierRole);
         registerEmployee(11, "Eve", cashierRole);
 
         Shift shift = createShift(3);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(10, day, ShiftType.MORNING);
-        constraintManager.update(11, day, ShiftType.MORNING);
+        constraintHandler.update(10, day, ShiftType.MORNING);
+        constraintHandler.update(11, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
-        shiftManager.assignEmployee(shift, cashierRole, 10);
-        shiftManager.replaceEmployee(shift, 10, 11);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, 10);
+        shiftHandler.replaceEmployee(shift, 10, 11);
 
-        assertEquals(0, shiftManager.leftToAssign(shift, cashierRole));
-        assertFalse(shiftManager.isNeeded(shift, cashierRole));
+        assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
+        assertFalse(shiftHandler.isNeeded(shift, cashierRole));
     }
 
     /**
@@ -191,22 +188,22 @@ public class ShiftManagerTest {
      */
     @Test
     void replaceEmployee_shouldFailWhenNewEmployeeIsNotQualified() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(20, "Frank", cashierRole);
         registerEmployee(21, "Grace", storekeeperRole);
 
         Shift shift = createShift(4);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(20, day, ShiftType.MORNING);
-        constraintManager.update(21, day, ShiftType.MORNING);
+        constraintHandler.update(20, day, ShiftType.MORNING);
+        constraintHandler.update(21, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
-        shiftManager.assignEmployee(shift, cashierRole, 20);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, 20);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.replaceEmployee(shift, 20, 21)
+                shiftHandler.replaceEmployee(shift, 20, 21)
         );
     }
 
@@ -216,19 +213,19 @@ public class ShiftManagerTest {
      */
     @Test
     void leftToAssign_shouldReportMissingEmployeesCorrectly() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(30, "Hannah", cashierRole);
         Shift shift = createShift(5);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(30, day, ShiftType.MORNING);
+        constraintHandler.update(30, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 2);
-        assertEquals(2, shiftManager.leftToAssign(shift, cashierRole));
+        shiftHandler.setRequirement(shift, cashierRole, 2);
+        assertEquals(2, shiftHandler.leftToAssign(shift, cashierRole));
 
-        shiftManager.assignEmployee(shift, cashierRole, 30);
-        assertEquals(1, shiftManager.leftToAssign(shift, cashierRole));
+        shiftHandler.assignEmployee(shift, cashierRole, 30);
+        assertEquals(1, shiftHandler.leftToAssign(shift, cashierRole));
     }
 
     /**
@@ -236,21 +233,21 @@ public class ShiftManagerTest {
      */
     @Test
     void assignEmployee_shouldFail_WhenEmployeeIsTerminated() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
         registerEmployee(60, "Liam", cashierRole);
-        employeeManager.fire(60);
+        employeeHandler.fire(60);
 
         Shift shift = createShift(6);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(60, day, ShiftType.MORNING);
+        constraintHandler.update(60, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.assignEmployee(shift, cashierRole, 60)
+                shiftHandler.assignEmployee(shift, cashierRole, 60)
         );
     }
 
@@ -260,8 +257,8 @@ public class ShiftManagerTest {
      */
     @Test
     void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(70, "Mia", cashierRole);
         registerEmployee(71, "Noah", cashierRole);
@@ -269,15 +266,15 @@ public class ShiftManagerTest {
         Shift shift = createShift(7);
         DayOfWeek day = shift.getDate().getDayOfWeek();
 
-        constraintManager.update(70, day, ShiftType.MORNING);
-        constraintManager.update(71, day, ShiftType.MORNING);
+        constraintHandler.update(70, day, ShiftType.MORNING);
+        constraintHandler.update(71, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
-        shiftManager.assignEmployee(shift, cashierRole, 70);
-        shiftManager.replaceEmployee(shift, 70, 71);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, 70);
+        shiftHandler.replaceEmployee(shift, 70, 71);
 
-        assertEquals(0, shiftManager.leftToAssign(shift, cashierRole));
-        assertFalse(shiftManager.isNeeded(shift, cashierRole));
+        assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
+        assertFalse(shiftHandler.isNeeded(shift, cashierRole));
     }
 
     /**
@@ -286,9 +283,9 @@ public class ShiftManagerTest {
      */
     @Test
     void replaceEmployee_shouldFailWhenNewEmployeeWasTerminated() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
         registerEmployee(80, "Olivia", cashierRole);
         registerEmployee(81, "Emma", cashierRole);
@@ -296,15 +293,15 @@ public class ShiftManagerTest {
         Shift shift = createShift(8);
         DayOfWeek day = shift.getDate().getDayOfWeek();
 
-        constraintManager.update(80, day, ShiftType.MORNING);
-        constraintManager.update(81, day, ShiftType.MORNING);
+        constraintHandler.update(80, day, ShiftType.MORNING);
+        constraintHandler.update(81, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
-        shiftManager.assignEmployee(shift, cashierRole, 80);
-        employeeManager.fire(81);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, 80);
+        employeeHandler.fire(81);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.replaceEmployee(shift, 80, 81)
+                shiftHandler.replaceEmployee(shift, 80, 81)
         );
     }
 
@@ -313,14 +310,13 @@ public class ShiftManagerTest {
      */
     @Test
     void addRoleToEmployee_shouldFailWhenEmployeeIsTerminated() {
-        EmployeeManager employeeManager = EmployeeManager.getInstance();
-        RoleService roleService = RoleService.getInstance();
+        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
         registerEmployee(90, "Sophia", cashierRole);
-        employeeManager.fire(90);
+        employeeHandler.fire(90);
 
         assertThrows(IllegalArgumentException.class, () ->
-                roleService.addRoleToEmployee(90, storekeeperRole)
+                employeeHandler.addRole(90, storekeeperRole)
         );
     }
 
@@ -330,19 +326,19 @@ public class ShiftManagerTest {
      */
     @Test
     void replaceEmployee_shouldFailWhenReplacingWithSameEmployee() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(110, "Lior", cashierRole);
         Shift shift = createShift(10);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(110, day, ShiftType.MORNING);
+        constraintHandler.update(110, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 1);
-        shiftManager.assignEmployee(shift, cashierRole, 110);
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, 110);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.replaceEmployee(shift, 110, 110)
+                shiftHandler.replaceEmployee(shift, 110, 110)
         );
     }
 
@@ -352,10 +348,10 @@ public class ShiftManagerTest {
      */
     @Test
     void publishWeekSchedule_shouldFail_WhenShiftHasNoManager() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
         LocalDate isolatedDate = LocalDate.of(2027, 6, 1);
         assertThrows(IllegalStateException.class, () ->
-                shiftManager.publishWeekSchedule(dimona, isolatedDate)
+                shiftHandler.publishWeekSchedule(dimona, isolatedDate)
         );
     }
 
@@ -365,7 +361,7 @@ public class ShiftManagerTest {
      */
     @Test
     void setRequirement_shouldFail_WhenShiftManagerCountIsZero() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
         Shift shift = createShift(20);
 
         /*if (role == Role.shiftManager && count < 1) {
@@ -373,7 +369,7 @@ public class ShiftManagerTest {
         }*/
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.setRequirement(shift, shiftManagerRole, 0)
+                shiftHandler.setRequirement(shift, shiftManagerRole, 0)
         );
     }
 
@@ -383,19 +379,19 @@ public class ShiftManagerTest {
      */
     @Test
     void assignEmployee_shouldFailWhenEmployeeAlreadyAssignedToSameShift() {
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        ConstraintManager constraintManager = ConstraintManager.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
 
         registerEmployee(100, "Daniel", cashierRole);
         Shift shift = createShift(9);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintManager.update(100, day, ShiftType.MORNING);
+        constraintHandler.update(100, day, ShiftType.MORNING);
 
-        shiftManager.setRequirement(shift, cashierRole, 2);
-        shiftManager.assignEmployee(shift, cashierRole, 100);
+        shiftHandler.setRequirement(shift, cashierRole, 2);
+        shiftHandler.assignEmployee(shift, cashierRole, 100);
 
         assertThrows(IllegalArgumentException.class, () ->
-                shiftManager.assignEmployee(shift, cashierRole, 100)
+                shiftHandler.assignEmployee(shift, cashierRole, 100)
         );
     }
 }

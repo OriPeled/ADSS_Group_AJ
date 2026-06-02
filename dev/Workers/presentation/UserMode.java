@@ -143,7 +143,7 @@ public class UserMode {
     }
 
     private static void watchCurrentFullSchedule() {
-        Branch branch = employeeService.getById(employeeId).getBranch();
+        Branch branch = employeeService.getEmployee(employeeId).getBranch();
         System.out.println(shiftService.displayCurrentWeek(branch));
     }
 
@@ -174,7 +174,7 @@ public class UserMode {
     }
 
     private static void watchNextWeekSchedule() {
-        Branch branch = employeeService.getById(employeeId).getBranch();
+        Branch branch = employeeService.getEmployee(employeeId).getBranch();
         System.out.println(shiftService.displayNextWeek(branch));
     }
 

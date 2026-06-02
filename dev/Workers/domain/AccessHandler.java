@@ -14,22 +14,22 @@ import static dev.Workers.domain.Enums.UserResponse.*;
  * This class follows the Singleton pattern to ensure a single point of access
  * to the credentials database.
  */
-public class AccessManager {
+public class AccessHandler {
     /**
      * Map storing the relationship between Employee ID and their Access credentials.
      * Key: Integer (Employee ID)
      * Value: Access (Password/Credential object)
      */
-    private static EmployeeManager employeeManager = EmployeeManager.getInstance();
+    private static EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
     private Map<Integer, Access> accessMap;
 
     /** The single instance of the service */
-    private static AccessManager instance;
+    private static AccessHandler instance;
 
     /**
      * Private constructor to prevent external instantiation.
      */
-    private AccessManager() {
+    private AccessHandler() {
         this.accessMap = new HashMap<>();
     }
 
@@ -37,9 +37,9 @@ public class AccessManager {
      * Retrieves the singleton instance of AccessService.
      * * @return The active instance of AccessService.
      */
-    public static AccessManager getInstance() {
+    public static AccessHandler getInstance() {
         if (instance == null) {
-            instance = new AccessManager();
+            instance = new AccessHandler();
         }
         return instance;
     }
@@ -60,7 +60,7 @@ public class AccessManager {
 
     // notRegistered to inform the user and make the call for the registration process
     public UserResponse login(int id, String password) {
-        employeeManager.validateEmployeeBasic(id, LocalDate.now());
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
         if (!isRegisteredUser(id)){
             return notRegistered;
         }

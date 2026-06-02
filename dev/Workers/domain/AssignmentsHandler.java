@@ -6,7 +6,6 @@ import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -19,7 +18,7 @@ import static dev.Workers.domain.Enums.ShiftType.MORNING;
  * This class is responsible for storing and managing which employees
  * are assigned to which role inside each shift.
  */
-public class Assignments {
+public class AssignmentsHandler {
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned empIDs)
     // only for mornings
     private final Map<Shift, Map<Integer, Integer>> extraHours;     // shift to (assigned empID to hours)
@@ -30,10 +29,16 @@ public class Assignments {
 
     private final RoleRegistry roleRegistry;
 
-    /**
-     * Constructor initializes empty assignment storage.
-     */
-    public Assignments() {
+    private static AssignmentsHandler instance;
+
+    public static AssignmentsHandler getInstance() {
+        if (instance == null) {
+            instance = new AssignmentsHandler();
+        }
+        return instance;
+    }
+
+    public AssignmentsHandler() {
         this.assignments = new HashMap<>();
         this.extraHours = new HashMap<>();
         this.pendingRequests = new HashMap<>();
@@ -133,6 +138,7 @@ public class Assignments {
                 .getOrDefault(role, Collections.emptySet());
     }
 
+    // used by TP module
     public Set<Integer> getAllDrivers(Shift shift) {
         return assignments.getOrDefault(shift, Collections.emptyMap())
                 .entrySet().stream()
@@ -313,5 +319,40 @@ public class Assignments {
         }
 
         return current;
+    }
+
+    // For Assignments
+    public void sendRequest(Shift shift, Role role, int empId) {
+        addRequest(shift, role, empId);
+    }
+
+    // For Replacements
+    public void sendRequest(Shift shift, int curId, int newId) {
+        addRequest(shift, curId, newId);
+    }
+
+    // called by user
+    public boolean assignmentNeedsApproval(int empID) {
+        return hasRequests(empID);
+    }
+
+    // called by user
+    public String displayNextPendingAssignment(int employeeId) {
+        Queue<RequestAction> queue = getRequests(employeeId);
+
+        if (queue == null || queue.isEmpty()) {
+            return "No pending requests for Employee ID: " + employeeId;
+        }
+
+        // Look at the head of the FIFO queue without removing it
+        RequestAction nextAction = queue.peek();
+
+        StringBuilder sb = new StringBuilder("=== NEXT PENDING REQUEST ===\n");
+        sb.append("Employee ID: ").append(employeeId).append("\n");
+        sb.append("Details    : ").append(nextAction.getDescription()).append("\n");
+        sb.append("----------------------------\n");
+        sb.append("Enter 1 to Approve, 0 to Skip/Stay in queue.");
+
+        return sb.toString();
     }
 }

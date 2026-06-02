@@ -1,6 +1,6 @@
 package dev.Workers.domain.Objects;
 
-import dev.Workers.domain.EmployeeManager;
+import dev.Workers.domain.EmployeeHandler;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ public class StandardRole implements Role {
 
     @Override
     public boolean isQualified(int id) {
-        Employee emp = EmployeeManager.getInstance().getById(id);
+        Employee emp = EmployeeHandler.getInstance().getEmployee(id);
         return emp.hasRole(this);
     }
 

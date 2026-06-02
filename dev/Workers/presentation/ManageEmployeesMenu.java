@@ -9,7 +9,6 @@ import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.RoleRegistry;
-import dev.Workers.Service.RoleService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -23,7 +22,6 @@ import static dev.Workers.presentation.Parser.*;
 public class ManageEmployeesMenu  {
     static EmployeeService employeeService = EmployeeService.getInstance();
     static ConstraintService constraintService = ConstraintService.getInstance();
-    static RoleService roleService = RoleService.getInstance();
     static RoleRegistry roleRegistry = RoleRegistry.getInstance();
     static BranchRegistry branchRegistry = BranchRegistry.getInstance();
 
@@ -307,7 +305,7 @@ public class ManageEmployeesMenu  {
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getFormattedListById(empId));
+            System.out.println(employeeService.getFormattedRolesList(empId));
             System.out.println("======================================");
             System.out.println("1. Add Role");
             System.out.println("2. Remove Role");
@@ -333,14 +331,14 @@ public class ManageEmployeesMenu  {
         while (true) {
             System.out.println("======================================");
             System.out.println("Existing employee roles:");
-            System.out.println(roleService.getFormattedListById(empId));
+            System.out.println(employeeService.getFormattedRolesList(empId));
             System.out.println("======================================");
             System.out.println("Available roles to assign:");
-            System.out.println(roleService.getFormattedAvailableRoles(empId));
+            System.out.println(employeeService.getFormattedAvailableRoles(empId));
             System.out.println("======================================");
             //System.out.println("Please choose a role to add (0 to cancel):");
 
-            List<Role> availableRoles = roleService.availableToAddRoles(empId);
+            List<Role> availableRoles = employeeService.availableToAddRoles(empId);
 
             if (availableRoles.isEmpty()) {
                 System.out.println("This employee already holds all available roles.");
@@ -364,7 +362,7 @@ public class ManageEmployeesMenu  {
 
             try {
                 Role selectedRole = availableRoles.get(choice -1);
-                roleService.addRoleToEmployee(empId, selectedRole);
+                employeeService.addRole(empId, selectedRole);
 
                 System.out.println("Role '" + selectedRole.getName() +
                         "' successfully added to employee " +
@@ -380,7 +378,7 @@ public class ManageEmployeesMenu  {
 
     private static void removeRole(int empId) {
         while (true) {
-            List<Role> currentRoles = roleService.getListById(empId);
+            List<Role> currentRoles = employeeService.getRoles(empId);
 
             if (currentRoles.isEmpty()) {
                 System.out.println("This employee currently has no roles to remove.");
@@ -410,7 +408,7 @@ public class ManageEmployeesMenu  {
             Role selectedRole = currentRoles.get(choice - 1);
 
             try {
-                roleService.removeSingleItem(empId, selectedRole);
+                employeeService.removeRole(empId, selectedRole);
 
                 System.out.println("Role '" + selectedRole.getName() +
                         "' successfully removed from employee " +

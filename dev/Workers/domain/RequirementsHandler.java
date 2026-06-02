@@ -1,11 +1,13 @@
 package dev.Workers.domain;
 
-import dev.Workers.domain.Objects.DriverRole;
-import dev.Workers.domain.Objects.Requirement;
-import dev.Workers.domain.Objects.Role;
-import dev.Workers.domain.Objects.Shift;
+import dev.Workers.Service.RequirementsService;
+import dev.Workers.domain.Enums.LicenseType;
+import dev.Workers.domain.Objects.*;
 import dev.Workers.setup.TransportModule;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 /**
@@ -17,6 +19,15 @@ import java.util.*;
 public class RequirementsHandler {
     private final Map<Shift, List<Requirement>> shiftsReqs;
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
+
+    private static RequirementsHandler instance;
+
+    public static RequirementsHandler getInstance() {
+        if (instance == null) {
+            instance = new RequirementsHandler();
+        }
+        return instance;
+    }
 
     public RequirementsHandler() {
         this.shiftsReqs = new HashMap<>();
@@ -102,5 +113,72 @@ public class RequirementsHandler {
         }
 
         return result.toString();
+    }
+
+    // TP holds LicenseType enum
+    public void getDriverReqs(Branch branch) {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        for (Shift shift : shiftsReqs.keySet()) {
+            Branch shiftBranch = shift.getBranch();
+            LocalDate shiftDate = shift.getDate();
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                Map<LicenseType, Integer> licensesNeeded = TransportModule.
+                        getDriverRequirements(branch, shift.getDate(), shift.getStartTime(), shift.getEndTime());
+
+                if (licensesNeeded != null) {
+                    for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
+                        Role driverRole = roleRegistry.getRoleByName("Driver (" + entry.getKey() + ")");
+                        set(shift, driverRole, entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    public void getStoreKeeperReqs(Branch branch) {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
+
+        for (Shift shift : shiftsReqs.keySet()) {
+            LocalDate shiftDate = shift.getDate();
+            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                int amount = TransportModule.
+                        getStorekeeperRequirements(branch, shift.getDate(), shift.getStartTime(), shift.getEndTime());
+                set(shift, storekeeperRole, amount);
+            }
+        }
+    }
+
+    public void setCashierWeekReqs(Branch branch, int amount) {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        Role cashierRole = roleRegistry.getRoleByName("Cashier");
+
+        for (Shift shift : shiftsReqs.keySet()) {
+            Branch shiftBranch = shift.getBranch();
+            LocalDate shiftDate = shift.getDate();
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                set(shift, cashierRole, amount);
+            }
+        }
+    }
+
+    public void setStoreKeeperWeekReqs(Branch branch, int amount) {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
+
+        for (Shift shift : shiftsReqs.keySet()) {
+            Branch shiftBranch = shift.getBranch();
+            LocalDate shiftDate = shift.getDate();
+            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
+                set(shift, storekeeperRole, amount);
+            }
+        }
     }
 }

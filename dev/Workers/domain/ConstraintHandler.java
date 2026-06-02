@@ -17,27 +17,27 @@ import static dev.Workers.domain.Enums.ShiftType.*;
  * It allows updating constraints, checking availability,
  * and managing deadlines for constraint submissions.
  */
-public class ConstraintManager {
+public class ConstraintHandler {
     private DayOfWeek deadline = DayOfWeek.THURSDAY;    // deadline for submitting/updating constraints
     private Map<Integer, Constraint> constraintsByID;   // employee ID to employee week constraints
 
-    private EmployeeManager employeeManager=EmployeeManager.getInstance();
+    private EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
-    private static ConstraintManager instance;
+    private static ConstraintHandler instance;
 
     /**
      * Private constructor to enforce Singleton pattern
      */
-    private ConstraintManager() {
+    private ConstraintHandler() {
         this.constraintsByID = new HashMap<>();
     }
 
     /**
      * @return the single instance of Constraint Manager
      */
-    public static ConstraintManager getInstance() {
+    public static ConstraintHandler getInstance() {
         if (instance == null) {
-            instance = new ConstraintManager();
+            instance = new ConstraintHandler();
         }
         return instance;
     }
@@ -182,7 +182,7 @@ public class ConstraintManager {
     public void initConstraintsForEmployee(int id) {
         constraintsByID.put(id, new Constraint());
 
-        DayOfWeek dayOff = employeeManager.getById(id).getTerms().getDayOff();
+        DayOfWeek dayOff = employeeHandler.getEmployee(id).getTerms().getDayOff();
         constraintsByID.get(id).setShiftType(dayOff, REST);
     }
 }

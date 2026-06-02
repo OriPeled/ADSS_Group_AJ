@@ -1,6 +1,7 @@
 package dev.Workers.presentation;
 
 import dev.Workers.Service.ConstraintService;
+import dev.Workers.Service.RequirementsService;
 import dev.Workers.Service.ShiftService;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.ShiftType;
@@ -41,6 +42,7 @@ import static dev.Workers.presentation.Parser.*;
 public class ManageShiftsMenu {
     /** Service responsible for all shift-related operations. */
     private static final ShiftService shiftService = ShiftService.getInstance();
+    private static final RequirementsService requirementsService = RequirementsService.getInstance();
     /** Service responsible for employee constraints and deadline management. */
     private static final ConstraintService constraintService = ConstraintService.getInstance();
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
@@ -143,8 +145,8 @@ public class ManageShiftsMenu {
     private static void checkRequirementsSettings(Branch branch) {
         if (shiftService.isShiftsWeekEmpty(branch)) {
             shiftService.initShiftsWeek(branch);
-            shiftService.getDriversReqs(branch);
-            shiftService.getStoreKeeperReqs(branch);
+            requirementsService.getDriverReqs(branch);
+            requirementsService.getStoreKeeperReqs(branch);
 
             int cashiersAmount;
             while (true) {
@@ -152,7 +154,7 @@ public class ManageShiftsMenu {
                 cashiersAmount = readIntSafe();
 
                 try {
-                    shiftService.setCashierWeekReqs(branch, cashiersAmount);
+                    requirementsService.setCashierWeekReqs(branch, cashiersAmount);
                     System.out.println("Shifts week's cashiers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -166,7 +168,7 @@ public class ManageShiftsMenu {
                 storekeepersAmount = readIntSafe();
 
                 try {
-                    shiftService.setStoreKeeperWeekReqs(branch, storekeepersAmount);
+                    requirementsService.setStoreKeeperWeekReqs(branch, storekeepersAmount);
                     System.out.println("Shifts week's storekeepers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {

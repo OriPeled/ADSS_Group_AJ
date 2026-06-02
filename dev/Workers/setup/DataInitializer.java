@@ -46,19 +46,19 @@ public class DataInitializer {
 // Shift Managers
             createEmployee(employeeService, roleService, constraintService,
                     "Shira Steinbuch", 111, beerSheva, cashier);
-            employeeService.getById(111).setManager(true);
+            employeeService.getEmployee(111).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
                     "Daniel Cohen", 112, beerSheva, cashier);
-            employeeService.getById(112).setManager(true);
+            employeeService.getEmployee(112).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
                     "Noa Levi", 113, beerSheva, cashier);
-            employeeService.getById(113).setManager(true);
+            employeeService.getEmployee(113).setManager(true);
 
             createEmployee(employeeService, roleService, constraintService,
                     "Ronaldo", 7, beerSheva, cashier);
-            employeeService.getById(7).setManager(true);
+            employeeService.getEmployee(7).setManager(true);
 
 // Cashiers
             createEmployee(employeeService, roleService, constraintService,
@@ -84,7 +84,7 @@ public class DataInitializer {
 // Mixed roles
             createEmployee(employeeService, roleService, constraintService,
                     "Avicay", 101, beerSheva, cashier);
-            roleService.addRoleToEmployee(101, storekeeper);
+            employeeService.addRole(101, storekeeper);
 
 // Fired employee
             createEmployee(employeeService, roleService, constraintService,
@@ -205,7 +205,7 @@ public class DataInitializer {
                 DayOfWeek.SATURDAY
         );
         employeeService.add(name, id, branch, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
-        roleService.addRoleToEmployee(id, role);
+        employeeService.addRole(id, role);
         constraintService.initConstraintForEmployee(id);
 
         constraintService.setDeadline(DayOfWeek.FRIDAY);
