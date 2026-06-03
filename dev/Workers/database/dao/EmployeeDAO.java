@@ -148,7 +148,7 @@ public class EmployeeDAO {
     public static boolean isEmployeeAvailable(String employeeId, int dayOfWeek, String shiftType) {
         String sql = """
                 SELECT 1
-                FROM employee_constraints
+                FROM employee_preferences
                 WHERE employee_id = ?
                   AND day_of_week = ?
                   AND shift_type = ?

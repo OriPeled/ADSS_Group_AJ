@@ -74,8 +74,8 @@ public class DatabaseInitializer {
                 """);
 
         statement.execute("""
-                CREATE TABLE IF NOT EXISTS employee_constraints (
-                    constraint_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                CREATE TABLE IF NOT EXISTS employee_preferences (
+                    preference_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     employee_id TEXT NOT NULL,
                     day_of_week INTEGER NOT NULL,
                     shift_type TEXT NOT NULL,

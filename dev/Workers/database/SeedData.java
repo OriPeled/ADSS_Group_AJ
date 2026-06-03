@@ -16,7 +16,7 @@ public class SeedData {
             insertRoles(statement);
             insertEmployees(statement);
             insertEmployeeRoles(statement);
-            insertEmployeeConstraints(statement);
+            insertEmployeePreferences(statement);
             insertShifts(statement);
             insertShiftRequirements(statement);
             insertShiftAssignments(statement);
@@ -77,9 +77,9 @@ public class SeedData {
                 """);
     }
 
-    private static void insertEmployeeConstraints(Statement statement) throws SQLException {
+    private static void insertEmployeePreferences(Statement statement) throws SQLException {
         statement.execute("""
-                INSERT OR IGNORE INTO employee_constraints (
+                INSERT OR IGNORE INTO employee_preferences (
                     employee_id,
                     day_of_week,
                     shift_type,
