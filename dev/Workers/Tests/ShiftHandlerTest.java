@@ -52,7 +52,7 @@ public class ShiftHandlerTest {
     void setUp() throws Exception {
         resetSingleton(EmployeeHandler.class, "instance");
         resetSingleton(AccessHandler.class, "instance");
-        resetSingleton(ConstraintHandler.class, "instance");
+        resetSingleton(PreferenceHandler.class, "instance");
         resetSingleton(ShiftHandler.class, "instance");
         resetSingleton(RoleRegistry.class, "instance");
 
@@ -86,12 +86,12 @@ public class ShiftHandlerTest {
 
     private void registerEmployee(int id, String name, Role role) {
         EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         EmployeeTerms terms = new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
         employeeHandler.add(name, id, dimona, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
         employeeHandler.addRole(id, role);
-        constraintHandler.initConstraintsForEmployee(id);
+        preferenceHandler.initPreferences(id);
     }
 
     /**
@@ -101,12 +101,12 @@ public class ShiftHandlerTest {
     @Test
     void assignEmployee_shouldSucceedForValidEmployee() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(1, "Alice", cashierRole);
         Shift shift = createShift(0);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(1, day, ShiftType.MORNING);
+        preferenceHandler.update(1, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, 1);
@@ -122,12 +122,12 @@ public class ShiftHandlerTest {
     @Test
     void assignEmployee_should_Fail_When_Employee_Is_Not_Qualified() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(2, "Bob", storekeeperRole);
         Shift shift = createShift(1);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(2, day, ShiftType.MORNING);
+        preferenceHandler.update(2, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
@@ -143,12 +143,12 @@ public class ShiftHandlerTest {
     @Test
     void assignEmployee_shouldFailWhenEmployeeIsNotAvailable() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(3, "Charlie", cashierRole);
         Shift shift = createShift(2);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(3, day, ShiftType.EVENING);
+        preferenceHandler.update(3, day, ShiftType.EVENING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
@@ -164,15 +164,15 @@ public class ShiftHandlerTest {
     @Test
     void replaceEmployee_shouldReplaceAssignedEmployeeSuccessfully() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(10, "David", cashierRole);
         registerEmployee(11, "Eve", cashierRole);
 
         Shift shift = createShift(3);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(10, day, ShiftType.MORNING);
-        constraintHandler.update(11, day, ShiftType.MORNING);
+        preferenceHandler.update(10, day, ShiftType.MORNING);
+        preferenceHandler.update(11, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, 10);
@@ -189,15 +189,15 @@ public class ShiftHandlerTest {
     @Test
     void replaceEmployee_shouldFailWhenNewEmployeeIsNotQualified() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(20, "Frank", cashierRole);
         registerEmployee(21, "Grace", storekeeperRole);
 
         Shift shift = createShift(4);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(20, day, ShiftType.MORNING);
-        constraintHandler.update(21, day, ShiftType.MORNING);
+        preferenceHandler.update(20, day, ShiftType.MORNING);
+        preferenceHandler.update(21, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, 20);
@@ -214,12 +214,12 @@ public class ShiftHandlerTest {
     @Test
     void leftToAssign_shouldReportMissingEmployeesCorrectly() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(30, "Hannah", cashierRole);
         Shift shift = createShift(5);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(30, day, ShiftType.MORNING);
+        preferenceHandler.update(30, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 2);
         assertEquals(2, shiftHandler.leftToAssign(shift, cashierRole));
@@ -234,7 +234,7 @@ public class ShiftHandlerTest {
     @Test
     void assignEmployee_shouldFail_WhenEmployeeIsTerminated() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
         EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
         registerEmployee(60, "Liam", cashierRole);
@@ -242,7 +242,7 @@ public class ShiftHandlerTest {
 
         Shift shift = createShift(6);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(60, day, ShiftType.MORNING);
+        preferenceHandler.update(60, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
@@ -258,7 +258,7 @@ public class ShiftHandlerTest {
     @Test
     void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(70, "Mia", cashierRole);
         registerEmployee(71, "Noah", cashierRole);
@@ -266,8 +266,8 @@ public class ShiftHandlerTest {
         Shift shift = createShift(7);
         DayOfWeek day = shift.getDate().getDayOfWeek();
 
-        constraintHandler.update(70, day, ShiftType.MORNING);
-        constraintHandler.update(71, day, ShiftType.MORNING);
+        preferenceHandler.update(70, day, ShiftType.MORNING);
+        preferenceHandler.update(71, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, 70);
@@ -284,7 +284,7 @@ public class ShiftHandlerTest {
     @Test
     void replaceEmployee_shouldFailWhenNewEmployeeWasTerminated() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
         EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
         registerEmployee(80, "Olivia", cashierRole);
@@ -293,8 +293,8 @@ public class ShiftHandlerTest {
         Shift shift = createShift(8);
         DayOfWeek day = shift.getDate().getDayOfWeek();
 
-        constraintHandler.update(80, day, ShiftType.MORNING);
-        constraintHandler.update(81, day, ShiftType.MORNING);
+        preferenceHandler.update(80, day, ShiftType.MORNING);
+        preferenceHandler.update(81, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, 80);
@@ -327,12 +327,12 @@ public class ShiftHandlerTest {
     @Test
     void replaceEmployee_shouldFailWhenReplacingWithSameEmployee() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(110, "Lior", cashierRole);
         Shift shift = createShift(10);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(110, day, ShiftType.MORNING);
+        preferenceHandler.update(110, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, 110);
@@ -380,12 +380,12 @@ public class ShiftHandlerTest {
     @Test
     void assignEmployee_shouldFailWhenEmployeeAlreadyAssignedToSameShift() {
         ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        ConstraintHandler constraintHandler = ConstraintHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
 
         registerEmployee(100, "Daniel", cashierRole);
         Shift shift = createShift(9);
         DayOfWeek day = shift.getDate().getDayOfWeek();
-        constraintHandler.update(100, day, ShiftType.MORNING);
+        preferenceHandler.update(100, day, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 2);
         shiftHandler.assignEmployee(shift, cashierRole, 100);

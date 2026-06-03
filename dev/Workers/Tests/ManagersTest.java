@@ -22,7 +22,7 @@ public class ManagersTest {
 
     private EmployeeHandler employeeHandler;
     private AccessHandler accessHandler;
-    private ConstraintHandler constraintHandler;
+    private PreferenceHandler preferenceHandler;
     private ShiftHandler shiftHandler;
     private RoleRegistry roleRegistry; // NEW
     private BranchRegistry branchRegistry;
@@ -39,7 +39,7 @@ public class ManagersTest {
     void setUp() throws Exception {
         resetSingleton(EmployeeHandler.class, "instance");
         resetSingleton(AccessHandler.class, "instance");
-        resetSingleton(ConstraintHandler.class, "instance");
+        resetSingleton(PreferenceHandler.class, "instance");
         resetSingleton(ShiftHandler.class, "instance");
         resetSingleton(RoleRegistry.class, "instance"); // Reset the new registry!
 
@@ -54,7 +54,7 @@ public class ManagersTest {
         accessEmployeeManagerField.setAccessible(true);
         accessEmployeeManagerField.set(null, employeeHandler);
 
-        constraintHandler = ConstraintHandler.getInstance();
+        preferenceHandler = PreferenceHandler.getInstance();
         accessHandler = AccessHandler.getInstance();
         shiftHandler = ShiftHandler.getInstance();
 
@@ -92,7 +92,7 @@ public class ManagersTest {
      * Initializes default weekly constraints for an employee.
      */
     private void initConstraints(int id) {
-        constraintHandler.initConstraintsForEmployee(id);
+        preferenceHandler.initPreferences(id);
     }
 
     // =========================================================
@@ -187,10 +187,10 @@ public class ManagersTest {
     @Test
     void constraint_updateBeforeDeadline_shouldSucceed() {
         initConstraints(1);
-        constraintHandler.setDeadline(DayOfWeek.THURSDAY);
+        preferenceHandler.setDeadline(DayOfWeek.THURSDAY);
 
         assertDoesNotThrow(() ->
-                constraintHandler.update(
+                preferenceHandler.update(
                         1,
                         DayOfWeek.MONDAY,
                         ShiftType.MORNING,
@@ -202,10 +202,10 @@ public class ManagersTest {
     @Test
     void constraint_updateAfterDeadline_shouldFail() {
         initConstraints(1);
-        constraintHandler.setDeadline(DayOfWeek.MONDAY);
+        preferenceHandler.setDeadline(DayOfWeek.MONDAY);
 
         assertThrows(RuntimeException.class, () ->
-                constraintHandler.update(
+                preferenceHandler.update(
                         1,
                         DayOfWeek.TUESDAY,
                         ShiftType.MORNING,
@@ -217,16 +217,16 @@ public class ManagersTest {
     @Test
     void constraint_isEmployeeAvailable_shouldReturnTrue() {
         initConstraints(1);
-        constraintHandler.setDeadline(DayOfWeek.SATURDAY);
+        preferenceHandler.setDeadline(DayOfWeek.SATURDAY);
 
-        constraintHandler.update(
+        preferenceHandler.update(
                 1,
                 DayOfWeek.MONDAY,
                 ShiftType.MORNING,
                 LocalDate.of(2026, 4, 20)
         );
 
-        assertTrue(constraintHandler.isEmployeeAvailable(1, DayOfWeek.MONDAY, ShiftType.MORNING));
+        assertTrue(preferenceHandler.isEmployeeAvailable(1, DayOfWeek.MONDAY, ShiftType.MORNING));
     }
 
     // =========================================================

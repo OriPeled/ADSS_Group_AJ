@@ -8,64 +8,64 @@ import java.util.Map;
 
 import static dev.Workers.domain.Enums.ShiftType.ANY;
      /**
-      *  Represents employee constraints for working shifts.
+      *  Represents employee preferences for working shifts.
      *
      *   A constraint can be defined either:
-     *   1. For a full week (using weekConstraints map)
+     *   1. For a full week (using weekPreferences map)
      *   2. For a specific day and shift type
      *
      *   By default, all days are initialized to wholeDay (no restriction).
      */
-public class Constraint {
-    private DayOfWeek day;                              // Specific day constraint
-    private ShiftType shiftType;                        // Specific shift type constraint for a single day
-    private Map<DayOfWeek, ShiftType> weekConstraints;  // weekly constraints to allowed shift type
+public class Preference {
+    private DayOfWeek day;                              // Specific day preference
+    private ShiftType shiftType;                        // Specific shift type preference for a single day
+    private Map<DayOfWeek, ShiftType> weekPreferences;  // weekly preferences to allowed shift type
 
     /**
     *  constructor.
     * Initializes all days in the week to wholeDay (no restriction).
     */
-    public Constraint() {
-        this.weekConstraints = new EnumMap<>(DayOfWeek.class);
+    public Preference() {
+        this.weekPreferences = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek d : DayOfWeek.values()) {
-            weekConstraints.put(d, ANY);
+            weekPreferences.put(d, ANY);
         }
     }
 
-    public Constraint(DayOfWeek day, String shiftTypeString) {
+    public Preference(DayOfWeek day, String shiftTypeString) {
         this.day = day;
         this.shiftType = shiftType.valueOf(shiftTypeString);
     }
 
     public ShiftType getShiftType(DayOfWeek day) {
-        return weekConstraints.get(day);
+        return weekPreferences.get(day);
     }
 
     public void setShiftType(DayOfWeek day, ShiftType shiftType) {
-        weekConstraints.put(day, shiftType);
+        weekPreferences.put(day, shiftType);
     }
 
-    public Map<DayOfWeek, ShiftType> getWeekConstraints() {
-        return weekConstraints;
+    public Map<DayOfWeek, ShiftType> getWeekPreferences() {
+        return weekPreferences;
     }
 
     /**
-     * Compares two constraints based on day and shift type.
+     * Compares two preferences based on day and shift type.
      *
      * @param o object to compare
-     * @return true if both constraints refer to the same day and shift type
+     * @return true if both preferences refer to the same day and shift type
      */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Constraint that = (Constraint) o;
+        Preference that = (Preference) o;
         return day.equals(that.day) && shiftType == that.shiftType;
     }
 
      @Override
      public String toString() {
-         StringBuilder sb = new StringBuilder("=== My Week Constraints ===\n");
+         StringBuilder sb = new StringBuilder("=== My Week Preferences ===\n");
 
          DayOfWeek[] orderedDays = {
                  DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
@@ -78,7 +78,7 @@ public class Constraint {
          for (int i = 0; i < 4; i++) {
              // Column 1: Sunday through Wednesday (Indices 0, 1, 2, 3)
              String dayLeft = formatDay(orderedDays[i]);
-             String shiftLeft = weekConstraints.get(orderedDays[i]).toString();
+             String shiftLeft = weekPreferences.get(orderedDays[i]).toString();
              String leftEntry = dayLeft + " - " + shiftLeft;
 
              sb.append(String.format("%-" + columnWidth + "s", leftEntry));
@@ -86,7 +86,7 @@ public class Constraint {
              // Column 2: Thursday through Saturday (Indices 4, 5, 6)
              if (i + 4 < orderedDays.length) {
                  String dayRight = formatDay(orderedDays[i + 4]);
-                 String shiftRight = weekConstraints.get(orderedDays[i + 4]).toString();
+                 String shiftRight = weekPreferences.get(orderedDays[i + 4]).toString();
                  sb.append(dayRight).append(" - ").append(shiftRight);
              }
 

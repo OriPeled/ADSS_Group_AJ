@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.service.ConstraintService;
+import dev.Workers.service.PreferenceService;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Branch;
@@ -13,7 +13,7 @@ import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.readIntSafe;
 
 public class UserMode {
-    static dev.Workers.service.ConstraintService constraintService = ConstraintService.getInstance();
+    static PreferenceService preferenceService = PreferenceService.getInstance();
     static dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
     static dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
     static dev.Workers.service.EmployeeService employeeService = dev.Workers.service.EmployeeService.getInstance();
@@ -80,7 +80,7 @@ public class UserMode {
             int choice = readIntSafe();
             switch (choice) {
                 case 1:
-                    updateConstraints();
+                    updatePreferences();
                     break;
                 case 2:
                     currentWeekShifts();
@@ -178,14 +178,14 @@ public class UserMode {
         System.out.println(shiftService.displayNextWeek(branch));
     }
 
-    public static void updateConstraints() {
-        if (!constraintService.isOnTime()) {
+    public static void updatePreferences() {
+        if (!preferenceService.isOnTime()) {
             System.out.println("Deadline for updating has passed.");
             return;
         }
-        System.out.println(constraintService.display(employeeId));
+        System.out.println(preferenceService.display(employeeId));
         while (true) {
-            System.out.println("Choose a shift constraint to change or enter 0 to cancel.");
+            System.out.println("Choose a shift preference to change or enter 0 to cancel.");
             System.out.println("Choose 1-7 for day");
             int dayNumber = readIntSafe();
 
@@ -223,9 +223,9 @@ public class UserMode {
                     continue;
             }
             try {
-                constraintService.update(employeeId, day, shiftType);
-                System.out.println("Constraint updated successfully.");
-                System.out.println(constraintService.display(employeeId));
+                preferenceService.update(employeeId, day, shiftType);
+                System.out.println("Preference updated successfully.");
+                System.out.println(preferenceService.display(employeeId));
             }
             catch (RuntimeException e) {
                 System.out.println(e.getMessage());
@@ -236,7 +236,7 @@ public class UserMode {
 
     public static void printMainMenu() {
         System.out.println("Choose Option:");
-        System.out.println("1. Update Constraints");
+        System.out.println("1. Update Preferences");
         System.out.println("2. Watch Current Week's Shifts");
         System.out.println("3. Watch Next Week's Shifts");
         System.out.println("0. Logout");

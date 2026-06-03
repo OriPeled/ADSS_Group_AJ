@@ -1,7 +1,7 @@
 package dev.Workers.presentation;
 
-import dev.Workers.service.ConstraintService;
-import dev.Workers.service.RequirementsService;
+import dev.Workers.service.PreferenceService;
+import dev.Workers.service.RequirementService;
 import dev.Workers.service.ShiftService;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.ShiftType;
@@ -32,7 +32,7 @@ import static dev.Workers.presentation.Parser.*;
  *     Updating staffing requirements
  *     Removing shifts
  *     Publishing the weekly schedule
- *     Updating the constraints deadline
+ *     Updating the preferences' deadline
  *     Displaying shifts history
  *
  *
@@ -42,23 +42,12 @@ import static dev.Workers.presentation.Parser.*;
 public class ManageShiftsMenu {
     /** Service responsible for all shift-related operations. */
     private static final ShiftService shiftService = ShiftService.getInstance();
-    private static final RequirementsService requirementsService = RequirementsService.getInstance();
-    /** Service responsible for employee constraints and deadline management. */
-    private static final ConstraintService constraintService = ConstraintService.getInstance();
+    private static final RequirementService REQUIREMENT_SERVICE = RequirementService.getInstance();
+    /** Service responsible for employee preferences and deadline management. */
+    private static final PreferenceService PREFERENCE_SERVICE = PreferenceService.getInstance();
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
     private static final BranchRegistry branchRegistry = BranchRegistry.getInstance();
 
-    /**
-     * Starts the main shifts menu loop.
-     *
-     * The user can:
-     *
-     *    Manage the shifts of the week
-     *     View shifts history
-     *     Update the constraints deadline
-     *     Return to the previous menu
-     *
-     */
     static void chooseBranch() {
         List<Branch> branches = branchRegistry.getAllBranches();
 
@@ -145,8 +134,8 @@ public class ManageShiftsMenu {
     private static void checkRequirementsSettings(Branch branch) {
         if (shiftService.isShiftsWeekEmpty(branch)) {
             shiftService.initShiftsWeek(branch);
-            requirementsService.getDriverReqs(branch);
-            requirementsService.getStoreKeeperReqs(branch);
+            REQUIREMENT_SERVICE.getDriverReqs(branch);
+            REQUIREMENT_SERVICE.getStoreKeeperReqs(branch);
 
             int cashiersAmount;
             while (true) {
@@ -154,7 +143,7 @@ public class ManageShiftsMenu {
                 cashiersAmount = readIntSafe();
 
                 try {
-                    requirementsService.setCashierWeekReqs(branch, cashiersAmount);
+                    REQUIREMENT_SERVICE.setCashierWeekReqs(branch, cashiersAmount);
                     System.out.println("Shifts week's cashiers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -168,7 +157,7 @@ public class ManageShiftsMenu {
                 storekeepersAmount = readIntSafe();
 
                 try {
-                    requirementsService.setStoreKeeperWeekReqs(branch, storekeepersAmount);
+                    REQUIREMENT_SERVICE.setStoreKeeperWeekReqs(branch, storekeepersAmount);
                     System.out.println("Shifts week's storekeepers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -332,7 +321,7 @@ public class ManageShiftsMenu {
             return;
         }
 
-        System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+        System.out.println(shiftService.getPotentialEmployees(shift));
         
         System.out.println("Enter employee ID (0 to cancel):");
         int empID = readIntSafe();
@@ -400,14 +389,14 @@ public class ManageShiftsMenu {
      */
     private static void replaceEmployee(Shift shift) {
         while (true) {
-            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+            System.out.println(shiftService.getPotentialEmployees(shift));
             System.out.println("Enter the ID of the employee currently assigned to the shift (0 to cancel):");
             int curId = readIntSafe();
             if (curId == 0) {
                 return;
             }
 
-            System.out.println(shiftService.getAvailableEmployeesForShift(shift));
+            System.out.println(shiftService.getPotentialEmployees(shift));
             System.out.println("Enter the ID of the replacement employee (0 to cancel):");
             int newId = readIntSafe();
             if (newId == 0) {
@@ -595,7 +584,7 @@ public class ManageShiftsMenu {
             switch (choice) {
                 case 1 -> manualAssignment(shift);
                 case 2 -> manualRemoval(shift);
-                case 3 -> extraHours(shift);
+                case 3 -> manualExtraHours(shift);
                 case 4 -> updateRequirements(shift);
                 case 0 -> {
                     return;
@@ -606,10 +595,9 @@ public class ManageShiftsMenu {
     }
 
     private static void manualAssignment(Shift shift) {
-        int empID;
-
+        System.out.println("===Manual assignment removing===");
         System.out.println("Enter employee ID (0 to cancel):");
-        empID = readIntSafe();
+        int empID = readIntSafe();
         if (empID == 0) {
             return;
         }
@@ -628,10 +616,9 @@ public class ManageShiftsMenu {
     }
 
     private static void manualRemoval(Shift shift) {
-        int empID;
-
+        System.out.println("===Manual assignment removing===");
         System.out.println("Enter employee ID (0 to cancel):");
-        empID = readIntSafe();
+        int empID = readIntSafe();
         if (empID == 0) {
             return;
         }
@@ -639,6 +626,25 @@ public class ManageShiftsMenu {
         try {
             shiftService.removeEmployee(shift, empID);
             System.out.println("Employee manually removed.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void manualExtraHours(Shift shift) {
+        System.out.println("===Manual extra hours===");
+        System.out.println("Enter employee ID (0 to cancel):");
+        int empID = readIntSafe();
+        if (empID == 0) {
+            return;
+        }
+
+        System.out.println("Enter amount of extra hours (0-4)");
+        int extraHours = readIntSafe();
+
+        try {
+            shiftService.updateExtraHoursManually(shift, empID, extraHours);
+            System.out.println("Extra hours updated.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -759,10 +765,10 @@ public class ManageShiftsMenu {
     }
 
     /**
-     * Updates the constraints submission deadline.
+     * Updates the preferences submission deadline.
      */
     private static void updateDeadline() {
-        System.out.println("Current deadline: " + constraintService.getDeadline());
+        System.out.println("Current deadline: " + PREFERENCE_SERVICE.getDeadline());
 
         while (true) {
             System.out.println("Enter new day (1-7) or 0 to go back:");
@@ -775,7 +781,7 @@ public class ManageShiftsMenu {
 
             try {
                 DayOfWeek newDay = Parser.getDayFromNumber(dayNumber);
-                constraintService.setDeadline(newDay);
+                PREFERENCE_SERVICE.setDeadline(newDay);
                 System.out.println("Deadline updated to " + newDay + ".");
                 return;
             } catch (IllegalArgumentException e) {
@@ -811,7 +817,7 @@ public class ManageShiftsMenu {
         System.out.println("1. Manage Shifts Week");
         System.out.println("2. Manual shift changes (USE ONLY WHEN NECESSARY)");
         System.out.println("3. Get Shifts History");
-        System.out.println("4. Update Constraints Deadline");
+        System.out.println("4. Update Preferences Deadline");
         System.out.println("0. Back");
     }
 

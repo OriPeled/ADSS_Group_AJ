@@ -6,9 +6,7 @@ import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +18,7 @@ import static dev.Workers.domain.Enums.ShiftType.MORNING;
  * This class is responsible for storing and managing which employees
  * are assigned to which role inside each shift.
  */
-public class AssignmentsHandler {
+public class AssignmentHandler {
     private final Map<Shift, Map<Role, Set<Integer>>> assignments;  // shift to (role to assigned empIDs)
     // only for mornings
     private final Map<Shift, Map<Integer, Integer>> extraHours;     // shift to (assigned empID to hours)
@@ -31,16 +29,16 @@ public class AssignmentsHandler {
 
     private final RoleRegistry roleRegistry;
 
-    private static AssignmentsHandler instance;
+    private static AssignmentHandler instance;
 
-    public static AssignmentsHandler getInstance() {
+    public static AssignmentHandler getInstance() {
         if (instance == null) {
-            instance = new AssignmentsHandler();
+            instance = new AssignmentHandler();
         }
         return instance;
     }
 
-    public AssignmentsHandler() {
+    public AssignmentHandler() {
         this.assignments = new HashMap<>();
         this.extraHours = new HashMap<>();
         this.pendingRequests = new HashMap<>();

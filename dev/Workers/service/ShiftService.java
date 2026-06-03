@@ -22,7 +22,7 @@ import java.util.Set;
  */
 public class ShiftService {
     private static ShiftHandler shiftHandler;
-    private static AssignmentsService assignmentsService;
+    private static AssignmentService assignmentService;
     private static EmployeeHandler employeeHandler;
     private static RoleService roleService;
 
@@ -37,7 +37,7 @@ public class ShiftService {
 
     private ShiftService() {
         shiftHandler = ShiftHandler.getInstance();
-        assignmentsService = AssignmentsService.getInstance();
+        assignmentService = AssignmentService.getInstance();
         employeeHandler = EmployeeHandler.getInstance();
         roleService = RoleService.getInstance();
     }
@@ -118,7 +118,7 @@ public class ShiftService {
         return shiftHandler.isShiftAssigned(shift);
     }
 
-    public String getAvailableEmployeesForShift(Shift shift) {
+    public String getPotentialEmployees(Shift shift) {
         return shiftHandler.getUnassignedValid(shift);
     }
 
@@ -163,22 +163,29 @@ public class ShiftService {
         shiftHandler.updateExtraHours(shift, empID, hours);
     }
 
+    public void updateExtraHoursManually(Shift shift, int empID, int hours) {
+        if (hours < 0 || hours > 4) {
+            throw new IllegalArgumentException("The number of hours off must be between 0 and 4.");
+        }
+        shiftHandler.updateExtraHoursManually(shift, empID, hours);
+    }
+
     // For Assignments
     public void sendRequest(Shift shift, Role role, int empId) {
-        assignmentsService.sendRequest(shift, role, empId);
+        assignmentService.sendRequest(shift, role, empId);
     }
 
     // For Replacements
     public void sendRequest(Shift shift, int curId, int newId) {
-        assignmentsService.sendRequest(shift, curId, newId);
+        assignmentService.sendRequest(shift, curId, newId);
     }
 
     public boolean assignmentNeedsApproval(int employeeId) {
-        return assignmentsService.assignmentNeedsApproval(employeeId);
+        return assignmentService.assignmentNeedsApproval(employeeId);
     }
 
     public String displayNextPendingAssignment(int employeeId) {
-        return assignmentsService.displayNextPendingAssignment(employeeId);
+        return assignmentService.displayNextPendingAssignment(employeeId);
     }
 
     public void processRequest(int employeeId, boolean isApproved) {
@@ -186,7 +193,7 @@ public class ShiftService {
     }
 
     public List<String> popRequestAnswers(Branch branch) {
-        return assignmentsService.popRequestAnswers(branch);
+        return assignmentService.popRequestAnswers(branch);
     }
 
     public void initShiftsWeek(Branch branch) {
@@ -194,7 +201,7 @@ public class ShiftService {
     }
 
     public boolean pendingRequestsLeft() {
-        return assignmentsService.pendingRequestsLeft();
+        return assignmentService.pendingRequestsLeft();
     }
 
     // used by TP module

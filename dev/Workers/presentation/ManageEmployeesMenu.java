@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.service.ConstraintService;
+import dev.Workers.service.PreferenceService;
 import dev.Workers.service.EmployeeService;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.*;
@@ -21,7 +21,7 @@ import static dev.Workers.presentation.Parser.*;
 
 public class ManageEmployeesMenu  {
     static EmployeeService employeeService = EmployeeService.getInstance();
-    static ConstraintService constraintService = ConstraintService.getInstance();
+    static PreferenceService preferenceService = PreferenceService.getInstance();
     static RoleRegistry roleRegistry = RoleRegistry.getInstance();
     static BranchRegistry branchRegistry = BranchRegistry.getInstance();
 
@@ -595,7 +595,7 @@ public class ManageEmployeesMenu  {
                                     EmployeeTerms terms, LocalDate startDate) {
         try {
             employeeService.add(name, ID, branch, bankAccount, salary, terms, startDate);
-            constraintService.initConstraintForEmployee(ID);
+            preferenceService.initPreferences(ID);
             System.out.println("Success: Employee added successfully.");
             manageEmployee(ID);
 

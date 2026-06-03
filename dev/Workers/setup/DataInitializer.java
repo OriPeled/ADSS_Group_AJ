@@ -1,7 +1,7 @@
 package dev.Workers.setup;
 
 import dev.Workers.Service.*;
-import dev.Workers.service.ConstraintService;
+import dev.Workers.service.PreferenceService;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
@@ -31,7 +31,7 @@ public class DataInitializer {
         RoleService roleService = RoleService.getInstance();
         dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
         dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
-        dev.Workers.service.ConstraintService constraintService = dev.Workers.service.ConstraintService.getInstance();
+        PreferenceService preferenceService = PreferenceService.getInstance();
 
         BranchRegistry branchRegistry = BranchRegistry.getInstance();
         Branch beerSheva = branchRegistry.getBranchByName("Beer-Sheva");
@@ -45,50 +45,50 @@ public class DataInitializer {
             // EMPLOYEES CREATION
             // =========================
 // Shift Managers
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Shira Steinbuch", 111, beerSheva, cashier);
             employeeService.getEmployee(111).setManager(true);
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Daniel Cohen", 112, beerSheva, cashier);
             employeeService.getEmployee(112).setManager(true);
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Noa Levi", 113, beerSheva, cashier);
             employeeService.getEmployee(113).setManager(true);
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Ronaldo", 7, beerSheva, cashier);
             employeeService.getEmployee(7).setManager(true);
 
 // Cashiers
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Kokhava Shavit", 222, beerSheva, cashier);
             accessService.Register(222, "2222");
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Lior Mizrahi", 223, beerSheva, cashier);
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Dana Azulay", 224, beerSheva, cashier);
 
 // Storekeepers
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Nissim", 333, beerSheva, storekeeper);
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Ramzi", 444, beerSheva, storekeeper);
 
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Eyal Peretz", 445, beerSheva, storekeeper);
 
 // Mixed roles
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Avicay", 101, beerSheva, cashier);
             employeeService.addRole(101, storekeeper);
 
 // Fired employee
-            createEmployee(employeeService, roleService, constraintService,
+            createEmployee(employeeService, roleService, preferenceService,
                     "Johnny Bravo", 77, beerSheva, storekeeper);
             accessService.Register(77, "7777");
             employeeService.fire(77);
@@ -125,11 +125,11 @@ public class DataInitializer {
             // =========================
             // CONSTRAINTS
             // =========================
-            constraintService.update(222, DayOfWeek.WEDNESDAY, ShiftType.REST);
-            constraintService.update(222, DayOfWeek.FRIDAY, ShiftType.REST);
+            preferenceService.update(222, DayOfWeek.WEDNESDAY, ShiftType.REST);
+            preferenceService.update(222, DayOfWeek.FRIDAY, ShiftType.REST);
 
-            constraintService.update(101, DayOfWeek.SUNDAY, ShiftType.REST);
-            constraintService.update(77, DayOfWeek.SUNDAY, ShiftType.REST);
+            preferenceService.update(101, DayOfWeek.SUNDAY, ShiftType.REST);
+            preferenceService.update(77, DayOfWeek.SUNDAY, ShiftType.REST);
             //constraintService.update(444, DayOfWeek.SUNDAY, ShiftType.rest);
 
             // ===========================
@@ -193,7 +193,7 @@ public class DataInitializer {
     private static void createEmployee(
             dev.Workers.service.EmployeeService employeeService,
             RoleService roleService,
-            ConstraintService constraintService,
+            PreferenceService preferenceService,
             String name,
             int id,
             Branch branch,
@@ -207,8 +207,8 @@ public class DataInitializer {
         );
         employeeService.add(name, id, branch, id * 100, 9000.0, terms, LocalDate.now().minusYears(1));
         employeeService.addRole(id, role);
-        constraintService.initConstraintForEmployee(id);
+        preferenceService.initPreferences(id);
 
-        constraintService.setDeadline(DayOfWeek.FRIDAY);
+        preferenceService.setDeadline(DayOfWeek.FRIDAY);
     }
 }

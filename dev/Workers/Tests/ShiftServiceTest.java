@@ -36,7 +36,7 @@ public class ShiftServiceTest {
 
     private ShiftService shiftService;
     private EmployeeHandler employeeHandler;
-    private ConstraintHandler constraintHandler;
+    private PreferenceHandler preferenceHandler;
     private ShiftHandler shiftHandler;
     private RoleRegistry roleRegistry;
     private BranchRegistry branchRegistry;
@@ -53,12 +53,12 @@ public class ShiftServiceTest {
     void setUp() throws Exception {
         resetSingleton(ShiftService.class, "instance");
         resetSingleton(EmployeeHandler.class, "instance");
-        resetSingleton(ConstraintHandler.class, "instance");
+        resetSingleton(PreferenceHandler.class, "instance");
         resetSingleton(ShiftHandler.class, "instance");
         resetSingleton(RoleRegistry.class, "instance");
 
         employeeHandler = EmployeeHandler.getInstance();
-        constraintHandler = ConstraintHandler.getInstance();
+        preferenceHandler = PreferenceHandler.getInstance();
         shiftHandler = ShiftHandler.getInstance();
         shiftService = ShiftService.getInstance();
         roleRegistry = RoleRegistry.getInstance();
@@ -114,7 +114,7 @@ public class ShiftServiceTest {
      * @param id employee id
      */
     private void initConstraints(int id) {
-        constraintHandler.initConstraintsForEmployee(id);
+        preferenceHandler.initPreferences(id);
     }
 
     /**

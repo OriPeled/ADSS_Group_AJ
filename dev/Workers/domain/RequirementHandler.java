@@ -15,20 +15,20 @@ import java.util.*;
  * Structure:
  * Shift -> List of Requirements
  */
-public class RequirementsHandler {
+public class RequirementHandler {
     private final Map<Shift, List<Requirement>> shiftsReqs;
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
 
-    private static RequirementsHandler instance;
+    private static RequirementHandler instance;
 
-    public static RequirementsHandler getInstance() {
+    public static RequirementHandler getInstance() {
         if (instance == null) {
-            instance = new RequirementsHandler();
+            instance = new RequirementHandler();
         }
         return instance;
     }
 
-    public RequirementsHandler() {
+    public RequirementHandler() {
         this.shiftsReqs = new HashMap<>();
     }
 

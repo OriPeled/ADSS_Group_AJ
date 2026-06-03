@@ -1,7 +1,7 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.ShiftType;
-import dev.Workers.domain.Objects.Constraint;
+import dev.Workers.domain.Objects.Preference;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -11,64 +11,50 @@ import java.util.Map;
 import static dev.Workers.domain.Enums.ShiftType.*;
 
 /**
- * Manages all employees' constraints in the system.
+ * Manages all employees' preferences in the system.
  *
  * This class is implemented as a Singleton.
- * It allows updating constraints, checking availability,
- * and managing deadlines for constraint submissions.
+ * It allows updating preferences, checking availability,
+ * and managing deadlines for preference submissions.
  */
-public class ConstraintHandler {
-    private DayOfWeek deadline = DayOfWeek.THURSDAY;    // deadline for submitting/updating constraints
-    private Map<Integer, Constraint> constraintsByID;   // employee ID to employee week constraints
+public class PreferenceHandler {
+    private DayOfWeek deadline = DayOfWeek.THURSDAY;    // deadline for submitting/updating preferences
+    private Map<Integer, Preference> preferences;   // employee ID to employee week preferences
 
     private EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
 
-    private static ConstraintHandler instance;
+    private static PreferenceHandler instance;
 
-    /**
-     * Private constructor to enforce Singleton pattern
-     */
-    private ConstraintHandler() {
-        this.constraintsByID = new HashMap<>();
+    private PreferenceHandler() {
+        this.preferences = new HashMap<>();
     }
 
-    /**
-     * @return the single instance of Constraint Manager
-     */
-    public static ConstraintHandler getInstance() {
+    public static PreferenceHandler getInstance() {
         if (instance == null) {
-            instance = new ConstraintHandler();
+            instance = new PreferenceHandler();
         }
         return instance;
     }
-    /**
-     * @return map of all employee constraints
-     */
-    public Map<Integer, Constraint> getConstraintsByID() {
-        return constraintsByID;
+
+    public Map<Integer, Preference> getAllPreferences() {
+        return preferences;
     }
 
     // received type is always morning/evening
-    public void extendConstraints(int empId, DayOfWeek day, ShiftType type) {
-        ShiftType empDayConstraint = getConstraints(empId).getShiftType(day);
-        if (empDayConstraint == REST)
-            getConstraints(empId).setShiftType(day, type);
-        else if (empDayConstraint == MORNING || empDayConstraint == EVENING)
-            getConstraints(empId).setShiftType(day, ANY);
+    public void extendPreferences(int empId, DayOfWeek day, ShiftType type) {
+        ShiftType empDayPreferences = getPreferences(empId).getShiftType(day);
+        if (empDayPreferences == REST)
+            getPreferences(empId).setShiftType(day, type);
+        else if (empDayPreferences == MORNING || empDayPreferences == EVENING)
+            getPreferences(empId).setShiftType(day, ANY);
+    }
+
+    public Preference getPreferences(int id) {
+        return preferences.get(id);
     }
 
     /**
-     * Returns constraints of a specific employee
-     *
-     * @param id employee ID
-     * @return Constraint object
-     */
-    public Constraint getConstraints(int id) {
-        return constraintsByID.get(id);
-    }
-
-    /**
-     * Updates the constraint for a specific employee and day.
+     * Updates the preference for a specific employee and day.
      * This method acts as a wrapper that uses the current system date,
      * ensuring existing code that calls it remains unbroken.
      *
@@ -83,7 +69,7 @@ public class ConstraintHandler {
     }
 
     /**
-     * Updates the constraint for a specific employee and day, given a specific current date.
+     * Updates the preference for a specific employee and day, given a specific current date.
      * This overloaded method allows for Dependency Injection of the date,
      * which is crucial for deterministic and reliable unit testing.
      *
@@ -98,25 +84,17 @@ public class ConstraintHandler {
 
         if (deadline != null && !isOnTime(currentDate)) {
             throw new RuntimeException(
-                    "Submission failed: The deadline for submitting constraints (" + deadline + ") has passed."
+                    "Submission failed: The deadline for submitting preferences (" + deadline + ") has passed."
             );
         }
 
-        Constraint employeeConstraints = getConstraints(id);
-        employeeConstraints.getWeekConstraints().put(day, shiftType);
+        Preference employeePreferences = getPreferences(id);
+        employeePreferences.getWeekPreferences().put(day, shiftType);
     }
 
-    /**
-     * Checks if an employee is available for a given shift
-     *
-     * @param id employee ID
-     * @param day day of week
-     * @param shiftType shift type to check
-     * @return true if available, false otherwise
-     */
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
-        return (constraintsByID.get(id).getShiftType(day) == shiftType
-                || constraintsByID.get(id).getShiftType(day) == ANY)
+        return (preferences.get(id).getShiftType(day) == shiftType
+                || preferences.get(id).getShiftType(day) == ANY)
                 && shiftType != REST;
     }
 
@@ -150,39 +128,29 @@ public class ConstraintHandler {
         return getIsraeliDayValue(currentDay) < getIsraeliDayValue(deadline);
     }
 
-    /**
-     * @return deadline for updating constraints
-     */
     public DayOfWeek getDeadline() {
         return deadline;
     }
 
-    /**
-     * Sets deadline for updating constraints
-     *
-     * @param deadline new deadline
-     */
-    public void setDeadline(DayOfWeek deadline) {
-        this.deadline = deadline;
-    }
+    public void setDeadline(DayOfWeek deadline) { this.deadline = deadline; }
 
     /**
-     * Resets all employees' constraints.
+     * Resets all employees' preferences.
      *
      * For every employee:
      * - All days in the week will be set to 'any',
      * this happens right after the HR admin publishes the week schedule.
      */
-    public void resetAllConstraints() {
-        for (Integer id : constraintsByID.keySet()) {
-            initConstraintsForEmployee(id);
+    public void resetAllPreferences() {
+        for (Integer id : preferences.keySet()) {
+            initPreferences(id);
         }
     }
 
-    public void initConstraintsForEmployee(int id) {
-        constraintsByID.put(id, new Constraint());
+    public void initPreferences(int id) {
+        preferences.put(id, new Preference());
 
         DayOfWeek dayOff = employeeHandler.getEmployee(id).getTerms().getDayOff();
-        constraintsByID.get(id).setShiftType(dayOff, REST);
+        preferences.get(id).setShiftType(dayOff, REST);
     }
 }

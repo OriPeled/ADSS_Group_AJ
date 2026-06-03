@@ -116,6 +116,10 @@ public class Employee {
         assignedRoles.clear();
     }
 
+    public boolean belongsToBranch(Branch branch) {
+        return this.branch == branch;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Employee Details\n");
