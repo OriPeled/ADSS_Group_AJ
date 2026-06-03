@@ -1,4 +1,4 @@
-package dev.Workers.Service;
+package dev.Workers.service;
 
 import dev.Workers.domain.ConstraintHandler;
 import dev.Workers.domain.Enums.ShiftType;

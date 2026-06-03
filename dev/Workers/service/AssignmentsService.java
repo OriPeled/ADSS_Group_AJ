@@ -1,4 +1,4 @@
-package dev.Workers.Service;
+package dev.Workers.service;
 
 import dev.Workers.domain.AssignmentsHandler;
 import dev.Workers.domain.Objects.Branch;
@@ -23,17 +23,8 @@ public class AssignmentsService {
         assignmentsHandler = AssignmentsHandler.getInstance();
     }
 
-    // used by TP module
-    public Set<Integer> getAllDrivers(Shift shift) {
-        return assignmentsHandler.getAllDrivers(shift);
-    }
-
     public boolean pendingRequestsLeft() {
         return assignmentsHandler.pendingRequestsLeft();
-    }
-
-    public static boolean hasRequests() {
-        return assignmentsHandler.hasRequests();
     }
 
     public List<String> popRequestAnswers(Branch branch) {

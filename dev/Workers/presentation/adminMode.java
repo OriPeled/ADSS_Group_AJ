@@ -1,7 +1,5 @@
 package dev.Workers.presentation;
 
-//import dev.Workers.domain.Objects.HR_Admin;
-
 import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.readIntSafe;
 
@@ -53,7 +51,6 @@ public class adminMode {
                     break;
                 case 2:
                     ManageShiftsMenu.chooseBranch();
-                    //ManageShiftsMenu.start();
                     break;
                 case 0:
                     return;

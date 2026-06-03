@@ -1,4 +1,4 @@
-package dev.Workers.Service;
+package dev.Workers.service;
 
 import dev.Workers.domain.Objects.*;
 import dev.Workers.domain.RequirementsHandler;

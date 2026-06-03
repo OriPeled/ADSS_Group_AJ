@@ -1,6 +1,6 @@
 package dev.Workers.Tests;
 
-import dev.Workers.Service.ShiftService;
+import dev.Workers.service.ShiftService;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
@@ -188,7 +188,7 @@ public class ShiftServiceTest {
         prepareBasicWorkforce();
         fillFullWeek(sunday);
 
-        shiftService.publishWeekSchedule(beerSheva);
+        shiftService.publishWeekByDate(beerSheva, sunday);
 
         WeekSchedule week = getSavedWeek(sunday);
         assertNotNull(week);
@@ -271,7 +271,7 @@ public class ShiftServiceTest {
         fillFullWeek(sunday);
 
         assertThrows(IllegalStateException.class, () ->
-                shiftService.publishWeekSchedule(beerSheva)
+                shiftService.publishWeekByDate(beerSheva, sunday)
         );
     }
 }

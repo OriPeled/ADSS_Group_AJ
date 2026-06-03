@@ -1,7 +1,5 @@
-package dev.Workers.Service;
+package dev.Workers.service;
 
-
-import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.Employee;
@@ -19,8 +17,8 @@ import java.util.List;
  */
 public class EmployeeService {
     private static EmployeeService instance;
-    private static final EmployeeHandler EMPLOYEE_HANDLER = EmployeeHandler.getInstance();
-    private static final AccessService accessService = AccessService.getInstance();
+    private static final EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
+    private static final dev.Workers.service.AccessService accessService = AccessService.getInstance();
 
     /**
      * Private constructor to enforce the Singleton pattern.
@@ -83,7 +81,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Cannot add employee: Rest days must be between 1 and 7.");
         }
 
-        EMPLOYEE_HANDLER.add(name, id, branch, bankAccount, salary, terms, startDate);
+        employeeHandler.add(name, id, branch, bankAccount, salary, terms, startDate);
     }
 
     /**
@@ -94,7 +92,7 @@ public class EmployeeService {
      */
 
     public void fire(int id) {
-        EMPLOYEE_HANDLER.fire(id);   // terminate
+        employeeHandler.fire(id);   // terminate
         accessService.removeUser(id); // clean up access
     }
 
@@ -102,23 +100,17 @@ public class EmployeeService {
         if (newName == null || newName.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.setName(newName);
-    }
-
-    public void updateLicenseType(int empId, LicenseType licenseType) {
-        EMPLOYEE_HANDLER.validateEmployeeBasic(empId, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(empId);
-        //emp.setLicenseType(licenseType);
     }
 
     public void updateBankAccount(int id, int newBankAccount) {
         if (newBankAccount < 0) {
             throw new IllegalArgumentException("Invalid bank account.");
         }
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.setBankAccount(newBankAccount);
     }
 
@@ -126,20 +118,20 @@ public class EmployeeService {
         if (newSalary <= 0) {
             throw new IllegalArgumentException("Salary must be positive.");
         }
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.setSalary(newSalary);
     }
 
     public void updateJobStatus(int id) {
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.getTerms().changeJobStatus();
     }
 
     public void updateSalaryType(int id) {
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.getTerms().changeSalaryType();
     }
 
@@ -147,14 +139,14 @@ public class EmployeeService {
         if (days < 1 || days > 7) {
             throw new IllegalArgumentException("The number of days off must be positive..");
         }
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.getTerms().setRestDays(days);
     }
 
     public void updateDayOff(int id, DayOfWeek day) {
-        EMPLOYEE_HANDLER.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        employeeHandler.validateEmployeeBasic(id, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(id);
         emp.getTerms().setDayOff(day);
     }
 
@@ -163,7 +155,7 @@ public class EmployeeService {
      * @throws IllegalArgumentException if not found
      */
     public String getEmployeeName(int id) {
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        Employee emp = employeeHandler.getEmployee(id);
         if (emp == null) {
             throw new IllegalArgumentException("Employee " + id + " not found.");
         }
@@ -174,7 +166,7 @@ public class EmployeeService {
      * Returns a human-readable summary of the employee's details.
      */
     public String getEmployeeDetails(int id) {
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        Employee emp = employeeHandler.getEmployee(id);
         if (emp == null) {
             throw new IllegalArgumentException("Employee " + id + " not found.");
         }
@@ -185,7 +177,7 @@ public class EmployeeService {
      * Returns a human-readable summary of the employee's terms.
      */
     public String getEmployeeTermsDisplay(int id) {
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(id);
+        Employee emp = employeeHandler.getEmployee(id);
         if (emp == null) {
             throw new IllegalArgumentException("Employee " + id + " not found.");
         }
@@ -197,48 +189,48 @@ public class EmployeeService {
      * Use this instead of getEmployee() when you only need a yes/no answer.
      */
     public boolean exists(int id) {
-        return EMPLOYEE_HANDLER.isEmployee(id);
+        return employeeHandler.isEmployee(id);
     }
 
     public void rehire(int empId) {
-        EMPLOYEE_HANDLER.rehire(empId);
+        employeeHandler.rehire(empId);
     }
 
     public Employee getEmployee(int id) {
-        return EMPLOYEE_HANDLER.getEmployee(id);
+        return employeeHandler.getEmployee(id);
     }
 
     public UserResponse promoteDemote(int empId) {
-        return EMPLOYEE_HANDLER.promoteDemote(empId);
+        return employeeHandler.promoteDemote(empId);
     }
 
     public void updateBranch(int empId, Branch branch) {
-        EMPLOYEE_HANDLER.validateEmployeeBasic(empId, LocalDate.now());
-        Employee emp = EMPLOYEE_HANDLER.getEmployee(empId);
+        employeeHandler.validateEmployeeBasic(empId, LocalDate.now());
+        Employee emp = employeeHandler.getEmployee(empId);
         emp.setBranch(branch);
     }
 
     public String getFormattedRolesList(int empId) {
-        return EMPLOYEE_HANDLER.getFormattedRolesList(empId);
+        return employeeHandler.getFormattedRolesList(empId);
     }
 
     public String getFormattedAvailableRoles(int empId) {
-        return EMPLOYEE_HANDLER.getFormattedAvailableRoles(empId);
+        return employeeHandler.getFormattedAvailableRoles(empId);
     }
 
     public List<Role> availableToAddRoles(int empId) {
-        return EMPLOYEE_HANDLER.availableToAddRoles(empId);
+        return employeeHandler.availableToAddRoles(empId);
     }
 
     public void addRole(int empId, Role selectedRole) {
-        EMPLOYEE_HANDLER.addRole(empId, selectedRole);
+        employeeHandler.addRole(empId, selectedRole);
     }
 
     public List<Role> getRoles(int empId) {
-        return EMPLOYEE_HANDLER.getRoles(empId);
+        return employeeHandler.getRoles(empId);
     }
 
     public void removeRole(int empId, Role selectedRole) {
-        EMPLOYEE_HANDLER.removeRole(empId, selectedRole);
+        employeeHandler.removeRole(empId, selectedRole);
     }
 }

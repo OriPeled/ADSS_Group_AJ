@@ -1,8 +1,8 @@
 package dev.Workers.presentation;
 
-import dev.Workers.Service.ConstraintService;
-import dev.Workers.Service.RequirementsService;
-import dev.Workers.Service.ShiftService;
+import dev.Workers.service.ConstraintService;
+import dev.Workers.service.RequirementsService;
+import dev.Workers.service.ShiftService;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Branch;

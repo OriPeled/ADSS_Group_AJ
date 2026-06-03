@@ -1,6 +1,7 @@
 package dev.Workers.setup;
 
 import dev.Workers.Service.*;
+import dev.Workers.service.ConstraintService;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
@@ -26,11 +27,11 @@ import java.time.LocalDate;
 public class DataInitializer {
     public static void initSystem() {
 
-        EmployeeService employeeService = EmployeeService.getInstance();
+        dev.Workers.service.EmployeeService employeeService = dev.Workers.service.EmployeeService.getInstance();
         RoleService roleService = RoleService.getInstance();
-        AccessService accessService = AccessService.getInstance();
-        ShiftService shiftService = ShiftService.getInstance();
-        ConstraintService constraintService = ConstraintService.getInstance();
+        dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
+        dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
+        dev.Workers.service.ConstraintService constraintService = dev.Workers.service.ConstraintService.getInstance();
 
         BranchRegistry branchRegistry = BranchRegistry.getInstance();
         Branch beerSheva = branchRegistry.getBranchByName("Beer-Sheva");
@@ -190,7 +191,7 @@ public class DataInitializer {
     }
 
     private static void createEmployee(
-            EmployeeService employeeService,
+            dev.Workers.service.EmployeeService employeeService,
             RoleService roleService,
             ConstraintService constraintService,
             String name,

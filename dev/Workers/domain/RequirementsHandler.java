@@ -1,6 +1,5 @@
 package dev.Workers.domain;
 
-import dev.Workers.Service.RequirementsService;
 import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Objects.*;
 import dev.Workers.setup.TransportModule;

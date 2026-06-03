@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.Service.*;
+import dev.Workers.service.ConstraintService;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Objects.Branch;
@@ -13,10 +13,10 @@ import static dev.Main.scanner;
 import static dev.Workers.presentation.Parser.readIntSafe;
 
 public class UserMode {
-    static ConstraintService constraintService = ConstraintService.getInstance();
-    static AccessService accessService = AccessService.getInstance();
-    static ShiftService shiftService = ShiftService.getInstance();
-    static EmployeeService employeeService = EmployeeService.getInstance();
+    static dev.Workers.service.ConstraintService constraintService = ConstraintService.getInstance();
+    static dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
+    static dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
+    static dev.Workers.service.EmployeeService employeeService = dev.Workers.service.EmployeeService.getInstance();
 
     static int employeeId;
 

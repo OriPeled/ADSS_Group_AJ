@@ -6,7 +6,9 @@ import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,15 +56,6 @@ public class AssignmentsHandler {
         }
     }
 
-    /**
-     * Assigns an employee to a specific role in a shift.
-     * <p>
-     * If the shift or role does not exist yet, they are created automatically.
-     *
-     * @param shift the shift to assign into
-     * @param role  the role of the employee
-     * @param id    the employee ID
-     */
     public void add(Shift shift, Role role, int id) {
         Map<Role, Set<Integer>> shiftMap = assignments.get(shift);
         if (shiftMap == null) {
@@ -77,15 +70,6 @@ public class AssignmentsHandler {
         set.add(id);
     }
 
-    /**
-     * Removes an employee from a specific role in a shift.
-     * <p>
-     * If the employee or role does not exist, nothing happens.
-     *
-     * @param shift      the shift
-
-     * @param employeeID the employee ID to remove
-     */
     public void remove(Shift shift, int employeeID) {
         if (isShiftEmpty(shift))
             throw new IllegalArgumentException("Shift is empty.");
@@ -125,13 +109,6 @@ public class AssignmentsHandler {
         return employeeIds;
     }
 
-    /**
-     * Returns all employees assigned to a specific role in a shift.
-     *
-     * @param shift the shift
-     * @param role  the role
-     * @return set of employee IDs, or empty set if none exist
-     */
     public Set<Integer> getEmployeesByRole(Shift shift, Role role) {
         return assignments
                 .getOrDefault(shift, Collections.emptyMap())
@@ -162,13 +139,6 @@ public class AssignmentsHandler {
         return true;
     }
 
-    /**
-     * Returns how many employees are assigned to a role in a shift.
-     *
-     * @param shift the shift
-     * @param role  the role
-     * @return number of assigned employees
-     */
     public int countAssigned(Shift shift, Role role) {
         return getEmployeesByRole(shift, role).size();
     }
@@ -181,14 +151,6 @@ public class AssignmentsHandler {
         return assignments;
     }
 
-    /**
-     * Checks if an employee is already assigned to a shift role.
-     *
-     * @param shift      the shift
-     * @param role       the role
-     * @param employeeID the employee ID
-     * @return true if already assigned, false otherwise
-     */
     public boolean isAssignedToRole(Shift shift, Role role, int employeeID) {
         return getEmployeesByRole(shift, role).contains(employeeID);
     }
@@ -197,11 +159,6 @@ public class AssignmentsHandler {
         return getEmployeeRole(shift, employeeID) != null;
     }
 
-    /**
-     * @param shift
-     * @param id
-     * @return role of the employee in the shift, else null
-     */
     public Role getEmployeeRole(Shift shift, int id) {
         for (Role role : roleRegistry.getAllRoles()) {
             if (isAssignedToRole(shift, role, id))
@@ -218,60 +175,11 @@ public class AssignmentsHandler {
         return !pendingRequests.isEmpty();
     }
 
-    /**
-     * Pretty print: one line per shift.
-     */
-    @Override
-    public String toString() {
-        if (assignments.isEmpty()) {
-            return "No assignments recorded.";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        for (Shift shift : assignments.keySet()) {
-            sb.append("=== ").append(shift).append(" ===\n");
-
-            // 1. Roles & Assigned Employees
-            for (Role role : roleRegistry.getAllRoles()) {
-                Set<Integer> employees = getEmployeesByRole(shift, role);
-                if (!employees.isEmpty()) {
-                    sb.append(String.format("  %-12s: %d assigned | Employees: %s\n",
-                            role, employees.size(), employees));
-                }
-            }
-
-            // 2. Extra Hours
-            Map<Integer, Integer> shiftExtra = extraHours.get(shift);
-            if (shiftExtra != null && !shiftExtra.isEmpty()) {
-                StringJoiner extraJoiner = new StringJoiner(", ");
-                shiftExtra.forEach((id, hours) -> {
-                    if (hours > 0) {
-                        extraJoiner.add("ID " + id + " (+" + hours + "h)");
-                    }
-                });
-
-                if (extraJoiner.length() > 0) {
-                    sb.append("  Extra Hours : ").append(extraJoiner).append("\n");
-                }
-            }
-            sb.append("\n"); // Breathability between shifts
-        }
-
-        return sb.toString().trim();
-    }
-
-    /**
-     * Overload for Assignment requests
-     */
     public void addRequest(Shift shift, Role role, int empId) {
         pendingRequests.computeIfAbsent(empId, k -> new LinkedList<>())
                 .add(new RequestAction.AssignAction(shift, role, empId));
     }
 
-    /**
-     * Overload for Replacement requests
-     */
     public void addRequest(Shift shift, int curId, int newId) {
         pendingRequests.computeIfAbsent(newId, k -> new LinkedList<>())
                 .add(new RequestAction.ReplaceAction(shift, curId, newId));
@@ -354,5 +262,48 @@ public class AssignmentsHandler {
         sb.append("Enter 1 to Approve, 0 to Skip/Stay in queue.");
 
         return sb.toString();
+    }
+
+    /**
+     * Pretty print: one line per shift.
+     */
+    @Override
+    public String toString() {
+        if (assignments.isEmpty()) {
+            return "No assignments recorded.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (Shift shift : assignments.keySet()) {
+            sb.append("=== ").append(shift).append(" ===\n");
+
+            // 1. Roles & Assigned Employees
+            for (Role role : roleRegistry.getAllRoles()) {
+                Set<Integer> employees = getEmployeesByRole(shift, role);
+                if (!employees.isEmpty()) {
+                    sb.append(String.format("  %-12s: %d assigned | Employees: %s\n",
+                            role, employees.size(), employees));
+                }
+            }
+
+            // 2. Extra Hours
+            Map<Integer, Integer> shiftExtra = extraHours.get(shift);
+            if (shiftExtra != null && !shiftExtra.isEmpty()) {
+                StringJoiner extraJoiner = new StringJoiner(", ");
+                shiftExtra.forEach((id, hours) -> {
+                    if (hours > 0) {
+                        extraJoiner.add("ID " + id + " (+" + hours + "h)");
+                    }
+                });
+
+                if (extraJoiner.length() > 0) {
+                    sb.append("  Extra Hours : ").append(extraJoiner).append("\n");
+                }
+            }
+            sb.append("\n"); // Breathability between shifts
+        }
+
+        return sb.toString().trim();
     }
 }

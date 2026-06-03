@@ -1,5 +1,6 @@
-package dev.Workers.Service;
+package dev.Workers.service;
 
+import dev.Workers.Service.RoleService;
 import dev.Workers.domain.EmployeeHandler;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
@@ -10,8 +11,10 @@ import dev.Workers.domain.ShiftHandler;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ShiftService acts as the entry point for UI/Web controllers.
@@ -91,22 +94,8 @@ public class ShiftService {
         return shiftHandler.needToForceReplace(shift, curId, newId);
     }
 
-    public void forceReplace(Shift shift, int curId, int newId) {
-        shiftHandler.forceReplace(shift, curId, newId);
-    }
-
     public void removeEmployee(Shift shift, int employeeId) {
         shiftHandler.removeEmployee(shift, employeeId);
-    }
-
-    public boolean hasRequests() {
-        return AssignmentsService.hasRequests();
-    }
-
-    public void publishWeekSchedule(Branch branch) {
-        LocalDate thisSunday = LocalDate.now()
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        shiftHandler.publishWeekSchedule(branch, thisSunday);
     }
 
     public void publishNextWeekSchedule(Branch branch) {
@@ -119,11 +108,6 @@ public class ShiftService {
         shiftHandler.forcePublishWeekSchedule(branch, nextSunday);
     }
 
-    public void publishLastWeekSchedule(Branch branch) {
-        LocalDate lastSunday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
-                .minusWeeks(1);
-        shiftHandler.publishWeekSchedule(branch, lastSunday);
-    }
 
     // test function for adding past shifts (mainly for history purposes)
     public void publishWeekByDate(Branch branch, LocalDate date) {;
@@ -189,10 +173,6 @@ public class ShiftService {
         assignmentsService.sendRequest(shift, curId, newId);
     }
 
-    public void approveNextAssignment(int employeeId) {
-        shiftHandler.approveNextAssignment(employeeId);
-    }
-
     public boolean assignmentNeedsApproval(int employeeId) {
         return assignmentsService.assignmentNeedsApproval(employeeId);
     }
@@ -215,5 +195,10 @@ public class ShiftService {
 
     public boolean pendingRequestsLeft() {
         return assignmentsService.pendingRequestsLeft();
+    }
+
+    // used by TP module
+    public Set<Integer> getShiftDrivers(Branch branch, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+        return shiftHandler.getShiftDrivers(branch, shiftDate, startTime, endTime);
     }
 }

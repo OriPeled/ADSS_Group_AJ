@@ -1,4 +1,4 @@
-package dev.Workers.Service;
+package dev.Workers.service;
 
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.AccessHandler;
@@ -50,10 +50,6 @@ public class AccessService {
      */
     public void removeUser(int id) {
         accessHandler.remove(id);
-    }
-
-    public boolean isRegistered(int id) {
-        return accessHandler.isRegisteredUser(id);
     }
 
     /**
