@@ -27,8 +27,8 @@ import static dev.Workers.domain.Enums.ShiftType.MORNING;
 public class ShiftHandler {
     private static final Map<LocalDate, WeekSchedule> weekSchedules = new HashMap<>();
     private final Set<Shift> shifts;
-    public final RequirementHandler requirementHandler;
 
+    public final RequirementHandler requirementHandler;
     public final AssignmentHandler assignmentHandler;
     private final PreferenceHandler preferenceHandler;
     private final EmployeeHandler employeeHandler;
@@ -61,7 +61,7 @@ public class ShiftHandler {
     public void addShift(Branch branch, LocalDate date, ShiftType type) {
         Shift newShift = new Shift(branch, date, type);
         if (shifts.add(newShift)) {
-            requirementHandler.init(newShift);
+            requirementHandler.defaultInit(newShift);
             assignmentHandler.init(newShift);
         }
     }
@@ -131,7 +131,7 @@ public class ShiftHandler {
     // for rare cases
     public void resetShift(Shift shift) {
         shifts.remove(shift);
-        requirementHandler.init(shift);
+        requirementHandler.defaultInit(shift);
         assignmentHandler.init(shift);
     }
 
@@ -392,13 +392,6 @@ public class ShiftHandler {
     }
 
     public void setRequirement(Shift shift, Role role, int count) {
-        /*if (role == Role.shiftManager && count < 1) {
-            throw new IllegalArgumentException(
-                    "Cannot set shift manager requirement below 1: every shift must have at least one shift manager.");
-        }*/
-        if (role instanceof DriverRole) {
-            throw new IllegalArgumentException("Driver requirements are set only once during init process.");
-        }
         requirementHandler.set(shift, role, count);
 
         Set<Integer> employees = assignmentHandler.getEmployeesByRole(shift, role);
@@ -406,6 +399,24 @@ public class ShiftHandler {
         int required = requirementHandler.countRequired(shift, role);
 
         // randomly removing redundant employees
+        if (assigned > required) {
+            int toRemove = assigned - required;
+
+            List<Integer> idsToRemove = new ArrayList<>(employees).subList(0, toRemove);
+
+            for (Integer id : idsToRemove) {
+                removeEmployee(shift, id);
+            }
+        }
+    }
+
+    public void setRequirementManually(Shift shift, Role role, int count) {
+        requirementHandler.manualSet(shift, role, count);
+
+        Set<Integer> employees = assignmentHandler.getEmployeesByRole(shift, role);
+        int assigned = employees.size();
+        int required = requirementHandler.countRequired(shift, role);
+
         if (assigned > required) {
             int toRemove = assigned - required;
 

@@ -42,9 +42,9 @@ import static dev.Workers.presentation.Parser.*;
 public class ManageShiftsMenu {
     /** Service responsible for all shift-related operations. */
     private static final ShiftService shiftService = ShiftService.getInstance();
-    private static final RequirementService REQUIREMENT_SERVICE = RequirementService.getInstance();
+    private static final RequirementService requirementService = RequirementService.getInstance();
     /** Service responsible for employee preferences and deadline management. */
-    private static final PreferenceService PREFERENCE_SERVICE = PreferenceService.getInstance();
+    private static final PreferenceService preferenceService = PreferenceService.getInstance();
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
     private static final BranchRegistry branchRegistry = BranchRegistry.getInstance();
 
@@ -134,8 +134,8 @@ public class ManageShiftsMenu {
     private static void checkRequirementsSettings(Branch branch) {
         if (shiftService.isShiftsWeekEmpty(branch)) {
             shiftService.initShiftsWeek(branch);
-            REQUIREMENT_SERVICE.getDriverReqs(branch);
-            REQUIREMENT_SERVICE.getStoreKeeperReqs(branch);
+            requirementService.getDriverReqs(branch);
+            requirementService.getStoreKeeperReqs(branch);
 
             int cashiersAmount;
             while (true) {
@@ -143,7 +143,7 @@ public class ManageShiftsMenu {
                 cashiersAmount = readIntSafe();
 
                 try {
-                    REQUIREMENT_SERVICE.setCashierWeekReqs(branch, cashiersAmount);
+                    requirementService.initWeeklyReqs("Cashier", branch, cashiersAmount);
                     System.out.println("Shifts week's cashiers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -157,7 +157,7 @@ public class ManageShiftsMenu {
                 storekeepersAmount = readIntSafe();
 
                 try {
-                    REQUIREMENT_SERVICE.setStoreKeeperWeekReqs(branch, storekeepersAmount);
+                    requirementService.initWeeklyReqs("Storekeeper", branch, storekeepersAmount);
                     System.out.println("Shifts week's storekeepers requirements set.");
                     break;
                 } catch (IllegalArgumentException e) {
@@ -471,11 +471,6 @@ public class ManageShiftsMenu {
         }
     }
 
-    /**
-     * Updates the required number of employees for a given role in a shift.
-     *
-     * @param shift the selected shift
-     */
     private static void updateRequirements(Shift shift) {
         Role role = chooseRole();
         if (role == null) {
@@ -585,7 +580,7 @@ public class ManageShiftsMenu {
                 case 1 -> manualAssignment(shift);
                 case 2 -> manualRemoval(shift);
                 case 3 -> manualExtraHours(shift);
-                case 4 -> updateRequirements(shift);
+                case 4 -> manualRequirements(shift);
                 case 0 -> {
                     return;
                 }
@@ -647,6 +642,24 @@ public class ManageShiftsMenu {
             System.out.println("Extra hours updated.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private static void manualRequirements(Shift shift) {
+        System.out.println("===Manual requirements setting===");
+        Role role = chooseRole();
+        if (role == null) {
+            return;
+        }
+
+        System.out.println("Enter new required amount:");
+        int amount = readIntSafe();
+
+        try {
+            shiftService.setRequirementManually(shift, role, amount);
+            System.out.println("Requirement updated.");
+        } catch (RuntimeException e) {
+            System.out.println("Failed to update requirement: " + e.getMessage());
         }
     }
 
@@ -768,7 +781,7 @@ public class ManageShiftsMenu {
      * Updates the preferences submission deadline.
      */
     private static void updateDeadline() {
-        System.out.println("Current deadline: " + PREFERENCE_SERVICE.getDeadline());
+        System.out.println("Current deadline: " + preferenceService.getDeadline());
 
         while (true) {
             System.out.println("Enter new day (1-7) or 0 to go back:");
@@ -781,7 +794,7 @@ public class ManageShiftsMenu {
 
             try {
                 DayOfWeek newDay = Parser.getDayFromNumber(dayNumber);
-                PREFERENCE_SERVICE.setDeadline(newDay);
+                preferenceService.setDeadline(newDay);
                 System.out.println("Deadline updated to " + newDay + ".");
                 return;
             } catch (IllegalArgumentException e) {

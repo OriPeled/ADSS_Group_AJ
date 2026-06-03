@@ -21,18 +21,14 @@ public class RequirementService {
 
     // TP holds LicenseType enum
     public void getDriverReqs(Branch branch) {
-        requirementHandler.getDriverReqs(branch);
+        requirementHandler.getDriverWeeklyReqs(branch);
     }
 
     public void getStoreKeeperReqs(Branch branch) {
-        requirementHandler.getStoreKeeperReqs(branch);
+        requirementHandler.getStoreKeeperWeeklyReqs(branch);
     }
 
-    public void setCashierWeekReqs(Branch branch, int amount) {
-        requirementHandler.setCashierWeekReqs(branch, amount);
-    }
-
-    public void setStoreKeeperWeekReqs(Branch branch, int amount) {
-        requirementHandler.setStoreKeeperWeekReqs(branch, amount);
+    public void initWeeklyReqs(String rolename, Branch branch, int amount) {
+        requirementHandler.initWeeklyReqs(rolename, branch, amount);
     }
 }
