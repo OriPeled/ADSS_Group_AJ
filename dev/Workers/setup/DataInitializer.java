@@ -29,6 +29,7 @@ public class DataInitializer {
         dev.Workers.service.EmployeeService employeeService = dev.Workers.service.EmployeeService.getInstance();
         dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
         dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
+        RequirementService requirementService = RequirementService.getInstance();
         PreferenceService preferenceService = PreferenceService.getInstance();
 
         BranchRegistry branchRegistry = BranchRegistry.getInstance();
@@ -96,27 +97,36 @@ public class DataInitializer {
             // ============================
 
             LocalDate date1 = LocalDate.of(2026,4,19);
+            //shiftService.initShiftsWeek(beerSheva);
+            //requirementService.getDriverReqs(beerSheva);
+            //requirementService.getStoreKeeperReqs(beerSheva);
 
             for (int i = 0; i < 7; i++) {
 
                 LocalDate date11 = date1.plusDays(i);
+                //shiftService.addShift(beerSheva, date11, ShiftType.MORNING);
                 Shift pastShift1 = shiftService.getShift(beerSheva, date11, ShiftType.MORNING);
+                shiftService.setRequirementManually(pastShift1, cashier, 3);
+                shiftService.setRequirementManually(pastShift1, storekeeper, 3);
 
-                shiftService.forceAssign(pastShift1, cashier, 111);
-                shiftService.forceAssign(pastShift1, cashier, 223);
-                shiftService.forceAssign(pastShift1, cashier, 224);
-                shiftService.forceAssign(pastShift1, storekeeper, 333);
-                shiftService.forceAssign(pastShift1, storekeeper, 444);
-                shiftService.forceAssign(pastShift1, storekeeper, 445);
+                shiftService.manualAssign(pastShift1, cashier, 111);
+                shiftService.manualAssign(pastShift1, cashier, 223);
+                shiftService.manualAssign(pastShift1, cashier, 224);
+                shiftService.manualAssign(pastShift1, storekeeper, 333);
+                shiftService.manualAssign(pastShift1, storekeeper, 444);
+                shiftService.manualAssign(pastShift1, storekeeper, 445);
 
+                //shiftService.addShift(beerSheva, date11, ShiftType.EVENING);
                 Shift pastShift2 = shiftService.getShift(beerSheva, date11, ShiftType.EVENING);
+                shiftService.setRequirementManually(pastShift2, cashier, 3);
+                shiftService.setRequirementManually(pastShift2, storekeeper, 3);
 
-                shiftService.forceAssign(pastShift2, cashier, 113);
-                shiftService.forceAssign(pastShift2, cashier, 223);
-                shiftService.forceAssign(pastShift2, cashier, 224);
-                shiftService.forceAssign(pastShift2, storekeeper, 333);
-                shiftService.forceAssign(pastShift2, storekeeper, 444);
-                shiftService.forceAssign(pastShift2, storekeeper, 445);
+                shiftService.manualAssign(pastShift2, cashier, 113);
+                shiftService.manualAssign(pastShift2, cashier, 223);
+                shiftService.manualAssign(pastShift2, cashier, 224);
+                shiftService.manualAssign(pastShift2, storekeeper, 333);
+                shiftService.manualAssign(pastShift2, storekeeper, 444);
+                shiftService.manualAssign(pastShift2, storekeeper, 445);
             }
             shiftService.publishWeekByDate(beerSheva, date1);
 
@@ -134,21 +144,27 @@ public class DataInitializer {
             // NEXT WEEK (26.4-2.5) SHIFTS
             // ===========================
 
-            LocalDate date2 = LocalDate.of(2026,5,03);
+            LocalDate date2 = LocalDate.of(2026,4,26);
 
             for (int i = 0; i < 6; i++) {
 
                 LocalDate date22 = date2.plusDays(i);
+                //shiftService.addShift(beerSheva, date22, ShiftType.MORNING);
                 Shift futureShift1 = shiftService.getShift(beerSheva, date22, ShiftType.MORNING);
+                shiftService.setRequirementManually(futureShift1, cashier, 3);
+                shiftService.setRequirementManually(futureShift1, storekeeper, 3);
 
-                shiftService.assignEmployee(futureShift1, cashier, 7);
-                shiftService.assignEmployee(futureShift1, cashier, 223);
-                shiftService.assignEmployee(futureShift1, cashier, 224);
-                shiftService.assignEmployee(futureShift1, storekeeper, 333);
-                shiftService.assignEmployee(futureShift1, storekeeper, 444);
-                shiftService.assignEmployee(futureShift1, storekeeper, 445);
+                shiftService.manualAssign(futureShift1, cashier, 7);
+                shiftService.manualAssign(futureShift1, cashier, 223);
+                shiftService.manualAssign(futureShift1, cashier, 224);
+                shiftService.manualAssign(futureShift1, storekeeper, 333);
+                shiftService.manualAssign(futureShift1, storekeeper, 444);
+                shiftService.manualAssign(futureShift1, storekeeper, 445);
 
+                //shiftService.addShift(beerSheva, date22, ShiftType.EVENING);
                 Shift futureShift2 = shiftService.getShift(beerSheva, date22, ShiftType.EVENING);
+                shiftService.setRequirementManually(futureShift2, cashier, 3);
+                shiftService.setRequirementManually(futureShift2, storekeeper, 3);
 
                 shiftService.assignEmployee(futureShift2, cashier, 7);
                 shiftService.assignEmployee(futureShift2, cashier, 223);

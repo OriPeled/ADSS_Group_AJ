@@ -28,7 +28,7 @@ public class RequirementHandler {
         return instance;
     }
 
-    public RequirementHandler() {
+    private RequirementHandler() {
         this.shiftsReqs = new HashMap<>();
     }
 
@@ -107,54 +107,46 @@ public class RequirementHandler {
 
     // TP holds LicenseType enum
     public void getDriverWeeklyReqs(Branch branch) {
-        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        for (Shift shift : getShiftsForWeek(branch)) {
+            Map<LicenseType, Integer> licensesNeeded = TransportModule.getDriverRequirements(
+                    branch, shift.getDate(), shift.getStartTime(), shift.getEndTime()
+            );
 
-        for (Shift shift : shiftsReqs.keySet()) {
-            Branch shiftBranch = shift.getBranch();
-            LocalDate shiftDate = shift.getDate();
-            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
-                Map<LicenseType, Integer> licensesNeeded = TransportModule.
-                        getDriverRequirements(branch, shift.getDate(), shift.getStartTime(), shift.getEndTime());
-
-                if (licensesNeeded != null) {
-                    for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
-                        Role driverRole = roleRegistry.getRoleByName("Driver (" + entry.getKey() + ")");
-                        manualSet(shift, driverRole, entry.getValue());
-                    }
+            if (licensesNeeded != null) {
+                for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
+                    Role driverRole = roleRegistry.getRoleByName("Driver (" + entry.getKey() + ")");
+                    manualSet(shift, driverRole, entry.getValue());
                 }
             }
         }
     }
 
     public void getStoreKeeperWeeklyReqs(Branch branch) {
-        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        LocalDate endOfWeek = startOfWeek.plusDays(6);
         Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
 
-        for (Shift shift : shiftsReqs.keySet()) {
-            LocalDate shiftDate = shift.getDate();
-            if (!shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
-                int amount = TransportModule.
-                        getStorekeeperRequirements(branch, shift.getDate(), shift.getStartTime(), shift.getEndTime());
-                manualSet(shift, storekeeperRole, amount);
-            }
+        for (Shift shift : getShiftsForWeek(branch)) {
+            int amount = TransportModule.getStorekeeperRequirements(
+                    branch, shift.getDate(), shift.getStartTime(), shift.getEndTime()
+            );
+            manualSet(shift, storekeeperRole, amount);
         }
     }
 
     public void initWeeklyReqs(String rolename, Branch branch, int amount) {
+        Role cashierRole = roleRegistry.getRoleByName(rolename);
+        for (Shift shift : getShiftsForWeek(branch)) {
+            set(shift, cashierRole, amount);
+        }
+    }
+
+    private List<Shift> getShiftsForWeek(Branch branch) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
-        Role cashierRole = roleRegistry.getRoleByName(rolename);
-
-        for (Shift shift : shiftsReqs.keySet()) {
-            Branch shiftBranch = shift.getBranch();
-            LocalDate shiftDate = shift.getDate();
-            if (shiftBranch == branch && !shiftDate.isBefore(startOfWeek) && !shiftDate.isAfter(endOfWeek)) {
-                set(shift, cashierRole, amount);
-            }
-        }
+        return shiftsReqs.keySet().stream()
+                .filter(shift -> shift.getBranch() == branch)
+                .filter(shift -> !shift.getDate().isBefore(startOfWeek) && !shift.getDate().isAfter(endOfWeek))
+                .toList();
     }
 
     @Override

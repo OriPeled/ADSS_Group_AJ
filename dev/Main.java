@@ -1,5 +1,6 @@
 package dev;
 
+import dev.Workers.setup.DataInitializer;
 import dev.Workers.database.DatabaseInitializer;
 import dev.Workers.database.SeedData;
 import dev.Workers.presentation.adminMode;
@@ -10,7 +11,7 @@ public class Main {
     public static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        DatabaseInitializer.initializeDatabase();
+        //DatabaseInitializer.initializeDatabase();
         displayMenu();
     }
 
@@ -40,7 +41,8 @@ public class Main {
                     adminMode.login();
                     break;
                 case 3:
-                    SeedData.loadDemoData();
+                    //SeedData.loadDemoData();
+                    DataInitializer.initSystem();
                     break;
                 case 0:
                     System.out.println("Have a good day.");

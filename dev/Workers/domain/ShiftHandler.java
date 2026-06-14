@@ -45,7 +45,7 @@ public class ShiftHandler {
 
     private ShiftHandler() {
         this.shifts = new HashSet<>();
-        this.requirementHandler = new RequirementHandler();
+        this.requirementHandler = RequirementHandler.getInstance();
         this.preferenceHandler = PreferenceHandler.getInstance();
         this.assignmentHandler = new AssignmentHandler();
         this.employeeHandler = EmployeeHandler.getInstance();
@@ -222,6 +222,9 @@ public class ShiftHandler {
     public void manualAssign(Shift shift, Role role, int employeeId) {
         if (!employeeHandler.isEmployee(employeeId))
             throw new IllegalArgumentException("No such employee.");
+
+        if (!isNeeded(shift, role))
+            throw new IllegalStateException("Role already assigned");
 
         if (employeeHandler.getEmployee(employeeId).isManager() && !hasManager(shift)) {
             assignmentHandler.add(shift, role, employeeId);
