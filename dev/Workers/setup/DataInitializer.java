@@ -1,6 +1,5 @@
 package dev.Workers.setup;
 
-import dev.Workers.Service.RoleService;
 import dev.Workers.service.*;
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.*;
@@ -28,7 +27,6 @@ public class DataInitializer {
     public static void initSystem() {
 
         dev.Workers.service.EmployeeService employeeService = dev.Workers.service.EmployeeService.getInstance();
-        RoleService roleService = RoleService.getInstance();
         dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
         dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
         PreferenceService preferenceService = PreferenceService.getInstance();
@@ -45,50 +43,50 @@ public class DataInitializer {
             // EMPLOYEES CREATION
             // =========================
 // Shift Managers
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Shira Steinbuch", 111, beerSheva, cashier);
             employeeService.getEmployee(111).setManager(true);
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Daniel Cohen", 112, beerSheva, cashier);
             employeeService.getEmployee(112).setManager(true);
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Noa Levi", 113, beerSheva, cashier);
             employeeService.getEmployee(113).setManager(true);
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Ronaldo", 7, beerSheva, cashier);
             employeeService.getEmployee(7).setManager(true);
 
 // Cashiers
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Kokhava Shavit", 222, beerSheva, cashier);
             accessService.Register(222, "2222");
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Lior Mizrahi", 223, beerSheva, cashier);
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Dana Azulay", 224, beerSheva, cashier);
 
 // Storekeepers
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Nissim", 333, beerSheva, storekeeper);
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Ramzi", 444, beerSheva, storekeeper);
 
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Eyal Peretz", 445, beerSheva, storekeeper);
 
 // Mixed roles
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Avicay", 101, beerSheva, cashier);
             employeeService.addRole(101, storekeeper);
 
 // Fired employee
-            createEmployee(employeeService, roleService, preferenceService,
+            createEmployee(employeeService, preferenceService,
                     "Johnny Bravo", 77, beerSheva, storekeeper);
             accessService.Register(77, "7777");
             employeeService.fire(77);
@@ -192,7 +190,6 @@ public class DataInitializer {
 
     private static void createEmployee(
             dev.Workers.service.EmployeeService employeeService,
-            RoleService roleService,
             PreferenceService preferenceService,
             String name,
             int id,
