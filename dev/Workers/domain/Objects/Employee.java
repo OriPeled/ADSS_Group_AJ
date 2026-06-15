@@ -1,7 +1,5 @@
 package dev.Workers.domain.Objects;
 
-import dev.Workers.domain.Enums.LicenseType;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -120,30 +118,6 @@ public class Employee {
         return this.branch == branch;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("Employee Details\n");
-        sb.append("======================================");
-        sb.append("ID: ").append(id).append("\n");
-      //  sb.append("License Type: ").append(licenseType).append("\n");
-        sb.append("Name: ").append(name).append("\n");
-        sb.append("Branch: ").append(branch.getName()).append("\n");
-        sb.append("Bank account: ").append(bankAccount).append("\n");
-        sb.append("Salary: ").append(salary).append("\n");
-        sb.append("Terms:\n   ")
-                .append(terms.toString().replace("\n", "\n   "))
-                .append("\n");
-
-        sb.append("Start date: ").append(startDate).append("\n");
-        sb.append("Is manager: ").append(isManager);
-
-        if (endDate != null) {
-            sb.append("\nEnd date: ").append(endDate);
-        }
-
-        return sb.toString();
-    }
-
     /**
      * @return employment end date ,null if still active
      */
@@ -166,10 +140,53 @@ public class Employee {
      * @return true if active, false otherwise
      */
     public boolean isActive(LocalDate date) {
-        return (startDate.isBefore(date) || startDate.isEqual(date))
-                && (endDate == null || date.isBefore(endDate) || date.isEqual(endDate));
+        boolean hasStarted = !date.isBefore(startDate);
+        boolean hasNotEnded = (endDate == null) || !date.isAfter(endDate);
+
+        return hasStarted && hasNotEnded;
     }
     public boolean toBeActive() {
-       return startDate.isAfter(LocalDate.now());
+        return startDate.isAfter(LocalDate.now());
+    }
+
+    public boolean isTerminated() { return endDate!= null; }
+
+    public String status() {
+        if (toBeActive()) {
+            return "[ACTIVE from " + startDate + "]";
+        }
+
+        if (isTerminated()) {
+            if (endDate.isBefore(LocalDate.now())) {
+                return "[INACTIVE]";
+            } else {
+                return "[ACTIVE until " + endDate + "]";
+            }
+        }
+
+        return "[ACTIVE]";
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Employee Details\n");
+        sb.append("======================================");
+        sb.append("ID: ").append(id).append("\n");
+        sb.append("Name: ").append(name).append("\n");
+        sb.append("Branch: ").append(branch.getName()).append("\n");
+        sb.append("Bank account: ").append(bankAccount).append("\n");
+        sb.append("Salary: ").append(salary).append("\n");
+        sb.append("Terms:\n   ")
+                .append(terms.toString().replace("\n", "\n   "))
+                .append("\n");
+
+        sb.append("Start date: ").append(startDate).append("\n");
+        sb.append("Is manager: ").append(isManager);
+
+        if (endDate != null) {
+            sb.append("\nEnd date: ").append(endDate);
+        }
+
+        return sb.toString();
     }
 }

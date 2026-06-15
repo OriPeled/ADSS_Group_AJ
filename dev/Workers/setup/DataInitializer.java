@@ -90,7 +90,8 @@ public class DataInitializer {
             createEmployee(employeeService, preferenceService,
                     "Johnny Bravo", 77, beerSheva, storekeeper);
             accessService.Register(77, "7777");
-            employeeService.fire(77);
+            //employeeService.fire(77);
+            employeeService.getEmployee(77).terminateEmployee(LocalDate.now().minusDays(8));
 
             // ============================
             // WEEK OF 19-25/04/2026 SHIFTS

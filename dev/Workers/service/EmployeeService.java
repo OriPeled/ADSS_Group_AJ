@@ -93,7 +93,7 @@ public class EmployeeService {
 
     public void fire(int id) {
         employeeHandler.fire(id);   // terminate
-        accessService.removeUser(id); // clean up access
+        //accessService.removeUser(id); // clean up access
     }
 
     public void updateName(int id, String newName) {
@@ -232,5 +232,9 @@ public class EmployeeService {
 
     public void removeRole(int empId, Role selectedRole) {
         employeeHandler.removeRole(empId, selectedRole);
+    }
+
+    public UserResponse fireRehire(int empId) {
+        return employeeHandler.fireRehire(empId);
     }
 }

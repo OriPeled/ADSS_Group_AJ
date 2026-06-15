@@ -4,5 +4,7 @@ public enum UserResponse {
     success,
     notRegistered,
     promoted,
-    demoted
+    demoted,
+    fired,
+    rehired
 }

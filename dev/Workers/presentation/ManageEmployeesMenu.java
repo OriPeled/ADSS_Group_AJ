@@ -14,9 +14,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
-import static dev.Workers.domain.Enums.UserResponse.demoted;
-import static dev.Workers.domain.Enums.UserResponse.promoted;
 import static dev.Main.scanner;
+import static dev.Workers.domain.Enums.UserResponse.*;
 import static dev.Workers.presentation.Parser.*;
 
 public class ManageEmployeesMenu  {
@@ -60,7 +59,8 @@ public class ManageEmployeesMenu  {
 
     public static void manageEmployee(int empId) {
         while (true) {
-            System.out.println(employeeService.getEmployeeName(empId) + " (" + empId + ")");
+            System.out.println(employeeService.getEmployeeName(empId) + " (" + empId + ") "
+                                + employeeService.getEmployee(empId).status());
             printManageEmployeeMenu();
 
             int choice = readIntSafe();
@@ -68,20 +68,11 @@ public class ManageEmployeesMenu  {
                 case 1 -> details(empId);
                 case 2 -> roles(empId);
                 case 3 -> promoteDemote(empId);
-                case 4 -> fire(empId);
-                case 5 -> rehire(empId);
+                case 4 -> fireRehire(empId);
                 case 0 -> { return; }
                 default -> System.out.println("Invalid choice.");
             }
         }
-    }
-
-    private static void promoteDemote(int empId) {
-        UserResponse response = employeeService.promoteDemote(empId);
-        if (response == promoted)
-            System.out.println("Employee promoted.");
-        else if (response == demoted)
-            System.out.println("Employee demoted.");
     }
 
     /**
@@ -118,11 +109,9 @@ public class ManageEmployeesMenu  {
             for (int i = 0; i < branches.size(); i++) {
                 System.out.println((i + 1) + ". " + branches.get(i).getName());
             }
-            //System.out.println("0. Back");
 
             int choice = readIntSafe();
 
-            /*if (choice == 0) {return;}*/
 
             if (choice < 1 || choice > branches.size()) {
                 System.out.println("Invalid branch choice. Please try again.");
@@ -422,6 +411,38 @@ public class ManageEmployeesMenu  {
         }
     }
 
+    private static void promoteDemote(int empId) {
+        UserResponse response = employeeService.promoteDemote(empId);
+        if (response == promoted)
+            System.out.println("Employee promoted.");
+        else if (response == demoted)
+            System.out.println("Employee demoted.");
+    }
+
+    private static void fireRehire(int empId) {
+        System.out.println("Are you sure you want to fire/rehire " +
+                employeeService.getEmployeeName(empId) +
+                " (" + empId + ")? Enter 1 to confirm, 0 to cancel:");
+
+        int choice = readIntSafe();
+
+        switch (choice) {
+            case 1 -> {
+                try {
+                    UserResponse response = employeeService.fireRehire(empId);
+                    if (response == fired)
+                        System.out.println("Employee fired (a week from today).");
+                    else if (response == rehired)
+                        System.out.println("Employee rehired.");
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            case 0 -> {}
+            default -> System.out.println("Invalid input.");
+        }
+    }
+
     private static void fire(int empId) {
         System.out.println("Are you sure you want to fire " +
                 employeeService.getEmployeeName(empId) +
@@ -511,13 +532,8 @@ public class ManageEmployeesMenu  {
             for (int i = 0; i < branches.size(); i++) {
                 System.out.println((i + 1) + ". " + branches.get(i).getName());
             }
-            //System.out.println("0. Back");
 
             int choice = readIntSafe();
-
-            /*if (choice == 0) {
-                return;
-            }*/
 
             if (choice < 1 || choice > branches.size()) {
                 System.out.println("Invalid branch choice. Please try again.");
@@ -682,8 +698,7 @@ public class ManageEmployeesMenu  {
         System.out.println("1. Employee Details");
         System.out.println("2. Employee Roles");
         System.out.println("3. Promote/Demote");
-        System.out.println("4. Fire Employee");
-        System.out.println("5. Rehire Employee");
+        System.out.println("4. Fire/Rehire");
         System.out.println("0. Back");
     }
 

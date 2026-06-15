@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static dev.Workers.domain.Enums.UserResponse.demoted;
-import static dev.Workers.domain.Enums.UserResponse.promoted;
+import static dev.Workers.domain.Enums.UserResponse.*;
 
 /**
  * Manages all employees in the system.
@@ -72,20 +71,39 @@ public class EmployeeHandler {
         employees.put(newEmp.getId(), newEmp);
     }
 
+    public UserResponse fireRehire(int id) {
+        Employee emp = getEmployee(id);
+
+        if (emp.isTerminated()) {
+            emp.activateEmployee();
+            return rehired;
+        } else {
+            emp.terminateEmployee(LocalDate.now());
+            return fired;
+        }
+    }
+
     // fires an employee, leaves him in the system
     public void fire(int id) {
         Employee emp = getEmployee(id);
-        if (!emp.isActive(LocalDate.now())) {
-            throw new IllegalArgumentException("Employee " + id + " not found or already inactive.");
+        if (emp.isTerminated()) {
+            throw new IllegalArgumentException("Employee " + id + " already terminated.");
         }
         emp.terminateEmployee(LocalDate.now());
     }
 
     public void rehire(int id) {
-        if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
-        if (getEmployee(id).isActive(LocalDate.now())) throw new IllegalArgumentException("Employee " + id + " already active.");
-        if(getEmployee(id).toBeActive()) {throw new IllegalArgumentException("Employee " + id + " cannot be reactivated yet. Termination date: " + getEmployee(id).getEndLocalDate());}
-        employees.get(id).activateEmployee();
+        Employee emp = getEmployee(id);
+
+        if (!emp.isTerminated()) {
+            throw new IllegalArgumentException("Employee " + id + " is already fully active (not terminated).");
+        }
+
+        if (emp.toBeActive()) {
+            throw new IllegalArgumentException("Employee " + id + " cannot be reactivated yet. Termination date: " + emp.getEndLocalDate());
+        }
+
+        emp.activateEmployee();
     }
 
     public Employee getEmployee(int id) {
@@ -94,7 +112,7 @@ public class EmployeeHandler {
 
     public void validateEmployeeBasic(int id, LocalDate date) {
         if (!isEmployee(id)) throw new IllegalArgumentException("Unknown ID: " + id);
-        if (!getEmployee(id).isActive(date)) throw new IllegalArgumentException("Employee " + id + " is inactive at " + date);
+        if (!getEmployee(id).isActive(date)) throw new IllegalArgumentException("Employee " + id + " is inactive as for " + date);
     }
 
     public UserResponse promoteDemote(int id) {
