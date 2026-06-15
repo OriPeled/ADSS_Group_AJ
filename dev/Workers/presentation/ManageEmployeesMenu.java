@@ -118,11 +118,11 @@ public class ManageEmployeesMenu  {
             for (int i = 0; i < branches.size(); i++) {
                 System.out.println((i + 1) + ". " + branches.get(i).getName());
             }
-            System.out.println("0. Back");
+            //System.out.println("0. Back");
 
             int choice = readIntSafe();
 
-            if (choice == 0) {return;}
+            /*if (choice == 0) {return;}*/
 
             if (choice < 1 || choice > branches.size()) {
                 System.out.println("Invalid branch choice. Please try again.");
@@ -477,7 +477,7 @@ public class ManageEmployeesMenu  {
 
         String name;
         while (true) {
-            System.out.println("Enter name (or '0' to go back):");
+            System.out.println("Enter name (or '0' to cancel):");
             name = scanner.nextLine();
 
             if (name.equals("0")) return;
@@ -511,13 +511,13 @@ public class ManageEmployeesMenu  {
             for (int i = 0; i < branches.size(); i++) {
                 System.out.println((i + 1) + ". " + branches.get(i).getName());
             }
-            System.out.println("0. Back");
+            //System.out.println("0. Back");
 
             int choice = readIntSafe();
 
-            if (choice == 0) {
+            /*if (choice == 0) {
                 return;
-            }
+            }*/
 
             if (choice < 1 || choice > branches.size()) {
                 System.out.println("Invalid branch choice. Please try again.");

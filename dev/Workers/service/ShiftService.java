@@ -70,7 +70,7 @@ public class ShiftService {
         shiftHandler.setRequirementManually(shift, role, count);
     }
 
-        public void assignEmployee(Shift shift, Role role, int employeeId) {
+    public void assignEmployee(Shift shift, Role role, int employeeId) {
         shiftHandler.assignEmployee(shift, role, employeeId);
     }
 
