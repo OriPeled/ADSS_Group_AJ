@@ -4,6 +4,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Creates the relational schema used to persist the Workers (Employees) module.
+ * <p>
+ * The schema is a Data-Mapper mapping of the domain objects:
+ * Employee, EmployeeTerms (embedded value object), Role (polymorphic:
+ * StandardRole / DriverRole), Preference, Access, Shift, Requirement,
+ * assignments, extra hours, and WeekSchedule.
+ * <p>
+ * The Transport module is a mock external interface (see TransportModule) and
+ * holds no real state, therefore it is intentionally NOT persisted here.
+ */
 public class DatabaseInitializer {
 
     private DatabaseInitializer() {
@@ -13,9 +24,9 @@ public class DatabaseInitializer {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
 
-            createEmployeesTables(statement);
-            createShiftsTables(statement);
-            createMockTransportTables(statement);
+            createBranchTable(statement);
+            createEmployeeTables(statement);
+            createShiftTables(statement);
 
             System.out.println("Database tables initialized successfully.");
 
@@ -24,210 +35,155 @@ public class DatabaseInitializer {
         }
     }
 
-    private static void createEmployeesTables(Statement statement) throws SQLException {
+    private static void createBranchTable(Statement statement) throws SQLException {
+        statement.execute("""
+                CREATE TABLE IF NOT EXISTS branches (
+                    branch_name TEXT PRIMARY KEY
+                );
+                """);
+    }
 
+    private static void createEmployeeTables(Statement statement) throws SQLException {
+
+        // Employee + embedded EmployeeTerms (value object, no own identity)
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS employees (
-                    employee_id TEXT PRIMARY KEY,
-                    first_name TEXT NOT NULL,
-                    last_name TEXT NOT NULL,
-                    bank_account TEXT,
-                    salary REAL,
-                    employment_terms TEXT,
-                    start_date TEXT NOT NULL,
-                    is_active INTEGER NOT NULL DEFAULT 1,
-                    driver_license_type TEXT
+                    id           INTEGER PRIMARY KEY,
+                    name         TEXT    NOT NULL,
+                    branch_name  TEXT    NOT NULL,
+                    is_manager   INTEGER NOT NULL DEFAULT 0,
+                    bank_account INTEGER NOT NULL,
+                    salary       REAL    NOT NULL,
+                    start_date   TEXT    NOT NULL,
+                    end_date     TEXT,
+                    job_status   TEXT    NOT NULL,
+                    salary_type  TEXT    NOT NULL,
+                    rest_days    INTEGER NOT NULL,
+                    day_off      TEXT    NOT NULL,
+                    FOREIGN KEY (branch_name) REFERENCES branches(branch_name),
+                    CHECK (is_manager IN (0, 1))
                 );
                 """);
 
-        statement.execute("""
-                CREATE TABLE IF NOT EXISTS access_credentials (
-                    employee_id TEXT PRIMARY KEY,
-                    username TEXT NOT NULL UNIQUE,
-                    password TEXT NOT NULL,
-                    permission_level TEXT NOT NULL,
-                    FOREIGN KEY (employee_id)
-                        REFERENCES employees(employee_id)
-                        ON DELETE CASCADE
-                );
-                """);
-
-        statement.execute("""
-                CREATE TABLE IF NOT EXISTS roles (
-                    role_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    role_name TEXT NOT NULL UNIQUE
-                );
-                """);
-
+        // Polymorphic role link:
+        //   role_kind='STANDARD' -> role_name set, license null
+        //   role_kind='DRIVER'   -> license set,   role_name null
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS employee_roles (
-                    employee_id TEXT NOT NULL,
-                    role_id INTEGER NOT NULL,
-                    PRIMARY KEY (employee_id, role_id),
+                    employee_id INTEGER NOT NULL,
+                    role_kind   TEXT    NOT NULL,
+                    role_name   TEXT,
+                    license     TEXT,
+                    PRIMARY KEY (employee_id, role_kind, role_name, license),
                     FOREIGN KEY (employee_id)
-                        REFERENCES employees(employee_id)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY (role_id)
-                        REFERENCES roles(role_id)
-                        ON DELETE CASCADE
+                        REFERENCES employees(id) ON DELETE CASCADE,
+                    CHECK (role_kind IN ('STANDARD', 'DRIVER')),
+                    CHECK ((role_kind = 'STANDARD' AND role_name IS NOT NULL AND license IS NULL)
+                        OR (role_kind = 'DRIVER'   AND license   IS NOT NULL AND role_name IS NULL))
                 );
                 """);
 
+        // Preference: DayOfWeek -> ShiftType (MORNING/EVENING/ANY/REST)
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS employee_preferences (
-                    preference_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    employee_id TEXT NOT NULL,
-                    day_of_week INTEGER NOT NULL,
-                    shift_type TEXT NOT NULL,
-                    is_available INTEGER NOT NULL DEFAULT 1,
+                    employee_id INTEGER NOT NULL,
+                    day_of_week TEXT    NOT NULL,
+                    shift_type  TEXT    NOT NULL,
+                    PRIMARY KEY (employee_id, day_of_week),
                     FOREIGN KEY (employee_id)
-                        REFERENCES employees(employee_id)
-                        ON DELETE CASCADE,
-                    CHECK (day_of_week BETWEEN 1 AND 7),
-                    CHECK (shift_type IN ('MORNING', 'EVENING')),
-                    CHECK (is_available IN (0, 1))
+                        REFERENCES employees(id) ON DELETE CASCADE,
+                    CHECK (shift_type IN ('MORNING', 'EVENING', 'ANY', 'REST'))
+                );
+                """);
+
+        // Access credentials (password only, per Access object)
+        statement.execute("""
+                CREATE TABLE IF NOT EXISTS access_credentials (
+                    employee_id INTEGER PRIMARY KEY,
+                    password    TEXT NOT NULL,
+                    FOREIGN KEY (employee_id)
+                        REFERENCES employees(id) ON DELETE CASCADE
                 );
                 """);
     }
 
-    private static void createShiftsTables(Statement statement) throws SQLException {
+    private static void createShiftTables(Statement statement) throws SQLException {
 
+        // Shift natural key = (branch, date, type), matching domain equals/hashCode
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS shifts (
-                    shift_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    shift_date TEXT NOT NULL,
-                    shift_type TEXT NOT NULL,
-                    start_time TEXT NOT NULL,
-                    end_time TEXT NOT NULL,
+                    branch_name TEXT    NOT NULL,
+                    shift_date  TEXT    NOT NULL,
+                    shift_type  TEXT    NOT NULL,
+                    has_manager INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (branch_name, shift_date, shift_type),
+                    FOREIGN KEY (branch_name) REFERENCES branches(branch_name),
                     CHECK (shift_type IN ('MORNING', 'EVENING')),
-                    UNIQUE (shift_date, shift_type)
+                    CHECK (has_manager IN (0, 1))
                 );
                 """);
 
+        // Requirements per shift per (polymorphic) role
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS shift_requirements (
-                    shift_id INTEGER NOT NULL,
-                    role_id INTEGER NOT NULL,
+                    branch_name    TEXT    NOT NULL,
+                    shift_date     TEXT    NOT NULL,
+                    shift_type     TEXT    NOT NULL,
+                    role_kind      TEXT    NOT NULL,
+                    role_name      TEXT,
+                    license        TEXT,
                     required_count INTEGER NOT NULL,
-                    PRIMARY KEY (shift_id, role_id),
-                    FOREIGN KEY (shift_id)
-                        REFERENCES shifts(shift_id)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY (role_id)
-                        REFERENCES roles(role_id)
-                        ON DELETE CASCADE,
-                    CHECK (required_count > 0)
+                    PRIMARY KEY (branch_name, shift_date, shift_type, role_kind, role_name, license),
+                    FOREIGN KEY (branch_name, shift_date, shift_type)
+                        REFERENCES shifts(branch_name, shift_date, shift_type) ON DELETE CASCADE,
+                    CHECK (role_kind IN ('STANDARD', 'DRIVER')),
+                    CHECK (required_count >= 0)
                 );
                 """);
 
+        // Assignments: employee -> role within a shift
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS shift_assignments (
-                    shift_id INTEGER NOT NULL,
-                    employee_id TEXT NOT NULL,
-                    role_id INTEGER NOT NULL,
-                    PRIMARY KEY (shift_id, employee_id),
-                    FOREIGN KEY (shift_id)
-                        REFERENCES shifts(shift_id)
-                        ON DELETE CASCADE,
+                    branch_name TEXT    NOT NULL,
+                    shift_date  TEXT    NOT NULL,
+                    shift_type  TEXT    NOT NULL,
+                    employee_id INTEGER NOT NULL,
+                    role_kind   TEXT    NOT NULL,
+                    role_name   TEXT,
+                    license     TEXT,
+                    PRIMARY KEY (branch_name, shift_date, shift_type, employee_id),
+                    FOREIGN KEY (branch_name, shift_date, shift_type)
+                        REFERENCES shifts(branch_name, shift_date, shift_type) ON DELETE CASCADE,
                     FOREIGN KEY (employee_id)
-                        REFERENCES employees(employee_id)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY (role_id)
-                        REFERENCES roles(role_id)
-                        ON DELETE CASCADE
-                );
-                """);
-    }
-
-    private static void createMockTransportTables(Statement statement) throws SQLException {
-
-        statement.execute("""
-                CREATE TABLE IF NOT EXISTS mock_trucks (
-                    truck_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    license_plate TEXT NOT NULL UNIQUE,
-                    model TEXT NOT NULL,
-                    required_license_type TEXT NOT NULL,
-                    net_weight REAL NOT NULL,
-                    max_weight REAL NOT NULL,
-                    CHECK (net_weight > 0),
-                    CHECK (max_weight > net_weight)
+                        REFERENCES employees(id) ON DELETE CASCADE,
+                    CHECK (role_kind IN ('STANDARD', 'DRIVER'))
                 );
                 """);
 
+        // Extra hours (morning shifts only), per AssignmentHandler.extraHours
         statement.execute("""
-                CREATE TABLE IF NOT EXISTS mock_sites (
-                    site_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    site_name TEXT NOT NULL,
-                    address TEXT NOT NULL,
-                    contact_name TEXT,
-                    phone TEXT
+                CREATE TABLE IF NOT EXISTS shift_extra_hours (
+                    branch_name TEXT    NOT NULL,
+                    shift_date  TEXT    NOT NULL,
+                    shift_type  TEXT    NOT NULL,
+                    employee_id INTEGER NOT NULL,
+                    hours       INTEGER NOT NULL,
+                    PRIMARY KEY (branch_name, shift_date, shift_type, employee_id),
+                    FOREIGN KEY (branch_name, shift_date, shift_type)
+                        REFERENCES shifts(branch_name, shift_date, shift_type) ON DELETE CASCADE,
+                    CHECK (hours >= 0)
                 );
                 """);
 
+        // Week publication state (WeekSchedule).
+        // Keyed by start-of-week (Sunday) only, matching the domain's
+        // Map<LocalDate, WeekSchedule> in ShiftHandler (publication state is
+        // currently shared across branches in the domain).
         statement.execute("""
-                CREATE TABLE IF NOT EXISTS mock_transports (
-                    transport_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    transport_date TEXT NOT NULL,
-                    departure_time TEXT NOT NULL,
-                    source_site_id INTEGER NOT NULL,
-                    truck_id INTEGER NOT NULL,
-                    driver_employee_id TEXT NOT NULL,
-                    shift_id INTEGER,
-                    actual_weight REAL,
-                    status TEXT NOT NULL DEFAULT 'APPROVED',
-                    FOREIGN KEY (source_site_id)
-                        REFERENCES mock_sites(site_id),
-                    FOREIGN KEY (truck_id)
-                        REFERENCES mock_trucks(truck_id),
-                    FOREIGN KEY (driver_employee_id)
-                        REFERENCES employees(employee_id),
-                    FOREIGN KEY (shift_id)
-                        REFERENCES shifts(shift_id),
-                    CHECK (status IN ('PLANNED', 'APPROVED', 'REJECTED', 'COMPLETED')),
-                    CHECK (actual_weight IS NULL OR actual_weight > 0)
-                );
-                """);
-
-        statement.execute("""
-                CREATE TABLE IF NOT EXISTS mock_transport_destinations (
-                    transport_id INTEGER NOT NULL,
-                    site_id INTEGER NOT NULL,
-                    destination_order INTEGER NOT NULL,
-                    PRIMARY KEY (transport_id, site_id),
-                    FOREIGN KEY (transport_id)
-                        REFERENCES mock_transports(transport_id)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY (site_id)
-                        REFERENCES mock_sites(site_id),
-                    CHECK (destination_order > 0)
-                );
-                """);
-
-        statement.execute("""
-                CREATE TABLE IF NOT EXISTS mock_transport_documents (
-                    document_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    transport_id INTEGER NOT NULL,
-                    destination_site_id INTEGER NOT NULL,
-                    document_number TEXT NOT NULL UNIQUE,
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (transport_id)
-                        REFERENCES mock_transports(transport_id)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY (destination_site_id)
-                        REFERENCES mock_sites(site_id)
-                );
-                """);
-
-        statement.execute("""
-                CREATE TABLE IF NOT EXISTS mock_transport_items (
-                    item_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    document_id INTEGER NOT NULL,
-                    item_name TEXT NOT NULL,
-                    quantity INTEGER NOT NULL,
-                    FOREIGN KEY (document_id)
-                        REFERENCES mock_transport_documents(document_id)
-                        ON DELETE CASCADE,
-                    CHECK (quantity > 0)
+                CREATE TABLE IF NOT EXISTS week_schedules (
+                    start_of_week TEXT    PRIMARY KEY,
+                    published     INTEGER NOT NULL DEFAULT 0,
+                    CHECK (published IN (0, 1))
                 );
                 """);
     }

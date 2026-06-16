@@ -12,6 +12,9 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import dev.Workers.database.dao.ShiftDaoSQL;
+import dev.Workers.database.dao.WeekScheduleDaoSQL;
+
 import static dev.Workers.domain.Enums.ShiftType.EVENING;
 import static dev.Workers.domain.Enums.ShiftType.MORNING;
 
@@ -33,6 +36,8 @@ public class ShiftHandler {
     private final PreferenceHandler preferenceHandler;
     private final EmployeeHandler employeeHandler;
     private final RoleRegistry roleRegistry;
+    private final ShiftDaoSQL shiftDao = ShiftDaoSQL.getInstance();
+    private final WeekScheduleDaoSQL weekScheduleDao = WeekScheduleDaoSQL.getInstance();
 
     private static ShiftHandler instance;
 
@@ -126,6 +131,13 @@ public class ShiftHandler {
 
     public AssignmentHandler getAssignments() {
         return assignmentHandler;
+    }
+
+    public void persistShift(Shift shift) {
+        List<Requirement> requirements = requirementHandler.getAll().get(shift);
+        Map<Role, Set<Integer>> assignmentsByRole = assignmentHandler.getAssignments().get(shift);
+        Map<Integer, Integer> extraHours = assignmentHandler.getExtraHours(shift);
+        shiftDao.save(shift, requirements, assignmentsByRole, extraHours);
     }
 
     // for rare cases

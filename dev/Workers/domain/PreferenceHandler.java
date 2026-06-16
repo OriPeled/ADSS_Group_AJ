@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dev.Workers.domain.Enums.ShiftType.*;
+import dev.Workers.database.dao.PreferenceDaoSQL;
 
 /**
  * Manages all employees' preferences in the system.
@@ -22,6 +23,7 @@ public class PreferenceHandler {
     private Map<Integer, Preference> preferences;   // employee ID to employee week preferences
 
     private EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
+    private final PreferenceDaoSQL preferenceDao = PreferenceDaoSQL.getInstance();
 
     private static PreferenceHandler instance;
 
@@ -47,6 +49,7 @@ public class PreferenceHandler {
             getPreferences(empId).setShiftType(day, type);
         else if (empDayPreferences == MORNING || empDayPreferences == EVENING)
             getPreferences(empId).setShiftType(day, ANY);
+        preferenceDao.save(empId, getPreferences(empId));
     }
 
     public Preference getPreferences(int id) {
@@ -90,6 +93,7 @@ public class PreferenceHandler {
 
         Preference employeePreferences = getPreferences(id);
         employeePreferences.getWeekPreferences().put(day, shiftType);
+        preferenceDao.save(id, employeePreferences);
     }
 
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
@@ -152,5 +156,6 @@ public class PreferenceHandler {
 
         DayOfWeek dayOff = employeeHandler.getEmployee(id).getTerms().getDayOff();
         preferences.get(id).setShiftType(dayOff, REST);
+        preferenceDao.save(id, preferences.get(id));
     }
 }

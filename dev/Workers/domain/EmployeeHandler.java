@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static dev.Workers.domain.Enums.UserResponse.*;
+import dev.Workers.database.dao.EmployeeDaoSQL;
 
 /**
  * Manages all employees in the system.
@@ -21,6 +22,7 @@ public class EmployeeHandler {
     private Map<Integer, Employee> employees;   // Employee ID to Employee
     private static EmployeeHandler instance;
     private final RoleRegistry roleRegistry = RoleRegistry.getInstance();
+    private final EmployeeDaoSQL employeeDao = EmployeeDaoSQL.getInstance();
 
     private EmployeeHandler() {
         this.employees = new HashMap<>();
@@ -69,6 +71,7 @@ public class EmployeeHandler {
         }
         Employee newEmp = new Employee(name, id, branch, bankAccount, salary, terms, startDate);
         employees.put(newEmp.getId(), newEmp);
+        employeeDao.save(newEmp);
     }
 
     public UserResponse fireRehire(int id) {
@@ -76,9 +79,11 @@ public class EmployeeHandler {
 
         if (emp.isTerminated()) {
             emp.activateEmployee();
+            employeeDao.update(emp);
             return rehired;
         } else {
             emp.terminateEmployee(LocalDate.now());
+            employeeDao.update(emp);
             return fired;
         }
     }
@@ -90,6 +95,7 @@ public class EmployeeHandler {
             throw new IllegalArgumentException("Employee " + id + " already terminated.");
         }
         emp.terminateEmployee(LocalDate.now());
+        employeeDao.update(emp);
     }
 
     public void rehire(int id) {
@@ -104,6 +110,7 @@ public class EmployeeHandler {
         }
 
         emp.activateEmployee();
+        employeeDao.update(emp);
     }
 
     public Employee getEmployee(int id) {
@@ -139,6 +146,7 @@ public class EmployeeHandler {
         }
 
         emp.addRole(newRole);
+        employeeDao.update(emp);
     }
 
     public void removeRole(int id, Role role) {
@@ -149,11 +157,13 @@ public class EmployeeHandler {
         }
 
         emp.removeRole(role);
+        employeeDao.update(emp);
     }
 
     public void removeAll(int id) {
         Employee emp = getEmployee(id);
         emp.removeAllRoles();
+        employeeDao.update(emp);
     }
 
     public List<Role> getRoles(int id) {

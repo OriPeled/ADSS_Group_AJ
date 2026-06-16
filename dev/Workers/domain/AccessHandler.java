@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dev.Workers.domain.Enums.UserResponse.*;
+import dev.Workers.database.dao.AccessDaoSQL;
 
 /**
  * Service class responsible for managing user credentials and access control.
@@ -22,6 +23,7 @@ public class AccessHandler {
      */
     private static EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
     private Map<Integer, Access> accessMap;
+    private final AccessDaoSQL accessDao = AccessDaoSQL.getInstance();
 
     /** The single instance of the service */
     private static AccessHandler instance;
@@ -55,7 +57,7 @@ public class AccessHandler {
             throw new IllegalArgumentException("Password must be at least 4 characters long.");
         }
         accessMap.put(id, new Access(password));
-
+        accessDao.save(id, accessMap.get(id));
     }
 
     // notRegistered to inform the user and make the call for the registration process
@@ -77,6 +79,7 @@ public class AccessHandler {
      */
     public void remove(int id) {
         accessMap.remove(id);
+        accessDao.delete(id);
     }
 
     public boolean wrongPassword(int id, String password) {
@@ -93,9 +96,9 @@ public class AccessHandler {
         Access access = accessMap.get(id);
         if (access != null) {
             access.setPassword(newPassword);
-
+            accessDao.update(id, access);
         } else {
-           throw new IllegalArgumentException("No such employee.");
+            throw new IllegalArgumentException("No such employee.");
         }
     }
 

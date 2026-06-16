@@ -124,6 +124,16 @@ public class Employee {
     public LocalDate getEndLocalDate() {return endDate;}
 
     /**
+     * Sets the employment end date directly.
+     * Used only by the persistence layer (DAO) to restore an employee's exact
+     * state from the database. Business code should use terminateEmployee /
+     * activateEmployee instead, which apply the termination notice logic.
+     *
+     * @param endDate the end date to restore (null means active)
+     */
+    public void setEndLocalDate(LocalDate endDate) { this.endDate = endDate; }
+
+    /**
      * Terminates employee by setting end date a week in advance.
      * @param terminationDate date of termination
      */

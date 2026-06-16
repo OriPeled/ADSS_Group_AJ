@@ -1,8 +1,6 @@
 package dev;
 
 import dev.Workers.setup.DataInitializer;
-import dev.Workers.database.DatabaseInitializer;
-import dev.Workers.database.SeedData;
 import dev.Workers.presentation.adminMode;
 import dev.Workers.presentation.UserMode;
 import java.util.Scanner;
