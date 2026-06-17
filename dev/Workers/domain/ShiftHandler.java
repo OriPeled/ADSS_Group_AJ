@@ -69,6 +69,7 @@ public class ShiftHandler {
         if (shifts.add(newShift)) {
             requirementHandler.defaultInit(newShift);
             assignmentHandler.init(newShift);
+            persistShift(newShift);
         }
     }
 
@@ -140,11 +141,21 @@ public class ShiftHandler {
         shiftDao.save(shift, requirements, assignmentsByRole, extraHours);
     }
 
+    /**
+     * Repopulates the in-memory shift set and the requirement/assignment
+     * Identity Maps from the database. Called once on startup.
+     */
+    public void loadAll() {
+        List<Shift> loaded = shiftDao.loadAll(requirementHandler, assignmentHandler);
+        shifts.addAll(loaded);
+    }
+
     // for rare cases
     public void resetShift(Shift shift) {
         shifts.remove(shift);
         requirementHandler.defaultInit(shift);
         assignmentHandler.init(shift);
+        persistShift(shift);
     }
 
     public boolean isShiftsWeekEmpty(Branch branch) {
@@ -188,6 +199,7 @@ public class ShiftHandler {
         } else {
             assignmentHandler.add(shift, role, employeeId);
         }
+        persistShift(shift);
     }
 
     public boolean hasManager(Shift shift) {
@@ -225,6 +237,7 @@ public class ShiftHandler {
         DayOfWeek shiftDay = shift.getShiftDay();
         ShiftType shiftType = shift.getType();
         preferenceHandler.extendPreferences(employeeId, shiftDay, shiftType); // for potential replacement
+        persistShift(shift);
     }
 
     // no required qualification/preference/activity/branch affiliation
@@ -242,6 +255,7 @@ public class ShiftHandler {
         }
 
         assignmentHandler.add(shift, role, employeeId);
+        persistShift(shift);
     }
 
     public void removeEmployee(Shift shift, int employeeId) {
@@ -249,6 +263,7 @@ public class ShiftHandler {
         if (!hasManager(shift)) {
             shift.setManaged(false);
         }
+        persistShift(shift);
     }
 
     public void replaceEmployee(Shift shift, int curId, int newId) {
@@ -422,6 +437,7 @@ public class ShiftHandler {
                 removeEmployee(shift, id);
             }
         }
+        persistShift(shift);
     }
 
     public void setRequirementManually(Shift shift, Role role, int count) {
@@ -439,6 +455,7 @@ public class ShiftHandler {
                 removeEmployee(shift, id);
             }
         }
+        persistShift(shift);
     }
 
     public void updateExtraHours(Shift shift, int empID, int hours) {
@@ -446,6 +463,7 @@ public class ShiftHandler {
         if (!employeeHandler.getEmployee(empID).belongsToBranch(shift.getBranch()))
             throw new IllegalArgumentException("Employee doesn't belong to this branch.");
         assignmentHandler.updateExtraHours(shift, empID, hours);
+        persistShift(shift);
     }
 
     // no required qualification/preference/activity/branch affiliation
@@ -572,6 +590,7 @@ public class ShiftHandler {
         // Success Path
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
+        weekScheduleDao.save(week);
 
         assignmentHandler.resetRequests();
         preferenceHandler.resetAllPreferences();
@@ -603,6 +622,7 @@ public class ShiftHandler {
         // 3. Finalize Publication
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
+        weekScheduleDao.save(week);
 
         // Cleanup
         assignmentHandler.resetRequests();
