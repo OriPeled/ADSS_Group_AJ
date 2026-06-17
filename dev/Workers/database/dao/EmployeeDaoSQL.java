@@ -29,7 +29,6 @@ import java.util.Optional;
  * objects share identity with the in-memory registries.
  */
 public class EmployeeDaoSQL implements Dao<Employee> {
-
     private static final EmployeeDaoSQL instance = new EmployeeDaoSQL();
 
     private final BranchRegistry branchRegistry = BranchRegistry.getInstance();

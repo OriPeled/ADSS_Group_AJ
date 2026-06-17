@@ -20,7 +20,6 @@ import java.util.Optional;
  * @param <T> the domain object type handled by this DAO
  */
 public interface Dao<T> {
-
     Optional<T> get(long id);
 
     List<T> getAll();

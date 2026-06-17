@@ -19,7 +19,6 @@ import dev.Workers.domain.Objects.Branch;
  * holds no real state, therefore it is intentionally NOT persisted here.
  */
 public class DatabaseInitializer {
-
     private DatabaseInitializer() {
     }
 

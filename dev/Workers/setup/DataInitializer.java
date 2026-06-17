@@ -9,8 +9,9 @@ import dev.Workers.domain.RoleRegistry;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
- /**
+/**
  * DataInitializer is responsible for loading mock data into the system.
  *
  * It creates:
@@ -25,7 +26,6 @@ import java.time.LocalDate;
 
 public class DataInitializer {
     public static void initSystem() {
-
         dev.Workers.service.EmployeeService employeeService = dev.Workers.service.EmployeeService.getInstance();
         dev.Workers.service.AccessService accessService = dev.Workers.service.AccessService.getInstance();
         dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
@@ -38,6 +38,10 @@ public class DataInitializer {
         RoleRegistry roleRegistry = RoleRegistry.getInstance();
         Role cashier = roleRegistry.getRoleByName("Cashier");
         Role storekeeper = roleRegistry.getRoleByName("Storekeeper");
+        Role driverA = roleRegistry.getAllRoles().get(2);
+        Role driverB = roleRegistry.getAllRoles().get(3);
+        Role driverC = roleRegistry.getAllRoles().get(4);
+        Role driverD = roleRegistry.getAllRoles().get(5);
 
         try {
             // =========================
@@ -81,6 +85,39 @@ public class DataInitializer {
             createEmployee(employeeService, preferenceService,
                     "Eyal Peretz", 445, beerSheva, storekeeper);
 
+// Drivers
+            createEmployee(employeeService, preferenceService,
+                    "Dominic Torretto", 501, beerSheva, driverD);
+            employeeService.addRole(501, driverC);
+            employeeService.addRole(501, driverB);
+            employeeService.addRole(501, driverA);
+
+            createEmployee(employeeService, preferenceService,
+                    "Brian O'Conner", 502, beerSheva, driverC);
+            employeeService.addRole(502, driverB);
+            employeeService.addRole(502, driverA);
+
+            createEmployee(employeeService, preferenceService,
+                    "Letty Ortiz", 503, beerSheva, driverB);
+            employeeService.addRole(503, driverA);
+
+            createEmployee(employeeService, preferenceService,
+                    "Frank Martin", 504, beerSheva, driverC);
+            employeeService.addRole(504, driverB);
+            employeeService.addRole(504, driverA);
+
+            createEmployee(employeeService, preferenceService,
+                    "Max Rockatansky", 505, beerSheva, driverD);
+            employeeService.addRole(505, driverC);
+            employeeService.addRole(505, driverA);
+
+            createEmployee(employeeService, preferenceService,
+                    "Baby", 506, beerSheva, driverB);
+            employeeService.addRole(506, driverA);
+
+            createEmployee(employeeService, preferenceService,
+                    "Jason Bourne", 507, beerSheva, driverA);
+
 // Mixed roles
             createEmployee(employeeService, preferenceService,
                     "Avicay", 101, beerSheva, cashier);
@@ -97,16 +134,16 @@ public class DataInitializer {
             // WEEK OF 19-25/04/2026 SHIFTS
             // ============================
 
-            LocalDate date1 = LocalDate.of(2026,4,19);
+            LocalDate sunday1 = LocalDate.of(2026,4,19);
             //shiftService.initShiftsWeek(beerSheva);
             //requirementService.getDriverReqs(beerSheva);
             //requirementService.getStoreKeeperReqs(beerSheva);
 
             for (int i = 0; i < 7; i++) {
 
-                LocalDate date11 = date1.plusDays(i);
+                LocalDate weekday1 = sunday1.plusDays(i);
                 //shiftService.addShift(beerSheva, date11, ShiftType.MORNING);
-                Shift pastShift1 = shiftService.getShift(beerSheva, date11, ShiftType.MORNING);
+                Shift pastShift1 = shiftService.getShift(beerSheva, weekday1, ShiftType.MORNING);
                 shiftService.setRequirementManually(pastShift1, cashier, 3);
                 shiftService.setRequirementManually(pastShift1, storekeeper, 3);
 
@@ -118,7 +155,7 @@ public class DataInitializer {
                 shiftService.manualAssign(pastShift1, storekeeper, 445);
 
                 //shiftService.addShift(beerSheva, date11, ShiftType.EVENING);
-                Shift pastShift2 = shiftService.getShift(beerSheva, date11, ShiftType.EVENING);
+                Shift pastShift2 = shiftService.getShift(beerSheva, weekday1, ShiftType.EVENING);
                 shiftService.setRequirementManually(pastShift2, cashier, 3);
                 shiftService.setRequirementManually(pastShift2, storekeeper, 3);
 
@@ -129,29 +166,19 @@ public class DataInitializer {
                 shiftService.manualAssign(pastShift2, storekeeper, 444);
                 shiftService.manualAssign(pastShift2, storekeeper, 445);
             }
-            shiftService.publishWeekByDate(beerSheva, date1);
-
-            // =========================
-            // CONSTRAINTS
-            // =========================
-            preferenceService.update(222, DayOfWeek.WEDNESDAY, ShiftType.REST);
-            preferenceService.update(222, DayOfWeek.FRIDAY, ShiftType.REST);
-
-            preferenceService.update(101, DayOfWeek.SUNDAY, ShiftType.REST);
-            preferenceService.update(77, DayOfWeek.SUNDAY, ShiftType.REST);
-            //constraintService.update(444, DayOfWeek.SUNDAY, ShiftType.rest);
+            shiftService.publishWeekByDate(beerSheva, sunday1);
 
             // ===========================
-            // NEXT WEEK (26.4-2.5) SHIFTS
+            // THIS' WEEK'S SHIFTS
             // ===========================
 
-            LocalDate date2 = LocalDate.of(2026,4,26);
+            LocalDate sunday2 = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 7; i++) {
 
-                LocalDate date22 = date2.plusDays(i);
+                LocalDate weekday2 = sunday2.plusDays(i);
                 //shiftService.addShift(beerSheva, date22, ShiftType.MORNING);
-                Shift futureShift1 = shiftService.getShift(beerSheva, date22, ShiftType.MORNING);
+                Shift futureShift1 = shiftService.getShift(beerSheva, weekday2, ShiftType.MORNING);
                 shiftService.setRequirementManually(futureShift1, cashier, 3);
                 shiftService.setRequirementManually(futureShift1, storekeeper, 3);
 
@@ -163,9 +190,62 @@ public class DataInitializer {
                 shiftService.manualAssign(futureShift1, storekeeper, 445);
 
                 //shiftService.addShift(beerSheva, date22, ShiftType.EVENING);
-                Shift futureShift2 = shiftService.getShift(beerSheva, date22, ShiftType.EVENING);
+                Shift futureShift2 = shiftService.getShift(beerSheva, weekday2, ShiftType.EVENING);
                 shiftService.setRequirementManually(futureShift2, cashier, 3);
                 shiftService.setRequirementManually(futureShift2, storekeeper, 3);
+
+                shiftService.manualAssign(futureShift2, cashier, 7);
+                shiftService.manualAssign(futureShift2, cashier, 223);
+                shiftService.manualAssign(futureShift2, cashier, 224);
+                shiftService.manualAssign(futureShift2, storekeeper, 333);
+                shiftService.manualAssign(futureShift2, storekeeper, 444);
+                shiftService.manualAssign(futureShift2, storekeeper, 445);
+            }
+            shiftService.publishWeekByDate(beerSheva, sunday2);
+
+            // ===========================
+            // NEXT WEEK SHIFTS
+            // ===========================
+
+            // =========================
+// CONSTRAINTS
+// =========================
+            preferenceService.update(222, DayOfWeek.WEDNESDAY, ShiftType.REST);
+            preferenceService.update(222, DayOfWeek.FRIDAY, ShiftType.REST);
+
+            preferenceService.update(101, DayOfWeek.SUNDAY, ShiftType.REST);
+            preferenceService.update(77, DayOfWeek.SUNDAY, ShiftType.REST);
+            preferenceService.update(7, DayOfWeek.SATURDAY, ShiftType.EVENING);
+
+            LocalDate sunday3 = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+
+            // SUNDAY TO FRIDAY
+            for (int i = 0; i < 6; i++) {
+
+                LocalDate weekday3 = sunday3.plusDays(i);
+
+                // MORNING
+                Shift futureShift1 = shiftService.getShift(beerSheva, weekday3, ShiftType.MORNING);
+                shiftService.setRequirementManually(futureShift1, cashier, 3);
+                shiftService.setRequirementManually(futureShift1, storekeeper, 3);
+                shiftService.setRequirementManually(futureShift1, driverD, 1);
+                shiftService.setRequirementManually(futureShift1, driverC, 1);
+
+                shiftService.manualAssign(futureShift1, cashier, 7);
+                shiftService.manualAssign(futureShift1, cashier, 223);
+                shiftService.manualAssign(futureShift1, cashier, 224);
+                shiftService.manualAssign(futureShift1, storekeeper, 333);
+                shiftService.manualAssign(futureShift1, storekeeper, 444);
+                shiftService.manualAssign(futureShift1, storekeeper, 445);
+                shiftService.manualAssign(futureShift1, driverD, 501);
+                shiftService.manualAssign(futureShift1, driverC, 502);
+
+                // EVENING
+                Shift futureShift2 = shiftService.getShift(beerSheva, weekday3, ShiftType.EVENING);
+                shiftService.setRequirementManually(futureShift2, cashier, 3);
+                shiftService.setRequirementManually(futureShift2, storekeeper, 3);
+                shiftService.setRequirementManually(futureShift2, driverB, 1);
+                shiftService.setRequirementManually(futureShift2, driverC, 1);
 
                 shiftService.assignEmployee(futureShift2, cashier, 7);
                 shiftService.assignEmployee(futureShift2, cashier, 223);
@@ -173,30 +253,42 @@ public class DataInitializer {
                 shiftService.assignEmployee(futureShift2, storekeeper, 333);
                 shiftService.assignEmployee(futureShift2, storekeeper, 444);
                 shiftService.assignEmployee(futureShift2, storekeeper, 445);
+                shiftService.assignEmployee(futureShift2, driverB, 503);
+                shiftService.assignEmployee(futureShift2, driverC, 504);
             }
 
-            // SATURDAY
-            /*for (int i = 6; i < 7; i++) {
-                LocalDate date22 = date2.plusDays(i);
+            // SATURDAY - 2 assignments (Saturday morning, evening) left
+            for (int i = 6; i < 7; i++) {
+                LocalDate s = sunday3.plusDays(i);
 
-                Shift futureShift1 = shiftService.getShift(date22, ShiftType.morning);
-                shiftService.assignEmployee(futureShift1, Role.Cashier, 222);
-                shiftService.assignEmployee(futureShift1, Role.Cashier, 223);
-                shiftService.assignEmployee(futureShift1, Role.Cashier, 224);
-                shiftService.assignEmployee(futureShift1, Role.Storekeeper, 333);
-                shiftService.assignEmployee(futureShift1, Role.Storekeeper, 444);
-                shiftService.assignEmployee(futureShift1, Role.Storekeeper, 445);
+                // MORNING: 1 Cashier short, nobody available
+                Shift futureShift1 = shiftService.getShift(beerSheva, s, ShiftType.MORNING);
+                shiftService.setRequirementManually(futureShift1, cashier, 3);
+                shiftService.setRequirementManually(futureShift1, storekeeper, 3);
+                shiftService.setRequirementManually(futureShift1, driverD, 1);
 
-                Shift futureShift2 = shiftService.getShift(date22, ShiftType.evening);
-                shiftService.assignEmployee(futureShift2, Role.Cashier, 222);
-                shiftService.assignEmployee(futureShift2, Role.Cashier, 223);
-                shiftService.assignEmployee(futureShift2, Role.Cashier, 224);
-                shiftService.assignEmployee(futureShift2, Role.Storekeeper, 333);
-                shiftService.assignEmployee(futureShift2, Role.Storekeeper, 444);
-                shiftService.assignEmployee(futureShift2, Role.Storekeeper, 445);
-            }*/
+                shiftService.manualAssign(futureShift1, cashier, 222);
+                shiftService.manualAssign(futureShift1, cashier, 223);
+                // shiftService.assignEmployee(futureShift1, cashier, 224); // <-- Missing 1 cashier
+                shiftService.manualAssign(futureShift1, storekeeper, 333);
+                shiftService.manualAssign(futureShift1, storekeeper, 444);
+                shiftService.manualAssign(futureShift1, storekeeper, 445);
+                shiftService.manualAssign(futureShift1, driverD, 505);
 
-            // 1 assignment (Saturday evening) left
+                // EVENING: 1 Storekeeper short
+                Shift futureShift2 = shiftService.getShift(beerSheva, s, ShiftType.EVENING);
+                shiftService.setRequirementManually(futureShift2, cashier, 3);
+                shiftService.setRequirementManually(futureShift2, storekeeper, 3);
+                shiftService.setRequirementManually(futureShift2, driverA, 1);
+
+                shiftService.manualAssign(futureShift2, cashier, 222);
+                shiftService.manualAssign(futureShift2, cashier, 223);
+                shiftService.manualAssign(futureShift2, cashier, 224);
+                shiftService.manualAssign(futureShift2, storekeeper, 333);
+                shiftService.manualAssign(futureShift2, storekeeper, 444);
+                // shiftService.assignEmployee(futureShift2, storekeeper, 445); // <-- Missing 1 storekeeper
+                shiftService.manualAssign(futureShift2, driverA, 507);
+            }
 
             System.out.println("Mock data loaded successfully!");
 
@@ -223,6 +315,6 @@ public class DataInitializer {
         employeeService.addRole(id, role);
         preferenceService.initPreferences(id);
 
-        preferenceService.setDeadline(DayOfWeek.FRIDAY);
+        preferenceService.setDeadline(DayOfWeek.THURSDAY);
     }
 }

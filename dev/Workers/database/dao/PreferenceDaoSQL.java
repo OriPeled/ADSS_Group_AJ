@@ -21,7 +21,6 @@ import java.util.Map;
  * DayOfWeek -> ShiftType map to the {@code employee_preferences} table.
  */
 public class PreferenceDaoSQL {
-
     private static final PreferenceDaoSQL instance = new PreferenceDaoSQL();
 
     private PreferenceDaoSQL() {

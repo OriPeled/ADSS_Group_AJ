@@ -18,7 +18,6 @@ import java.util.Map;
  * {@code access_credentials} table.
  */
 public class AccessDaoSQL {
-
     private static final AccessDaoSQL instance = new AccessDaoSQL();
 
     private AccessDaoSQL() {

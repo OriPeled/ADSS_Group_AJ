@@ -14,7 +14,6 @@ import dev.Workers.domain.Objects.Role;
  * identity with the in-memory registry instances.
  */
 final class RoleMapper {
-
     private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
 
     private RoleMapper() {

@@ -35,7 +35,6 @@ import java.util.Set;
  * not part of the durable state.
  */
 public class ShiftDaoSQL {
-
     private static final ShiftDaoSQL instance = new ShiftDaoSQL();
 
     private final BranchRegistry branchRegistry = BranchRegistry.getInstance();

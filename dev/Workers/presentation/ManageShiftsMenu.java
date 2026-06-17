@@ -550,8 +550,6 @@ public class ManageShiftsMenu {
 
     private static void manualShiftChanges(Branch branch) {
         while (true) {
-            System.out.println(shiftService.displayWeekAssignments(branch));
-
             LocalDate date = chooseDate();
             if (date == null) {
                 return;

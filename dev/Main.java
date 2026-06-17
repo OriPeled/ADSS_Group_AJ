@@ -1,5 +1,6 @@
 package dev;
 
+import dev.Workers.database.DatabaseManager;
 import dev.Workers.setup.DataInitializer;
 import dev.Workers.presentation.adminMode;
 import dev.Workers.presentation.UserMode;
@@ -61,6 +62,7 @@ public class Main {
             System.out.println("1. User Mode");
             System.out.println("2. HR Manager Mode");
             System.out.println("3. Load demo data to database");
+            System.out.println("4. Erase database");
             System.out.println("0. Exit");
 
             String input = scanner.nextLine();
@@ -81,11 +83,20 @@ public class Main {
                     adminMode.login();
                     break;
                 case 3:
-                    if (!EmployeeHandler.getInstance().getEmployees().isEmpty()) {
+                    /*if (!EmployeeHandler.getInstance().getEmployees().isEmpty()) {
                         System.out.println("Demo data is already loaded in the database. ");
                     } else {
                         DataInitializer.initSystem();
-                    }
+                    }*/
+                    DataInitializer.initSystem();
+                    break;
+                case 4:
+                    System.out.println("Erasing database...");
+                    DatabaseManager.eraseDatabase();
+                    System.out.println("Database erased successfully.");
+                    System.out.println("Exiting system to clear in-memory data. Please restart the app.");
+                    scanner.close();
+                    System.exit(0);
                     break;
                 case 0:
                     System.out.println("Have a good day.");

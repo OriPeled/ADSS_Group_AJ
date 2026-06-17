@@ -19,7 +19,6 @@ import java.util.List;
  * {@code week_schedules} table. Only the publication flag is mutable.
  */
 public class WeekScheduleDaoSQL {
-
     private static final WeekScheduleDaoSQL instance = new WeekScheduleDaoSQL();
 
     private WeekScheduleDaoSQL() {
