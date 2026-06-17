@@ -802,9 +802,10 @@ public class ShiftHandler {
     }
 
     // used by TP module
-    public Set<Integer> getShiftDrivers(String branchName, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+    public Set<Integer> getShiftDrivers(String branchName, LicenseType licenseType,
+                                        LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
         Branch branch = branchRegistry.getBranchByName(branchName);
         Shift shift = getExistingShift(branch, shiftDate, startTime, endTime);
-        return assignmentHandler.getAllDrivers(shift);
+        return assignmentHandler.getDrivers(shift, licenseType);
     }
 }

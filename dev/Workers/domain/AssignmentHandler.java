@@ -1,6 +1,7 @@
 package dev.Workers.domain;
 
 import dev.Workers.domain.Actions.RequestAction;
+import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
@@ -114,10 +115,11 @@ public class AssignmentHandler {
     }
 
     // used by TP module
-    public Set<Integer> getAllDrivers(Shift shift) {
+    public Set<Integer> getDrivers(Shift shift, LicenseType licenseType) {
         return assignments.getOrDefault(shift, Collections.emptyMap())
                 .entrySet().stream()
-                .filter(entry -> entry.getKey() instanceof DriverRole)
+                .filter(entry -> entry.getKey() instanceof DriverRole driverRole
+                        && driverRole.getRequiredLicense() == licenseType)
                 .flatMap(entry -> entry.getValue().stream())
                 .collect(Collectors.toSet());
     }

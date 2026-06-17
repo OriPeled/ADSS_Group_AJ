@@ -72,6 +72,19 @@ public class Parser {
         return days[dayNumber - 1];
     }
 
+    public static LicenseType stringToLicenseType(String licenseString) {
+        if (licenseString == null || licenseString.trim().isEmpty()) {
+            throw new IllegalArgumentException("License string cannot be null or empty.");
+        }
+
+        try {
+            // can type "a", "A", " a "
+            return LicenseType.valueOf(licenseString.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid license type: '" + licenseString + "'.");
+        }
+    }
+
     public static Map<LicenseType, Integer> stringToDriverReqs(String reqsString) {
         Map<LicenseType, Integer> driverReqs = new HashMap<>();
 
@@ -79,20 +92,16 @@ public class Parser {
             return driverReqs;
         }
 
-        // Split the string into pairs: ["A: 2", " B: 0", " C: 3", " D: 1"]
         String[] pairs = reqsString.split(",");
 
         for (String pair : pairs) {
-            // Split each pair by the colon: ["A", " 2"]
             String[] parts = pair.split(":");
 
             if (parts.length == 2) {
                 try {
-                    // .trim() removes any accidental spaces around the letters or numbers
-                    String licenseStr = parts[0].trim();
+                    // Use your shiny new parser here!
+                    LicenseType licenseType = stringToLicenseType(parts[0]);
                     int count = Integer.parseInt(parts[1].trim());
-
-                    LicenseType licenseType = LicenseType.valueOf(licenseStr);
 
                     driverReqs.put(licenseType, count);
 

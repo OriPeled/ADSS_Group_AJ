@@ -1,6 +1,7 @@
 package dev.Workers.service;
 
 import dev.Workers.domain.EmployeeHandler;
+import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Branch;
@@ -9,6 +10,7 @@ import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftHandler;
 import dev.Workers.setup.TransportService;
+import dev.Workers.utils.Parser;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -231,7 +233,9 @@ public class ShiftService {
     }
 
     // used by TP module
-    public Set<Integer> getShiftDrivers(String branchName, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
-        return shiftHandler.getShiftDrivers(branchName, shiftDate, startTime, endTime);
+    public Set<Integer> getShiftDrivers(String branchName, String licenseString,
+                                        LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+        LicenseType licenseType = Parser.stringToLicenseType(licenseString);
+        return shiftHandler.getShiftDrivers(branchName, licenseType, shiftDate, startTime, endTime);
     }
 }
