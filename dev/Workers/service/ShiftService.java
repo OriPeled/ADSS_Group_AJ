@@ -1,6 +1,5 @@
 package dev.Workers.service;
 
-import dev.Workers.service.RoleService;
 import dev.Workers.domain.EmployeeHandler;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
@@ -24,7 +23,6 @@ public class ShiftService {
     private static ShiftHandler shiftHandler;
     private static AssignmentService assignmentService;
     private static EmployeeHandler employeeHandler;
-    private static RoleService roleService;
 
     private static ShiftService instance;
 
@@ -39,7 +37,6 @@ public class ShiftService {
         shiftHandler = ShiftHandler.getInstance();
         assignmentService = AssignmentService.getInstance();
         employeeHandler = EmployeeHandler.getInstance();
-        roleService = RoleService.getInstance();
     }
 
     public void addShift(Branch branch, LocalDate date, ShiftType type) {
@@ -209,7 +206,7 @@ public class ShiftService {
     }
 
     // used by TP module
-    public Set<Integer> getShiftDrivers(Branch branch, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
-        return shiftHandler.getShiftDrivers(branch, shiftDate, startTime, endTime);
+    public Set<Integer> getShiftDrivers(String branchName, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+        return shiftHandler.getShiftDrivers(branchName, shiftDate, startTime, endTime);
     }
 }

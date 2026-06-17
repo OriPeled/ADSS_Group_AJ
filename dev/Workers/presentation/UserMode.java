@@ -1,5 +1,6 @@
 package dev.Workers.presentation;
 
+import dev.Workers.utils.Parser;
 import dev.Workers.service.PreferenceService;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;
@@ -10,7 +11,7 @@ import java.time.DayOfWeek;
 import static dev.Workers.domain.Enums.UserResponse.*;
 import static dev.Workers.domain.Enums.ShiftType.*;
 import static dev.Main.scanner;
-import static dev.Workers.presentation.Parser.readIntSafe;
+import static dev.Workers.presentation.CLIHelper.readIntSafe;
 
 public class UserMode {
     static PreferenceService preferenceService = PreferenceService.getInstance();

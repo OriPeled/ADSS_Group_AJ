@@ -2,7 +2,7 @@ package dev.Workers.domain;
 
 import dev.Workers.domain.Enums.LicenseType;
 import dev.Workers.domain.Objects.*;
-import dev.Workers.setup.TransportModule;
+import dev.Workers.setup.TransportService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -63,8 +63,10 @@ public class RequirementHandler {
             throw new IllegalArgumentException("Driver requirements are set only once during init process.");
         }
 
+        String branchName = shift.getBranch().getName();
+
         if (req.getRole().getName().equalsIgnoreCase("Storekeeper")) {
-            if (count < TransportModule.getStorekeeperRequirements(shift.getBranch(), shift.getDate(),
+            if (count < TransportService.getStorekeeperRequirements(branchName, shift.getDate(),
                     shift.getStartTime(), shift.getEndTime())) {
                 throw new IllegalArgumentException("Can't be set less than required by transport manager.");
             }
@@ -105,29 +107,27 @@ public class RequirementHandler {
         return new HashMap<>(shiftsReqs);
     }
 
-    // TP holds LicenseType enum
-    public void getDriverWeeklyReqs(Branch branch) {
-        for (Shift shift : getShiftsForWeek(branch)) {
-            Map<LicenseType, Integer> licensesNeeded = TransportModule.getDriverRequirements(
-                    branch, shift.getDate(), shift.getStartTime(), shift.getEndTime()
-            );
+    public void applyDriverReqsToShift(Shift shift, Map<LicenseType, Integer> driverReqs) {
+        if (driverReqs == null || driverReqs.isEmpty()) {
+            return;
+        }
 
-            if (licensesNeeded != null) {
-                for (Map.Entry<LicenseType, Integer> entry : licensesNeeded.entrySet()) {
-                    Role driverRole = roleRegistry.getRoleByName("Driver (" + entry.getKey() + ")");
-                    manualSet(shift, driverRole, entry.getValue());
-                }
+        for (Map.Entry<LicenseType, Integer> entry : driverReqs.entrySet()) {
+            LicenseType licenseType = entry.getKey();
+            Integer count = entry.getValue();
+
+            Role driverRole = roleRegistry.getRoleByName("Driver (" + licenseType.name() + ")");
+
+            if (driverRole != null) {
+                manualSet(shift, driverRole, count);
             }
         }
     }
 
-    public void getStoreKeeperWeeklyReqs(Branch branch) {
+    public void applyStorekeeperReqToShift(Shift shift, int amount) {
         Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
 
-        for (Shift shift : getShiftsForWeek(branch)) {
-            int amount = TransportModule.getStorekeeperRequirements(
-                    branch, shift.getDate(), shift.getStartTime(), shift.getEndTime()
-            );
+        if (storekeeperRole != null) {
             manualSet(shift, storekeeperRole, amount);
         }
     }
@@ -139,7 +139,7 @@ public class RequirementHandler {
         }
     }
 
-    private List<Shift> getShiftsForWeek(Branch branch) {
+    public List<Shift> getShiftsForWeek(Branch branch) {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 

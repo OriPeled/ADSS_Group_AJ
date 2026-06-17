@@ -1,7 +1,7 @@
 package dev.Workers.presentation;
 
 import static dev.Main.scanner;
-import static dev.Workers.presentation.Parser.readIntSafe;
+import static dev.Workers.presentation.CLIHelper.readIntSafe;
 
 /**
  * Handles Admin (HR Manager) mode UI flow.

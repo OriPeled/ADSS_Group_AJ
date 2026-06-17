@@ -35,6 +35,7 @@ public class ShiftHandler {
     public final AssignmentHandler assignmentHandler;
     private final PreferenceHandler preferenceHandler;
     private final EmployeeHandler employeeHandler;
+    private final BranchRegistry branchRegistry;
     private final RoleRegistry roleRegistry;
     private final ShiftDaoSQL shiftDao = ShiftDaoSQL.getInstance();
     private final WeekScheduleDaoSQL weekScheduleDao = WeekScheduleDaoSQL.getInstance();
@@ -54,6 +55,7 @@ public class ShiftHandler {
         this.preferenceHandler = PreferenceHandler.getInstance();
         this.assignmentHandler = new AssignmentHandler();
         this.employeeHandler = EmployeeHandler.getInstance();
+        this.branchRegistry = BranchRegistry.getInstance();
         this.roleRegistry = RoleRegistry.getInstance();
     }
 
@@ -804,7 +806,8 @@ public class ShiftHandler {
     }
 
     // used by TP module
-    public Set<Integer> getShiftDrivers(Branch branch, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+    public Set<Integer> getShiftDrivers(String branchName, LocalDate shiftDate, LocalTime startTime, LocalTime endTime) {
+        Branch branch = branchRegistry.getBranchByName(branchName);
         Shift shift = getExistingShift(branch, shiftDate, startTime, endTime);
         return assignmentHandler.getAllDrivers(shift);
     }

@@ -1,17 +1,13 @@
-package dev.Workers.presentation;
+package dev.Workers.utils;
 
 import dev.Workers.domain.Enums.LicenseType;
-import dev.Workers.domain.Objects.DriverRole;
-import dev.Workers.domain.Objects.Role;
-import dev.Workers.domain.Objects.StandardRole;
-import dev.Workers.domain.RoleRegistry;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-
-import static dev.Main.scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Parser {
     public static LocalDate stringToDate(String dateString) {
@@ -76,44 +72,36 @@ public class Parser {
         return days[dayNumber - 1];
     }
 
-    public static Role getRoleFromNumber(int roleNumber) {
-        while (true) {
-            if (roleNumber < 1 || roleNumber > 7) {
-                throw new IllegalArgumentException("Invalid role choice.");
-            }
+    public static Map<LicenseType, Integer> stringToDriverReqs(String reqsString) {
+        Map<LicenseType, Integer> driverReqs = new HashMap<>();
 
-            if (roleNumber == 1) return new StandardRole("Cashier");
-            else if (roleNumber == 2) return new StandardRole("Storekeeper");
-            else if (roleNumber == 3) return new DriverRole();
+        if (reqsString == null || reqsString.trim().isEmpty()) {
+            return driverReqs;
         }
-    }
 
-    public static LicenseType getLicenseTypeFromNumber(int licenseTypeNumber) {
-        while (true) {
-            if (licenseTypeNumber < 0 || licenseTypeNumber >= LicenseType.values().length) {
-                throw new IllegalArgumentException("Invalid license type choice.");
-            }
-            return LicenseType.values()[licenseTypeNumber];
-        }
-    }
+        // Split the string into pairs: ["A: 2", " B: 0", " C: 3", " D: 1"]
+        String[] pairs = reqsString.split(",");
 
-    public static int readIntSafe() {
-        while (true) {
-            try {
-                return Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again:");
-            }
-        }
-    }
+        for (String pair : pairs) {
+            // Split each pair by the colon: ["A", " 2"]
+            String[] parts = pair.split(":");
 
-    static double readDoubleSafe() {
-        while (true) {
-            try {
-                return Double.parseDouble(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again:");
+            if (parts.length == 2) {
+                try {
+                    // .trim() removes any accidental spaces around the letters or numbers
+                    String licenseStr = parts[0].trim();
+                    int count = Integer.parseInt(parts[1].trim());
+
+                    LicenseType licenseType = LicenseType.valueOf(licenseStr);
+
+                    driverReqs.put(licenseType, count);
+
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Skipping invalid requirement format: '" + pair + "'");
+                }
             }
         }
+
+        return driverReqs;
     }
 }

@@ -1,5 +1,6 @@
 package dev.Workers.presentation;
 
+import dev.Workers.utils.Parser;
 import dev.Workers.service.PreferenceService;
 import dev.Workers.service.EmployeeService;
 import dev.Workers.domain.BranchRegistry;
@@ -16,7 +17,6 @@ import java.util.List;
 
 import static dev.Main.scanner;
 import static dev.Workers.domain.Enums.UserResponse.*;
-import static dev.Workers.presentation.Parser.*;
 
 public class ManageEmployeesMenu  {
     static EmployeeService employeeService = EmployeeService.getInstance();
@@ -46,7 +46,7 @@ public class ManageEmployeesMenu  {
     private static void accessEmployee() {
         System.out.println("Enter employee ID (0 to go back):");
 
-        int empId = readIntSafe();
+        int empId = CLIHelper.readIntSafe();
 
         if (empId == 0) return;
 
@@ -63,7 +63,7 @@ public class ManageEmployeesMenu  {
                                 + employeeService.getEmployee(empId).status());
             printManageEmployeeMenu();
 
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
             switch (choice) {
                 case 1 -> details(empId);
                 case 2 -> roles(empId);
@@ -89,7 +89,7 @@ public class ManageEmployeesMenu  {
 
             printDetailsMenu();
 
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
             switch (choice) {
                 case 1 -> updateName(empId);
                 case 2 -> updateBankAccount(empId);
@@ -110,7 +110,7 @@ public class ManageEmployeesMenu  {
                 System.out.println((i + 1) + ". " + branches.get(i).getName());
             }
 
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
 
 
             if (choice < 1 || choice > branches.size()) {
@@ -151,7 +151,7 @@ public class ManageEmployeesMenu  {
     private static void updateBankAccount(int empId) {
         while (true) {
             System.out.println("Please enter a new bank account number (or 0 to cancel):");
-            int bank = readIntSafe();
+            int bank = CLIHelper.readIntSafe();
 
             if (bank == 0) return;
 
@@ -168,7 +168,7 @@ public class ManageEmployeesMenu  {
     private static void updateSalary(int empId) {
         while (true) {
             System.out.println("Please enter a new salary (or 0 to cancel):");
-            double salary = readDoubleSafe();
+            double salary = CLIHelper.readDoubleSafe();
 
             if (salary == 0) return;
 
@@ -196,7 +196,7 @@ public class ManageEmployeesMenu  {
             System.out.println("======================================");
 
             printUpdateTermsMenu();
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
             switch (choice) {
                 case 1 -> changeJobStatus(empId);
                 case 2 -> changeSalaryType(empId);
@@ -217,7 +217,7 @@ public class ManageEmployeesMenu  {
         System.out.println("Change job status?");
         System.out.println("1 - confirm, 0 - cancel");
 
-        int choice = readIntSafe();
+        int choice = CLIHelper.readIntSafe();
         switch (choice) {
             case 1 -> {
                 try {
@@ -239,7 +239,7 @@ public class ManageEmployeesMenu  {
         System.out.println("Change salary type?");
         System.out.println("1 - confirm, 0 - cancel");
 
-        int choice = readIntSafe();
+        int choice = CLIHelper.readIntSafe();
         switch (choice) {
             case 1 -> {
                 try {
@@ -259,7 +259,7 @@ public class ManageEmployeesMenu  {
      */
     private static void changeRestDays(int empId) {
         System.out.println("Enter number of rest days (1-7, 0 to cancel):");
-        int days = readIntSafe();
+        int days = CLIHelper.readIntSafe();
 
         if (days == 0) return;
 
@@ -278,7 +278,7 @@ public class ManageEmployeesMenu  {
 
     private static void changeDayOff(int empId) {
         System.out.println("Enter number of preferred day off (1-7, 0 to cancel):");
-        int dayNumber = readIntSafe();
+        int dayNumber = CLIHelper.readIntSafe();
 
         if (dayNumber == 0) return;
 
@@ -300,7 +300,7 @@ public class ManageEmployeesMenu  {
             System.out.println("2. Remove Role");
             System.out.println("0. Back");
 
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
             switch (choice) {
                 case 1 -> addRole(empId);
                 case 2 -> removeRole(empId);
@@ -335,7 +335,7 @@ public class ManageEmployeesMenu  {
             }
 
             System.out.println("Please choose a role to add (0 to cancel):");
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
 
             if (choice == 0) {
                 return;
@@ -382,7 +382,7 @@ public class ManageEmployeesMenu  {
             System.out.println("======================================");
             System.out.println("Choose a role to remove (0 to cancel):");
 
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
 
             if (choice == 0) {
                 return;
@@ -424,7 +424,7 @@ public class ManageEmployeesMenu  {
                 employeeService.getEmployeeName(empId) +
                 " (" + empId + ")? Enter 1 to confirm, 0 to cancel:");
 
-        int choice = readIntSafe();
+        int choice = CLIHelper.readIntSafe();
 
         switch (choice) {
             case 1 -> {
@@ -448,7 +448,7 @@ public class ManageEmployeesMenu  {
                 employeeService.getEmployeeName(empId) +
                 " (" + empId + ")? Enter 1 to confirm, 0 to cancel:");
 
-        int choice = readIntSafe();
+        int choice = CLIHelper.readIntSafe();
 
         switch (choice) {
             case 1 -> {
@@ -469,7 +469,7 @@ public class ManageEmployeesMenu  {
                 employeeService.getEmployeeName(empId) +
                 " (" + empId + ")? Enter 1 to confirm, 0 to cancel:");
 
-        int choice = readIntSafe();
+        int choice = CLIHelper.readIntSafe();
 
         switch (choice) {
             case 1 -> {
@@ -511,7 +511,7 @@ public class ManageEmployeesMenu  {
         int id;
         while (true) {
             System.out.println("Please enter the employee ID to continue ");
-            id = readIntSafe();
+            id = CLIHelper.readIntSafe();
 
             if (id <= 0) {
                 System.out.println("ID must be positive.");
@@ -533,7 +533,7 @@ public class ManageEmployeesMenu  {
                 System.out.println((i + 1) + ". " + branches.get(i).getName());
             }
 
-            int choice = readIntSafe();
+            int choice = CLIHelper.readIntSafe();
 
             if (choice < 1 || choice > branches.size()) {
                 System.out.println("Invalid branch choice. Please try again.");
@@ -547,7 +547,7 @@ public class ManageEmployeesMenu  {
         int bankAccount;
         while (true) {
             System.out.println("Please enter the bank account number:");
-            bankAccount = readIntSafe();
+            bankAccount = CLIHelper.readIntSafe();
 
             if (bankAccount <= 0) {
                 System.out.println("Bank account must be positive.");
@@ -560,7 +560,7 @@ public class ManageEmployeesMenu  {
         double salary;
         while (true) {
             System.out.println("Please enter the employee salary:");
-            salary = readDoubleSafe();
+            salary = CLIHelper.readDoubleSafe();
 
             if (salary <= 0) {
                 System.out.println("Salary must be positive.");
@@ -630,7 +630,7 @@ public class ManageEmployeesMenu  {
         JobStatus jobStatus;
         while (true) {
             System.out.println("Select Job Status (1. Full Time, 2. Half Time):");
-            int jobChoice = readIntSafe();
+            int jobChoice = CLIHelper.readIntSafe();
 
             if (jobChoice == 1) {
                 jobStatus = JobStatus.fullTime;
@@ -646,7 +646,7 @@ public class ManageEmployeesMenu  {
         SalaryType salaryType;
         while (true) {
             System.out.println("Select Salary Type (1. Hourly, 2. Global):");
-            int salaryChoice = readIntSafe();
+            int salaryChoice = CLIHelper.readIntSafe();
 
             if (salaryChoice == 1) {
                 salaryType = SalaryType.hourly;
@@ -662,7 +662,7 @@ public class ManageEmployeesMenu  {
         int restDays;
         while (true) {
             System.out.println("Enter number of rest days (1-7):");
-            restDays = readIntSafe();
+            restDays = CLIHelper.readIntSafe();
 
             if (restDays >= 1 && restDays <= 7) {
                 break;
@@ -674,7 +674,7 @@ public class ManageEmployeesMenu  {
         DayOfWeek dayOff;
         while (true) {
             System.out.println("Enter preferred day off (1-7):");
-            int dayNumber = readIntSafe();
+            int dayNumber = CLIHelper.readIntSafe();
 
             try {
                 dayOff = Parser.getDayFromNumber(dayNumber);
