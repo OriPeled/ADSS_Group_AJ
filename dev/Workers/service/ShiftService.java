@@ -4,9 +4,11 @@ import dev.Workers.domain.EmployeeHandler;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.domain.Enums.WeekStatus;
 import dev.Workers.domain.Objects.Branch;
+import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftHandler;
+import dev.Workers.setup.TransportService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -60,6 +62,30 @@ public class ShiftService {
     }
 
     public void setRequirement(Shift shift, Role role, int count) {
+        if (role instanceof DriverRole) {
+            throw new IllegalArgumentException(
+                    "Driver requirements are managed by Transport. Use 'Manual shift changes' for emergency overrides."
+            );
+        }
+
+        if (role.getName().equalsIgnoreCase("Storekeeper")) {
+            String branchName = shift.getBranch().getName();
+            int transportMinimum = TransportService.getStorekeeperRequirements(
+                    branchName, shift.getDate(), shift.getStartTime(), shift.getEndTime()
+            );
+
+            if (count < transportMinimum) {
+                throw new IllegalArgumentException(
+                        "Cannot set below " + transportMinimum + " (Transport requirement)."
+                );
+            }
+        }
+
+        shiftHandler.setRequirement(shift, role, count);
+    }
+
+    // bypasses restrictions
+    public void initTransportRequirement(Shift shift, Role role, int count) {
         shiftHandler.setRequirement(shift, role, count);
     }
 
@@ -109,9 +135,8 @@ public class ShiftService {
         shiftHandler.forcePublishWeekSchedule(branch, nextSunday);
     }
 
-
     // test function for adding past shifts (mainly for history purposes)
-    public void publishWeekByDate(Branch branch, LocalDate date) {;
+    public void publishWeekByDate(Branch branch, LocalDate date) {
         shiftHandler.publishWeekSchedule(branch, date);
     }
 

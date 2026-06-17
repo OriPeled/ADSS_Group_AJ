@@ -60,7 +60,6 @@ public class ShiftHandler {
     }
 
     /**
-     *
      * @param date
      * @param type
      * adding shift to the system if it doesn't already exist, else nothing
@@ -74,11 +73,10 @@ public class ShiftHandler {
     }
 
     /**
-     *
      * @param date
      * @param type
      * @return getter for a next week's shift,
-     *         could be either already published or currently on assignment process
+     * could be either already published or currently on assignment process
      */
     public Shift getShift(Branch branch, LocalDate date, ShiftType type) {
         for (Shift s : shifts) {
@@ -187,8 +185,7 @@ public class ShiftHandler {
         if (employeeHandler.getEmployee(employeeId).isManager() && !hasManager(shift)) {
             assignmentHandler.add(shift, role, employeeId);
             shift.setManaged(true);
-        }
-        else {
+        } else {
             assignmentHandler.add(shift, role, employeeId);
         }
     }
@@ -198,7 +195,6 @@ public class ShiftHandler {
         for (Integer id : shiftEmployees) {
             if (employeeHandler.getEmployee(id).isManager())
                 return true;
-
         }
         return false;
     }
@@ -214,9 +210,9 @@ public class ShiftHandler {
         /* FOR TESTS
         employeeManager.validateEmployeeBasic(employeeId, shift.getShiftDate());
         if (!isNeeded(shift, role))
-            throw new RuntimeException("Role already assigned.");
+        throw new RuntimeException("Role already assigned.");
         if (!isQualified(employeeId, role)) {
-            throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
+        throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
         }*/
 
         if (employeeHandler.getEmployee(employeeId).isManager() && !hasManager(shift)) {
@@ -260,8 +256,10 @@ public class ShiftHandler {
             throw new IllegalArgumentException("Shift is empty.");
         if (curId == newId)
             throw new IllegalArgumentException("You entered the same ID twice.");
+
         employeeHandler.validateEmployeeBasic(curId, shift.getDate());
         employeeHandler.validateEmployeeBasic(newId, shift.getDate());
+
         if (!employeeHandler.getEmployee(curId).belongsToBranch(shift.getBranch())
                 || !employeeHandler.getEmployee(newId).belongsToBranch(shift.getBranch()))
             throw new IllegalArgumentException("Employee doesn't belong to this branch.");
@@ -288,7 +286,7 @@ public class ShiftHandler {
             throw new IllegalArgumentException("Employee " + newEmployeeId + " already assigned to this role.");
 
         if (!roleNew.isQualified(currentEmployeeId))
-            throw new IllegalArgumentException("Employee " + currentEmployeeId + "  not qualified for this role.");
+            throw new IllegalArgumentException("Employee " + currentEmployeeId + " not qualified for this role.");
 
         removeEmployee(shift, currentEmployeeId);
         removeEmployee(shift, newEmployeeId);
@@ -418,7 +416,6 @@ public class ShiftHandler {
         // randomly removing redundant employees
         if (assigned > required) {
             int toRemove = assigned - required;
-
             List<Integer> idsToRemove = new ArrayList<>(employees).subList(0, toRemove);
 
             for (Integer id : idsToRemove) {
@@ -436,7 +433,6 @@ public class ShiftHandler {
 
         if (assigned > required) {
             int toRemove = assigned - required;
-
             List<Integer> idsToRemove = new ArrayList<>(employees).subList(0, toRemove);
 
             for (Integer id : idsToRemove) {
@@ -464,14 +460,13 @@ public class ShiftHandler {
      */
     private List<Shift> getNextWeekShifts(Branch branch) {
         /*if (!getNextWeek().isViewableByUser()) {
-            throw new IllegalStateException("The schedule for the next week is not yet published.");
+        throw new IllegalStateException("The schedule for the next week is not yet published.");
         }*/
 
         List<Shift> result = new ArrayList<>();
-
         LocalDate startDay = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
-        for (int i = 0; i < 7; i++) {   // Iterate for 7 days starting from that Sunday
+        for (int i = 0; i < 7; i++) { // Iterate for 7 days starting from that Sunday
             LocalDate date = startDay.plusDays(i);
 
             for (ShiftType type : new ShiftType[]{MORNING, ShiftType.EVENING}) {
@@ -588,7 +583,7 @@ public class ShiftHandler {
         // 1. Check for hard-stoppers (INCOMPLETE)
         List<String> incompleteShifts = weekShifts.stream()
                 .filter(s -> getShiftStatus(s).equals("INCOMPLETE"))
-                .map(s -> s.toStringByWeekDay())
+                .map(Shift::toStringByWeekDay)
                 .collect(Collectors.toList());
 
         if (!incompleteShifts.isEmpty()) {
@@ -630,7 +625,7 @@ public class ShiftHandler {
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = startDay.plusDays(i);
-            for (ShiftType type : ShiftType.values()) {;
+            for (ShiftType type : ShiftType.values()) {
                 Shift shift = getShift(branch, date, type);
                 if (shift != null) {
                     result.add(shift);
@@ -652,7 +647,7 @@ public class ShiftHandler {
         });
 
         if (sj.length() == 0) return "";
-        return isInline ? " [Extra: " + sj + "]" : "  Extra Hours : " + sj + "\n";
+        return isInline ? " [Extra: " + sj + "]" : " Extra Hours : " + sj + "\n";
     }
 
     // Helper 2: The UI for Role Staffing (e.g., Driver: 1/2 assigned)
@@ -670,7 +665,7 @@ public class ShiftHandler {
                 pending.forEach(id -> sj.add(id + "*"));
 
                 int totalAssigned = approved.size() + pending.size();
-                sb.append(String.format("  %-12s: %d/%d assigned | Employees: [%s]\n",
+                sb.append(String.format(" %-12s: %d/%d assigned | Employees: [%s]\n",
                         role, totalAssigned, req, sj));
             }
         }
@@ -688,6 +683,7 @@ public class ShiftHandler {
     private String buildGrid(List<String> lines) {
         StringBuilder sb = new StringBuilder();
         int padding = lines.stream().mapToInt(String::length).max().orElse(25) + 4;
+
         for (int row = 0; row < 5; row++) {
             sb.append(String.format("%-" + padding + "s", lines.get(row)));
             if (row + 5 < lines.size()) sb.append(String.format("%-" + padding + "s", lines.get(row + 5)));
@@ -741,7 +737,7 @@ public class ShiftHandler {
                     String status = available ? "[READY]" : "[REJECTED]";
                     String managerTag = emp.isManager() ? " (Manager)" : "";
 
-                    section.append(String.format("  %s %-15s (ID: %d)%s\n",
+                    section.append(String.format(" %s %-15s (ID: %d)%s\n",
                             status, emp.getName(), id, managerTag));
                     foundInRole = true;
                 }

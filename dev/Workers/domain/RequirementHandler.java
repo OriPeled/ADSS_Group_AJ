@@ -59,19 +59,6 @@ public class RequirementHandler {
             throw new IllegalArgumentException("No such role initialized for this shift.");
         }
 
-        if (role instanceof DriverRole) {
-            throw new IllegalArgumentException("Driver requirements are set only once during init process.");
-        }
-
-        String branchName = shift.getBranch().getName();
-
-        if (req.getRole().getName().equalsIgnoreCase("Storekeeper")) {
-            if (count < TransportService.getStorekeeperRequirements(branchName, shift.getDate(),
-                    shift.getStartTime(), shift.getEndTime())) {
-                throw new IllegalArgumentException("Can't be set less than required by transport manager.");
-            }
-        }
-
         req.setAmount(count);
     }
 
@@ -105,38 +92,6 @@ public class RequirementHandler {
 
     public Map<Shift, List<Requirement>> getAll() {
         return new HashMap<>(shiftsReqs);
-    }
-
-    public void applyDriverReqsToShift(Shift shift, Map<LicenseType, Integer> driverReqs) {
-        if (driverReqs == null || driverReqs.isEmpty()) {
-            return;
-        }
-
-        for (Map.Entry<LicenseType, Integer> entry : driverReqs.entrySet()) {
-            LicenseType licenseType = entry.getKey();
-            Integer count = entry.getValue();
-
-            Role driverRole = roleRegistry.getRoleByName("Driver (" + licenseType.name() + ")");
-
-            if (driverRole != null) {
-                manualSet(shift, driverRole, count);
-            }
-        }
-    }
-
-    public void applyStorekeeperReqToShift(Shift shift, int amount) {
-        Role storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
-
-        if (storekeeperRole != null) {
-            manualSet(shift, storekeeperRole, amount);
-        }
-    }
-
-    public void initWeeklyReqs(String rolename, Branch branch, int amount) {
-        Role cashierRole = roleRegistry.getRoleByName(rolename);
-        for (Shift shift : getShiftsForWeek(branch)) {
-            set(shift, cashierRole, amount);
-        }
     }
 
     public List<Shift> getShiftsForWeek(Branch branch) {
