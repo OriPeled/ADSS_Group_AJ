@@ -5,12 +5,54 @@ import dev.Workers.presentation.adminMode;
 import dev.Workers.presentation.UserMode;
 import java.util.Scanner;
 
+import dev.Workers.database.DatabaseInitializer;
+import dev.Workers.database.dao.*;
+import dev.Workers.domain.*;
+import dev.Workers.domain.Objects.*;
+import java.util.Map;
+
 public class Main {
     public static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        //DatabaseInitializer.initializeDatabase();
+        DatabaseInitializer.initializeDatabase();
+        loadAllFromDatabase();
         displayMenu();
+    }
+
+    private static void loadAllFromDatabase() {
+        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
+        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
+        AccessHandler accessHandler = AccessHandler.getInstance();
+        ShiftHandler shiftHandler = ShiftHandler.getInstance();
+
+        EmployeeDaoSQL employeeDao = EmployeeDaoSQL.getInstance();
+        PreferenceDaoSQL preferenceDao = PreferenceDaoSQL.getInstance();
+        AccessDaoSQL accessDao = AccessDaoSQL.getInstance();
+        WeekScheduleDaoSQL weekScheduleDao = WeekScheduleDaoSQL.getInstance();
+
+        // 1. Employees (must come first — everything references them)
+        for (Employee e : employeeDao.getAll()) {
+            employeeHandler.getEmployees().put(e.getId(), e);
+        }
+
+        // 2. Preferences
+        for (Map.Entry<Integer, Preference> entry : preferenceDao.getAll().entrySet()) {
+            preferenceHandler.getAllPreferences().put(entry.getKey(), entry.getValue());
+        }
+
+        // 3. Access credentials
+        for (Map.Entry<Integer, Access> entry : accessDao.getAll().entrySet()) {
+            accessHandler.restore(entry.getKey(), entry.getValue());
+        }
+
+        // 4. Shifts + requirements + assignments + extra hours
+        shiftHandler.loadAll();
+
+        // 5. Week schedules (publication flags)
+        for (WeekSchedule week : weekScheduleDao.getAll()) {
+            ShiftHandler.getOrCreateWeek(week.getStartOfWeek()).setPublished(week.isPublished());
+        }
     }
 
     public static void displayMenu() {

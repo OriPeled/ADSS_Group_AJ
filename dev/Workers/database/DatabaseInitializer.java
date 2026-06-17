@@ -3,6 +3,9 @@ package dev.Workers.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
+import dev.Workers.domain.BranchRegistry;
+import dev.Workers.domain.Objects.Branch;
 
 /**
  * Creates the relational schema used to persist the Workers (Employees) module.
@@ -28,6 +31,8 @@ public class DatabaseInitializer {
             createEmployeeTables(statement);
             createShiftTables(statement);
 
+            seedBranches(connection);
+
             System.out.println("Database tables initialized successfully.");
 
         } catch (SQLException e) {
@@ -41,6 +46,16 @@ public class DatabaseInitializer {
                     branch_name TEXT PRIMARY KEY
                 );
                 """);
+    }
+
+    private static void seedBranches(Connection connection) throws SQLException {
+        String sql = "INSERT OR IGNORE INTO branches (branch_name) VALUES (?);";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (Branch branch : BranchRegistry.getInstance().getAllBranches()) {
+                ps.setString(1, branch.getName());
+                ps.executeUpdate();
+            }
+        }
     }
 
     private static void createEmployeeTables(Statement statement) throws SQLException {

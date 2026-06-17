@@ -60,6 +60,10 @@ public class AccessHandler {
         accessDao.save(id, accessMap.get(id));
     }
 
+    public void restore(int id, Access access) {
+        accessMap.put(id, access);
+    }
+
     // notRegistered to inform the user and make the call for the registration process
     public UserResponse login(int id, String password) {
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
