@@ -81,8 +81,11 @@ public class Main {
                     adminMode.login();
                     break;
                 case 3:
-                    //SeedData.loadDemoData();
-                    DataInitializer.initSystem();
+                    if (!EmployeeHandler.getInstance().getEmployees().isEmpty()) {
+                        System.out.println("Demo data is already loaded in the database. ");
+                    } else {
+                        DataInitializer.initSystem();
+                    }
                     break;
                 case 0:
                     System.out.println("Have a good day.");
