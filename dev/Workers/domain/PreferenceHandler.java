@@ -96,6 +96,13 @@ public class PreferenceHandler {
         preferenceDao.save(id, employeePreferences);
     }
 
+    // for testing
+    public void manualUpdate(int id, DayOfWeek day, ShiftType shiftType, LocalDate currentDate) {
+        Preference employeePreferences = getPreferences(id);
+        employeePreferences.getWeekPreferences().put(day, shiftType);
+        preferenceDao.save(id, employeePreferences);
+    }
+
     public boolean isEmployeeAvailable(int id, DayOfWeek day, ShiftType shiftType) {
         return (preferences.get(id).getShiftType(day) == shiftType
                 || preferences.get(id).getShiftType(day) == ANY)

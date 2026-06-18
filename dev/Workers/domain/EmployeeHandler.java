@@ -88,6 +88,20 @@ public class EmployeeHandler {
         }
     }
 
+    public UserResponse fireRehire(int id, LocalDate date) {
+        Employee emp = getEmployee(id);
+
+        if (emp.isTerminated()) {
+            emp.activateEmployee();
+            employeeDao.update(emp);
+            return rehired;
+        } else {
+            emp.terminateEmployee(date);
+            employeeDao.update(emp);
+            return fired;
+        }
+    }
+
     // fires an employee, leaves him in the system
     public void fire(int id) {
         Employee emp = getEmployee(id);
@@ -126,6 +140,7 @@ public class EmployeeHandler {
         Employee employee = getEmployee(id);
 
         employee.setManager(!employee.isManager());
+        employeeDao.update(employee);
 
         return employee.isManager() ? promoted : demoted;
     }
