@@ -241,9 +241,9 @@ Choose Mode:
 | Saturday Morning | 3 Cashiers + 3 Storekeepers + Driver D |
 | Saturday Evening | 3 Cashiers + 3 Storekeepers + Driver A |
 
-### EMPLOYEE CONSTRAINTS
+### EMPLOYEE PREFERENCES
 
-| Employee ID | Constraint |
+| Employee ID | Preference |
 |---|---|
 | 222 | Wednesday REST |
 | 222 | Friday REST |
