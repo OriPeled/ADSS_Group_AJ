@@ -83,12 +83,12 @@ public class Main {
                     adminMode.login();
                     break;
                 case 3:
-                    /*if (!EmployeeHandler.getInstance().getEmployees().isEmpty()) {
+                    if (!EmployeeHandler.getInstance().getEmployees().isEmpty()) {
                         System.out.println("Demo data is already loaded in the database. ");
                     } else {
                         DataInitializer.initSystem();
-                    }*/
-                    DataInitializer.initSystem();
+                    }
+                    //DataInitializer.initSystem();
                     break;
                 case 4:
                     System.out.println("Erasing database...");
