@@ -50,19 +50,20 @@ public class DataInitializer {
 // Shift Managers
             createEmployee(employeeService, preferenceService,
                     "Shira Steinbuch", 111, beerSheva, cashier);
-            employeeService.getEmployee(111).setManager(true);
+            //employeeService.getEmployee(111).setManager(true);
+            employeeService.promoteDemote(111);
 
             createEmployee(employeeService, preferenceService,
                     "Daniel Cohen", 112, beerSheva, cashier);
-            employeeService.getEmployee(112).setManager(true);
+            employeeService.promoteDemote(112);
 
             createEmployee(employeeService, preferenceService,
                     "Noa Levi", 113, beerSheva, cashier);
-            employeeService.getEmployee(113).setManager(true);
+            employeeService.promoteDemote(113);
 
             createEmployee(employeeService, preferenceService,
                     "Ronaldo", 7, beerSheva, cashier);
-            employeeService.getEmployee(7).setManager(true);
+            employeeService.promoteDemote(7);
 
 // Cashiers
             createEmployee(employeeService, preferenceService,
@@ -128,7 +129,7 @@ public class DataInitializer {
                     "Johnny Bravo", 77, beerSheva, storekeeper);
             accessService.Register(77, "7777");
             //employeeService.fire(77);
-            employeeService.getEmployee(77).terminateEmployee(LocalDate.now().minusDays(8));
+            employeeService.fireRehire(77, LocalDate.now().minusDays(8));
 
             // ============================
             // WEEK OF 19-25/04/2026 SHIFTS
@@ -210,12 +211,12 @@ public class DataInitializer {
             // =========================
 // CONSTRAINTS
 // =========================
-            preferenceService.update(222, DayOfWeek.WEDNESDAY, ShiftType.REST);
-            preferenceService.update(222, DayOfWeek.FRIDAY, ShiftType.REST);
+            preferenceService.manualUpdate(222, DayOfWeek.WEDNESDAY, ShiftType.REST);
+            preferenceService.manualUpdate(222, DayOfWeek.FRIDAY, ShiftType.REST);
 
-            preferenceService.update(101, DayOfWeek.SUNDAY, ShiftType.REST);
-            preferenceService.update(77, DayOfWeek.SUNDAY, ShiftType.REST);
-            preferenceService.update(7, DayOfWeek.SATURDAY, ShiftType.EVENING);
+            preferenceService.manualUpdate(101, DayOfWeek.SUNDAY, ShiftType.REST);
+            preferenceService.manualUpdate(77, DayOfWeek.SUNDAY, ShiftType.REST);
+            preferenceService.manualUpdate(7, DayOfWeek.SATURDAY, ShiftType.EVENING);
 
             LocalDate sunday3 = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
@@ -315,6 +316,6 @@ public class DataInitializer {
         employeeService.addRole(id, role);
         preferenceService.initPreferences(id);
 
-        preferenceService.setDeadline(DayOfWeek.THURSDAY);
+        //preferenceService.setDeadline(DayOfWeek.THURSDAY);
     }
 }
