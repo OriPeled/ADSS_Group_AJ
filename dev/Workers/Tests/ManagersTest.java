@@ -384,4 +384,35 @@ public class ManagersTest {
         assertThrows(IllegalStateException.class,
                 () -> shiftHandler.publishWeekSchedule(employeeHandler.getEmployee(1).getBranch(), LocalDate.now()));
     }
+    /**
+     * Verifies that a shift without a manager
+     * cannot be considered complete.
+     */
+    @Test
+    void shiftWithoutManagerShouldFail() {
+
+        addEmployee(1);
+
+        employeeHandler.addRole(1, cashier);
+
+        initConstraints(1);
+
+        LocalDate date = LocalDate.now().plusDays(1);
+
+        shiftHandler.addShift(
+                employeeHandler.getEmployee(1).getBranch(),
+                date,
+                ShiftType.MORNING);
+
+        Shift shift = shiftHandler.getShift(
+                employeeHandler.getEmployee(1).getBranch(),
+                date,
+                ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashier, 1);
+
+        shiftHandler.assignEmployee(shift, cashier, 1);
+
+        assertFalse(shift.hasManager());
+    }
 }
