@@ -17,11 +17,6 @@ public class BranchRegistry {
 
     private BranchRegistry() {
         this.allBranches = new ArrayList<>();
-
-        allBranches.add(new Branch("Beer-Sheva"));
-        allBranches.add(new Branch("Dimona"));
-        allBranches.add(new Branch("Ofakim"));
-        allBranches.add(new Branch("Rahat"));
     }
 
     public static BranchRegistry getInstance() {
@@ -29,6 +24,13 @@ public class BranchRegistry {
             instance = new BranchRegistry();
         }
         return instance;
+    }
+
+    public void registerBranch(Branch branch) {
+        // prevent duplicate DB entries
+        if (allBranches.stream().noneMatch(b -> b.getName().equalsIgnoreCase(branch.getName()))) {
+            allBranches.add(branch);
+        }
     }
 
     public List<Branch> getAllBranches() {

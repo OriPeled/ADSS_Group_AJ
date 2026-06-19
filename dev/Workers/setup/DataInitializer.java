@@ -31,8 +31,25 @@ public class DataInitializer {
         dev.Workers.service.ShiftService shiftService = dev.Workers.service.ShiftService.getInstance();
         RequirementService requirementService = RequirementService.getInstance();
         PreferenceService preferenceService = PreferenceService.getInstance();
-
         BranchRegistry branchRegistry = BranchRegistry.getInstance();
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+
+            try (java.sql.ResultSet rs = statement.executeQuery("SELECT branch_name FROM branches;")) {
+                while (rs.next()) {
+                    String branchName = rs.getString("branch_name");
+                    branchRegistry.registerBranch(new Branch(branchName));
+                }
+            }
+
+        } catch (java.sql.SQLException e) {
+            System.err.println("Failed to setup demo branches: " + e.getMessage());
+            return;
+        }
+
         Branch beerSheva = branchRegistry.getBranchByName("Beer-Sheva");
 
         RoleRegistry roleRegistry = RoleRegistry.getInstance();
