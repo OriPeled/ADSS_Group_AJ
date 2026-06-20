@@ -30,7 +30,7 @@ public class DatabaseInitializer {
             createEmployeeTables(statement);
             createShiftTables(statement);
 
-            seedBranches(connection);
+            loadBranchesIntoRegistry(connection);
 
             System.out.println("Database tables initialized successfully.");
 
@@ -47,12 +47,16 @@ public class DatabaseInitializer {
                 """);
     }
 
-    private static void seedBranches(Connection connection) throws SQLException {
-        String sql = "INSERT OR IGNORE INTO branches (branch_name) VALUES (?);";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            for (Branch branch : BranchRegistry.getInstance().getAllBranches()) {
-                ps.setString(1, branch.getName());
-                ps.executeUpdate();
+    private static void loadBranchesIntoRegistry(Connection connection) throws SQLException {
+        BranchRegistry registry = BranchRegistry.getInstance();
+        String sql = "SELECT branch_name FROM branches;";
+
+        try (Statement statement = connection.createStatement();
+             var resultSet = statement.executeQuery(sql)) {
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("branch_name");
+                registry.registerBranch(new Branch(name));
             }
         }
     }

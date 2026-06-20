@@ -237,4 +237,9 @@ public class EmployeeService {
     public UserResponse fireRehire(int empId) {
         return employeeHandler.fireRehire(empId);
     }
+
+    // for tests
+    public UserResponse fireRehire(int empId, LocalDate date) {
+        return employeeHandler.fireRehire(empId, date);
+    }
 }

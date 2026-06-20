@@ -102,33 +102,6 @@ public class ManageEmployeesMenu  {
         }
     }
 
-    private static void updateBranch(int empId) {
-        List<Branch> branches = branchRegistry.getAllBranches();
-        while (true) {
-            System.out.println("Choose branch:");
-            for (int i = 0; i < branches.size(); i++) {
-                System.out.println((i + 1) + ". " + branches.get(i).getName());
-            }
-
-            int choice = CLIHelper.readIntSafe();
-
-
-            if (choice < 1 || choice > branches.size()) {
-                System.out.println("Invalid branch choice. Please try again.");
-                continue;
-            }
-
-            try {
-                Branch branch = branches.get(choice - 1);
-                employeeService.updateBranch(empId, branch);
-                System.out.println("Employee branch updated successfully.");
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
     private static void updateName(int empId) {
         while (true) {
             System.out.println("Please enter a new employee name (or 0 to cancel):");
@@ -287,6 +260,34 @@ public class ManageEmployeesMenu  {
             employeeService.updateDayOff(empId, dayOff);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private static void updateBranch(int empId) {
+        List<Branch> branches = branchRegistry.getAllBranches();
+        while (true) {
+            System.out.println("Choose branch (or 0 to cancel)");
+            for (int i = 0; i < branches.size(); i++) {
+                System.out.println((i + 1) + ". " + branches.get(i).getName());
+            }
+
+            int choice = CLIHelper.readIntSafe();
+
+            if (choice == 0) return;
+
+            if (choice < 0 || choice > branches.size()) {
+                System.out.println("Invalid branch choice. Please try again.");
+                continue;
+            }
+
+            try {
+                Branch branch = branches.get(choice - 1);
+                employeeService.updateBranch(empId, branch);
+                System.out.println("Employee branch updated successfully.");
+                return;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 

@@ -37,6 +37,11 @@ public class PreferenceService {
         preferenceHandler.update(id, day, shiftType);
     }
 
+    // for testing
+    public void manualUpdate(int id, DayOfWeek day, ShiftType shiftType) {
+        preferenceHandler.manualUpdate(id, day, shiftType, LocalDate.now());
+    }
+
     public boolean isOnTime() {
         return preferenceHandler.isOnTime(LocalDate.now());
     }

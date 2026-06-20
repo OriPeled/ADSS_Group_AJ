@@ -157,27 +157,27 @@ Choose Mode:
 
 ### EMPLOYEES
 
-| ID | Name | Branch | Roles | Manager | Password | Special Preference | Status |
-|---|---|---|---|---|---|---|---|
-| 111 | Shira Steinbuch | Beer-Sheva | Cashier | ✓ | - | - | Active |
-| 112 | Daniel Cohen | Beer-Sheva | Cashier | ✓ | - | - | Active |
-| 113 | Noa Levi | Beer-Sheva | Cashier | ✓ | - | - | Active |
-| 7 | Ronaldo | Beer-Sheva | Cashier | ✓ | - | Saturday Evening REST | Active |
-| 222 | Kokhava Shavit | Beer-Sheva | Cashier | ✗ | 2222 | Wednesday, Friday REST | Active |
-| 223 | Lior Mizrahi | Beer-Sheva | Cashier | ✗ | - | - | Active |
-| 224 | Dana Azulay | Beer-Sheva | Cashier | ✗ | - | - | Active |
-| 333 | Nissim | Beer-Sheva | Storekeeper | ✗ | - | - | Active |
-| 444 | Ramzi | Beer-Sheva | Storekeeper | ✗ | - | - | Active |
-| 445 | Eyal Peretz | Beer-Sheva | Storekeeper | ✗ | - | - | Active |
-| 101 | Avicay | Beer-Sheva | Cashier, Storekeeper | ✗ | - | Sunday REST | Active |
-| 501 | Dominic Torretto | Beer-Sheva | Driver A,B,C,D | ✗ | - | - | Active |
-| 502 | Brian O'Conner | Beer-Sheva | Driver A,B,C | ✗ | - | - | Active |
-| 503 | Letty Ortiz | Beer-Sheva | Driver A,B | ✗ | - | - | Active |
-| 504 | Frank Martin | Beer-Sheva | Driver A,B,C | ✗ | - | - | Active |
-| 505 | Max Rockatansky | Beer-Sheva | Driver A,C,D | ✗ | - | - | Active |
-| 506 | Baby | Beer-Sheva | Driver A,B | ✗ | - | - | Active |
-| 507 | Jason Bourne | Beer-Sheva | Driver A | ✗ | - | - | Active |
-| 77 | Johnny Bravo | Beer-Sheva | Storekeeper | ✗ | 7777 | Sunday REST | Inactive |
+|   ID | Name             | Branch     | Roles                | Manager   | Password   | Status   |
+|-----:|:-----------------|:-----------|:---------------------|:----------|:-----------|:---------|
+|  111 | Shira Steinbuch  | Beer-Sheva | Cashier              | ✓         | -          | Active   |
+|  112 | Daniel Cohen     | Beer-Sheva | Cashier              | ✓         | -          | Active   |
+|  113 | Noa Levi         | Beer-Sheva | Cashier              | ✓         | -          | Active   |
+|    7 | Ronaldo          | Beer-Sheva | Cashier              | ✓         | -          | Active   |
+|  222 | Kokhava Shavit   | Beer-Sheva | Cashier              | ✗         | 2222       | Active   |
+|  223 | Lior Mizrahi     | Beer-Sheva | Cashier              | ✗         | -          | Active   |
+|  224 | Dana Azulay      | Beer-Sheva | Cashier              | ✗         | -          | Active   |
+|  333 | Nissim           | Beer-Sheva | Storekeeper          | ✗         | -          | Active   |
+|  444 | Ramzi            | Beer-Sheva | Storekeeper          | ✗         | -          | Active   |
+|  445 | Eyal Peretz      | Beer-Sheva | Storekeeper          | ✗         | -          | Active   |
+|  101 | Avicay           | Beer-Sheva | Cashier, Storekeeper | ✗         | -          | Active   |
+|  501 | Dominic Torretto | Beer-Sheva | Driver A,B,C,D       | ✗         | -          | Active   |
+|  502 | Brian O'Conner   | Beer-Sheva | Driver A,B,C         | ✗         | -          | Active   |
+|  503 | Letty Ortiz      | Beer-Sheva | Driver A,B           | ✗         | -          | Active   |
+|  504 | Frank Martin     | Beer-Sheva | Driver A,B,C         | ✗         | -          | Active   |
+|  505 | Max Rockatansky  | Beer-Sheva | Driver A,C,D         | ✗         | -          | Active   |
+|  506 | Baby             | Beer-Sheva | Driver A,B           | ✗         | -          | Active   |
+|  507 | Jason Bourne     | Beer-Sheva | Driver A             | ✗         | -          | Active   |
+|   77 | Johnny Bravo     | Beer-Sheva | Storekeeper          | ✗         | 7777       | Inactive |
 
 ### BRANCHES
 
@@ -241,9 +241,9 @@ Choose Mode:
 | Saturday Morning | 3 Cashiers + 3 Storekeepers + Driver D |
 | Saturday Evening | 3 Cashiers + 3 Storekeepers + Driver A |
 
-### EMPLOYEE CONSTRAINTS
+### EMPLOYEE PREFERENCES
 
-| Employee ID | Constraint |
+| Employee ID | Preference |
 |---|---|
 | 222 | Wednesday REST |
 | 222 | Friday REST |
@@ -266,10 +266,12 @@ Choose Mode:
 ### פרטי ברירת מחדל לכל עובד
 
 - כל עובד שלא הוגדרה לו סיסמה בוחר אותה בכניסה הראשונה.
+- סניף: באר-שבע.
 - היקף משרה: מלאה.
 - סוג שכר: גלובלי.
 - ימי חופשה: 5.
 - שכר: 9000.
+- יום חופשה שבועי: שבת.
 - חשבון בנק: `id × 100`.
 - תאריך התחלה: שנה אחורה.
 - עובד 77 חסום מלגשת למערכת.
