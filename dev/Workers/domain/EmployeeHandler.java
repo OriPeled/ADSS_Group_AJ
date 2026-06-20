@@ -229,4 +229,5 @@ public class EmployeeHandler {
 
         return sb.length() > 0 ? sb.toString().trim() : "No available roles to add.";
     }
+
 }

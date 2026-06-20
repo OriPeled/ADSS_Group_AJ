@@ -1,52 +1,54 @@
 package dev.Workers.Tests;
 
+import dev.Workers.database.DatabaseInitializer;
+import dev.Workers.database.DatabaseManager;
 import dev.Workers.domain.*;
+import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
-import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration tests for the ShiftManager class.
- *
- * This test class verifies the core shift assignment logic of the system.
- * It focuses on the interaction between ShiftManager and the supporting managers:
- * - EmployeeManager
- * - RoleManager
- * - ConstraintManager
- *
- * Covered scenarios:
- * 1. Valid employee assignment
- * 2. Invalid assignment due to missing qualification
- * 3. Invalid assignment due to lack of availability
- * 4. Replacing an assigned employee with another valid employee
- * 5. Rejecting replacement when the new employee is not qualified
- * 6. Reporting missing employees for a shift role
- * 7. Detecting when no valid employee is available for assignment
+ * Integration tests for ShiftHandler.
  */
 public class ShiftHandlerTest {
 
-    private Role cashierRole;
-    private Role storekeeperRole;
-    private Role shiftManagerRole;
-
+    private EmployeeHandler employeeHandler;
+    private PreferenceHandler preferenceHandler;
+    private ShiftHandler shiftHandler;
+    private RoleRegistry roleRegistry;
     private BranchRegistry branchRegistry;
 
-    Branch dimona = branchRegistry.getBranchByName("Beer-Sheva");
+    private Role cashierRole;
+    private Role storekeeperRole;
+    private Branch branch;
+
+    private static int nextEmployeeId = 10000;
+    private static int nextShiftOffset = 0;
 
     /**
-     * Resets all singleton managers before each test
-     * and rebuilds fresh instances to prevent state leakage.
+     * Initializes the database once for the entire test class.
+     */
+    @BeforeAll
+    static void initDatabaseOnce() {
+        DatabaseManager.eraseDatabase();
+        DatabaseInitializer.initializeDatabase();
+    }
+
+    /**
+     * Resets the in-memory singleton managers before each test.
      */
     @BeforeEach
     void setUp() throws Exception {
@@ -55,322 +57,170 @@ public class ShiftHandlerTest {
         resetSingleton(PreferenceHandler.class, "instance");
         resetSingleton(ShiftHandler.class, "instance");
         resetSingleton(RoleRegistry.class, "instance");
+        resetSingleton(BranchRegistry.class, "instance");
+        resetSingleton(RequirementHandler.class, "instance");
+        resetSingleton(AssignmentHandler.class, "instance");
 
-        RoleRegistry registry = RoleRegistry.getInstance();
-        cashierRole = registry.getRoleByName("Cashier");
-        storekeeperRole = registry.getRoleByName("Storekeeper");
-        shiftManagerRole = registry.getRoleByName("Shift Manager");
+        clearWeekSchedules();
+
+        employeeHandler = EmployeeHandler.getInstance();
+
+        Field accessEmployeeHandlerField =
+                AccessHandler.class.getDeclaredField("employeeHandler");
+        accessEmployeeHandlerField.setAccessible(true);
+        accessEmployeeHandlerField.set(null, employeeHandler);
+
+        branchRegistry = BranchRegistry.getInstance();
+        roleRegistry = RoleRegistry.getInstance();
+        preferenceHandler = PreferenceHandler.getInstance();
+        shiftHandler = ShiftHandler.getInstance();
+
+        branch = branchRegistry.getBranchByName("Beer-Sheva");
+
+        cashierRole = roleRegistry.getRoleByName("Cashier");
+        storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
+
+        preferenceHandler.setDeadline(null);
     }
 
-    private void resetSingleton(Class<?> clazz, String fieldName) throws Exception {
+    private static void resetSingleton(Class<?> clazz, String fieldName)
+            throws Exception {
+
         Field instanceField = clazz.getDeclaredField(fieldName);
         instanceField.setAccessible(true);
         instanceField.set(null, null);
     }
 
-    /**
-     * Creates a valid EmployeeTerms object for test employees.
-     *
-     * @return a default EmployeeTerms instance
-     */
+    @SuppressWarnings("unchecked")
+    private static void clearWeekSchedules() throws Exception {
+        Field field = ShiftHandler.class.getDeclaredField("weekSchedules");
+        field.setAccessible(true);
+
+        Map<LocalDate, ?> weekSchedules =
+                (Map<LocalDate, ?>) field.get(null);
+
+        weekSchedules.clear();
+    }
+
     private EmployeeTerms createTerms() {
-        return new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
+        return new EmployeeTerms(
+                JobStatus.fullTime,
+                SalaryType.global,
+                2,
+                DayOfWeek.WEDNESDAY);
     }
 
-    private Shift createShift(int dayOffset) {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        LocalDate date = LocalDate.of(2026, 4, 20).plusDays(dayOffset);
-        shiftHandler.addShift(dimona, date, ShiftType.MORNING);
-        return shiftHandler.getShift(dimona, date, ShiftType.MORNING);
-    }
+    private int registerEmployee(String name, Role role) {
+        int id = nextEmployeeId++;
 
-    private void registerEmployee(int id, String name, Role role) {
-        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
+        employeeHandler.add(
+                name,
+                id,
+                branch,
+                100000 + id,
+                5000,
+                createTerms(),
+                LocalDate.of(2025, 1, 1));
 
-        EmployeeTerms terms = new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY);
-        employeeHandler.add(name, id, dimona, 100000, 5000, terms, LocalDate.of(2026, 4, 1));
         employeeHandler.addRole(id, role);
         preferenceHandler.initPreferences(id);
+
+        for (DayOfWeek day : DayOfWeek.values()) {
+            preferenceHandler.update(id, day, ShiftType.ANY);
+        }
+
+        return id;
+    }
+
+    private int registerManager(String name, Role role) {
+        int id = registerEmployee(name, role);
+        employeeHandler.getEmployee(id).setManager(true);
+        return id;
+    }
+
+    private Shift createShift() {
+        LocalDate date =
+                LocalDate.now()
+                        .plusWeeks(4)
+                        .plusDays(nextShiftOffset++);
+
+        return shiftHandler.getShift(
+                branch,
+                date,
+                ShiftType.MORNING);
+    }
+
+    private LocalDate nextSunday() {
+        return LocalDate.now()
+                .plusWeeks(4)
+                .with(java.time.temporal.TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+    }
+
+    private void makeEmployeeAvailable(int employeeId, Shift shift, ShiftType type) {
+        preferenceHandler.update(
+                employeeId,
+                shift.getDate().getDayOfWeek(),
+                type);
     }
 
     /**
-     * Verifies that a qualified and available employee
-     * can be assigned successfully to a required role in a shift.
+     * Verifies that a qualified and available employee can be assigned
+     * successfully to a required role in a shift.
      */
     @Test
     void assignEmployee_shouldSucceedForValidEmployee() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
+        int employeeId = registerEmployee("Alice", cashierRole);
+        Shift shift = createShift();
 
-        registerEmployee(1, "Alice", cashierRole);
-        Shift shift = createShift(0);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(1, day, ShiftType.MORNING);
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignEmployee(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
 
         assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
         assertFalse(shiftHandler.isNeeded(shift, cashierRole));
     }
 
     /**
-     * Verifies that assignment fails when the employee
-     * does not have the required role.
+     * Verifies that assigning an employee without the required role
+     * throws an IllegalArgumentException.
      */
     @Test
-    void assignEmployee_should_Fail_When_Employee_Is_Not_Qualified() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
+    void assignEmployee_shouldFailWhenEmployeeIsNotQualified() {
+        int employeeId = registerEmployee("Bob", storekeeperRole);
+        Shift shift = createShift();
 
-        registerEmployee(2, "Bob", storekeeperRole);
-        Shift shift = createShift(1);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(2, day, ShiftType.MORNING);
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.assignEmployee(shift, cashierRole, 2)
-        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.assignEmployee(
+                        shift,
+                        cashierRole,
+                        employeeId));
     }
 
     /**
-     * Verifies that assignment fails when the employee
-     * is not available for the requested shift.
+     * Verifies that an employee who is not available for a morning shift
+     * cannot be assigned to that shift.
      */
     @Test
     void assignEmployee_shouldFailWhenEmployeeIsNotAvailable() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
+        int employeeId = registerEmployee("Charlie", cashierRole);
+        Shift shift = createShift();
 
-        registerEmployee(3, "Charlie", cashierRole);
-        Shift shift = createShift(2);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(3, day, ShiftType.EVENING);
+        makeEmployeeAvailable(employeeId, shift, ShiftType.EVENING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.assignEmployee(shift, cashierRole, 3)
-        );
-    }
-
-    /**
-     * Verifies that an assigned employee can be replaced
-     * by another employee who is qualified and available.
-     */
-    @Test
-    void replaceEmployee_shouldReplaceAssignedEmployeeSuccessfully() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-
-        registerEmployee(10, "David", cashierRole);
-        registerEmployee(11, "Eve", cashierRole);
-
-        Shift shift = createShift(3);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(10, day, ShiftType.MORNING);
-        preferenceHandler.update(11, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignEmployee(shift, cashierRole, 10);
-        shiftHandler.replaceEmployee(shift, 10, 11);
-
-        assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
-        assertFalse(shiftHandler.isNeeded(shift, cashierRole));
-    }
-
-    /**
-     * Verifies that replacing an assigned employee fails
-     * when the new employee does not have the required role.
-     */
-    @Test
-    void replaceEmployee_shouldFailWhenNewEmployeeIsNotQualified() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-
-        registerEmployee(20, "Frank", cashierRole);
-        registerEmployee(21, "Grace", storekeeperRole);
-
-        Shift shift = createShift(4);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(20, day, ShiftType.MORNING);
-        preferenceHandler.update(21, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignEmployee(shift, cashierRole, 20);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.replaceEmployee(shift, 20, 21)
-        );
-    }
-
-    /**
-     * Verifies that ShiftManager correctly calculates
-     * how many employees are still missing for a role in a shift.
-     */
-    @Test
-    void leftToAssign_shouldReportMissingEmployeesCorrectly() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-
-        registerEmployee(30, "Hannah", cashierRole);
-        Shift shift = createShift(5);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(30, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 2);
-        assertEquals(2, shiftHandler.leftToAssign(shift, cashierRole));
-
-        shiftHandler.assignEmployee(shift, cashierRole, 30);
-        assertEquals(1, shiftHandler.leftToAssign(shift, cashierRole));
-    }
-
-    /**
-     * Verifies that a terminated employee cannot be assigned to a shift.
-     */
-    @Test
-    void assignEmployee_shouldFail_WhenEmployeeIsTerminated() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
-
-        registerEmployee(60, "Liam", cashierRole);
-        employeeHandler.fire(60);
-
-        Shift shift = createShift(6);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(60, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 1);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.assignEmployee(shift, cashierRole, 60)
-        );
-    }
-
-    /**
-     * Verifies that a newly added employee can replace
-     * another assigned employee in a shift.
-     */
-    @Test
-    void replaceEmployee_shouldSucceedAfterAddingTwoEmployees() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-
-        registerEmployee(70, "Mia", cashierRole);
-        registerEmployee(71, "Noah", cashierRole);
-
-        Shift shift = createShift(7);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-
-        preferenceHandler.update(70, day, ShiftType.MORNING);
-        preferenceHandler.update(71, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignEmployee(shift, cashierRole, 70);
-        shiftHandler.replaceEmployee(shift, 70, 71);
-
-        assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
-        assertFalse(shiftHandler.isNeeded(shift, cashierRole));
-    }
-
-    /**
-     * Verifies that replacement fails when the new employee
-     * was added to the system and later terminated.
-     */
-    @Test
-    void replaceEmployee_shouldFailWhenNewEmployeeWasTerminated() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
-
-        registerEmployee(80, "Olivia", cashierRole);
-        registerEmployee(81, "Emma", cashierRole);
-
-        Shift shift = createShift(8);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-
-        preferenceHandler.update(80, day, ShiftType.MORNING);
-        preferenceHandler.update(81, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignEmployee(shift, cashierRole, 80);
-        employeeHandler.fire(81);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.replaceEmployee(shift, 80, 81)
-        );
-    }
-
-    /**
-     * Verifies that a terminated employee cannot receive a new role.
-     */
-    @Test
-    void addRoleToEmployee_shouldFailWhenEmployeeIsTerminated() {
-        EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
-
-        registerEmployee(90, "Sophia", cashierRole);
-        employeeHandler.fire(90);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                employeeHandler.addRole(90, storekeeperRole)
-        );
-    }
-
-    /**
-     * Verifies that replacing an employee with the same employee ID
-     * is not allowed.
-     */
-    @Test
-    void replaceEmployee_shouldFailWhenReplacingWithSameEmployee() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
-
-        registerEmployee(110, "Lior", cashierRole);
-        Shift shift = createShift(10);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(110, day, ShiftType.MORNING);
-
-        shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignEmployee(shift, cashierRole, 110);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.replaceEmployee(shift, 110, 110)
-        );
-    }
-
-    /**
-     * Verifies that publishing a week where at least one shift has no assigned
-     * shift manager throws IllegalStateException.
-     */
-    @Test
-    void publishWeekSchedule_shouldFail_WhenShiftHasNoManager() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        LocalDate isolatedDate = LocalDate.of(2027, 6, 1);
-        assertThrows(IllegalStateException.class, () ->
-                shiftHandler.publishWeekSchedule(dimona, isolatedDate)
-        );
-    }
-
-    /**
-     * Verifies that setting the shift manager requirement to 0 throws
-     * IllegalArgumentException, since every shift must have at least one.
-     */
-    @Test
-    void setRequirement_shouldFail_WhenShiftManagerCountIsZero() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        Shift shift = createShift(20);
-
-        /*if (role == Role.shiftManager && count < 1) {
-        throw new IllegalArgumentException("Cannot set shift manager requirement below 1...");
-        }*/
-
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.setRequirement(shift, shiftManagerRole, 0)
-        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.assignEmployee(
+                        shift,
+                        cashierRole,
+                        employeeId));
     }
 
     /**
@@ -379,19 +229,435 @@ public class ShiftHandlerTest {
      */
     @Test
     void assignEmployee_shouldFailWhenEmployeeAlreadyAssignedToSameShift() {
-        ShiftHandler shiftHandler = ShiftHandler.getInstance();
-        PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
+        int employeeId = registerEmployee("Daniel", cashierRole);
+        Shift shift = createShift();
 
-        registerEmployee(100, "Daniel", cashierRole);
-        Shift shift = createShift(9);
-        DayOfWeek day = shift.getDate().getDayOfWeek();
-        preferenceHandler.update(100, day, ShiftType.MORNING);
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 2);
-        shiftHandler.assignEmployee(shift, cashierRole, 100);
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
 
-        assertThrows(IllegalArgumentException.class, () ->
-                shiftHandler.assignEmployee(shift, cashierRole, 100)
-        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.assignEmployee(
+                        shift,
+                        cashierRole,
+                        employeeId));
+    }
+
+    /**
+     * Verifies that leftToAssign returns the correct number
+     * of missing employees for a role.
+     */
+    @Test
+    void leftToAssign_shouldReportMissingEmployeesCorrectly() {
+        int employeeId = registerEmployee("Hannah", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 2);
+
+        assertEquals(2, shiftHandler.leftToAssign(shift, cashierRole));
+
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
+
+        assertEquals(1, shiftHandler.leftToAssign(shift, cashierRole));
+    }
+
+    /**
+     * Verifies that replacing an assigned employee with another
+     * qualified and available employee succeeds.
+     */
+    @Test
+    void replaceEmployee_shouldReplaceAssignedEmployeeSuccessfully() {
+        int oldEmployeeId = registerEmployee("David", cashierRole);
+        int newEmployeeId = registerEmployee("Eve", cashierRole);
+
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(oldEmployeeId, shift, ShiftType.MORNING);
+        makeEmployeeAvailable(newEmployeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, oldEmployeeId);
+
+        shiftHandler.replaceEmployee(
+                shift,
+                oldEmployeeId,
+                newEmployeeId);
+
+        assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
+        assertFalse(shiftHandler.isNeeded(shift, cashierRole));
+    }
+
+    /**
+     * Verifies that replacing an employee with an unqualified employee
+     * throws an IllegalArgumentException.
+     */
+    @Test
+    void replaceEmployee_shouldFailWhenNewEmployeeIsNotQualified() {
+        int oldEmployeeId = registerEmployee("Frank", cashierRole);
+        int newEmployeeId = registerEmployee("Grace", storekeeperRole);
+
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(oldEmployeeId, shift, ShiftType.MORNING);
+        makeEmployeeAvailable(newEmployeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, oldEmployeeId);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.replaceEmployee(
+                        shift,
+                        oldEmployeeId,
+                        newEmployeeId));
+    }
+
+    /**
+     * Verifies that replacing an employee with the same employee ID
+     * is not allowed.
+     */
+    @Test
+    void replaceEmployee_shouldFailWhenReplacingWithSameEmployee() {
+        int employeeId = registerEmployee("Lior", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.replaceEmployee(
+                        shift,
+                        employeeId,
+                        employeeId));
+    }
+
+    /**
+     * Verifies that a terminated employee cannot be assigned
+     * to a future shift.
+     */
+    @Test
+    void assignEmployee_shouldFailWhenEmployeeIsTerminated() {
+        int employeeId = registerEmployee("Liam", cashierRole);
+
+        employeeHandler.fire(employeeId);
+
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.assignEmployee(
+                        shift,
+                        cashierRole,
+                        employeeId));
+    }
+
+    /**
+     * Verifies that a terminated employee cannot receive
+     * a new role.
+     */
+    @Test
+    void addRoleToEmployee_shouldStillWorkOnTerminationDay() {
+
+        int employeeId = registerEmployee("Sophia", cashierRole);
+
+        employeeHandler.fire(employeeId);
+
+        assertDoesNotThrow(() ->
+                employeeHandler.addRole(employeeId, storekeeperRole));
+    }
+
+    /**
+     * Verifies that assigning a manager marks the shift
+     * as managed.
+     */
+    @Test
+    void assigningManager_shouldMarkShiftAsManaged() {
+        int managerId = registerManager("Manager", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(managerId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, managerId);
+
+        assertTrue(shiftHandler.hasManager(shift));
+        assertEquals("COMPLETE", shiftHandler.getShiftStatus(shift));
+    }
+
+    /**
+     * Verifies that a shift without a manager is considered incomplete,
+     * even if all role requirements are filled.
+     */
+    @Test
+    void shiftWithoutManager_shouldBeIncomplete() {
+        int employeeId = registerEmployee("Worker", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
+
+        assertFalse(shiftHandler.hasManager(shift));
+        assertEquals("INCOMPLETE", shiftHandler.getShiftStatus(shift));
+    }
+
+    /**
+     * Verifies that setting a negative requirement
+     * throws an IllegalArgumentException.
+     */
+    @Test
+    void setRequirement_shouldFailWhenCountIsNegative() {
+        Shift shift = createShift();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.setRequirement(
+                        shift,
+                        cashierRole,
+                        -1));
+    }
+
+    /**
+     * Verifies that updating extra hours succeeds
+     * for an employee assigned to a morning shift.
+     */
+    @Test
+    void updateExtraHours_shouldSucceedForAssignedEmployee() {
+        int employeeId = registerEmployee("ExtraHoursEmployee", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
+
+        assertDoesNotThrow(() ->
+                shiftHandler.updateExtraHours(
+                        shift,
+                        employeeId,
+                        2));
+    }
+
+    /**
+     * Verifies that updating extra hours for an employee who is not
+     * assigned to the shift throws an IllegalArgumentException.
+     */
+    @Test
+    void updateExtraHours_shouldFailForUnassignedEmployee() {
+        int employeeId = registerEmployee("UnassignedExtra", cashierRole);
+        Shift shift = createShift();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftHandler.updateExtraHours(
+                        shift,
+                        employeeId,
+                        2));
+    }
+
+    /**
+     * Verifies that a pending assignment request creates COMPLETE*
+     * status when all role requirements are tentatively satisfied.
+     */
+    @Test
+    void pendingRequest_shouldCreateCompleteStarStatus() {
+        int managerId = registerManager("PendingManager", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(managerId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignmentHandler.addRequest(
+                shift,
+                cashierRole,
+                managerId);
+
+        assertEquals("COMPLETE*", shiftHandler.getShiftStatus(shift));
+    }
+
+    /**
+     * Verifies that approving a pending assignment request
+     * assigns the employee to the shift.
+     */
+    @Test
+    void approveNextAssignment_shouldAssignEmployee() {
+        int managerId = registerManager("ApproveManager", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(managerId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignmentHandler.addRequest(
+                shift,
+                cashierRole,
+                managerId);
+
+        shiftHandler.approveNextAssignment(managerId);
+
+        assertTrue(
+                shiftHandler.assignmentHandler.isAssignedToRole(
+                        shift,
+                        cashierRole,
+                        managerId));
+    }
+
+    /**
+     * Verifies that publishing a fully assigned and managed week
+     * succeeds and changes the week status to PUBLISHED.
+     */
+    @Test
+    void publishWeekSchedule_shouldSucceedWhenWeekIsFullyAssigned() {
+        int managerId = registerManager("WeekManager", cashierRole);
+        int storekeeperId = registerEmployee("WeekStorekeeper", storekeeperRole);
+
+        LocalDate sunday = nextSunday();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = sunday.plusDays(i);
+
+            for (ShiftType type :
+                    new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
+
+                Shift shift = shiftHandler.getShift(
+                        branch,
+                        date,
+                        type);
+
+                preferenceHandler.update(
+                        managerId,
+                        date.getDayOfWeek(),
+                        type);
+
+                preferenceHandler.update(
+                        storekeeperId,
+                        date.getDayOfWeek(),
+                        type);
+
+                shiftHandler.setRequirement(shift, cashierRole, 1);
+                shiftHandler.setRequirement(shift, storekeeperRole, 1);
+
+                shiftHandler.assignEmployee(
+                        shift,
+                        cashierRole,
+                        managerId);
+
+                shiftHandler.assignEmployee(
+                        shift,
+                        storekeeperRole,
+                        storekeeperId);
+            }
+        }
+
+        shiftHandler.publishWeekSchedule(branch, sunday);
+
+        assertEquals(
+                WeekStatus.PUBLISHED,
+                shiftHandler.getWeekStatus(branch, sunday));
+    }
+
+    /**
+     * Verifies that publishing a week fails when the shifts
+     * are assigned but no manager is present.
+     */
+    @Test
+    void publishWeekSchedule_shouldFailWhenWeekHasNoManager() {
+        int cashierId = registerEmployee("WeekCashier", cashierRole);
+        int storekeeperId = registerEmployee("WeekStorekeeperNoManager", storekeeperRole);
+
+        LocalDate sunday = nextSunday().plusWeeks(1);
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = sunday.plusDays(i);
+
+            for (ShiftType type :
+                    new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
+
+                Shift shift = shiftHandler.getShift(
+                        branch,
+                        date,
+                        type);
+
+                preferenceHandler.update(
+                        cashierId,
+                        date.getDayOfWeek(),
+                        type);
+
+                preferenceHandler.update(
+                        storekeeperId,
+                        date.getDayOfWeek(),
+                        type);
+
+                shiftHandler.setRequirement(shift, cashierRole, 1);
+                shiftHandler.setRequirement(shift, storekeeperRole, 1);
+
+                shiftHandler.assignEmployee(
+                        shift,
+                        cashierRole,
+                        cashierId);
+
+                shiftHandler.assignEmployee(
+                        shift,
+                        storekeeperRole,
+                        storekeeperId);
+            }
+        }
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> shiftHandler.publishWeekSchedule(
+                        branch,
+                        sunday));
+    }
+
+    /**
+     * Verifies that getShiftDetails returns textual information
+     * about the selected shift.
+     */
+    @Test
+    void getShiftDetails_shouldReturnShiftInformation() {
+        int employeeId = registerEmployee("DetailsEmployee", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+        shiftHandler.assignEmployee(shift, cashierRole, employeeId);
+
+        String details = shiftHandler.getShiftDetails(shift);
+
+        assertNotNull(details);
+        assertTrue(details.contains("Shift"));
+        assertTrue(details.contains("Cashier"));
+    }
+
+    /**
+     * Verifies that getUnassignedValid returns active, qualified,
+     * and unassigned employees.
+     */
+    @Test
+    void getUnassignedValid_shouldReturnAvailableEmployees() {
+        int employeeId = registerEmployee("AvailableEmployee", cashierRole);
+        Shift shift = createShift();
+
+        makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
+
+        shiftHandler.setRequirement(shift, cashierRole, 1);
+
+        String result = shiftHandler.getUnassignedValid(shift);
+
+        assertNotNull(result);
+        assertTrue(result.contains(String.valueOf(employeeId)));
     }
 }

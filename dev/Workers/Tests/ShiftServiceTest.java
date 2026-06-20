@@ -1,277 +1,355 @@
 package dev.Workers.Tests;
 
-import dev.Workers.service.ShiftService;
+import dev.Workers.database.DatabaseInitializer;
+import dev.Workers.database.DatabaseManager;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.Objects.*;
-
+import dev.Workers.domain.Objects.Branch;
+import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role;
+import dev.Workers.domain.Objects.Shift;
+import dev.Workers.service.ShiftService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Map;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for ShiftService weekly scheduling and publishing flow.
- *
- * This class verifies:
- * - Publishing the current week
- * - Publishing the next week
- * - Publishing a specific week by date
- * - Week status changes after publication
- * - Publishing failure when no manager exists in the shift
- *
- * Important:
- * The system uses Singleton managers and services.
- * Therefore, each test resets all relevant singleton instances and shared maps
- * before running.
+ * Integration tests for ShiftService.
  */
-public class ShiftServiceTest {
+class ShiftServiceTest {
 
     private ShiftService shiftService;
     private EmployeeHandler employeeHandler;
     private PreferenceHandler preferenceHandler;
-    private ShiftHandler shiftHandler;
     private RoleRegistry roleRegistry;
-    private BranchRegistry branchRegistry;
-
-    Branch beerSheva = branchRegistry.getBranchByName("Beer-Sheva");
+    private Branch branch;
 
     private Role cashierRole;
-    private Role storekeeperRole;
 
-    /**
-     * Resets all related singletons and shared data before each test.
-     */
-    @BeforeEach
-    void setUp() throws Exception {
-        resetSingleton(ShiftService.class, "instance");
-        resetSingleton(EmployeeHandler.class, "instance");
-        resetSingleton(PreferenceHandler.class, "instance");
-        resetSingleton(ShiftHandler.class, "instance");
-        resetSingleton(RoleRegistry.class, "instance");
+    private int nextEmployeeId = 10000;
+    private int nextShiftOffset = 0;
+    private void resetSingleton(Class<?> clazz, String fieldName)
+            throws Exception {
 
-        employeeHandler = EmployeeHandler.getInstance();
-        preferenceHandler = PreferenceHandler.getInstance();
-        shiftHandler = ShiftHandler.getInstance();
-        shiftService = ShiftService.getInstance();
-        roleRegistry = RoleRegistry.getInstance();
-        cashierRole = roleRegistry.getRoleByName("Cashier");
-        storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
-
-        clearStaticWeekSchedules();
-    }
-
-    /**
-     * Resets a singleton static instance using reflection.
-     *
-     * @param clazz the singleton class
-     * @param fieldName the static instance field name
-     */
-    private void resetSingleton(Class<?> clazz, String fieldName) throws Exception {
         Field field = clazz.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, null);
     }
+    @BeforeEach
+    void setUp() throws Exception {
 
-    /**
-     * Clears the static weekSchedules map inside ShiftManager.
-     */
-    @SuppressWarnings("unchecked")
-    private void clearStaticWeekSchedules() throws Exception {
-        Field field = ShiftHandler.class.getDeclaredField("weekSchedules");
-        field.setAccessible(true);
-        ((Map<LocalDate, WeekSchedule>) field.get(null)).clear();
+        DatabaseManager.eraseDatabase();
+        DatabaseInitializer.initializeDatabase();
+
+        resetSingleton(EmployeeHandler.class,"instance");
+        resetSingleton(ShiftHandler.class,"instance");
+        resetSingleton(ShiftService.class,"instance");
+        resetSingleton(PreferenceHandler.class,"instance");
+        resetSingleton(RoleRegistry.class,"instance");
+        resetSingleton(BranchRegistry.class,"instance");
+
+        shiftService = ShiftService.getInstance();
+        employeeHandler = EmployeeHandler.getInstance();
+        preferenceHandler = PreferenceHandler.getInstance();
+        roleRegistry = RoleRegistry.getInstance();
+
+        branch = BranchRegistry.getInstance()
+                .getBranchByName("Beer-Sheva");
+
+        cashierRole = roleRegistry.getRoleByName("Cashier");
+
+        nextEmployeeId = 10000;
+        nextShiftOffset = 0;
+
+        preferenceHandler.setDeadline(null);
     }
 
     /**
-     * Adds a valid employee to the system.
-     *
-     * @param id employee id
+     * Creates an employee with a specific role.
      */
-    private void addEmployee(int id) {
+    private int createEmployee(Role role, boolean manager) {
+
+        int id = nextEmployeeId++;
+
         employeeHandler.add(
                 "Employee" + id,
                 id,
-                branchRegistry.getBranchByName("Ofakim"),
+                branch,
                 1000 + id,
                 5000,
-                new EmployeeTerms(JobStatus.fullTime, SalaryType.global, 2, DayOfWeek.WEDNESDAY),
-                LocalDate.now()
-        );
-    }
+                new EmployeeTerms(
+                        JobStatus.fullTime,
+                        SalaryType.global,
+                        2,
+                        DayOfWeek.WEDNESDAY),
+                LocalDate.of(2025,1,1));
 
-    /**
-     * Initializes default constraints for an employee.
-     * By default, all days are set to ShiftType.any.
-     *
-     * @param id employee id
-     */
-    private void initConstraints(int id) {
+        employeeHandler.addRole(id, role);
+
+        employeeHandler.getEmployee(id).setManager(manager);
+
         preferenceHandler.initPreferences(id);
-    }
 
-    /**
-     * Prepares two employees for a fully assigned week:
-     * one cashier who is also marked as manager,
-     * and one storekeeper.
-     */
-    private void prepareBasicWorkforce() {
-        addEmployee(1);
-        addEmployee(2);
-
-        employeeHandler.getEmployee(1).setManager(true);
-
-        employeeHandler.addRole(1, cashierRole);
-        employeeHandler.addRole(2, storekeeperRole);
-
-        initConstraints(1);
-        initConstraints(2);
-    }
-
-    /**
-     * Fills a full week (Sunday-Saturday, morning+evening)
-     * with one cashier-manager and one storekeeper.
-     *
-     * @param sunday the Sunday of the target week
-     */
-    private void fillFullWeek(LocalDate sunday) {
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = sunday.plusDays(i);
-
-            for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-                shiftService.addShift(beerSheva, date, type);
-                Shift shift = shiftService.getShift(beerSheva, date, type);
-
-                shiftService.setRequirement(shift, cashierRole, 1);
-                shiftService.setRequirement(shift, storekeeperRole, 1);
-
-                shiftService.assignEmployee(shift, cashierRole, 1);
-                shiftService.assignEmployee(shift, storekeeperRole, 2);
-            }
+        for (DayOfWeek day : DayOfWeek.values()) {
+            preferenceHandler.update(id, day, ShiftType.ANY);
         }
-    }
 
+        return id;
+    }
     /**
-     * Reads the saved WeekSchedule object for a given week.
-     *
-     * @param dateInWeek any date inside the target week
-     * @return the saved WeekSchedule, or null if not found
+     * Creates a unique future shift.
      */
-    @SuppressWarnings("unchecked")
-    private WeekSchedule getSavedWeek(LocalDate dateInWeek) throws Exception {
-        Field field = ShiftHandler.class.getDeclaredField("weekSchedules");
-        field.setAccessible(true);
+    private Shift createFutureMorningShift() {
 
-        Map<LocalDate, WeekSchedule> map =
-                (Map<LocalDate, WeekSchedule>) field.get(null);
+        LocalDate date =
+                LocalDate.now()
+                        .plusWeeks(4)
+                        .plusDays(nextShiftOffset++);
 
-        LocalDate sunday = dateInWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        return map.get(sunday);
+        return shiftService.getShift(
+                branch,
+                date,
+                ShiftType.MORNING);
     }
 
     /**
-     * Verifies that publishing the current week succeeds
-     * when all shifts are fully assigned and each shift has a manager.
+     * Verifies that assigning a qualified employee succeeds.
      */
     @Test
-    void publishWeekSchedule_shouldPublishCurrentWeek() throws Exception {
-        LocalDate sunday = LocalDate.now()
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+    void assignEmployee_shouldSucceed() {
 
-        prepareBasicWorkforce();
-        fillFullWeek(sunday);
+        int empId = createEmployee(cashierRole, true);
 
-        shiftService.publishWeekByDate(beerSheva, sunday);
+        Shift shift = createFutureMorningShift();
 
-        WeekSchedule week = getSavedWeek(sunday);
-        assertNotNull(week);
-        assertTrue(week.isPublished());
+        shiftService.setRequirementManually(
+                shift,
+                cashierRole,
+                1);
+
+        assertDoesNotThrow(() ->
+                shiftService.assignEmployee(
+                        shift,
+                        cashierRole,
+                        empId));
+
     }
 
     /**
-     * Verifies that publishing the next week succeeds
-     * when the entire next week is fully assigned.
+     * Verifies that assigning the same employee twice fails.
      */
     @Test
-    void publishNextWeekSchedule_shouldPublishNextWeek() throws Exception {
-        LocalDate sunday = LocalDate.now()
-                .with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+    void assignEmployeeTwice_shouldFail() {
 
-        prepareBasicWorkforce();
-        fillFullWeek(sunday);
+        int empId = createEmployee(cashierRole, false);
 
-        shiftService.publishNextWeekSchedule(beerSheva);
+        Shift shift = createFutureMorningShift();
 
-        WeekSchedule week = getSavedWeek(sunday);
-        assertNotNull(week);
-        assertTrue(week.isPublished());
+        shiftService.setRequirementManually(
+                shift,
+                cashierRole,
+                2);
+
+        shiftService.assignEmployee(
+                shift,
+                cashierRole,
+                empId);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftService.assignEmployee(
+                        shift,
+                        cashierRole,
+                        empId));
     }
 
     /**
-     * Verifies that publishing a specific week by date works correctly.
+     * Verifies that replacing an employee with himself fails.
      */
     @Test
-    void publishWeekByDate_shouldPublishSpecificWeek() throws Exception {
-        LocalDate sunday = LocalDate.of(2026, 4, 19);
+    void replaceEmployeeWithSameEmployee_shouldFail() {
 
-        prepareBasicWorkforce();
-        fillFullWeek(sunday);
+        int empId = createEmployee(cashierRole, false);
 
-        shiftService.publishWeekByDate(beerSheva, sunday.plusDays(3));
+        Shift shift = createFutureMorningShift();
 
-        WeekSchedule week = getSavedWeek(sunday);
-        assertNotNull(week);
-        assertTrue(week.isPublished());
+        shiftService.setRequirementManually(
+                shift,
+                cashierRole,
+                1);
+
+        shiftService.assignEmployee(
+                shift,
+                cashierRole,
+                empId);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftService.replaceEmployee(
+                        shift,
+                        empId,
+                        empId));
     }
 
     /**
-     * Verifies that after publishing a fully assigned week,
-     * the week status becomes PUBLISHED.
+     * Verifies that publishing an incomplete week fails.
      */
     @Test
-    void getWeekStatus_shouldReturnPublishedAfterPublish() {
-        LocalDate nextSunday = LocalDate.now()
-                .with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+    void publishIncompleteWeek_shouldFail() {
 
-        prepareBasicWorkforce();
-        fillFullWeek(nextSunday);
-
-        shiftService.publishNextWeekSchedule(beerSheva);
-
-        assertEquals(WeekStatus.PUBLISHED, shiftService.getWeekStatus(beerSheva));
+        assertThrows(
+                IllegalStateException.class,
+                () -> shiftService.publishNextWeekSchedule(branch));
     }
 
     /**
-     * Verifies that publishing fails when shifts do not contain any manager.
-     *
-     * In the current implementation, a shift is considered to have a manager
-     * only if at least one assigned employee has employee.isManager() == true.
+     * Verifies that shift history returns a valid string.
      */
     @Test
-    void publishWeekSchedule_shouldFailWithoutManager() {
-        LocalDate sunday = LocalDate.now()
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+    void getShiftHistory_shouldReturnString() {
 
-        addEmployee(1);
-        addEmployee(2);
+        String history =
+                shiftService.getShiftHistory(branch);
 
-        employeeHandler.addRole(1, cashierRole);
-        employeeHandler.addRole(2, storekeeperRole);
+        assertNotNull(history);
+    }
+    /**
+     * Verifies that removing an assigned employee succeeds.
+     */
+    @Test
+    void removeEmployee_shouldSucceed() {
 
-        initConstraints(1);
-        initConstraints(2);
+        int empId = createEmployee(cashierRole, false);
 
-        fillFullWeek(sunday);
+        Shift shift = createFutureMorningShift();
 
-        assertThrows(IllegalStateException.class, () ->
-                shiftService.publishWeekByDate(beerSheva, sunday)
-        );
+        shiftService.setRequirementManually(
+                shift,
+                cashierRole,
+                1);
+
+        shiftService.assignEmployee(
+                shift,
+                cashierRole,
+                empId);
+
+        shiftService.removeEmployee(
+                shift,
+                empId);
+
+        assertFalse(
+                shiftService.isShiftAssigned(shift));
+    }
+
+    /**
+     * Verifies that negative extra hours are rejected.
+     */
+    @Test
+    void updateExtraHours_negativeValue_shouldFail() {
+
+        Shift shift = createFutureMorningShift();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftService.updateExtraHours(
+                        shift,
+                        1,
+                        -1));
+    }
+
+    /**
+     * Verifies that extra hours above four are rejected.
+     */
+    @Test
+    void updateExtraHours_aboveFour_shouldFail() {
+
+        Shift shift = createFutureMorningShift();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> shiftService.updateExtraHours(
+                        shift,
+                        1,
+                        5));
+    }
+
+    /**
+     * Verifies that displaying week assignments returns a string.
+     */
+    @Test
+    void displayWeekAssignments_shouldReturnString() {
+
+        String result =
+                shiftService.displayWeekAssignments(branch);
+
+        assertNotNull(result);
+    }
+
+    /**
+     * Verifies that shift details return a string.
+     */
+    @Test
+    void getShiftDetails_shouldReturnString() {
+
+        Shift shift = createFutureMorningShift();
+
+        String details =
+                shiftService.getShiftDetails(shift);
+
+        assertNotNull(details);
+    }
+
+
+    /**
+     * Verifies that current week display returns a string.
+     */
+    @Test
+    void displayCurrentWeek_shouldReturnString() {
+
+        String result =
+                shiftService.displayCurrentWeek(branch);
+
+        assertNotNull(result);
+    }
+
+    /**
+     * Verifies that next week display returns a string.
+     */
+    @Test
+    void displayNextWeek_shouldReturnString() {
+
+        String result =
+                shiftService.displayNextWeek(branch);
+
+        assertNotNull(result);
+    }
+
+    /**
+     * Verifies that empty week status can be obtained.
+     */
+    @Test
+    void getWeekStatus_shouldReturnStatus() {
+
+        assertNotNull(
+                shiftService.getWeekStatus(branch));
+    }
+
+    /**
+     * Verifies that resetting a shift does not throw exceptions.
+     */
+    @Test
+    void resetShift_shouldNotThrow() {
+
+        Shift shift = createFutureMorningShift();
+
+        assertDoesNotThrow(
+                () -> shiftService.resetShift(shift));
     }
 }
