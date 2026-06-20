@@ -4,11 +4,9 @@ import dev.Workers.database.DatabaseInitializer;
 import dev.Workers.database.DatabaseManager;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
-import dev.Workers.domain.Objects.Employee;
-import dev.Workers.domain.Objects.EmployeeTerms;
-import dev.Workers.domain.Objects.Role;
-import dev.Workers.domain.Objects.Shift;
+import dev.Workers.domain.Objects.*;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -61,39 +59,59 @@ public class ManagersTest {
 
         preferenceHandler.setDeadline(null);
     }*/
-@BeforeEach
-void setUp() throws Exception {
 
-    DatabaseManager.eraseDatabase();
+    @BeforeEach
+    void setUp() throws Exception {
+        DatabaseManager.eraseDatabase();
 
-    resetSingleton(EmployeeHandler.class, "instance");
-    resetSingleton(AccessHandler.class, "instance");
-    resetSingleton(PreferenceHandler.class, "instance");
-    resetSingleton(ShiftHandler.class, "instance");
-    resetSingleton(RoleRegistry.class, "instance");
-    resetSingleton(BranchRegistry.class, "instance");
-    resetSingleton(RequirementHandler.class, "instance");
+        resetSingleton(EmployeeHandler.class, "instance");
+        resetSingleton(AccessHandler.class, "instance");
+        resetSingleton(PreferenceHandler.class, "instance");
+        resetSingleton(ShiftHandler.class, "instance");
+        resetSingleton(RoleRegistry.class, "instance");
+        resetSingleton(BranchRegistry.class, "instance");
+        resetSingleton(RequirementHandler.class, "instance");
 
-    DatabaseInitializer.initializeDatabase();
+        resetSingleton(dev.Workers.service.EmployeeService.class, "instance");
+        resetSingleton(dev.Workers.service.AccessService.class, "instance");
+        resetSingleton(dev.Workers.service.ShiftService.class, "instance");
+        resetSingleton(dev.Workers.service.RequirementService.class, "instance");
+        resetSingleton(dev.Workers.service.PreferenceService.class, "instance");
 
-    employeeHandler = EmployeeHandler.getInstance();
+        DatabaseInitializer.initializeDatabase();
 
-    Field accessEmployeeHandlerField =
-            AccessHandler.class.getDeclaredField("employeeHandler");
-    accessEmployeeHandlerField.setAccessible(true);
-    accessEmployeeHandlerField.set(null, employeeHandler);
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) " +
+                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
 
-    branchRegistry = BranchRegistry.getInstance();
-    roleRegistry = RoleRegistry.getInstance();
-    preferenceHandler = PreferenceHandler.getInstance();
-    accessHandler = AccessHandler.getInstance();
-    shiftHandler = ShiftHandler.getInstance();
+        employeeHandler = EmployeeHandler.getInstance();
 
-    cashier = roleRegistry.getRoleByName("Cashier");
-    storekeeper = roleRegistry.getRoleByName("Storekeeper");
+        Field accessEmployeeHandlerField =
+                AccessHandler.class.getDeclaredField("employeeHandler");
+        accessEmployeeHandlerField.setAccessible(true);
+        accessEmployeeHandlerField.set(null, employeeHandler);
 
-    preferenceHandler.setDeadline(null);
-}
+        branchRegistry = BranchRegistry.getInstance();
+        branchRegistry.registerBranch(new Branch("Beer-Sheva"));
+        branchRegistry.registerBranch(new Branch("Dimona"));
+        branchRegistry.registerBranch(new Branch("Ofakim"));
+        branchRegistry.registerBranch(new Branch("Rahat"));
+
+        roleRegistry = RoleRegistry.getInstance();
+        preferenceHandler = PreferenceHandler.getInstance();
+        accessHandler = AccessHandler.getInstance();
+        shiftHandler = ShiftHandler.getInstance();
+
+        cashier = roleRegistry.getRoleByName("Cashier");
+        storekeeper = roleRegistry.getRoleByName("Storekeeper");
+
+        preferenceHandler.setDeadline(null);
+    }
+
     private void resetSingleton(Class<?> clazz, String fieldName) throws Exception {
         Field instanceField = clazz.getDeclaredField(fieldName);
         instanceField.setAccessible(true);

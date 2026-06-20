@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for ShiftHandler.
  */
 public class ShiftHandlerTest {
-
     private EmployeeHandler employeeHandler;
     private PreferenceHandler preferenceHandler;
     private ShiftHandler shiftHandler;
@@ -45,6 +44,16 @@ public class ShiftHandlerTest {
     static void initDatabaseOnce() {
         DatabaseManager.eraseDatabase();
         DatabaseInitializer.initializeDatabase();
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name)" +
+                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
     }
 
     /**
@@ -70,12 +79,16 @@ public class ShiftHandlerTest {
         accessEmployeeHandlerField.setAccessible(true);
         accessEmployeeHandlerField.set(null, employeeHandler);
 
-        branchRegistry = BranchRegistry.getInstance();
         roleRegistry = RoleRegistry.getInstance();
         preferenceHandler = PreferenceHandler.getInstance();
         shiftHandler = ShiftHandler.getInstance();
 
-        branch = branchRegistry.getBranchByName("Beer-Sheva");
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        registry.registerBranch(new Branch("Dimona"));
+        registry.registerBranch(new Branch("Ofakim"));
+        registry.registerBranch(new Branch("Rahat"));
+        branch = registry.getBranchByName("Beer-Sheva");
 
         cashierRole = roleRegistry.getRoleByName("Cashier");
         storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
@@ -83,7 +96,7 @@ public class ShiftHandlerTest {
         preferenceHandler.setDeadline(null);
     }
 
-    private static void resetSingleton(Class<?> clazz, String fieldName)
+    static void resetSingleton(Class<?> clazz, String fieldName)
             throws Exception {
 
         Field instanceField = clazz.getDeclaredField(fieldName);

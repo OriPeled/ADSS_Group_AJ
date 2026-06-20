@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for ShiftService.
  */
 class ShiftServiceTest {
-
     private ShiftService shiftService;
     private EmployeeHandler employeeHandler;
     private PreferenceHandler preferenceHandler;
@@ -42,9 +41,9 @@ class ShiftServiceTest {
         field.setAccessible(true);
         field.set(null, null);
     }
+
     @BeforeEach
     void setUp() throws Exception {
-
         DatabaseManager.eraseDatabase();
         DatabaseInitializer.initializeDatabase();
 
@@ -60,8 +59,22 @@ class ShiftServiceTest {
         preferenceHandler = PreferenceHandler.getInstance();
         roleRegistry = RoleRegistry.getInstance();
 
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name)" +
+                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        registry.registerBranch(new Branch("Dimona"));
+        registry.registerBranch(new Branch("Ofakim"));
+        registry.registerBranch(new Branch("Rahat"));
+        branch = registry.getBranchByName("Beer-Sheva");
 
         cashierRole = roleRegistry.getRoleByName("Cashier");
 

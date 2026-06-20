@@ -36,7 +36,8 @@ public class DataInitializer {
         try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
              java.sql.Statement statement = connection.createStatement()) {
 
-            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name)" +
+                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
 
             try (java.sql.ResultSet rs = statement.executeQuery("SELECT branch_name FROM branches;")) {
                 while (rs.next()) {

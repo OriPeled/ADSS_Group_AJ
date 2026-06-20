@@ -30,6 +30,7 @@ public class DriverRole implements Role {
     @Override
     public boolean isQualified(int id) {
         Employee emp = EmployeeHandler.getInstance().getEmployee(id);
+        if (emp == null) return false;
         return emp.hasRole(this);
     }
 

@@ -9,6 +9,7 @@ import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.service.RequirementService;
 import dev.Workers.service.ShiftService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for RequirementService.
  */
 class RequirementServiceTest {
-
     private RequirementService requirementService;
     private ShiftService shiftService;
     private RequirementHandler requirementHandler;
@@ -32,22 +32,26 @@ class RequirementServiceTest {
 
     @BeforeEach
     void setUp() {
-
         DatabaseManager.eraseDatabase();
         DatabaseInitializer.initializeDatabase();
 
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        branch = registry.getBranchByName("Beer-Sheva");
 
         requirementService = RequirementService.getInstance();
         shiftService = ShiftService.getInstance();
         requirementHandler = RequirementHandler.getInstance();
 
-        cashierRole = RoleRegistry.getInstance()
-                .getRoleByName("Cashier");
-
-        storekeeperRole = RoleRegistry.getInstance()
-                .getRoleByName("Storekeeper");
+        cashierRole = RoleRegistry.getInstance().getRoleByName("Cashier");
+        storekeeperRole = RoleRegistry.getInstance().getRoleByName("Storekeeper");
 
         shiftService.initShiftsWeek(branch);
     }
@@ -57,7 +61,6 @@ class RequirementServiceTest {
      */
     @Test
     void initCashierRequirement_shouldSucceed() {
-
         requirementService.initWeeklyReqs(
                 "Cashier",
                 branch,

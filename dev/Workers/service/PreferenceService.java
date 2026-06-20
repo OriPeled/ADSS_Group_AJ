@@ -15,7 +15,7 @@ import java.time.LocalDate;
  * and managing deadlines for preference submissions.
  */
 public class PreferenceService {
-    private static PreferenceHandler preferenceHandler;
+    private PreferenceHandler preferenceHandler;
     private static PreferenceService instance;
 
     private PreferenceService() {

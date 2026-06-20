@@ -10,12 +10,12 @@ import dev.Workers.domain.AccessHandler;
  * * This class is implemented as a Singleton.
  */
 public class AccessService {
-    private final AccessHandler accessHandler;
+    private AccessHandler accessHandler;
 
     private static AccessService instance;
 
     private AccessService() {
-        this.accessHandler = AccessHandler.getInstance();
+        accessHandler = AccessHandler.getInstance();
     }
 
     public static AccessService getInstance() {

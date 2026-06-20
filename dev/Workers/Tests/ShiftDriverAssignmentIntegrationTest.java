@@ -3,6 +3,7 @@ package dev.Workers.Tests;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,13 +23,28 @@ import static org.junit.jupiter.api.Assertions.*;
  * assignment constraints.
  */
 class ShiftDriverAssignmentIntegrationTest {
-
     private EmployeeHandler employeeHandler;
     private ShiftHandler shiftHandler;
     private AssignmentHandler assignmentHandler;
     private PreferenceHandler preferenceHandler;
     private RoleRegistry roleRegistry;
     private Branch branch;
+
+    @BeforeAll
+    static void globalSetup() {
+        dev.Workers.database.DatabaseManager.eraseDatabase();
+        dev.Workers.database.DatabaseInitializer.initializeDatabase();
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name)" +
+                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+    }
 
     /**
      * Initializes all handlers before each test.
@@ -41,8 +57,12 @@ class ShiftDriverAssignmentIntegrationTest {
         preferenceHandler = PreferenceHandler.getInstance();
         roleRegistry = RoleRegistry.getInstance();
 
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        registry.registerBranch(new Branch("Dimona"));
+        registry.registerBranch(new Branch("Ofakim"));
+        registry.registerBranch(new Branch("Rahat"));
+        branch = registry.getBranchByName("Beer-Sheva");
     }
 
     /**

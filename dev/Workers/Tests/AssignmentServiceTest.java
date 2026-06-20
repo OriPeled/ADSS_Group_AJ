@@ -8,6 +8,7 @@ import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.RoleRegistry;
 import dev.Workers.domain.Enums.ShiftType;
 import dev.Workers.service.AssignmentService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,14 +29,30 @@ class AssignmentServiceTest {
 
     private int nextId = 10000;
 
+    @BeforeAll
+    static void globalSetup() {
+        dev.Workers.database.DatabaseManager.eraseDatabase();
+        dev.Workers.database.DatabaseInitializer.initializeDatabase();
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
+
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+    }
+
     @BeforeEach
     void setUp() {
 
         assignmentService = AssignmentService.getInstance();
         assignmentHandler = AssignmentHandler.getInstance();
 
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        branch = registry.getBranchByName("Beer-Sheva");
 
         cashierRole = RoleRegistry.getInstance()
                 .getRoleByName("Cashier");

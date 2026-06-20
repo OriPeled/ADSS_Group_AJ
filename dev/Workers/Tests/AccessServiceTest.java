@@ -9,9 +9,13 @@ import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.service.AccessService;
 import dev.Workers.service.EmployeeService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
@@ -21,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for AccessService.
  */
 public class AccessServiceTest {
-
     private AccessService accessService;
     private EmployeeService employeeService;
     private AccessHandler accessHandler;
@@ -30,15 +33,30 @@ public class AccessServiceTest {
 
     private static int nextId = 200000;
 
+    @BeforeAll
+    static void globalSetup() {
+        dev.Workers.database.DatabaseManager.eraseDatabase();
+        dev.Workers.database.DatabaseInitializer.initializeDatabase();
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
+
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+    }
+
     @BeforeEach
     void setUp() {
-
         accessService = AccessService.getInstance();
         employeeService = EmployeeService.getInstance();
         accessHandler = AccessHandler.getInstance();
 
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        branch = registry.getBranchByName("Beer-Sheva");
     }
 
     /**

@@ -24,9 +24,9 @@ import java.util.Set;
  * It delegates all state management and business rules to the ShiftManager.
  */
 public class ShiftService {
-    private static ShiftHandler shiftHandler;
-    private static AssignmentService assignmentService;
-    private static EmployeeHandler employeeHandler;
+    private ShiftHandler shiftHandler;
+    private AssignmentService assignmentService;
+    private EmployeeHandler employeeHandler;
 
     private static ShiftService instance;
 

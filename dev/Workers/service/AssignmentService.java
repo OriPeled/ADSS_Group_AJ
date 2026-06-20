@@ -8,7 +8,7 @@ import dev.Workers.domain.Objects.Shift;
 import java.util.*;
 
 public class AssignmentService {
-    private static AssignmentHandler assignmentHandler;
+    private AssignmentHandler assignmentHandler;
 
     private static AssignmentService instance;
 

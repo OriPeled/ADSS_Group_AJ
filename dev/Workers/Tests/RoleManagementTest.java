@@ -16,13 +16,13 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
+import static dev.Workers.Tests.ShiftHandlerTest.resetSingleton;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for employee role management.
  */
 class RoleManagementTest {
-
     private EmployeeService employeeService;
     private RoleRegistry roleRegistry;
     private Branch branch;
@@ -31,9 +31,23 @@ class RoleManagementTest {
     private Role storekeeperRole;
 
     @BeforeEach
-    void setUp() {
-
+    void setUp() throws Exception {
         DatabaseManager.eraseDatabase();
+
+        resetSingleton(EmployeeHandler.class, "instance");
+        resetSingleton(AccessHandler.class, "instance");
+        resetSingleton(PreferenceHandler.class, "instance");
+        resetSingleton(ShiftHandler.class, "instance");
+        resetSingleton(RoleRegistry.class, "instance");
+        resetSingleton(BranchRegistry.class, "instance");
+        resetSingleton(RequirementHandler.class, "instance");
+
+        resetSingleton(dev.Workers.service.EmployeeService.class, "instance");
+        resetSingleton(dev.Workers.service.AccessService.class, "instance");
+        resetSingleton(dev.Workers.service.ShiftService.class, "instance");
+        resetSingleton(dev.Workers.service.RequirementService.class, "instance");
+        resetSingleton(dev.Workers.service.PreferenceService.class, "instance");
+
         DatabaseInitializer.initializeDatabase();
 
         employeeService = EmployeeService.getInstance();
@@ -42,8 +56,17 @@ class RoleManagementTest {
         EmployeeHandler.getInstance()
                 .getEmployees()
                 .clear();
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        branch = registry.getBranchByName("Beer-Sheva");
 
         cashierRole = roleRegistry.getRoleByName("Cashier");
         storekeeperRole = roleRegistry.getRoleByName("Storekeeper");

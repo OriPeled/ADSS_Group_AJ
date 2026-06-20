@@ -6,6 +6,7 @@ import dev.Workers.domain.Enums.SalaryType;
 import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.service.EmployeeService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,18 +19,33 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for EmployeeService.
  */
 public class EmployeeServiceTest {
-
     private EmployeeService employeeService;
     private Branch branch;
 
     private static int nextId = 100000;
 
+    @BeforeAll
+    static void globalSetup() {
+        dev.Workers.database.DatabaseManager.eraseDatabase();
+        dev.Workers.database.DatabaseInitializer.initializeDatabase();
+
+        try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
+
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Failed to setup test database branches", e);
+        }
+    }
+
     @BeforeEach
     void setUp() {
         employeeService = EmployeeService.getInstance();
 
-        branch = BranchRegistry.getInstance()
-                .getBranchByName("Beer-Sheva");
+        BranchRegistry registry = BranchRegistry.getInstance();
+        registry.registerBranch(new Branch("Beer-Sheva"));
+        branch = registry.getBranchByName("Beer-Sheva");
     }
 
     /**

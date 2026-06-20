@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 public class RequirementService {
-    private static RequirementHandler requirementHandler;
-    private static ShiftService shiftService;
-    private static final RoleRegistry roleRegistry = RoleRegistry.getInstance();
+    private RequirementHandler requirementHandler;
+    private ShiftService shiftService;
+    private RoleRegistry roleRegistry;
 
     private static RequirementService instance;
 
@@ -27,6 +27,7 @@ public class RequirementService {
     private RequirementService() {
         requirementHandler = RequirementHandler.getInstance();
         shiftService = ShiftService.getInstance();
+        roleRegistry = RoleRegistry.getInstance();
     }
 
     public void getDriverReqs(Branch branch) {
