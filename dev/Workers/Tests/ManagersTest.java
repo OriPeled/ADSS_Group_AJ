@@ -5,60 +5,26 @@ import dev.Workers.database.DatabaseManager;
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
 import dev.Workers.domain.Objects.*;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the domain managers layer.
  */
 public class ManagersTest {
-
     private EmployeeHandler employeeHandler;
     private AccessHandler accessHandler;
     private PreferenceHandler preferenceHandler;
     private ShiftHandler shiftHandler;
     private RoleRegistry roleRegistry;
     private BranchRegistry branchRegistry;
-
     private Role cashier;
     private Role storekeeper;
-
-/*    @BeforeEach
-    void setUp() throws Exception {
-        resetSingleton(EmployeeHandler.class, "instance");
-        resetSingleton(AccessHandler.class, "instance");
-        resetSingleton(PreferenceHandler.class, "instance");
-        resetSingleton(ShiftHandler.class, "instance");
-        resetSingleton(RoleRegistry.class, "instance");
-        resetSingleton(BranchRegistry.class, "instance");
-        resetSingleton(RequirementHandler.class, "instance");
-
-        employeeHandler = EmployeeHandler.getInstance();
-
-        Field accessEmployeeHandlerField =
-                AccessHandler.class.getDeclaredField("employeeHandler");
-        accessEmployeeHandlerField.setAccessible(true);
-        accessEmployeeHandlerField.set(null, employeeHandler);
-
-        branchRegistry = BranchRegistry.getInstance();
-        roleRegistry = RoleRegistry.getInstance();
-        preferenceHandler = PreferenceHandler.getInstance();
-        accessHandler = AccessHandler.getInstance();
-        shiftHandler = ShiftHandler.getInstance();
-
-        cashier = roleRegistry.getRoleByName("Cashier");
-        storekeeper = roleRegistry.getRoleByName("Storekeeper");
-
-        preferenceHandler.setDeadline(null);
-    }*/
 
     @BeforeEach
     void setUp() throws Exception {
@@ -71,7 +37,6 @@ public class ManagersTest {
         resetSingleton(RoleRegistry.class, "instance");
         resetSingleton(BranchRegistry.class, "instance");
         resetSingleton(RequirementHandler.class, "instance");
-
         resetSingleton(dev.Workers.service.EmployeeService.class, "instance");
         resetSingleton(dev.Workers.service.AccessService.class, "instance");
         resetSingleton(dev.Workers.service.ShiftService.class, "instance");
@@ -82,33 +47,27 @@ public class ManagersTest {
 
         try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
              java.sql.Statement statement = connection.createStatement()) {
-            statement.execute("INSERT OR IGNORE INTO branches (branch_name) " +
-                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Failed to setup test database branches", e);
         }
-
-        employeeHandler = EmployeeHandler.getInstance();
-
-        Field accessEmployeeHandlerField =
-                AccessHandler.class.getDeclaredField("employeeHandler");
-        accessEmployeeHandlerField.setAccessible(true);
-        accessEmployeeHandlerField.set(null, employeeHandler);
-
         branchRegistry = BranchRegistry.getInstance();
         branchRegistry.registerBranch(new Branch("Beer-Sheva"));
         branchRegistry.registerBranch(new Branch("Dimona"));
         branchRegistry.registerBranch(new Branch("Ofakim"));
         branchRegistry.registerBranch(new Branch("Rahat"));
 
+        employeeHandler = EmployeeHandler.getInstance();
+        Field accessEmployeeHandlerField = AccessHandler.class.getDeclaredField("employeeHandler");
+        accessEmployeeHandlerField.setAccessible(true);
+        accessEmployeeHandlerField.set(null, employeeHandler);
+
         roleRegistry = RoleRegistry.getInstance();
         preferenceHandler = PreferenceHandler.getInstance();
         accessHandler = AccessHandler.getInstance();
         shiftHandler = ShiftHandler.getInstance();
-
         cashier = roleRegistry.getRoleByName("Cashier");
         storekeeper = roleRegistry.getRoleByName("Storekeeper");
-
         preferenceHandler.setDeadline(null);
     }
 
@@ -142,7 +101,6 @@ public class ManagersTest {
      */
     private void initConstraints(int id) {
         preferenceHandler.initPreferences(id);
-
         for (DayOfWeek day : DayOfWeek.values()) {
             preferenceHandler.update(id, day, ShiftType.ANY);
         }
@@ -150,14 +108,9 @@ public class ManagersTest {
 
     private LocalDate getAvailableDate(int employeeId) {
         LocalDate date = LocalDate.now().plusDays(1);
-
-        while (date.getDayOfWeek() ==
-                employeeHandler.getEmployee(employeeId)
-                        .getTerms()
-                        .getDayOff()) {
+        while (date.getDayOfWeek() == employeeHandler.getEmployee(employeeId).getTerms().getDayOff()) {
             date = date.plusDays(1);
         }
-
         return date;
     }
 
@@ -168,7 +121,6 @@ public class ManagersTest {
     @Test
     void employee_add_shouldSucceed() {
         addEmployee(1);
-
         assertTrue(employeeHandler.isEmployee(1));
         assertNotNull(employeeHandler.getEmployee(1));
     }
@@ -176,7 +128,6 @@ public class ManagersTest {
     @Test
     void employee_addDuplicateId_shouldFail() {
         addEmployee(1);
-
         assertThrows(IllegalArgumentException.class, () ->
                 employeeHandler.add(
                         "AnotherEmployee",
@@ -193,9 +144,6 @@ public class ManagersTest {
                 ));
     }
 
-
-
-
     // =========================================================
     // AccessManager tests
     // =========================================================
@@ -203,40 +151,28 @@ public class ManagersTest {
     @Test
     void access_registerAndLogin_shouldSucceed() {
         addEmployee(1);
-
         accessHandler.register(1, "1234");
 
-        assertEquals(
-                UserResponse.success,
-                accessHandler.login(1, "1234"));
+        assertEquals(UserResponse.success, accessHandler.login(1, "1234"));
     }
 
     @Test
     void access_loginWithoutRegistration_shouldReturnNotRegistered() {
         addEmployee(1);
-
-        assertEquals(
-                UserResponse.notRegistered,
-                accessHandler.login(1, "1234"));
+        assertEquals(UserResponse.notRegistered, accessHandler.login(1, "1234"));
     }
 
     @Test
     void access_loginWrongPassword_shouldFail() {
         addEmployee(1);
         accessHandler.register(1, "1234");
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> accessHandler.login(1, "9999"));
+        assertThrows(IllegalArgumentException.class, () -> accessHandler.login(1, "9999"));
     }
 
     @Test
     void access_registerShortPassword_shouldFail() {
         addEmployee(1);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> accessHandler.register(1, "123"));
+        assertThrows(IllegalArgumentException.class, () -> accessHandler.register(1, "123"));
     }
 
     // =========================================================
@@ -248,7 +184,6 @@ public class ManagersTest {
         addEmployee(1);
         preferenceHandler.initPreferences(1);
         preferenceHandler.setDeadline(DayOfWeek.THURSDAY);
-
         assertDoesNotThrow(() ->
                 preferenceHandler.update(
                         1,
@@ -262,7 +197,6 @@ public class ManagersTest {
         addEmployee(1);
         preferenceHandler.initPreferences(1);
         preferenceHandler.setDeadline(DayOfWeek.MONDAY);
-
         assertThrows(RuntimeException.class, () ->
                 preferenceHandler.update(
                         1,
@@ -276,17 +210,9 @@ public class ManagersTest {
         addEmployee(1);
         preferenceHandler.initPreferences(1);
         preferenceHandler.setDeadline(null);
+        preferenceHandler.update(1, DayOfWeek.MONDAY, ShiftType.MORNING);
 
-        preferenceHandler.update(
-                1,
-                DayOfWeek.MONDAY,
-                ShiftType.MORNING);
-
-        assertTrue(
-                preferenceHandler.isEmployeeAvailable(
-                        1,
-                        DayOfWeek.MONDAY,
-                        ShiftType.MORNING));
+        assertTrue(preferenceHandler.isEmployeeAvailable(1, DayOfWeek.MONDAY, ShiftType.MORNING));
     }
 
     // =========================================================
@@ -296,9 +222,7 @@ public class ManagersTest {
     @Test
     void role_addRole_shouldSucceed() {
         addEmployee(1);
-
         employeeHandler.addRole(1, cashier);
-
         assertTrue(cashier.isQualified(1));
     }
 
@@ -306,19 +230,14 @@ public class ManagersTest {
     void role_addDuplicateRole_shouldFail() {
         addEmployee(1);
         employeeHandler.addRole(1, cashier);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> employeeHandler.addRole(1, cashier));
+        assertThrows(IllegalArgumentException.class, () -> employeeHandler.addRole(1, cashier));
     }
 
     @Test
     void role_removeRole_shouldSucceed() {
         addEmployee(1);
         employeeHandler.addRole(1, cashier);
-
         employeeHandler.removeRole(1, cashier);
-
         assertFalse(cashier.isQualified(1));
     }
 
@@ -331,14 +250,12 @@ public class ManagersTest {
         addEmployee(1);
         employeeHandler.addRole(1, cashier);
         initConstraints(1);
-
         LocalDate date = getAvailableDate(1);
 
         Shift shift = shiftHandler.getShift(
                 employeeHandler.getEmployee(1).getBranch(),
                 date,
                 ShiftType.MORNING);
-
         shiftHandler.setRequirement(shift, cashier, 1);
         shiftHandler.assignEmployee(shift, cashier, 1);
 
@@ -349,44 +266,32 @@ public class ManagersTest {
     void shift_assignEmployeeWithoutRole_shouldFail() {
         addEmployee(1);
         initConstraints(1);
-
         LocalDate date = getAvailableDate(1);
 
         Shift shift = shiftHandler.getShift(
                 employeeHandler.getEmployee(1).getBranch(),
                 date,
                 ShiftType.MORNING);
-
         shiftHandler.setRequirement(shift, cashier, 1);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        cashier,
-                        1));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.assignEmployee(shift, cashier, 1));
     }
 
     @Test
     void shift_replaceEmployee_shouldSucceed() {
         addEmployee(1);
         addEmployee(2);
-
         employeeHandler.addRole(1, cashier);
         employeeHandler.addRole(2, cashier);
-
         initConstraints(1);
         initConstraints(2);
-
         LocalDate date = getAvailableDate(1);
 
         Shift shift = shiftHandler.getShift(
                 employeeHandler.getEmployee(1).getBranch(),
                 date,
                 ShiftType.MORNING);
-
         shiftHandler.setRequirement(shift, cashier, 1);
-
         shiftHandler.assignEmployee(shift, cashier, 1);
         shiftHandler.replaceEmployee(shift, 1, 2);
 
@@ -396,18 +301,15 @@ public class ManagersTest {
     @Test
     void shift_assigningManagerShouldMarkShiftAsManaged() {
         addEmployee(1);
-
         employeeHandler.getEmployee(1).setManager(true);
         employeeHandler.addRole(1, cashier);
         initConstraints(1);
-
         LocalDate date = getAvailableDate(1);
 
         Shift shift = shiftHandler.getShift(
                 employeeHandler.getEmployee(1).getBranch(),
                 date,
                 ShiftType.MORNING);
-
         shiftHandler.setRequirement(shift, cashier, 1);
         shiftHandler.assignEmployee(shift, cashier, 1);
 
@@ -417,17 +319,14 @@ public class ManagersTest {
     @Test
     void shiftWithoutManagerShouldNotBeComplete() {
         addEmployee(1);
-
         employeeHandler.addRole(1, cashier);
         initConstraints(1);
-
         LocalDate date = getAvailableDate(1);
 
         Shift shift = shiftHandler.getShift(
                 employeeHandler.getEmployee(1).getBranch(),
                 date,
                 ShiftType.MORNING);
-
         shiftHandler.setRequirement(shift, cashier, 1);
         shiftHandler.assignEmployee(shift, cashier, 1);
 
@@ -438,115 +337,75 @@ public class ManagersTest {
     @Test
     void shift_duplicateAssignmentShouldFail() {
         addEmployee(1);
-
         employeeHandler.addRole(1, cashier);
         initConstraints(1);
-
         LocalDate date = getAvailableDate(1);
 
         Shift shift = shiftHandler.getShift(
                 employeeHandler.getEmployee(1).getBranch(),
                 date,
                 ShiftType.MORNING);
-
         shiftHandler.setRequirement(shift, cashier, 2);
         shiftHandler.assignEmployee(shift, cashier, 1);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        cashier,
-                        1));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.assignEmployee(shift, cashier, 1));
     }
 
     @Test
     void shift_publishWeekSchedule_shouldSucceedWhenWeekIsFullyAssigned() {
         addEmployee(1);
         addEmployee(2);
-
         employeeHandler.getEmployee(1).setManager(true);
-
         employeeHandler.addRole(1, cashier);
         employeeHandler.addRole(2, storekeeper);
-
         initConstraints(1);
         initConstraints(2);
-
-        LocalDate sunday =
-                LocalDate.now()
-                        .with(java.time.temporal.TemporalAdjusters
-                                .previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate sunday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = sunday.plusDays(i);
-
-            for (ShiftType type :
-                    new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-
+            for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
                 Shift shift = shiftHandler.getShift(
                         employeeHandler.getEmployee(1).getBranch(),
                         date,
                         type);
-
                 shiftHandler.setRequirement(shift, cashier, 1);
                 shiftHandler.setRequirement(shift, storekeeper, 1);
-
                 shiftHandler.assignEmployee(shift, cashier, 1);
                 shiftHandler.assignEmployee(shift, storekeeper, 2);
             }
         }
-
-        shiftHandler.publishWeekSchedule(
-                employeeHandler.getEmployee(1).getBranch(),
-                sunday);
+        shiftHandler.publishWeekSchedule(employeeHandler.getEmployee(1).getBranch(), sunday);
 
         assertEquals(
                 WeekStatus.PUBLISHED,
-                shiftHandler.getWeekStatus(
-                        employeeHandler.getEmployee(1).getBranch(),
-                        sunday));
+                shiftHandler.getWeekStatus(employeeHandler.getEmployee(1).getBranch(), sunday));
     }
 
     @Test
     void shift_publishWeekScheduleWithoutManager_shouldFail() {
         addEmployee(1);
         addEmployee(2);
-
         employeeHandler.addRole(1, cashier);
         employeeHandler.addRole(2, storekeeper);
-
         initConstraints(1);
         initConstraints(2);
-
-        LocalDate sunday =
-                LocalDate.now()
-                        .with(java.time.temporal.TemporalAdjusters
-                                .previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate sunday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = sunday.plusDays(i);
-
-            for (ShiftType type :
-                    new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-
+            for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
                 Shift shift = shiftHandler.getShift(
                         employeeHandler.getEmployee(1).getBranch(),
                         date,
                         type);
-
                 shiftHandler.setRequirement(shift, cashier, 1);
                 shiftHandler.setRequirement(shift, storekeeper, 1);
-
                 shiftHandler.assignEmployee(shift, cashier, 1);
                 shiftHandler.assignEmployee(shift, storekeeper, 2);
             }
         }
 
-        assertThrows(
-                IllegalStateException.class,
-                () -> shiftHandler.publishWeekSchedule(
-                        employeeHandler.getEmployee(1).getBranch(),
-                        sunday));
+        assertThrows(IllegalStateException.class, () -> shiftHandler.publishWeekSchedule(employeeHandler.getEmployee(1).getBranch(), sunday));
     }
 }

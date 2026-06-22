@@ -12,12 +12,9 @@ import dev.Workers.service.ShiftService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -29,14 +26,12 @@ class ShiftServiceTest {
     private PreferenceHandler preferenceHandler;
     private RoleRegistry roleRegistry;
     private Branch branch;
-
     private Role cashierRole;
 
     private int nextEmployeeId = 10000;
     private int nextShiftOffset = 0;
-    private void resetSingleton(Class<?> clazz, String fieldName)
-            throws Exception {
 
+    private void resetSingleton(Class<?> clazz, String fieldName) throws Exception {
         Field field = clazz.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, null);
@@ -47,12 +42,12 @@ class ShiftServiceTest {
         DatabaseManager.eraseDatabase();
         DatabaseInitializer.initializeDatabase();
 
-        resetSingleton(EmployeeHandler.class,"instance");
-        resetSingleton(ShiftHandler.class,"instance");
-        resetSingleton(ShiftService.class,"instance");
-        resetSingleton(PreferenceHandler.class,"instance");
-        resetSingleton(RoleRegistry.class,"instance");
-        resetSingleton(BranchRegistry.class,"instance");
+        resetSingleton(EmployeeHandler.class, "instance");
+        resetSingleton(ShiftHandler.class, "instance");
+        resetSingleton(ShiftService.class, "instance");
+        resetSingleton(PreferenceHandler.class, "instance");
+        resetSingleton(RoleRegistry.class, "instance");
+        resetSingleton(BranchRegistry.class, "instance");
 
         shiftService = ShiftService.getInstance();
         employeeHandler = EmployeeHandler.getInstance();
@@ -61,10 +56,7 @@ class ShiftServiceTest {
 
         try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
              java.sql.Statement statement = connection.createStatement()) {
-
-            statement.execute("INSERT OR IGNORE INTO branches (branch_name)" +
-                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
-
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Failed to setup test database branches", e);
         }
@@ -77,10 +69,8 @@ class ShiftServiceTest {
         branch = registry.getBranchByName("Beer-Sheva");
 
         cashierRole = roleRegistry.getRoleByName("Cashier");
-
         nextEmployeeId = 10000;
         nextShiftOffset = 0;
-
         preferenceHandler.setDeadline(null);
     }
 
@@ -88,9 +78,7 @@ class ShiftServiceTest {
      * Creates an employee with a specific role.
      */
     private int createEmployee(Role role, boolean manager) {
-
         int id = nextEmployeeId++;
-
         employeeHandler.add(
                 "Employee" + id,
                 id,
@@ -102,34 +90,24 @@ class ShiftServiceTest {
                         SalaryType.global,
                         2,
                         DayOfWeek.WEDNESDAY),
-                LocalDate.of(2025,1,1));
+                LocalDate.of(2025, 1, 1));
 
         employeeHandler.addRole(id, role);
-
         employeeHandler.getEmployee(id).setManager(manager);
-
         preferenceHandler.initPreferences(id);
 
         for (DayOfWeek day : DayOfWeek.values()) {
             preferenceHandler.update(id, day, ShiftType.ANY);
         }
-
         return id;
     }
+
     /**
      * Creates a unique future shift.
      */
     private Shift createFutureMorningShift() {
-
-        LocalDate date =
-                LocalDate.now()
-                        .plusWeeks(4)
-                        .plusDays(nextShiftOffset++);
-
-        return shiftService.getShift(
-                branch,
-                date,
-                ShiftType.MORNING);
+        LocalDate date = LocalDate.now().plusWeeks(4).plusDays(nextShiftOffset++);
+        return shiftService.getShift(branch, date, ShiftType.MORNING);
     }
 
     /**
@@ -137,22 +115,11 @@ class ShiftServiceTest {
      */
     @Test
     void assignEmployee_shouldSucceed() {
-
         int empId = createEmployee(cashierRole, true);
-
         Shift shift = createFutureMorningShift();
 
-        shiftService.setRequirementManually(
-                shift,
-                cashierRole,
-                1);
-
-        assertDoesNotThrow(() ->
-                shiftService.assignEmployee(
-                        shift,
-                        cashierRole,
-                        empId));
-
+        shiftService.setRequirementManually(shift, cashierRole, 1);
+        assertDoesNotThrow(() -> shiftService.assignEmployee(shift, cashierRole, empId));
     }
 
     /**
@@ -160,27 +127,13 @@ class ShiftServiceTest {
      */
     @Test
     void assignEmployeeTwice_shouldFail() {
-
         int empId = createEmployee(cashierRole, false);
-
         Shift shift = createFutureMorningShift();
 
-        shiftService.setRequirementManually(
-                shift,
-                cashierRole,
-                2);
+        shiftService.setRequirementManually(shift, cashierRole, 2);
+        shiftService.assignEmployee(shift, cashierRole, empId);
 
-        shiftService.assignEmployee(
-                shift,
-                cashierRole,
-                empId);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftService.assignEmployee(
-                        shift,
-                        cashierRole,
-                        empId));
+        assertThrows(IllegalArgumentException.class, () -> shiftService.assignEmployee(shift, cashierRole, empId));
     }
 
     /**
@@ -188,27 +141,13 @@ class ShiftServiceTest {
      */
     @Test
     void replaceEmployeeWithSameEmployee_shouldFail() {
-
         int empId = createEmployee(cashierRole, false);
-
         Shift shift = createFutureMorningShift();
 
-        shiftService.setRequirementManually(
-                shift,
-                cashierRole,
-                1);
+        shiftService.setRequirementManually(shift, cashierRole, 1);
+        shiftService.assignEmployee(shift, cashierRole, empId);
 
-        shiftService.assignEmployee(
-                shift,
-                cashierRole,
-                empId);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftService.replaceEmployee(
-                        shift,
-                        empId,
-                        empId));
+        assertThrows(IllegalArgumentException.class, () -> shiftService.replaceEmployee(shift, empId, empId));
     }
 
     /**
@@ -216,10 +155,7 @@ class ShiftServiceTest {
      */
     @Test
     void publishIncompleteWeek_shouldFail() {
-
-        assertThrows(
-                IllegalStateException.class,
-                () -> shiftService.publishNextWeekSchedule(branch));
+        assertThrows(IllegalStateException.class, () -> shiftService.publishNextWeekSchedule(branch));
     }
 
     /**
@@ -227,38 +163,23 @@ class ShiftServiceTest {
      */
     @Test
     void getShiftHistory_shouldReturnString() {
-
-        String history =
-                shiftService.getShiftHistory(branch);
-
+        String history = shiftService.getShiftHistory(branch);
         assertNotNull(history);
     }
+
     /**
      * Verifies that removing an assigned employee succeeds.
      */
     @Test
     void removeEmployee_shouldSucceed() {
-
         int empId = createEmployee(cashierRole, false);
-
         Shift shift = createFutureMorningShift();
 
-        shiftService.setRequirementManually(
-                shift,
-                cashierRole,
-                1);
+        shiftService.setRequirementManually(shift, cashierRole, 1);
+        shiftService.assignEmployee(shift, cashierRole, empId);
+        shiftService.removeEmployee(shift, empId);
 
-        shiftService.assignEmployee(
-                shift,
-                cashierRole,
-                empId);
-
-        shiftService.removeEmployee(
-                shift,
-                empId);
-
-        assertFalse(
-                shiftService.isShiftAssigned(shift));
+        assertFalse(shiftService.isShiftAssigned(shift));
     }
 
     /**
@@ -266,15 +187,8 @@ class ShiftServiceTest {
      */
     @Test
     void updateExtraHours_negativeValue_shouldFail() {
-
         Shift shift = createFutureMorningShift();
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftService.updateExtraHours(
-                        shift,
-                        1,
-                        -1));
+        assertThrows(IllegalArgumentException.class, () -> shiftService.updateExtraHours(shift, 1, -1));
     }
 
     /**
@@ -282,15 +196,8 @@ class ShiftServiceTest {
      */
     @Test
     void updateExtraHours_aboveFour_shouldFail() {
-
         Shift shift = createFutureMorningShift();
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftService.updateExtraHours(
-                        shift,
-                        1,
-                        5));
+        assertThrows(IllegalArgumentException.class, () -> shiftService.updateExtraHours(shift, 1, 5));
     }
 
     /**
@@ -298,10 +205,7 @@ class ShiftServiceTest {
      */
     @Test
     void displayWeekAssignments_shouldReturnString() {
-
-        String result =
-                shiftService.displayWeekAssignments(branch);
-
+        String result = shiftService.displayWeekAssignments(branch);
         assertNotNull(result);
     }
 
@@ -310,25 +214,17 @@ class ShiftServiceTest {
      */
     @Test
     void getShiftDetails_shouldReturnString() {
-
         Shift shift = createFutureMorningShift();
-
-        String details =
-                shiftService.getShiftDetails(shift);
-
+        String details = shiftService.getShiftDetails(shift);
         assertNotNull(details);
     }
-
 
     /**
      * Verifies that current week display returns a string.
      */
     @Test
     void displayCurrentWeek_shouldReturnString() {
-
-        String result =
-                shiftService.displayCurrentWeek(branch);
-
+        String result = shiftService.displayCurrentWeek(branch);
         assertNotNull(result);
     }
 
@@ -337,10 +233,7 @@ class ShiftServiceTest {
      */
     @Test
     void displayNextWeek_shouldReturnString() {
-
-        String result =
-                shiftService.displayNextWeek(branch);
-
+        String result = shiftService.displayNextWeek(branch);
         assertNotNull(result);
     }
 
@@ -349,9 +242,7 @@ class ShiftServiceTest {
      */
     @Test
     void getWeekStatus_shouldReturnStatus() {
-
-        assertNotNull(
-                shiftService.getWeekStatus(branch));
+        assertNotNull(shiftService.getWeekStatus(branch));
     }
 
     /**
@@ -359,10 +250,7 @@ class ShiftServiceTest {
      */
     @Test
     void resetShift_shouldNotThrow() {
-
         Shift shift = createFutureMorningShift();
-
-        assertDoesNotThrow(
-                () -> shiftService.resetShift(shift));
+        assertDoesNotThrow(() -> shiftService.resetShift(shift));
     }
 }

@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for PreferenceHandler timing logic.
  */
 class PreferenceHandlerTest {
-
     private PreferenceHandler preferenceHandler;
 
     @BeforeEach
@@ -36,9 +35,7 @@ class PreferenceHandlerTest {
      */
     @Test
     void setDeadline_shouldSucceed() {
-
         preferenceHandler.setDeadline(DayOfWeek.TUESDAY);
-
         assertEquals(
                 DayOfWeek.TUESDAY,
                 preferenceHandler.getDeadline());
@@ -49,9 +46,7 @@ class PreferenceHandlerTest {
      */
     @Test
     void isOnTime_beforeDeadline_shouldReturnTrue() {
-
         preferenceHandler.setDeadline(DayOfWeek.THURSDAY);
-
         assertTrue(
                 preferenceHandler.isOnTime(
                         LocalDate.of(2025, 1, 1))); // Wednesday
@@ -62,9 +57,7 @@ class PreferenceHandlerTest {
      */
     @Test
     void isOnTime_afterDeadline_shouldReturnFalse() {
-
         preferenceHandler.setDeadline(DayOfWeek.THURSDAY);
-
         assertFalse(
                 preferenceHandler.isOnTime(
                         LocalDate.of(2025, 1, 3))); // Friday
@@ -75,9 +68,7 @@ class PreferenceHandlerTest {
      */
     @Test
     void changingDeadline_shouldAffectOnTimeLogic() {
-
         preferenceHandler.setDeadline(DayOfWeek.MONDAY);
-
         assertFalse(
                 preferenceHandler.isOnTime(
                         LocalDate.of(2025, 1, 7))); // Tuesday

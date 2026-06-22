@@ -12,10 +12,8 @@ import dev.Workers.service.ShiftService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -25,7 +23,6 @@ class RequirementServiceTest {
     private RequirementService requirementService;
     private ShiftService shiftService;
     private RequirementHandler requirementHandler;
-
     private Branch branch;
     private Role cashierRole;
     private Role storekeeperRole;
@@ -41,7 +38,6 @@ class RequirementServiceTest {
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Failed to setup test database branches", e);
         }
-
         BranchRegistry registry = BranchRegistry.getInstance();
         registry.registerBranch(new Branch("Beer-Sheva"));
         branch = registry.getBranchByName("Beer-Sheva");
@@ -49,10 +45,8 @@ class RequirementServiceTest {
         requirementService = RequirementService.getInstance();
         shiftService = ShiftService.getInstance();
         requirementHandler = RequirementHandler.getInstance();
-
         cashierRole = RoleRegistry.getInstance().getRoleByName("Cashier");
         storekeeperRole = RoleRegistry.getInstance().getRoleByName("Storekeeper");
-
         shiftService.initShiftsWeek(branch);
     }
 
@@ -61,51 +55,26 @@ class RequirementServiceTest {
      */
     @Test
     void initCashierRequirement_shouldSucceed() {
-        requirementService.initWeeklyReqs(
-                "Cashier",
-                branch,
-                2);
-
+        requirementService.initWeeklyReqs("Cashier", branch, 2);
         Shift shift = shiftService.getShift(
                 branch,
                 LocalDate.now().with(DayOfWeek.SUNDAY),
                 ShiftType.MORNING);
-
-        assertEquals(
-                2,
-                requirementHandler.countRequired(
-                        shift,
-                        cashierRole));
+        assertEquals(2, requirementHandler.countRequired(shift, cashierRole));
     }
-
-
 
     /**
      * Verifies that requirements can be updated.
      */
     @Test
     void updateRequirement_shouldSucceed() {
-
-        requirementService.initWeeklyReqs(
-                "Cashier",
-                branch,
-                2);
-
-        requirementService.initWeeklyReqs(
-                "Cashier",
-                branch,
-                5);
-
+        requirementService.initWeeklyReqs("Cashier", branch, 2);
+        requirementService.initWeeklyReqs("Cashier", branch, 5);
         Shift shift = shiftService.getShift(
                 branch,
                 LocalDate.now().with(DayOfWeek.SUNDAY),
                 ShiftType.MORNING);
-
-        assertEquals(
-                5,
-                requirementHandler.countRequired(
-                        shift,
-                        cashierRole));
+        assertEquals(5, requirementHandler.countRequired(shift, cashierRole));
     }
 
     /**
@@ -113,18 +82,11 @@ class RequirementServiceTest {
      */
     @Test
     void negativeRequirement_shouldFail() {
-
         Shift shift = shiftService.getShift(
                 branch,
                 LocalDate.now().with(DayOfWeek.SUNDAY),
                 ShiftType.MORNING);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftService.setRequirement(
-                        shift,
-                        cashierRole,
-                        -1));
+        assertThrows(IllegalArgumentException.class, () -> shiftService.setRequirement(shift, cashierRole, -1));
     }
 
     /**
@@ -132,22 +94,12 @@ class RequirementServiceTest {
      */
     @Test
     void zeroRequirement_shouldBeAllowed() {
-
-        requirementService.initWeeklyReqs(
-                "Cashier",
-                branch,
-                0);
-
+        requirementService.initWeeklyReqs("Cashier", branch, 0);
         Shift shift = shiftService.getShift(
                 branch,
                 LocalDate.now().with(DayOfWeek.SUNDAY),
                 ShiftType.MORNING);
-
-        assertEquals(
-                0,
-                requirementHandler.countRequired(
-                        shift,
-                        cashierRole));
+        assertEquals(0, requirementHandler.countRequired(shift, cashierRole));
     }
 
     /**
@@ -155,21 +107,11 @@ class RequirementServiceTest {
      */
     @Test
     void requirementsShouldExistAfterInitialization() {
-
-        requirementService.initWeeklyReqs(
-                "Cashier",
-                branch,
-                3);
-
+        requirementService.initWeeklyReqs("Cashier", branch, 3);
         Shift shift = shiftService.getShift(
                 branch,
                 LocalDate.now().with(DayOfWeek.SUNDAY),
                 ShiftType.MORNING);
-
-        assertTrue(
-                requirementHandler.countRequired(
-                        shift,
-                        cashierRole) > 0);
+        assertTrue(requirementHandler.countRequired(shift, cashierRole) > 0);
     }
-
 }

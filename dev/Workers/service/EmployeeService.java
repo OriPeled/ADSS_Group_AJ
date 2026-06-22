@@ -17,10 +17,8 @@ import java.util.List;
  */
 public class EmployeeService {
     private static EmployeeService instance;
-    //private static final EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
     private EmployeeHandler employeeHandler;
     private AccessService accessService;
-    //private static final dev.Workers.service.AccessService accessService = AccessService.getInstance();
 
     /**
      * Private constructor to enforce the Singleton pattern.

@@ -8,16 +8,13 @@ import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.EmployeeTerms;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -44,13 +41,9 @@ public class ShiftHandlerTest {
     static void initDatabaseOnce() {
         DatabaseManager.eraseDatabase();
         DatabaseInitializer.initializeDatabase();
-
         try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
              java.sql.Statement statement = connection.createStatement()) {
-
-            statement.execute("INSERT OR IGNORE INTO branches (branch_name)" +
-                    "VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
-
+            statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva'), ('Dimona'), ('Ofakim'), ('Rahat');");
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Failed to setup test database branches", e);
         }
@@ -73,9 +66,7 @@ public class ShiftHandlerTest {
         clearWeekSchedules();
 
         employeeHandler = EmployeeHandler.getInstance();
-
-        Field accessEmployeeHandlerField =
-                AccessHandler.class.getDeclaredField("employeeHandler");
+        Field accessEmployeeHandlerField = AccessHandler.class.getDeclaredField("employeeHandler");
         accessEmployeeHandlerField.setAccessible(true);
         accessEmployeeHandlerField.set(null, employeeHandler);
 
@@ -92,13 +83,10 @@ public class ShiftHandlerTest {
 
         cashierRole = roleRegistry.getRoleByName("Cashier");
         storekeeperRole = roleRegistry.getRoleByName("Storekeeper");
-
         preferenceHandler.setDeadline(null);
     }
 
-    static void resetSingleton(Class<?> clazz, String fieldName)
-            throws Exception {
-
+    static void resetSingleton(Class<?> clazz, String fieldName) throws Exception {
         Field instanceField = clazz.getDeclaredField(fieldName);
         instanceField.setAccessible(true);
         instanceField.set(null, null);
@@ -108,10 +96,7 @@ public class ShiftHandlerTest {
     private static void clearWeekSchedules() throws Exception {
         Field field = ShiftHandler.class.getDeclaredField("weekSchedules");
         field.setAccessible(true);
-
-        Map<LocalDate, ?> weekSchedules =
-                (Map<LocalDate, ?>) field.get(null);
-
+        Map<LocalDate, ?> weekSchedules = (Map<LocalDate, ?>) field.get(null);
         weekSchedules.clear();
     }
 
@@ -125,7 +110,6 @@ public class ShiftHandlerTest {
 
     private int registerEmployee(String name, Role role) {
         int id = nextEmployeeId++;
-
         employeeHandler.add(
                 name,
                 id,
@@ -134,14 +118,12 @@ public class ShiftHandlerTest {
                 5000,
                 createTerms(),
                 LocalDate.of(2025, 1, 1));
-
         employeeHandler.addRole(id, role);
         preferenceHandler.initPreferences(id);
 
         for (DayOfWeek day : DayOfWeek.values()) {
             preferenceHandler.update(id, day, ShiftType.ANY);
         }
-
         return id;
     }
 
@@ -152,15 +134,8 @@ public class ShiftHandlerTest {
     }
 
     private Shift createShift() {
-        LocalDate date =
-                LocalDate.now()
-                        .plusWeeks(4)
-                        .plusDays(nextShiftOffset++);
-
-        return shiftHandler.getShift(
-                branch,
-                date,
-                ShiftType.MORNING);
+        LocalDate date = LocalDate.now().plusWeeks(4).plusDays(nextShiftOffset++);
+        return shiftHandler.getShift(branch, date, ShiftType.MORNING);
     }
 
     private LocalDate nextSunday() {
@@ -170,10 +145,7 @@ public class ShiftHandlerTest {
     }
 
     private void makeEmployeeAvailable(int employeeId, Shift shift, ShiftType type) {
-        preferenceHandler.update(
-                employeeId,
-                shift.getDate().getDayOfWeek(),
-                type);
+        preferenceHandler.update(employeeId, shift.getDate().getDayOfWeek(), type);
     }
 
     /**
@@ -184,7 +156,6 @@ public class ShiftHandlerTest {
     void assignEmployee_shouldSucceedForValidEmployee() {
         int employeeId = registerEmployee("Alice", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
@@ -202,17 +173,11 @@ public class ShiftHandlerTest {
     void assignEmployee_shouldFailWhenEmployeeIsNotQualified() {
         int employeeId = registerEmployee("Bob", storekeeperRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        cashierRole,
-                        employeeId));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.assignEmployee(shift, cashierRole, employeeId));
     }
 
     /**
@@ -223,17 +188,11 @@ public class ShiftHandlerTest {
     void assignEmployee_shouldFailWhenEmployeeIsNotAvailable() {
         int employeeId = registerEmployee("Charlie", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.EVENING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        cashierRole,
-                        employeeId));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.assignEmployee(shift, cashierRole, employeeId));
     }
 
     /**
@@ -244,18 +203,12 @@ public class ShiftHandlerTest {
     void assignEmployee_shouldFailWhenEmployeeAlreadyAssignedToSameShift() {
         int employeeId = registerEmployee("Daniel", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 2);
         shiftHandler.assignEmployee(shift, cashierRole, employeeId);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        cashierRole,
-                        employeeId));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.assignEmployee(shift, cashierRole, employeeId));
     }
 
     /**
@@ -266,15 +219,12 @@ public class ShiftHandlerTest {
     void leftToAssign_shouldReportMissingEmployeesCorrectly() {
         int employeeId = registerEmployee("Hannah", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 2);
-
         assertEquals(2, shiftHandler.leftToAssign(shift, cashierRole));
 
         shiftHandler.assignEmployee(shift, cashierRole, employeeId);
-
         assertEquals(1, shiftHandler.leftToAssign(shift, cashierRole));
     }
 
@@ -286,7 +236,6 @@ public class ShiftHandlerTest {
     void replaceEmployee_shouldReplaceAssignedEmployeeSuccessfully() {
         int oldEmployeeId = registerEmployee("David", cashierRole);
         int newEmployeeId = registerEmployee("Eve", cashierRole);
-
         Shift shift = createShift();
 
         makeEmployeeAvailable(oldEmployeeId, shift, ShiftType.MORNING);
@@ -295,10 +244,7 @@ public class ShiftHandlerTest {
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, oldEmployeeId);
 
-        shiftHandler.replaceEmployee(
-                shift,
-                oldEmployeeId,
-                newEmployeeId);
+        shiftHandler.replaceEmployee(shift, oldEmployeeId, newEmployeeId);
 
         assertEquals(0, shiftHandler.leftToAssign(shift, cashierRole));
         assertFalse(shiftHandler.isNeeded(shift, cashierRole));
@@ -312,7 +258,6 @@ public class ShiftHandlerTest {
     void replaceEmployee_shouldFailWhenNewEmployeeIsNotQualified() {
         int oldEmployeeId = registerEmployee("Frank", cashierRole);
         int newEmployeeId = registerEmployee("Grace", storekeeperRole);
-
         Shift shift = createShift();
 
         makeEmployeeAvailable(oldEmployeeId, shift, ShiftType.MORNING);
@@ -321,12 +266,7 @@ public class ShiftHandlerTest {
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, oldEmployeeId);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.replaceEmployee(
-                        shift,
-                        oldEmployeeId,
-                        newEmployeeId));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.replaceEmployee(shift, oldEmployeeId, newEmployeeId));
     }
 
     /**
@@ -337,18 +277,12 @@ public class ShiftHandlerTest {
     void replaceEmployee_shouldFailWhenReplacingWithSameEmployee() {
         int employeeId = registerEmployee("Lior", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, employeeId);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.replaceEmployee(
-                        shift,
-                        employeeId,
-                        employeeId));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.replaceEmployee(shift, employeeId, employeeId));
     }
 
     /**
@@ -358,21 +292,13 @@ public class ShiftHandlerTest {
     @Test
     void assignEmployee_shouldFailWhenEmployeeIsTerminated() {
         int employeeId = registerEmployee("Liam", cashierRole);
-
         employeeHandler.fire(employeeId);
-
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        cashierRole,
-                        employeeId));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.assignEmployee(shift, cashierRole, employeeId));
     }
 
     /**
@@ -381,13 +307,10 @@ public class ShiftHandlerTest {
      */
     @Test
     void addRoleToEmployee_shouldStillWorkOnTerminationDay() {
-
         int employeeId = registerEmployee("Sophia", cashierRole);
-
         employeeHandler.fire(employeeId);
 
-        assertDoesNotThrow(() ->
-                employeeHandler.addRole(employeeId, storekeeperRole));
+        assertDoesNotThrow(() -> employeeHandler.addRole(employeeId, storekeeperRole));
     }
 
     /**
@@ -398,7 +321,6 @@ public class ShiftHandlerTest {
     void assigningManager_shouldMarkShiftAsManaged() {
         int managerId = registerManager("Manager", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(managerId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
@@ -416,7 +338,6 @@ public class ShiftHandlerTest {
     void shiftWithoutManager_shouldBeIncomplete() {
         int employeeId = registerEmployee("Worker", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
@@ -433,13 +354,7 @@ public class ShiftHandlerTest {
     @Test
     void setRequirement_shouldFailWhenCountIsNegative() {
         Shift shift = createShift();
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.setRequirement(
-                        shift,
-                        cashierRole,
-                        -1));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.setRequirement(shift, cashierRole, -1));
     }
 
     /**
@@ -450,17 +365,12 @@ public class ShiftHandlerTest {
     void updateExtraHours_shouldSucceedForAssignedEmployee() {
         int employeeId = registerEmployee("ExtraHoursEmployee", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
         shiftHandler.assignEmployee(shift, cashierRole, employeeId);
 
-        assertDoesNotThrow(() ->
-                shiftHandler.updateExtraHours(
-                        shift,
-                        employeeId,
-                        2));
+        assertDoesNotThrow(() -> shiftHandler.updateExtraHours(shift, employeeId, 2));
     }
 
     /**
@@ -471,13 +381,7 @@ public class ShiftHandlerTest {
     void updateExtraHours_shouldFailForUnassignedEmployee() {
         int employeeId = registerEmployee("UnassignedExtra", cashierRole);
         Shift shift = createShift();
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> shiftHandler.updateExtraHours(
-                        shift,
-                        employeeId,
-                        2));
+        assertThrows(IllegalArgumentException.class, () -> shiftHandler.updateExtraHours(shift, employeeId, 2));
     }
 
     /**
@@ -488,14 +392,10 @@ public class ShiftHandlerTest {
     void pendingRequest_shouldCreateCompleteStarStatus() {
         int managerId = registerManager("PendingManager", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(managerId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignmentHandler.addRequest(
-                shift,
-                cashierRole,
-                managerId);
+        shiftHandler.assignmentHandler.addRequest(shift, cashierRole, managerId);
 
         assertEquals("COMPLETE*", shiftHandler.getShiftStatus(shift));
     }
@@ -508,22 +408,14 @@ public class ShiftHandlerTest {
     void approveNextAssignment_shouldAssignEmployee() {
         int managerId = registerManager("ApproveManager", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(managerId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
-        shiftHandler.assignmentHandler.addRequest(
-                shift,
-                cashierRole,
-                managerId);
+        shiftHandler.assignmentHandler.addRequest(shift, cashierRole, managerId);
 
         shiftHandler.approveNextAssignment(managerId);
 
-        assertTrue(
-                shiftHandler.assignmentHandler.isAssignedToRole(
-                        shift,
-                        cashierRole,
-                        managerId));
+        assertTrue(shiftHandler.assignmentHandler.isAssignedToRole(shift, cashierRole, managerId));
     }
 
     /**
@@ -534,50 +426,25 @@ public class ShiftHandlerTest {
     void publishWeekSchedule_shouldSucceedWhenWeekIsFullyAssigned() {
         int managerId = registerManager("WeekManager", cashierRole);
         int storekeeperId = registerEmployee("WeekStorekeeper", storekeeperRole);
-
         LocalDate sunday = nextSunday();
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = sunday.plusDays(i);
+            for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
+                Shift shift = shiftHandler.getShift(branch, date, type);
 
-            for (ShiftType type :
-                    new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-
-                Shift shift = shiftHandler.getShift(
-                        branch,
-                        date,
-                        type);
-
-                preferenceHandler.update(
-                        managerId,
-                        date.getDayOfWeek(),
-                        type);
-
-                preferenceHandler.update(
-                        storekeeperId,
-                        date.getDayOfWeek(),
-                        type);
+                preferenceHandler.update(managerId, date.getDayOfWeek(), type);
+                preferenceHandler.update(storekeeperId, date.getDayOfWeek(), type);
 
                 shiftHandler.setRequirement(shift, cashierRole, 1);
                 shiftHandler.setRequirement(shift, storekeeperRole, 1);
 
-                shiftHandler.assignEmployee(
-                        shift,
-                        cashierRole,
-                        managerId);
-
-                shiftHandler.assignEmployee(
-                        shift,
-                        storekeeperRole,
-                        storekeeperId);
+                shiftHandler.assignEmployee(shift, cashierRole, managerId);
+                shiftHandler.assignEmployee(shift, storekeeperRole, storekeeperId);
             }
         }
-
         shiftHandler.publishWeekSchedule(branch, sunday);
-
-        assertEquals(
-                WeekStatus.PUBLISHED,
-                shiftHandler.getWeekStatus(branch, sunday));
+        assertEquals(WeekStatus.PUBLISHED, shiftHandler.getWeekStatus(branch, sunday));
     }
 
     /**
@@ -588,50 +455,24 @@ public class ShiftHandlerTest {
     void publishWeekSchedule_shouldFailWhenWeekHasNoManager() {
         int cashierId = registerEmployee("WeekCashier", cashierRole);
         int storekeeperId = registerEmployee("WeekStorekeeperNoManager", storekeeperRole);
-
         LocalDate sunday = nextSunday().plusWeeks(1);
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = sunday.plusDays(i);
+            for (ShiftType type : new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
+                Shift shift = shiftHandler.getShift(branch, date, type);
 
-            for (ShiftType type :
-                    new ShiftType[]{ShiftType.MORNING, ShiftType.EVENING}) {
-
-                Shift shift = shiftHandler.getShift(
-                        branch,
-                        date,
-                        type);
-
-                preferenceHandler.update(
-                        cashierId,
-                        date.getDayOfWeek(),
-                        type);
-
-                preferenceHandler.update(
-                        storekeeperId,
-                        date.getDayOfWeek(),
-                        type);
+                preferenceHandler.update(cashierId, date.getDayOfWeek(), type);
+                preferenceHandler.update(storekeeperId, date.getDayOfWeek(), type);
 
                 shiftHandler.setRequirement(shift, cashierRole, 1);
                 shiftHandler.setRequirement(shift, storekeeperRole, 1);
 
-                shiftHandler.assignEmployee(
-                        shift,
-                        cashierRole,
-                        cashierId);
-
-                shiftHandler.assignEmployee(
-                        shift,
-                        storekeeperRole,
-                        storekeeperId);
+                shiftHandler.assignEmployee(shift, cashierRole, cashierId);
+                shiftHandler.assignEmployee(shift, storekeeperRole, storekeeperId);
             }
         }
-
-        assertThrows(
-                IllegalStateException.class,
-                () -> shiftHandler.publishWeekSchedule(
-                        branch,
-                        sunday));
+        assertThrows(IllegalStateException.class, () -> shiftHandler.publishWeekSchedule(branch, sunday));
     }
 
     /**
@@ -642,7 +483,6 @@ public class ShiftHandlerTest {
     void getShiftDetails_shouldReturnShiftInformation() {
         int employeeId = registerEmployee("DetailsEmployee", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);
@@ -663,7 +503,6 @@ public class ShiftHandlerTest {
     void getUnassignedValid_shouldReturnAvailableEmployees() {
         int employeeId = registerEmployee("AvailableEmployee", cashierRole);
         Shift shift = createShift();
-
         makeEmployeeAvailable(employeeId, shift, ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, cashierRole, 1);

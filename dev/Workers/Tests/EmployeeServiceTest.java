@@ -9,10 +9,8 @@ import dev.Workers.service.EmployeeService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -21,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class EmployeeServiceTest {
     private EmployeeService employeeService;
     private Branch branch;
-
     private static int nextId = 100000;
 
     @BeforeAll
@@ -31,9 +28,7 @@ public class EmployeeServiceTest {
 
         try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
              java.sql.Statement statement = connection.createStatement()) {
-
             statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
-
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Failed to setup test database branches", e);
         }
@@ -52,9 +47,7 @@ public class EmployeeServiceTest {
      * Creates a valid employee and returns its id.
      */
     private int createEmployee() {
-
         int id = nextId++;
-
         employeeService.add(
                 "Employee" + id,
                 id,
@@ -67,7 +60,6 @@ public class EmployeeServiceTest {
                         2,
                         DayOfWeek.WEDNESDAY),
                 LocalDate.of(2025, 1, 1));
-
         return id;
     }
 
@@ -76,9 +68,7 @@ public class EmployeeServiceTest {
      */
     @Test
     void addEmployee_shouldSucceed() {
-
         int id = createEmployee();
-
         assertTrue(employeeService.exists(id));
     }
 
@@ -87,14 +77,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void updateName_shouldSucceed() {
-
         int id = createEmployee();
-
         employeeService.updateName(id, "David");
 
-        assertEquals(
-                "David",
-                employeeService.getEmployee(id).getName());
+        assertEquals("David", employeeService.getEmployee(id).getName());
     }
 
     /**
@@ -102,14 +88,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void updateBankAccount_shouldSucceed() {
-
         int id = createEmployee();
-
         employeeService.updateBankAccount(id, 55555);
 
-        assertEquals(
-                55555,
-                employeeService.getEmployee(id).getBankAccount());
+        assertEquals(55555, employeeService.getEmployee(id).getBankAccount());
     }
 
     /**
@@ -117,15 +99,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void updateSalary_shouldSucceed() {
-
         int id = createEmployee();
-
         employeeService.updateSalary(id, 9000);
 
-        assertEquals(
-                9000,
-                employeeService.getEmployee(id).getSalary(),
-                0.001);
+        assertEquals(9000, employeeService.getEmployee(id).getSalary(), 0.001);
     }
 
     /**
@@ -133,16 +110,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void updateRestDays_shouldSucceed() {
-
         int id = createEmployee();
-
         employeeService.updateRestDays(id, 4);
 
-        assertEquals(
-                4,
-                employeeService.getEmployee(id)
-                        .getTerms()
-                        .getRestDays());
+        assertEquals(4, employeeService.getEmployee(id).getTerms().getRestDays());
     }
 
     /**
@@ -150,16 +121,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void updateDayOff_shouldSucceed() {
-
         int id = createEmployee();
-
         employeeService.updateDayOff(id, DayOfWeek.FRIDAY);
 
-        assertEquals(
-                DayOfWeek.FRIDAY,
-                employeeService.getEmployee(id)
-                        .getTerms()
-                        .getDayOff());
+        assertEquals(DayOfWeek.FRIDAY, employeeService.getEmployee(id).getTerms().getDayOff());
     }
 
     /**
@@ -167,13 +132,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void promoteEmployee_shouldBecomeManager() {
-
         int id = createEmployee();
-
         employeeService.promoteDemote(id);
 
-        assertTrue(
-                employeeService.getEmployee(id).isManager());
+        assertTrue(employeeService.getEmployee(id).isManager());
     }
 
     /**
@@ -181,13 +143,10 @@ public class EmployeeServiceTest {
      */
     @Test
     void fireEmployee_shouldTerminateEmployee() {
-
         int id = createEmployee();
-
         employeeService.fire(id);
 
-        assertTrue(
-                employeeService.getEmployee(id).isTerminated());
+        assertTrue(employeeService.getEmployee(id).isTerminated());
     }
 
     /**
@@ -195,14 +154,11 @@ public class EmployeeServiceTest {
      */
     @Test
     void rehireEmployee_shouldReactivateEmployee() {
-
         int id = createEmployee();
-
         employeeService.fire(id);
         employeeService.rehire(id);
 
-        assertFalse(
-                employeeService.getEmployee(id).isTerminated());
+        assertFalse(employeeService.getEmployee(id).isTerminated());
     }
 
     /**
@@ -210,11 +166,8 @@ public class EmployeeServiceTest {
      */
     @Test
     void updateSalary_negativeSalary_shouldFail() {
-
         int id = createEmployee();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> employeeService.updateSalary(id, -100));
+        assertThrows(IllegalArgumentException.class, () -> employeeService.updateSalary(id, -100));
     }
 }

@@ -12,13 +12,11 @@ import dev.Workers.service.EmployeeService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -28,9 +26,7 @@ public class AccessServiceTest {
     private AccessService accessService;
     private EmployeeService employeeService;
     private AccessHandler accessHandler;
-
     private Branch branch;
-
     private static int nextId = 200000;
 
     @BeforeAll
@@ -40,9 +36,7 @@ public class AccessServiceTest {
 
         try (java.sql.Connection connection = dev.Workers.database.DatabaseManager.getConnection();
              java.sql.Statement statement = connection.createStatement()) {
-
             statement.execute("INSERT OR IGNORE INTO branches (branch_name) VALUES ('Beer-Sheva');");
-
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Failed to setup test database branches", e);
         }
@@ -63,9 +57,7 @@ public class AccessServiceTest {
      * Creates a valid employee.
      */
     private int createEmployee() {
-
         int id = nextId++;
-
         employeeService.add(
                 "Employee" + id,
                 id,
@@ -77,8 +69,7 @@ public class AccessServiceTest {
                         SalaryType.global,
                         2,
                         DayOfWeek.WEDNESDAY),
-                LocalDate.of(2025,1,1));
-
+                LocalDate.of(2025, 1, 1));
         return id;
     }
 
@@ -87,13 +78,10 @@ public class AccessServiceTest {
      */
     @Test
     void register_shouldSucceed() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
 
-        assertTrue(
-                accessHandler.isRegisteredUser(id));
+        assertTrue(accessHandler.isRegisteredUser(id));
     }
 
     /**
@@ -101,9 +89,7 @@ public class AccessServiceTest {
      */
     @Test
     void register_shortPassword_shouldFail() {
-
         int id = createEmployee();
-
         assertThrows(
                 IllegalArgumentException.class,
                 () -> accessService.Register(id, "12"));
@@ -114,11 +100,8 @@ public class AccessServiceTest {
      */
     @Test
     void login_correctPassword_shouldSucceed() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
-
         assertEquals(
                 UserResponse.success,
                 accessService.login(id, "1234"));
@@ -129,11 +112,8 @@ public class AccessServiceTest {
      */
     @Test
     void login_wrongPassword_shouldFail() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
-
         assertThrows(
                 IllegalArgumentException.class,
                 () -> accessService.login(id, "9999"));
@@ -144,9 +124,7 @@ public class AccessServiceTest {
      */
     @Test
     void login_notRegistered_shouldReturnNotRegistered() {
-
         int id = createEmployee();
-
         assertEquals(
                 UserResponse.notRegistered,
                 accessService.login(id, "1234"));
@@ -157,15 +135,11 @@ public class AccessServiceTest {
      */
     @Test
     void updatePassword_shouldSucceed() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
-
         accessService.updatePassword(id, "5678");
 
-        assertFalse(
-                accessHandler.wrongPassword(id, "5678"));
+        assertFalse(accessHandler.wrongPassword(id, "5678"));
     }
 
     /**
@@ -173,9 +147,7 @@ public class AccessServiceTest {
      */
     @Test
     void updatePassword_shortPassword_shouldFail() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
 
         assertThrows(
@@ -188,15 +160,11 @@ public class AccessServiceTest {
      */
     @Test
     void removeUser_shouldSucceed() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
-
         accessService.removeUser(id);
 
-        assertFalse(
-                accessHandler.isRegisteredUser(id));
+        assertFalse(accessHandler.isRegisteredUser(id));
     }
 
     /**
@@ -204,11 +172,8 @@ public class AccessServiceTest {
      */
     @Test
     void login_afterRemoval_shouldReturnNotRegistered() {
-
         int id = createEmployee();
-
         accessService.Register(id, "1234");
-
         accessService.removeUser(id);
 
         assertEquals(
@@ -221,9 +186,7 @@ public class AccessServiceTest {
      */
     @Test
     void removeUnregisteredUser_shouldNotThrow() {
-
         int id = createEmployee();
-
         assertDoesNotThrow(
                 () -> accessService.removeUser(id));
     }
