@@ -167,7 +167,7 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(2),
+                getAvailableDate(driverId),
                 ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, driverC, 1);
@@ -195,7 +195,7 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(3),
+                getAvailableDate(driverId),
                 ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, driverD, 1);
@@ -221,7 +221,7 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(4),
+                getAvailableDate(employeeId),
                 ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, driverC, 1);
@@ -242,37 +242,37 @@ class ShiftDriverAssignmentIntegrationTest {
     @Test
     void employeeDayOffShouldPreventAssignment() {
 
-        int driverId = 900000 + (int) (Math.random() * 100000);
+        int driverId = createDriver("Driver5");
 
-        DayOfWeek dayOff = LocalDate.now().plusDays(6).getDayOfWeek();
+        Role driverC =
+                roleRegistry.getRoleByName("Driver (C)");
 
-        EmployeeTerms terms = new EmployeeTerms(
-                JobStatus.fullTime,
-                SalaryType.hourly,
-                12,
-                dayOff);
-
-        employeeHandler.add(
-                "Driver5",
+        employeeHandler.addRole(
                 driverId,
-                branch,
-                654321,
-                50,
-                terms,
-                LocalDate.now());
+                driverC);
 
-        preferenceHandler.initPreferences(driverId);
+        // Find the employee's weekly day off
+        DayOfWeek dayOff =
+                employeeHandler.getEmployee(driverId)
+                        .getTerms()
+                        .getDayOff();
 
-        Role driverC = roleRegistry.getRoleByName("Driver (C)");
+        // Find the next occurrence of that day
+        LocalDate date = LocalDate.now();
 
-        employeeHandler.addRole(driverId, driverC);
+        while (date.getDayOfWeek() != dayOff) {
+            date = date.plusDays(1);
+        }
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(6),
+                date,
                 ShiftType.MORNING);
 
-        shiftHandler.setRequirement(shift, driverC, 1);
+        shiftHandler.setRequirement(
+                shift,
+                driverC,
+                1);
 
         assertThrows(
                 RuntimeException.class,
@@ -296,7 +296,7 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(1),
+                getAvailableDate(driverId),
                 ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, driverC, 1);
@@ -338,7 +338,7 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(2),
+                getAvailableDate(driverId),
                 ShiftType.MORNING);
 
         // Bypass normal validation and create an inconsistent assignment
@@ -446,9 +446,15 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Role driverC = roleRegistry.getRoleByName("Driver (C)");
 
+        LocalDate date = LocalDate.now().plusDays(1);
+
+        while (date.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            date = date.plusDays(1);
+        }
+
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(1),
+                date,
                 ShiftType.MORNING);
 
         shiftHandler.setRequirement(shift, driverC, 1);
