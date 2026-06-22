@@ -68,6 +68,9 @@ class ShiftDriverAssignmentIntegrationTest {
     /**
      * Creates a new employee with default settings and preferences.
      */
+    /**
+     * Creates a new employee with default settings and preferences.
+     */
     private int createDriver(String name) {
 
         int id = 900000 + (int) (Math.random() * 100000);
@@ -88,6 +91,19 @@ class ShiftDriverAssignmentIntegrationTest {
                 LocalDate.now());
 
         preferenceHandler.initPreferences(id);
+
+        // Make employee available all week except his day off
+        for (DayOfWeek day : DayOfWeek.values()) {
+
+            if (day != terms.getDayOff()) {
+
+                preferenceHandler.manualUpdate(
+                        id,
+                        day,
+                        ShiftType.ANY,
+                        LocalDate.now());
+            }
+        }
 
         return id;
     }
@@ -218,35 +234,7 @@ class ShiftDriverAssignmentIntegrationTest {
                         employeeId));
     }
 
-    /**
-     * Verifies that the same employee cannot be assigned
-     * more than once to the same shift.
-     */
-    @Test
-    void employeeCanBeAssignedOnlyOnce() {
 
-        int driverId = createDriver("Driver4");
-
-        Role driverC = roleRegistry.getRoleByName("Driver (C)");
-
-        employeeHandler.addRole(driverId, driverC);
-
-        Shift shift = shiftHandler.getShift(
-                branch,
-                LocalDate.now().plusDays(5),
-                ShiftType.MORNING);
-
-        shiftHandler.setRequirementManually(shift, driverC, 2);
-
-        shiftHandler.assignEmployee(shift, driverC, driverId);
-
-        assertThrows(
-                RuntimeException.class,
-                () -> shiftHandler.assignEmployee(
-                        shift,
-                        driverC,
-                        driverId));
-    }
     /**
      * Verifies that an employee cannot be assigned
      * on his weekly day off.
@@ -377,19 +365,23 @@ class ShiftDriverAssignmentIntegrationTest {
 
         Shift shift = shiftHandler.getShift(
                 branch,
-                LocalDate.now().plusDays(5),
+                getAvailableDate(driverId),
                 ShiftType.MORNING);
 
-        shiftHandler.setRequirement(shift, driverC, 2);
+        shiftHandler.setRequirement(
+                shift,
+                driverC,
+                2);
 
-        // first assignment
+        // First assignment succeeds
         shiftHandler.assignEmployee(
                 shift,
                 driverC,
                 driverId);
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
+        // Second assignment should fail
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
                 () -> shiftHandler.assignEmployee(
                         shift,
                         driverC,
@@ -397,20 +389,6 @@ class ShiftDriverAssignmentIntegrationTest {
 
         assertTrue(
                 ex.getMessage().contains("already assigned"));
-    }
-    private LocalDate getAvailableDate(int employeeId) {
-
-        LocalDate date = LocalDate.now().plusDays(1);
-
-        while (date.getDayOfWeek() ==
-                employeeHandler.getEmployee(employeeId)
-                        .getTerms()
-                        .getDayOff()) {
-
-            date = date.plusDays(1);
-        }
-
-        return date;
     }
     /**
      * Verifies that an employee cannot be assigned
@@ -481,5 +459,22 @@ class ShiftDriverAssignmentIntegrationTest {
                         shift,
                         driverC,
                         999999999));
+    }
+    /**
+     * Returns a date on which the employee is available.
+     */
+    private LocalDate getAvailableDate(int employeeId) {
+
+        LocalDate date = LocalDate.now().plusDays(1);
+
+        while (date.getDayOfWeek() ==
+                employeeHandler.getEmployee(employeeId)
+                        .getTerms()
+                        .getDayOff()) {
+
+            date = date.plusDays(1);
+        }
+
+        return date;
     }
 }
