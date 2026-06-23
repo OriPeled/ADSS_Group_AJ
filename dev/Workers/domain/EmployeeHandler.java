@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
 
 import static dev.Workers.domain.Enums.UserResponse.*;
 import dev.Workers.database.dao.EmployeeDaoSQL;
@@ -178,6 +180,54 @@ public class EmployeeHandler {
     public void removeAll(int id) {
         Employee emp = getEmployee(id);
         emp.removeAllRoles();
+        employeeDao.update(emp);
+    }
+
+    public void updateName(int id, String name) {
+        Employee emp = getEmployee(id);
+        emp.setName(name);
+        employeeDao.update(emp);
+    }
+
+    public void updateBankAccount(int id, int bankAccount) {
+        Employee emp = getEmployee(id);
+        emp.setBankAccount(bankAccount);
+        employeeDao.update(emp);
+    }
+
+    public void updateSalary(int id, double salary) {
+        Employee emp = getEmployee(id);
+        emp.setSalary(salary);
+        employeeDao.update(emp);
+    }
+
+    public void updateJobStatus(int id) {
+        Employee emp = getEmployee(id);
+        emp.getTerms().changeJobStatus();
+        employeeDao.update(emp);
+    }
+
+    public void updateSalaryType(int id) {
+        Employee emp = getEmployee(id);
+        emp.getTerms().changeSalaryType();
+        employeeDao.update(emp);
+    }
+
+    public void updateRestDays(int id, int days) {
+        Employee emp = getEmployee(id);
+        emp.getTerms().setRestDays(days);
+        employeeDao.update(emp);
+    }
+
+    public void updateDayOff(int id, DayOfWeek day) {
+        Employee emp = getEmployee(id);
+        emp.getTerms().setDayOff(day);
+        employeeDao.update(emp);
+    }
+
+    public void updateBranch(int id, Branch branch) {
+        Employee emp = getEmployee(id);
+        emp.setBranch(branch);
         employeeDao.update(emp);
     }
 

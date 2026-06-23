@@ -5,6 +5,7 @@ import dev.Workers.domain.Enums.ShiftType;
 import java.time.DayOfWeek;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static dev.Workers.domain.Enums.ShiftType.ANY;
      /**
@@ -49,19 +50,24 @@ public class Preference {
         return weekPreferences;
     }
 
-    /**
-     * Compares two preferences based on day and shift type.
-     *
-     * @param o object to compare
-     * @return true if both preferences refer to the same day and shift type
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Preference that = (Preference) o;
-        return day.equals(that.day) && shiftType == that.shiftType;
-    }
+         /**
+          * Compares two preferences based on their full weekly preferences map.
+          *
+          * @param o object to compare
+          * @return true if both preferences have the same weekly preferences
+          */
+         @Override
+         public boolean equals(Object o) {
+             if (this == o) return true;
+             if (o == null || getClass() != o.getClass()) return false;
+             Preference that = (Preference) o;
+             return Objects.equals(weekPreferences, that.weekPreferences);
+         }
+
+         @Override
+         public int hashCode() {
+             return Objects.hash(weekPreferences);
+         }
 
      @Override
      public String toString() {

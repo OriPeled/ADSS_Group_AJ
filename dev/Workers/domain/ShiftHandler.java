@@ -53,7 +53,7 @@ public class ShiftHandler {
         this.shifts = new HashSet<>();
         this.requirementHandler = RequirementHandler.getInstance();
         this.preferenceHandler = PreferenceHandler.getInstance();
-        this.assignmentHandler = new AssignmentHandler();
+        this.assignmentHandler = AssignmentHandler.getInstance();
         this.employeeHandler = EmployeeHandler.getInstance();
         this.branchRegistry = BranchRegistry.getInstance();
         this.roleRegistry = RoleRegistry.getInstance();

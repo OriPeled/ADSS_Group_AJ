@@ -104,8 +104,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.setName(newName);
+        employeeHandler.updateName(id, newName);
     }
 
     public void updateBankAccount(int id, int newBankAccount) {
@@ -113,8 +112,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Invalid bank account.");
         }
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.setBankAccount(newBankAccount);
+        employeeHandler.updateBankAccount(id, newBankAccount);
     }
 
     public void updateSalary(int id, double newSalary) {
@@ -122,20 +120,17 @@ public class EmployeeService {
             throw new IllegalArgumentException("Salary must be positive.");
         }
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.setSalary(newSalary);
+        employeeHandler.updateSalary(id, newSalary);
     }
 
     public void updateJobStatus(int id) {
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.getTerms().changeJobStatus();
+        employeeHandler.updateJobStatus(id);
     }
 
     public void updateSalaryType(int id) {
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.getTerms().changeSalaryType();
+        employeeHandler.updateSalaryType(id);
     }
 
     public void updateRestDays(int id, int days) {
@@ -143,14 +138,17 @@ public class EmployeeService {
             throw new IllegalArgumentException("The number of days off must be positive..");
         }
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.getTerms().setRestDays(days);
+        employeeHandler.updateRestDays(id, days);
     }
 
     public void updateDayOff(int id, DayOfWeek day) {
         employeeHandler.validateEmployeeBasic(id, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(id);
-        emp.getTerms().setDayOff(day);
+        employeeHandler.updateDayOff(id, day);
+    }
+
+    public void updateBranch(int empId, Branch branch) {
+        employeeHandler.validateEmployeeBasic(empId, LocalDate.now());
+        employeeHandler.updateBranch(empId, branch);
     }
 
     /**
@@ -205,12 +203,6 @@ public class EmployeeService {
 
     public UserResponse promoteDemote(int empId) {
         return employeeHandler.promoteDemote(empId);
-    }
-
-    public void updateBranch(int empId, Branch branch) {
-        employeeHandler.validateEmployeeBasic(empId, LocalDate.now());
-        Employee emp = employeeHandler.getEmployee(empId);
-        emp.setBranch(branch);
     }
 
     public String getFormattedRolesList(int empId) {

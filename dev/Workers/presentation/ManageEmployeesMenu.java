@@ -528,6 +528,12 @@ public class ManageEmployeesMenu  {
 
         Branch branch;
         List<Branch> branches = branchRegistry.getAllBranches();
+
+        if (branches.isEmpty()) {
+            System.out.println("No branches available yet. Please load demo data first (main menu option 3).");
+            return;
+        }
+
         while (true) {
             System.out.println("Choose branch:");
             for (int i = 0; i < branches.size(); i++) {

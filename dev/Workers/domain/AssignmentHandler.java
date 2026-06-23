@@ -213,7 +213,8 @@ public class AssignmentHandler {
     }
 
     public void addRequestAnswer(Branch branch, String message) {
-        requestAnswers.get(branch).add("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] " + message);
+        requestAnswers.computeIfAbsent(branch, k -> new LinkedList<>())
+                .add("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] " + message);
     }
 
     public List<String> popRequestAnswers(Branch branch) {
