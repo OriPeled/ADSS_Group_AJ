@@ -180,7 +180,7 @@ public class Employee {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Employee Details\n");
-        sb.append("======================================");
+        sb.append("======================================\n");
         sb.append("ID: ").append(id).append("\n");
         sb.append("Name: ").append(name).append("\n");
         sb.append("Branch: ").append(branch.getName()).append("\n");
