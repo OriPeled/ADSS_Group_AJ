@@ -704,7 +704,8 @@ public class ShiftHandler {
         StringBuilder sb = new StringBuilder();
         int padding = lines.stream().mapToInt(String::length).max().orElse(25) + 4;
 
-        for (int row = 0; row < 5; row++) {
+        int rows = Math.min(5, lines.size());
+        for (int row = 0; row < rows; row++) {
             sb.append(String.format("%-" + padding + "s", lines.get(row)));
             if (row + 5 < lines.size()) sb.append(String.format("%-" + padding + "s", lines.get(row + 5)));
             if (row + 10 < lines.size()) sb.append(lines.get(row + 10));
