@@ -10,7 +10,7 @@ import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.domain.ShiftHandler;
 import dev.Workers.setup.TransportService;
-import dev.Workers.utils.Parser;
+import dev.utils.Parser;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.domain.AccessHandler;
 import dev.Workers.domain.BranchRegistry;
@@ -12,9 +12,7 @@ import dev.Workers.service.EmployeeService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;

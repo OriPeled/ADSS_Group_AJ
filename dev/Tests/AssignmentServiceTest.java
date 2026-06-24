@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.domain.AssignmentHandler;
 import dev.Workers.domain.BranchRegistry;

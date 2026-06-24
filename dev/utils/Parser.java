@@ -1,4 +1,4 @@
-package dev.Workers.utils;
+package dev.utils;
 
 import dev.Workers.domain.Enums.LicenseType;
 

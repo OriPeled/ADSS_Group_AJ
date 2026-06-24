@@ -5,7 +5,7 @@ import dev.Workers.domain.Objects.*;
 import dev.Workers.domain.RequirementHandler;
 import dev.Workers.domain.RoleRegistry;
 import dev.Workers.setup.TransportService;
-import dev.Workers.utils.Parser;
+import dev.utils.Parser;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.utils.Parser;
+import dev.utils.Parser;
 import dev.Workers.service.PreferenceService;
 import dev.Workers.domain.Enums.UserResponse;
 import dev.Workers.domain.Enums.ShiftType;

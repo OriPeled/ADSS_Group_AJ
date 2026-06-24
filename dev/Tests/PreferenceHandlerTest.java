@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.domain.PreferenceHandler;
 import org.junit.jupiter.api.BeforeEach;

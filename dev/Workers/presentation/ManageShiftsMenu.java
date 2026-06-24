@@ -1,6 +1,6 @@
 package dev.Workers.presentation;
 
-import dev.Workers.utils.Parser;
+import dev.utils.Parser;
 import dev.Workers.service.PreferenceService;
 import dev.Workers.service.RequirementService;
 import dev.Workers.service.ShiftService;
@@ -20,7 +20,7 @@ import static dev.Workers.domain.Enums.ShiftType.MORNING;
 import static dev.Workers.domain.Enums.WeekStatus.PUBLISHED;
 import static dev.Workers.domain.Enums.WeekStatus.READY_TO_PUBLISH;
 import static dev.Main.scanner;
-import static dev.Workers.utils.Parser.*;
+import static dev.utils.Parser.*;
 
 /**
  * Handles the HR shift-management user interface.

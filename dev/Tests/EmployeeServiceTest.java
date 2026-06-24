@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.domain.BranchRegistry;
 import dev.Workers.domain.Enums.JobStatus;

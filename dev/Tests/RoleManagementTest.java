@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.database.DatabaseInitializer;
 import dev.Workers.database.DatabaseManager;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import static dev.Workers.Tests.ShiftHandlerTest.resetSingleton;
+import static dev.Tests.ShiftHandlerTest.resetSingleton;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

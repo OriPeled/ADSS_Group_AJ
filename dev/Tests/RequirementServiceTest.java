@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.database.DatabaseInitializer;
 import dev.Workers.database.DatabaseManager;
@@ -9,7 +9,6 @@ import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
 import dev.Workers.service.RequirementService;
 import dev.Workers.service.ShiftService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;

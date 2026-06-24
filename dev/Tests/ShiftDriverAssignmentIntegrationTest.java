@@ -1,4 +1,4 @@
-package dev.Workers.Tests;
+package dev.Tests;
 
 import dev.Workers.domain.*;
 import dev.Workers.domain.Enums.*;
