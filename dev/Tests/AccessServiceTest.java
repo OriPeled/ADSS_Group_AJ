@@ -152,7 +152,6 @@ public class AccessServiceTest {
                 IllegalArgumentException.class,
                 () -> accessService.updatePassword(id, "12"));
     }
-
     /**
      * Verifies that removing a user succeeds.
      */
