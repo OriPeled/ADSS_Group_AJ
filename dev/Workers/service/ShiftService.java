@@ -216,8 +216,8 @@ public class ShiftService {
         return assignmentService.displayNextPendingAssignment(employeeId);
     }
 
-    public void processRequest(int employeeId, boolean isApproved) {
-        shiftHandler.processRequest(employeeId, isApproved);
+    public String processRequest(int employeeId, boolean isApproved) {
+        return shiftHandler.processRequest(employeeId, isApproved);
     }
 
     public List<String> popRequestAnswers(Branch branch) {

@@ -97,7 +97,7 @@ public class ManageEmployeesMenu  {
                 case 4 -> updateTerms(empId);
                 case 5 -> updateBranch(empId);
                 case 0 -> {return;}
-                default -> System.out.println("Invalid choice. Please select a valid option (0-4).");
+                default -> System.out.println("Invalid choice. Please select a valid option (1-5).");
             }
         }
     }
@@ -176,7 +176,7 @@ public class ManageEmployeesMenu  {
                 case 3 -> changeRestDays(empId);
                 case 4 -> changeDayOff(empId);
                 case 0 -> {return;}
-                default -> System.out.println("Invalid choice. Please select 0-3.");
+                default -> System.out.println("Invalid choice. Please select 1-4.");
             }
 
             System.out.println();

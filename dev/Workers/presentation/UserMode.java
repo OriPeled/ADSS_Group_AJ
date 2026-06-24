@@ -108,11 +108,13 @@ public class UserMode {
         int choice = readIntSafe();
 
         if (choice == 1) {
-            shiftService.processRequest(employeeId, true);
-            System.out.println("Assignment request approved.");
+            String response = shiftService.processRequest(employeeId, true);
+            System.out.println(response);
         } else if (choice == 0) {
-            shiftService.processRequest(employeeId, false);
-            System.out.println("Assignment request rejected.");
+            String response = shiftService.processRequest(employeeId, false);
+            System.out.println(response);
+            //shiftService.processRequest(employeeId, false);
+            //System.out.println("Assignment request rejected.");
         } else {
             System.out.println("Invalid choice. Try again.");
         }

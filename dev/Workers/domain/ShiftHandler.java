@@ -183,6 +183,8 @@ public class ShiftHandler {
             throw new IllegalArgumentException("Employee doesn't belong to this branch.");
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
+        if (!isNeeded(shift, role))
+            throw new IllegalStateException("Role already assigned");
         if (assignmentHandler.isAssignedToShift(shift, employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getDate());
         if (assignmentHandler.isRequestedToShift(shift, employeeId))
@@ -212,8 +214,7 @@ public class ShiftHandler {
     }
 
     public boolean needToForceAssign(Shift shift, Role role, int employeeId) {
-        Employee emp = employeeHandler.getEmployee(employeeId);
-        return nobodyToAssign(shift, role)
+        return  nobodyToAssign(shift, role)
                 && role.isQualified(employeeId)
                 && !assignmentHandler.isRequestedToShift(shift, employeeId);
     }
@@ -226,6 +227,9 @@ public class ShiftHandler {
         if (!isQualified(employeeId, role)) {
         throw new RuntimeException("Employee " + employeeId + " not qualified for this role.");
         }*/
+
+        if (!isNeeded(shift, role))
+            throw new RuntimeException("Role already assigned.");
 
         if (employeeHandler.getEmployee(employeeId).isManager() && !hasManager(shift)) {
             assignmentHandler.add(shift, role, employeeId);
@@ -318,9 +322,11 @@ public class ShiftHandler {
     }
 
     public boolean needToForceReplace(Shift shift, int curId, int newId) {
+        if (curId == newId) return false;
+
         Role role = assignmentHandler.getEmployeeRole(shift, curId);
-        if (role == null)
-            return false;
+        if (role == null) return false;
+
         return countUnassignedValid(shift, role) == 0
                 && role.isQualified(newId);
     }
@@ -377,8 +383,13 @@ public class ShiftHandler {
                 RequestAction action = iterator.next();
                 if (action.shift().equals(shift)) {
                     // Execute the action (force-assign/replace)
-                    action.execute(this);
-                    // Remove it from their queue since it's now handled
+                    try {
+                        action.execute(this);
+                    } catch (RuntimeException e) {
+                        // Spot was taken by a previous pending request.
+                        // We catch it so the loop doesn't crash.
+                    }
+                    // remove the request from the queue whether it succeeded or failed
                     iterator.remove();
                 }
             }
@@ -544,7 +555,7 @@ public class ShiftHandler {
     }
 
     public boolean isShiftAssigned(Shift shift) {
-        return getShiftStatus(shift).startsWith("COMPLETE");
+        return getShiftStatus(shift).equals("COMPLETE");
     }
 
     public void initShiftsWeek(Branch branch) {
@@ -619,7 +630,21 @@ public class ShiftHandler {
             }
         }
 
-        // 3. Finalize Publication
+        // 3. POST-RESOLUTION CHECK: Verify no shifts broke during the force-assign race
+        List<String> failedShifts = weekShifts.stream()
+                .filter(s -> !getShiftStatus(s).equals("COMPLETE"))
+                .map(s -> s.toStringByWeekDay() + (!hasManager(s) ? " (Missing Manager)" : " (Missing Roles)"))
+                .collect(Collectors.toList());
+
+        if (!failedShifts.isEmpty()) {
+            throw new IllegalStateException(
+                    "Force-Publish aborted: The following shifts failed to finalize correctly (e.g., a manager's request was blocked by a standard employee taking the last role slot):\n" +
+                            String.join(", ", failedShifts) +
+                            "\n\nPlease access these shifts and assign a manager."
+            );
+        }
+
+        // 4. Finalize Publication
         WeekSchedule week = getOrCreateWeek(dateInWeek);
         week.setPublished(true);
         weekScheduleDao.save(week);
@@ -676,15 +701,44 @@ public class ShiftHandler {
         for (Role role : roleRegistry.getAllRoles()) {
             int req = requirementHandler.countRequired(shift, role);
             Set<Integer> approved = assignmentHandler.getEmployeesByRole(shift, role);
-            Set<Integer> pending = getPendingIds(shift, role); // Get the * people
 
-            if (req > 0 || !approved.isEmpty() || !pending.isEmpty()) {
-                // Build employee list: "101, 102*, 105"
+            // Separate normal pending assignments from replacements
+            List<String> purePending = new ArrayList<>();
+            Map<Integer, List<String>> replaceMap = new HashMap<>();
+
+            assignmentHandler.getAllPendingRequests().forEach((empId, queue) -> {
+                queue.forEach(action -> {
+                    if (action.shift().equals(shift)) {
+                        if (action instanceof RequestAction.AssignAction a && role.equals(a.role())) {
+                            purePending.add(a.empId() + "*");
+                        } else if (action instanceof RequestAction.ReplaceAction r) {
+                            Role currentRole = assignmentHandler.getEmployeeRole(shift, r.curId());
+                            if (role.equals(currentRole)) {
+                                replaceMap.computeIfAbsent(r.curId(), k -> new ArrayList<>()).add(r.newId() + "*");
+                            }
+                        }
+                    }
+                });
+            });
+
+            if (req > 0 || !approved.isEmpty() || !purePending.isEmpty() || !replaceMap.isEmpty()) {
                 StringJoiner sj = new StringJoiner(", ");
-                approved.forEach(id -> sj.add(String.valueOf(id)));
-                pending.forEach(id -> sj.add(id + "*"));
 
-                int totalAssigned = approved.size() + pending.size();
+                // 1. Add approved employees (with their pending replacements attached)
+                approved.forEach(id -> {
+                    if (replaceMap.containsKey(id)) {
+                        sj.add(id + " (" + String.join(", ", replaceMap.get(id)) + ")");
+                    } else {
+                        sj.add(String.valueOf(id));
+                    }
+                });
+
+                // 2. Add purely pending assignments
+                purePending.forEach(sj::add);
+
+                // Mathematically strict: Only count fully approved assignments
+                int totalAssigned = approved.size();
+
                 sb.append(String.format(" %-12s: %d/%d assigned | Employees: [%s]\n",
                         role, totalAssigned, req, sj));
             }
@@ -716,7 +770,7 @@ public class ShiftHandler {
     }
 
     private Set<Integer> getPendingIds(Shift shift, Role role) {
-        // Collect all employee IDs who have a pending "AssignAction" for this specific shift and role
+        // Collect ONLY AssignActions so the math in getShiftStatus isn't inflated by replacements
         return assignmentHandler.getAllPendingRequests().entrySet().stream()
                 .filter(entry -> entry.getValue().stream()
                         .anyMatch(action -> action instanceof RequestAction.AssignAction a
