@@ -197,8 +197,6 @@ public class ShiftHandler {
             throw new IllegalArgumentException("Employee doesn't belong to this branch.");
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
-        if (!isNeeded(shift, role))
-            throw new IllegalStateException("Role already assigned");
         if (assignmentHandler.isAssignedToShift(shift, employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getDate());
         if (assignmentHandler.isRequestedToShift(shift, employeeId))
@@ -503,7 +501,7 @@ public class ShiftHandler {
     }
 
     /**
-     * Returns all shifts for the next week (7 days from today).
+     * Returns all shifts for the upcoming week (starting from next Sunday).
      */
     private List<Shift> getNextWeekShifts(Branch branch) {
         /*if (!getNextWeek().isViewableByUser()) {
