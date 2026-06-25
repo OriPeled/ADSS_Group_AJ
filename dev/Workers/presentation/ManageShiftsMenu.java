@@ -345,12 +345,11 @@ public class ManageShiftsMenu {
             System.out.println("Employee assigned successfully.");
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
-
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
             if (empID != -1 && shiftService.needToForceAssign(shift, role, empID)) {
                 forceAssign(shift, role, empID);
             }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -408,21 +407,17 @@ public class ManageShiftsMenu {
                 return;
             }
 
-            if (curId == newId) {
-                System.out.println("Error: You entered the same ID twice. Please choose a different replacement.");
-                continue;
-            }
-
             try {
                 shiftService.replaceEmployee(shift, curId, newId);
                 System.out.println("Replacement successful.");
                 return;
-            } catch (RuntimeException e) {
+            } catch (IllegalStateException e) {
                 System.out.println(e.getMessage());
                 if (shiftService.needToForceReplace(shift, curId, newId)) {
                     forceReplace(shift, curId, newId);
-                    return;
                 }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Operation failed: " + e.getMessage());
             }
         }
     }

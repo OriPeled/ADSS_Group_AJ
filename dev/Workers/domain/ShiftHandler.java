@@ -197,16 +197,14 @@ public class ShiftHandler {
             throw new IllegalArgumentException("Employee doesn't belong to this branch.");
         if (!isNeeded(shift, role))
             throw new IllegalStateException("Role already assigned");
-        if (!isNeeded(shift, role))
-            throw new IllegalStateException("Role already assigned");
         if (assignmentHandler.isAssignedToShift(shift, employeeId))
-            throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift" + shift.getDate());
+            throw new IllegalArgumentException("Employee " + employeeId + " already assigned to this shift (" + shift.getDate() + ").");
         if (assignmentHandler.isRequestedToShift(shift, employeeId))
-            throw new IllegalArgumentException("Employee " + employeeId + " was already requested to assign to this shift" + shift.getDate());
+            throw new IllegalArgumentException("Employee " + employeeId + " was already requested to assign to this shift (" + shift.getDate() + ").");
         if (!role.isQualified(employeeId))
             throw new IllegalArgumentException("Employee " + employeeId + " not qualified for this role (" + role + ").");
         if (!isAvailable(employeeId, shift)) {
-            throw new IllegalArgumentException("Employee " + employeeId + " is not available for this shift.");
+            throw new IllegalStateException("Employee " + employeeId + " is not available for this shift.");
         }
 
         if (employeeHandler.getEmployee(employeeId).isManager() && !hasManager(shift)) {
@@ -299,7 +297,7 @@ public class ShiftHandler {
         if (!assignmentHandler.isAssignedToShift(shift, curId))
             throw new IllegalArgumentException("To be replaced employee not assigned to this shift.");
         if (assignmentHandler.isRequestedToShift(shift, newId))
-            throw new IllegalArgumentException("Employee " + newId + " was already requested to assign to this shift" + shift.getDate());
+            throw new IllegalArgumentException("Employee " + newId + " was already requested to assign to this shift (" + shift.getDate() +").");
 
         Role roleCur = assignmentHandler.getEmployeeRole(shift, curId);
         Role roleNew = assignmentHandler.getEmployeeRole(shift, newId);
@@ -329,7 +327,7 @@ public class ShiftHandler {
 
     private void handleSimpleReplacement(Shift shift, int currentEmployeeId, Role roleCur, int newEmployeeId) {
         if (!isAvailable(newEmployeeId, shift))
-            throw new IllegalArgumentException("Employee " + newEmployeeId + " not available for this shift.");
+            throw new IllegalStateException("Employee " + newEmployeeId + " not available for this shift.");
 
         removeEmployee(shift, currentEmployeeId);
         assignEmployee(shift, roleCur, newEmployeeId);
@@ -503,7 +501,7 @@ public class ShiftHandler {
     }
 
     /**
-     * Returns all shifts for the next week (7 days from today).
+     * Returns all shifts for the upcoming week (starting from next Sunday).
      */
     private List<Shift> getNextWeekShifts(Branch branch) {
         /*if (!getNextWeek().isViewableByUser()) {
@@ -767,8 +765,8 @@ public class ShiftHandler {
     // Helper 3: The UI for a Detailed Shift Block (Vertical view)
     private String formatShiftBlock(Shift s) {
         String footnote = "\n* needs to approve\n";
-        return String.format("\nShift: %s - %s\n%s%s%s",
-                s.getDate(), s.getType(), getRoleAssignmentsStr(s), getExtraHoursStr(s, null, false), footnote);
+        return String.format("\nShift: %s - %s (%s)\n%s%s%s",
+                s.getDate(), s.getDate().getDayOfWeek(), s.getType(), getRoleAssignmentsStr(s), getExtraHoursStr(s, null, false), footnote);
     }
 
     // Helper 4: The UI for the Week Schedule Dashboard Grid (3-column layout)
@@ -854,8 +852,8 @@ public class ShiftHandler {
 
         String content = getShiftsForWeek(empBranch, refDate).stream()
                 .filter(s -> assignmentHandler.isAssignedToShift(s, id))
-                .map(s -> String.format("- %s (%s) | Role: %s%s",
-                        s.getDate(), s.getType(), assignmentHandler.getEmployeeRole(s, id), getExtraHoursStr(s, id, true)))
+                .map(s -> String.format("- %s - %s (%s) | Role: %s%s",
+                        s.getDate(), s.getDate().getDayOfWeek(), s.getType(), assignmentHandler.getEmployeeRole(s, id), getExtraHoursStr(s, id, true)))
                 .collect(Collectors.joining("\n"));
 
         return content.isEmpty() ? "No shifts found for ID " + id : "Shifts for ID " + id + ":\n" + content;

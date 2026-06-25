@@ -98,11 +98,6 @@ public class UserMode {
     }
 
     private static void approveAssignment() {
-        //int num = shiftService.numOfApprovalsNeeded(employeeId);
-        //System.out.println("You have " + num + " pending replacements to approve");
-
-        //Assignments assignment = shiftService.getNextPendingReplacement(employeeId);
-        //System.out.println("You have pending replacement request for " + assignment.);
         System.out.println(shiftService.displayNextPendingAssignment(employeeId));
         int choice = readIntSafe();
 
