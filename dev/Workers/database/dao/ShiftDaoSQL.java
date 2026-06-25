@@ -30,9 +30,8 @@ import java.util.Set;
  * domain Handlers (ShiftHandler, RequirementHandler, AssignmentHandler), this
  * DAO writes to four tables on save and rebuilds the Handlers on load.
  * <p>
- * Transient process state in AssignmentHandler (pending requests / request
- * answers) is intentionally NOT persisted: it is reset on publication and is
- * not part of the durable state.
+ * Approval process state in AssignmentHandler (pending requests / request
+ * answers) is persisted separately by RequestDaoSQL, so it survives restarts.
  */
 public class ShiftDaoSQL {
     private static final ShiftDaoSQL instance = new ShiftDaoSQL();

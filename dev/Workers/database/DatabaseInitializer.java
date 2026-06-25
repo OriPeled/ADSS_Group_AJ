@@ -13,7 +13,8 @@ import dev.Workers.domain.Objects.Branch;
  * The schema is a Data-Mapper mapping of the domain objects:
  * Employee, EmployeeTerms (embedded value object), Role (polymorphic:
  * StandardRole / DriverRole), Preference, Access, Shift, Requirement,
- * assignments, extra hours, and WeekSchedule.
+ * assignments, extra hours, WeekSchedule, pending approval requests, and
+ * request answers.
  * <p>
  * The Transport module is a mock external interface (see TransportModule) and
  * holds no real state, therefore it is intentionally NOT persisted here.
