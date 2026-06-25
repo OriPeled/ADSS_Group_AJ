@@ -113,8 +113,6 @@ public class UserMode {
         } else if (choice == 0) {
             String response = shiftService.processRequest(employeeId, false);
             System.out.println(response);
-            //shiftService.processRequest(employeeId, false);
-            //System.out.println("Assignment request rejected.");
         } else {
             System.out.println("Invalid choice. Try again.");
         }

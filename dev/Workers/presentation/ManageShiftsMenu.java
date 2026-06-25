@@ -373,7 +373,6 @@ public class ManageShiftsMenu {
                     try {
                         shiftService.sendRequest(shift, role, empID);
                         System.out.println("Assignment request sent to employee.");
-                        //System.out.println("Employee assigned via special approval.");
                     } catch (RuntimeException e) {
                         System.out.println(e.getMessage());
                     }
@@ -420,13 +419,9 @@ public class ManageShiftsMenu {
                 return;
             } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
-                try {
-                    if (shiftService.needToForceReplace(shift, curId, newId)) {
-                        forceReplace(shift, curId, newId);
-                        return;
-                    }
-                } catch (Exception ex) {
-                   //System.out.println(ex.getMessage());
+                if (shiftService.needToForceReplace(shift, curId, newId)) {
+                    forceReplace(shift, curId, newId);
+                    return;
                 }
             }
         }
@@ -443,9 +438,7 @@ public class ManageShiftsMenu {
                 case 1 -> {
                     try {
                         shiftService.sendRequest(shift, curId, newId);
-                        //shiftService.forceReplace(shift, curId, newId);
                         System.out.println("Replacement request sent to employee.");
-                        //System.out.println("Employee replaced via special approval.");
                     } catch (RuntimeException e) {
                         System.out.println(e.getMessage());
                     }
