@@ -347,6 +347,7 @@ public class ManageShiftsMenu {
             System.out.println(e.getMessage());
             if (empID != -1 && shiftService.needToForceAssign(shift, role, empID)) {
                 forceAssign(shift, role, empID);
+                return;
             }
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -415,6 +416,7 @@ public class ManageShiftsMenu {
                 System.out.println(e.getMessage());
                 if (shiftService.needToForceReplace(shift, curId, newId)) {
                     forceReplace(shift, curId, newId);
+                    return;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("Operation failed: " + e.getMessage());

@@ -98,17 +98,21 @@ public class UserMode {
     }
 
     private static void approveAssignment() {
-        System.out.println(shiftService.displayNextPendingAssignment(employeeId));
-        int choice = readIntSafe();
+        while (true) {
+            System.out.println(shiftService.displayNextPendingAssignment(employeeId));
+            int choice = readIntSafe();
 
-        if (choice == 1) {
-            String response = shiftService.processRequest(employeeId, true);
-            System.out.println(response);
-        } else if (choice == 0) {
-            String response = shiftService.processRequest(employeeId, false);
-            System.out.println(response);
-        } else {
-            System.out.println("Invalid choice. Try again.");
+            if (choice == 1) {
+                String response = shiftService.processRequest(employeeId, true);
+                System.out.println(response);
+                return;
+            } else if (choice == 0) {
+                String response = shiftService.processRequest(employeeId, false);
+                System.out.println(response);
+                return;
+            } else {
+                System.out.println("Invalid choice. Try again.");
+            }
         }
     }
 
