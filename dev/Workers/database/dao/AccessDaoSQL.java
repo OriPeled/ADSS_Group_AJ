@@ -71,6 +71,10 @@ public class AccessDaoSQL {
         return result;
     }
 
+    /**
+     * Inserts login credentials for a new employee.
+     * Called by AccessHandler after registering an employee's password.
+     */
     public void save(int employeeId, Access access) {
         String sql = "INSERT INTO access_credentials (employee_id, password) VALUES (?, ?);";
 
@@ -86,6 +90,10 @@ public class AccessDaoSQL {
         }
     }
 
+    /**
+     * Updates the stored password for an existing employee.
+     * Called by AccessHandler when an employee changes their password.
+     */
     public void update(int employeeId, Access access) {
         String sql = "UPDATE access_credentials SET password = ? WHERE employee_id = ?;";
 
@@ -101,6 +109,10 @@ public class AccessDaoSQL {
         }
     }
 
+    /**
+     * Deletes the credential row for the given employee.
+     * Also removed automatically via ON DELETE CASCADE when the employee row is deleted.
+     */
     public void delete(int employeeId) {
         String sql = "DELETE FROM access_credentials WHERE employee_id = ?;";
 

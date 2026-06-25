@@ -102,6 +102,7 @@ public class WeekScheduleDaoSQL {
         save(weekSchedule);
     }
 
+    /** Deletes the week_schedules row for the given week. */
     public void delete(WeekSchedule weekSchedule) {
         String sql = "DELETE FROM week_schedules WHERE start_of_week = ?;";
 
@@ -117,6 +118,7 @@ public class WeekScheduleDaoSQL {
         }
     }
 
+    /** Converts one result-set row into a WeekSchedule, restoring the publication flag. */
     private WeekSchedule mapRow(ResultSet rs) throws SQLException {
         WeekSchedule weekSchedule = new WeekSchedule(LocalDate.parse(rs.getString("start_of_week")));
         weekSchedule.setPublished(rs.getInt("published") == 1);

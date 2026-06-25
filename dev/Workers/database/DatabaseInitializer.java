@@ -22,6 +22,11 @@ public class DatabaseInitializer {
     private DatabaseInitializer() {
     }
 
+    /**
+     * Creates all tables if they don't already exist, then loads persisted branches into
+     * the BranchRegistry. Must be called once on startup before any DAO is used.
+     * Branch rows must exist before employee or shift rows can be inserted (foreign key dependency).
+     */
     public static void initializeDatabase() {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
@@ -39,6 +44,10 @@ public class DatabaseInitializer {
         }
     }
 
+    /**
+     * Creates the branches table. branch_name is the primary key and is referenced as a
+     * foreign key by employees, shifts, and request_answers - so this table must be created first.
+     */
     private static void createBranchTable(Statement statement) throws SQLException {
         statement.execute("""
                 CREATE TABLE IF NOT EXISTS branches (
@@ -47,6 +56,11 @@ public class DatabaseInitializer {
                 """);
     }
 
+    /**
+     * Reads every persisted branch and registers it with the BranchRegistry singleton.
+     * Must run before any DAO that resolves branch names (e.g. EmployeeDaoSQL, ShiftDaoSQL),
+     * because those DAOs call getBranchByName and expect the branch to already be registered.
+     */
     private static void loadBranchesIntoRegistry(Connection connection) throws SQLException {
         BranchRegistry registry = BranchRegistry.getInstance();
         String sql = "SELECT branch_name FROM branches;";
@@ -61,6 +75,11 @@ public class DatabaseInitializer {
         }
     }
 
+    /**
+     * Creates the employees, employee_roles, employee_preferences, and access_credentials tables.
+     * All three dependent tables reference employees(id) and cascade on delete.
+     * Must be called after createBranchTable because employees references branches.
+     */
     private static void createEmployeeTables(Statement statement) throws SQLException {
 
         // Employee + embedded EmployeeTerms (value object, no own identity)
@@ -125,6 +144,11 @@ public class DatabaseInitializer {
                 """);
     }
 
+    /**
+     * Creates all shift-related tables: shifts, shift_requirements, shift_assignments,
+     * shift_extra_hours, week_schedules, pending_requests, and request_answers.
+     * All tables that reference a shift row cascade deletes from it.
+     */
     private static void createShiftTables(Statement statement) throws SQLException {
 
         // Shift natural key = (branch, date, type), matching domain equals/hashCode
@@ -202,6 +226,48 @@ public class DatabaseInitializer {
                     start_of_week TEXT    PRIMARY KEY,
                     published     INTEGER NOT NULL DEFAULT 0,
                     CHECK (published IN (0, 1))
+                );
+                """);
+
+        // ------------------------------------------------------------------
+        // Pending approval requests (AssignmentHandler.pendingRequests).
+        // A request is a polymorphic RequestAction (ASSIGN / REPLACE) that an
+        // employee must approve. Keyed by the employee whose queue it sits in
+        // (employee_id), ordered within that queue by seq (FIFO preserved).
+        //   action_kind='ASSIGN'  -> role columns set, current_id/new_id null
+        //   action_kind='REPLACE' -> current_id/new_id set, role columns null
+        // ------------------------------------------------------------------
+        statement.execute("""
+                CREATE TABLE IF NOT EXISTS pending_requests (
+                    employee_id INTEGER NOT NULL,
+                    seq         INTEGER NOT NULL,
+                    branch_name TEXT    NOT NULL,
+                    shift_date  TEXT    NOT NULL,
+                    shift_type  TEXT    NOT NULL,
+                    action_kind TEXT    NOT NULL,
+                    role_kind   TEXT,
+                    role_name   TEXT,
+                    license     TEXT,
+                    current_id  INTEGER,
+                    new_id      INTEGER,
+                    PRIMARY KEY (employee_id, seq),
+                    FOREIGN KEY (branch_name, shift_date, shift_type)
+                        REFERENCES shifts(branch_name, shift_date, shift_type) ON DELETE CASCADE,
+                    CHECK (action_kind IN ('ASSIGN', 'REPLACE'))
+                );
+                """);
+
+        // ------------------------------------------------------------------
+        // Request answers broadcast to HR (AssignmentHandler.requestAnswers).
+        // A queue of pre-formatted message strings per branch, ordered by seq.
+        // ------------------------------------------------------------------
+        statement.execute("""
+                CREATE TABLE IF NOT EXISTS request_answers (
+                    branch_name TEXT    NOT NULL,
+                    seq         INTEGER NOT NULL,
+                    message     TEXT    NOT NULL,
+                    PRIMARY KEY (branch_name, seq),
+                    FOREIGN KEY (branch_name) REFERENCES branches(branch_name)
                 );
                 """);
     }

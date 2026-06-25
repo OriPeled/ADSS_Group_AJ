@@ -48,15 +48,20 @@ class AssignmentServiceTest {
         cashierRole = RoleRegistry.getInstance().getRoleByName("Cashier");
     }
 
-    /**
-     * Creates a shift and initializes assignment structures.
-     */
     private Shift createShift() {
         Shift shift = new Shift(
                 branch,
                 LocalDate.now().plusDays(100),
                 ShiftType.MORNING);
         assignmentHandler.init(shift);
+
+        // persist the shift row so the FK from pending_requests -> shifts holds
+        dev.Workers.database.dao.ShiftDaoSQL.getInstance().save(
+                shift,
+                java.util.List.of(),                 // no requirements
+                new java.util.HashMap<>(),           // no assignments
+                new java.util.HashMap<>());          // no extra hours
+
         return shift;
     }
 

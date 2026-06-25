@@ -21,6 +21,12 @@ public class Main {
         displayMenu();
     }
 
+    /**
+     * Restores the entire in-memory state from the database on startup.
+     * Load order matters: employees must come before preferences, access credentials, and shifts,
+     * all of which reference employees. Branches are already registered by DatabaseInitializer
+     * before this method runs.
+     */
     private static void loadAllFromDatabase() {
         EmployeeHandler employeeHandler = EmployeeHandler.getInstance();
         PreferenceHandler preferenceHandler = PreferenceHandler.getInstance();
@@ -32,7 +38,7 @@ public class Main {
         AccessDaoSQL accessDao = AccessDaoSQL.getInstance();
         WeekScheduleDaoSQL weekScheduleDao = WeekScheduleDaoSQL.getInstance();
 
-        // 1. Employees (must come first — everything references them)
+        // 1. Employees (must come first because everything references them)
         for (Employee e : employeeDao.getAll()) {
             employeeHandler.getEmployees().put(e.getId(), e);
         }

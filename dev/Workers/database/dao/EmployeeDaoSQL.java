@@ -40,6 +40,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         return instance;
     }
 
+    /** Returns the employee with the given id, with roles loaded. Empty if not found. */
     @Override
     public Optional<Employee> get(long id) {
         String sql = "SELECT * FROM employees WHERE id = ?;";
@@ -63,6 +64,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         }
     }
 
+    /** Returns all employees ordered by id, each with their roles loaded. Used on startup to populate EmployeeHandler. */
     @Override
     public List<Employee> getAll() {
         String sql = "SELECT * FROM employees ORDER BY id;";
@@ -85,6 +87,10 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         return employees;
     }
 
+    /**
+     * Inserts a new employee row and all of their roles.
+     * EmployeeHandler is the in-memory source of truth; this call mirrors it to the DB.
+     */
     @Override
     public void save(Employee employee) {
         String sql = """
@@ -108,6 +114,10 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         }
     }
 
+    /**
+     * Overwrites all mutable fields on the employee row and replaces their role set.
+     * Called by EmployeeHandler after any employee data or role change.
+     */
     @Override
     public void update(Employee employee) {
         String sql = """
@@ -167,6 +177,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
     // mapping helpers
     // ------------------------------------------------------------------
 
+    /** Sets all 12 positional parameters for an INSERT into the employees table. */
     private void bindEmployee(PreparedStatement ps, Employee employee) throws SQLException {
         ps.setInt(1, employee.getId());
         ps.setString(2, employee.getName());
@@ -185,6 +196,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         ps.setString(12, terms.getDayOff().name());
     }
 
+    /** Converts one result-set row into an Employee, resolving the branch from BranchRegistry. */
     private Employee mapRow(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String name = rs.getString("name");
@@ -216,6 +228,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
     // role mapping (polymorphic StandardRole / DriverRole)
     // ------------------------------------------------------------------
 
+    /** Queries employee_roles for the given employee and attaches each role to the Employee object. */
     private void loadRoles(Connection connection, Employee employee) throws SQLException {
         String sql = "SELECT role_kind, role_name, license FROM employee_roles WHERE employee_id = ?;";
 
@@ -235,6 +248,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         }
     }
 
+    /** Batch-inserts all of an employee's roles into employee_roles. */
     private void saveRoles(Connection connection, Employee employee) throws SQLException {
         String sql = """
                 INSERT INTO employee_roles (employee_id, role_kind, role_name, license)
@@ -253,6 +267,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         }
     }
 
+    /** Sets a VARCHAR parameter to SQL NULL when value is null, or to the string value otherwise. */
     private static void setNullableString(PreparedStatement ps, int index, String value) throws SQLException {
         if (value == null) {
             ps.setNull(index, java.sql.Types.VARCHAR);
@@ -261,6 +276,7 @@ public class EmployeeDaoSQL implements Dao<Employee> {
         }
     }
 
+    /** Deletes all existing role rows for this employee, then inserts the current role set. */
     private void replaceRoles(Connection connection, Employee employee) throws SQLException {
         try (PreparedStatement del = connection.prepareStatement(
                 "DELETE FROM employee_roles WHERE employee_id = ?;")) {

@@ -87,6 +87,10 @@ public class ShiftDaoSQL {
         save(shift, requirements, assignmentsByRole, extraHours);
     }
 
+    /**
+     * Deletes the shift row. All dependent rows (requirements, assignments, extra hours)
+     * are removed automatically via ON DELETE CASCADE.
+     */
     public void delete(Shift shift) {
         // dependent rows are removed via ON DELETE CASCADE
         String sql = "DELETE FROM shifts WHERE branch_name = ? AND shift_date = ? AND shift_type = ?;";
@@ -148,6 +152,10 @@ public class ShiftDaoSQL {
     // shift row
     // ------------------------------------------------------------------
 
+    /**
+     * Inserts the shift row or updates has_manager in place if the row already exists.
+     * has_manager is the only mutable column on the shift row itself.
+     */
     private void upsertShift(Connection connection, Shift shift) throws SQLException {
         String sql = """
                 INSERT INTO shifts (branch_name, shift_date, shift_type, has_manager)
@@ -165,6 +173,7 @@ public class ShiftDaoSQL {
         }
     }
 
+    /** Reads all shift rows and constructs Shift objects, resolving each branch via BranchRegistry. */
     private List<Shift> loadShifts(Connection connection) throws SQLException {
         String sql = "SELECT branch_name, shift_date, shift_type, has_manager FROM shifts;";
         List<Shift> shifts = new ArrayList<>();
@@ -190,6 +199,10 @@ public class ShiftDaoSQL {
     // requirements
     // ------------------------------------------------------------------
 
+    /**
+     * Deletes all requirement rows for this shift, then inserts the current list.
+     * This delete-and-reinsert keeps the DB in sync with the in-memory state.
+     */
     private void replaceRequirements(Connection connection, Shift shift,
                                      List<Requirement> requirements) throws SQLException {
         deleteByShift(connection, "shift_requirements", shift);
@@ -215,6 +228,7 @@ public class ShiftDaoSQL {
         }
     }
 
+    /** Reads shift_requirements for the given shift and calls requirementHandler.manualSet for each row. */
     private void loadRequirements(Connection connection, Shift shift,
                                   RequirementHandler requirementHandler) throws SQLException {
         String sql = """
@@ -242,6 +256,10 @@ public class ShiftDaoSQL {
     // assignments
     // ------------------------------------------------------------------
 
+    /**
+     * Deletes all assignment rows for this shift, then inserts the current role-to-employees map.
+     * One row is written per (role, employee) pair.
+     */
     private void replaceAssignments(Connection connection, Shift shift,
                                     Map<Role, Set<Integer>> assignmentsByRole) throws SQLException {
         deleteByShift(connection, "shift_assignments", shift);
@@ -269,6 +287,7 @@ public class ShiftDaoSQL {
         }
     }
 
+    /** Reads shift_assignments for the given shift and calls assignmentHandler.add for each row. */
     private void loadAssignments(Connection connection, Shift shift,
                                  AssignmentHandler assignmentHandler) throws SQLException {
         String sql = """
@@ -296,6 +315,7 @@ public class ShiftDaoSQL {
     // extra hours
     // ------------------------------------------------------------------
 
+    /** Deletes all extra-hour rows for this shift, then inserts the current employee-to-hours map. */
     private void replaceExtraHours(Connection connection, Shift shift,
                                    Map<Integer, Integer> extraHours) throws SQLException {
         deleteByShift(connection, "shift_extra_hours", shift);
@@ -318,6 +338,10 @@ public class ShiftDaoSQL {
         }
     }
 
+    /**
+     * Reads extra-hour rows and calls assignmentHandler.updateExtraHours for each.
+     * Skipped for evening shifts - extra hours only apply to morning shifts.
+     */
     private void loadExtraHours(Connection connection, Shift shift,
                                 AssignmentHandler assignmentHandler) throws SQLException {
         if (shift.getType() != ShiftType.MORNING) {
@@ -346,6 +370,7 @@ public class ShiftDaoSQL {
     // helpers
     // ------------------------------------------------------------------
 
+    /** Deletes all rows from the given table that match the shift's natural key (branch, date, type). */
     private void deleteByShift(Connection connection, String table, Shift shift) throws SQLException {
         String sql = "DELETE FROM " + table
                 + " WHERE branch_name = ? AND shift_date = ? AND shift_type = ?;";
@@ -362,6 +387,7 @@ public class ShiftDaoSQL {
         ps.setString(startIndex + 2, shift.getType().name());
     }
 
+    /** Sets a VARCHAR parameter to SQL NULL when value is null, or to the string value otherwise. */
     private static void setNullableString(PreparedStatement ps, int index, String value) throws SQLException {
         if (value == null) {
             ps.setNull(index, java.sql.Types.VARCHAR);
@@ -370,6 +396,7 @@ public class ShiftDaoSQL {
         }
     }
 
+    /** Returns a short readable description of the shift, used in error messages. */
     private String describe(Shift shift) {
         return shift.getBranch().getName() + " " + shift.getDate() + " " + shift.getType();
     }

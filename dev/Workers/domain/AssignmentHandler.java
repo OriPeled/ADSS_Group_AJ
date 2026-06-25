@@ -6,6 +6,7 @@ import dev.Workers.domain.Objects.Branch;
 import dev.Workers.domain.Objects.DriverRole;
 import dev.Workers.domain.Objects.Role;
 import dev.Workers.domain.Objects.Shift;
+import dev.Workers.database.dao.RequestDaoSQL;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +30,8 @@ public class AssignmentHandler {
     private final Map<Branch, Queue<String>> requestAnswers;
 
     private final RoleRegistry roleRegistry;
+
+    private final RequestDaoSQL requestDao = RequestDaoSQL.getInstance();
 
     private static AssignmentHandler instance;
 
@@ -175,14 +178,40 @@ public class AssignmentHandler {
         return !pendingRequests.isEmpty();
     }
 
+    public void flushPendingRequests() {
+        persistPendingRequests();
+    }
+
+    // Repopulates pending requests from the DB on startup.
+    public void restorePendingRequests(RequestDaoSQL.ShiftResolver resolver) {
+        pendingRequests.clear();
+        pendingRequests.putAll(requestDao.loadAllPendingRequests(resolver));
+    }
+
+    // Repopulates request answers from the DB on startup.
+    public void restoreRequestAnswers() {
+        requestAnswers.clear();
+        requestAnswers.putAll(requestDao.loadAllRequestAnswers());
+    }
+
+    private void persistPendingRequests() {
+        requestDao.saveAllPendingRequests(pendingRequests);
+    }
+
+    private void persistRequestAnswers() {
+        requestDao.saveAllRequestAnswers(requestAnswers);
+    }
+
     public void addRequest(Shift shift, Role role, int empId) {
         pendingRequests.computeIfAbsent(empId, k -> new LinkedList<>())
                 .add(new RequestAction.AssignAction(shift, role, empId));
+        persistPendingRequests();
     }
 
     public void addRequest(Shift shift, int curId, int newId) {
         pendingRequests.computeIfAbsent(newId, k -> new LinkedList<>())
                 .add(new RequestAction.ReplaceAction(shift, curId, newId));
+        persistPendingRequests();
     }
 
     public Queue<RequestAction> getRequests(int empID) {
@@ -191,6 +220,7 @@ public class AssignmentHandler {
 
     public void resetRequests() {
         pendingRequests.clear();
+        persistPendingRequests();
     }
 
     public boolean hasRequests(int empID) {
@@ -215,6 +245,7 @@ public class AssignmentHandler {
     public void addRequestAnswer(Branch branch, String message) {
         requestAnswers.computeIfAbsent(branch, k -> new LinkedList<>())
                 .add("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] " + message);
+        persistRequestAnswers();
     }
 
     public List<String> popRequestAnswers(Branch branch) {
@@ -227,6 +258,7 @@ public class AssignmentHandler {
             current.add(branchQueue.poll());
         }
 
+        persistRequestAnswers();
         return current;
     }
 
@@ -260,7 +292,7 @@ public class AssignmentHandler {
         sb.append("Employee ID: ").append(employeeId).append("\n");
         sb.append("Details    : ").append(nextAction.getDescription()).append("\n");
         sb.append("----------------------------\n");
-        sb.append("Enter 1 to Approve, 0 to Skip/Stay in queue.");
+        sb.append("Enter 1 to Approve, 0 to Reject.");
 
         return sb.toString();
     }

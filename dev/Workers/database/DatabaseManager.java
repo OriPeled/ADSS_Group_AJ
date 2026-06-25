@@ -4,12 +4,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Factory for SQLite database connections.
+ * Every caller gets a fresh connection and is responsible for closing it.
+ * Foreign-key enforcement is turned on for every connection because SQLite disables it by default.
+ */
 public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:superli.db";
 
     private DatabaseManager() {
     }
 
+    /** Opens a new JDBC connection to the SQLite file and enables foreign-key enforcement. */
     public static Connection getConnection() throws SQLException {
         loadSqliteDriver();
 
@@ -19,6 +25,7 @@ public class DatabaseManager {
         return connection;
     }
 
+    /** Loads the SQLite JDBC driver class. Must run before DriverManager.getConnection. */
     private static void loadSqliteDriver() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -30,6 +37,7 @@ public class DatabaseManager {
         }
     }
 
+    /** SQLite disables foreign keys by default. This PRAGMA turns them on for the given connection. */
     private static void enableForeignKeys(Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.execute("PRAGMA foreign_keys = ON");

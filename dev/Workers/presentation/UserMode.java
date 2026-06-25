@@ -104,7 +104,6 @@ public class UserMode {
         //Assignments assignment = shiftService.getNextPendingReplacement(employeeId);
         //System.out.println("You have pending replacement request for " + assignment.);
         System.out.println(shiftService.displayNextPendingAssignment(employeeId));
-        System.out.println("Please enter 1 to approve or 0 to reject.");
         int choice = readIntSafe();
 
         if (choice == 1) {

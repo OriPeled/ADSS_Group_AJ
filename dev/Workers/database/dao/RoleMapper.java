@@ -19,6 +19,7 @@ final class RoleMapper {
     private RoleMapper() {
     }
 
+    /** Returns "DRIVER" for DriverRole instances and "STANDARD" for everything else. */
     static String kindOf(Role role) {
         return (role instanceof DriverRole) ? "DRIVER" : "STANDARD";
     }

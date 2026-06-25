@@ -323,7 +323,7 @@ public class ManageShiftsMenu {
      */
     private static void addAssignment(Shift shift) {
         if (shiftService.isShiftAssigned(shift)) {
-            System.out.println("Shift is fully assigned and managed — no additional assignments needed.");
+            System.out.println("Shift is fully assigned and managed - no additional assignments needed.");
             return;
         }
 

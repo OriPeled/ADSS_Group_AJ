@@ -19,13 +19,17 @@ import static dev.Workers.domain.Enums.ShiftType.EVENING;
 import static dev.Workers.domain.Enums.ShiftType.MORNING;
 
 /**
- * ShiftService is the core business logic of the system.
+ * Core business logic for shift management.
  *
  * It manages:
  * - Shift creation and removal
  * - Employee assignment to shifts
  * - Validation of preferences, roles, and requirements
  * - Reporting shift history and status
+ *
+ * ShiftHandler is the in-memory source of truth for shifts. Every mutation goes through
+ * this class and is written through to the database via persistShift. The ShiftDaoSQL,
+ * RequirementHandler, and AssignmentHandler act as the persistence layer beneath it.
  */
 public class ShiftHandler {
     private static final Map<LocalDate, WeekSchedule> weekSchedules = new HashMap<>();
@@ -134,6 +138,10 @@ public class ShiftHandler {
         return assignmentHandler;
     }
 
+    /**
+     * Writes the current in-memory state of a shift - its requirements, assignments, and
+     * extra hours - to the database. Called after every mutation so the DB mirrors the Handler.
+     */
     public void persistShift(Shift shift) {
         List<Requirement> requirements = requirementHandler.getAll().get(shift);
         Map<Role, Set<Integer>> assignmentsByRole = assignmentHandler.getAssignments().get(shift);
@@ -148,6 +156,12 @@ public class ShiftHandler {
     public void loadAll() {
         List<Shift> loaded = shiftDao.loadAll(requirementHandler, assignmentHandler);
         shifts.addAll(loaded);
+
+        // Restore the (now persisted) approval state. Shifts must already be in
+        // the in-memory set above, so pending requests can resolve back to the
+        // canonical Shift instances via getExistingShift.
+        assignmentHandler.restorePendingRequests(this::getExistingShift);
+        assignmentHandler.restoreRequestAnswers();
     }
 
     // for rare cases
@@ -345,6 +359,8 @@ public class ShiftHandler {
         if (queue == null || queue.isEmpty()) return "No requests.";
 
         RequestAction action = queue.poll();
+        assignmentHandler.flushPendingRequests();
+
         String employeeName = employeeHandler.getEmployee(employeeId).getName();
         String status = isApproved ? "APPROVED" : "REJECTED";
 
@@ -370,6 +386,7 @@ public class ShiftHandler {
     public void approveNextAssignment(int empID) {
         Queue<RequestAction> queue = assignmentHandler.getRequests(empID);
         RequestAction action = queue.poll();
+        assignmentHandler.flushPendingRequests();
         action.execute(this);
     }
 
@@ -394,6 +411,7 @@ public class ShiftHandler {
                 }
             }
         });
+        assignmentHandler.flushPendingRequests();
     }
 
     /**

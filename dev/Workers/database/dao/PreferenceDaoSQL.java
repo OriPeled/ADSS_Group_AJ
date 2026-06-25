@@ -104,6 +104,10 @@ public class PreferenceDaoSQL {
         save(employeeId, preference);
     }
 
+    /**
+     * Removes all preference rows for the given employee.
+     * Also removed automatically via ON DELETE CASCADE when the employee row is deleted.
+     */
     public void delete(int employeeId) {
         try (Connection connection = DatabaseManager.getConnection()) {
             deleteRows(connection, employeeId);
@@ -112,6 +116,7 @@ public class PreferenceDaoSQL {
         }
     }
 
+    /** Deletes all preference rows for this employee. Called as the first step of a save/update. */
     private void deleteRows(Connection connection, int employeeId) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(
                 "DELETE FROM employee_preferences WHERE employee_id = ?;")) {
@@ -120,6 +125,7 @@ public class PreferenceDaoSQL {
         }
     }
 
+    /** Batch-inserts one row per day-of-week entry from the preference map. */
     private void insertRows(Connection connection, int employeeId, Preference preference) throws SQLException {
         String sql = """
                 INSERT INTO employee_preferences (employee_id, day_of_week, shift_type)
